@@ -16,13 +16,13 @@ jobs:
         uses: actions/checkout@v2.4.2
       - name: Build with Maven
         run: mvn package -Dmaven.test.skip=true --batch-mode
-      - name: Stop All Docker
-        run: docker stop $(docker ps -a | awk '{ print $1}' | tail -n +2)
-      - name: Remove All Docker
-        run: docker rm $(docker ps -a | awk '{ print $1}' | tail -n +2)
+      - name: Stop Old Docker
+        run: docker stop StrixApi
+      - name: Remove Old Docker
+        run: docker rm StrixApi
       - name: Docker Build
-        run: docker build -f ./Dockerfile -t app .
+        run: docker build -f ./Dockerfile -t StrixApi .
       - name: Docker Run
-        run: docker run -d --name app -p 9889:9889 app
+        run: docker run -d --name StrixApi -p 9889:9889 StrixApi
       - name: Clean Old Docker Build
         run: docker image prune -a -f
