@@ -1,0 +1,39 @@
+name: Deploy with docker
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+    
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macbook
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2.4.2
+      - name: Setup Java JDH
+        uses: actions/setup-java@v3.4.1
+        with: 
+          java-version: '8'
+          distribution: 'adopt'
+      - name: Maven Dependies Cache
+        uses: actions/cache@v3.0.8
+        with: 
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - name: Build with Maven
+        run: mvn package -Dmaven.test.skip=true
+      - name: Stop All Docker
+        run: docker stop $(docker ps -a | awk '{ print $1}' | tail -n +2)
+      - name: Docker Build
+        run: docker build -f ./Dockerfile -t app .
+      - name: Docker Run
+        run: docker run -d --name app -p 9889:9889 app
+      - name: Clean Old Docker Build
+        run: docker image prune -a -f
+      
