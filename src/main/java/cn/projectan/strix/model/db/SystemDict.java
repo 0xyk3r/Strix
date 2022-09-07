@@ -1,0 +1,34 @@
+package cn.projectan.strix.model.db;
+
+import com.baomidou.mybatisplus.annotation.TableName;
+import cn.projectan.strix.model.db.base.BaseModel;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
+/**
+ * <p>
+ * 
+ * </p>
+ *
+ * @author 安炯奕
+ * @since 2021-08-31
+ */
+@Data
+@EqualsAndHashCode(callSuper = true)
+@TableName("tab_system_dict")
+public class SystemDict extends BaseModel {
+
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * 字典key
+     */
+    private String dictKey;
+
+    /**
+     * 字典值
+     */
+    private String dictValue;
+
+
+}

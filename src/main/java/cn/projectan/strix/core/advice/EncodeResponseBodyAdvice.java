@@ -1,0 +1,66 @@
+package cn.projectan.strix.core.advice;
+
+import cn.projectan.strix.core.ret.RetCode;
+import cn.projectan.strix.core.ret.RetMarker;
+import cn.projectan.strix.core.ret.RetResult;
+import cn.projectan.strix.core.security.ApiSecurity;
+import cn.projectan.strix.model.annotation.IgnoreDataEncryption;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.MethodParameter;
+import org.springframework.http.MediaType;
+import org.springframework.http.server.ServerHttpRequest;
+import org.springframework.http.server.ServerHttpResponse;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
+
+/**
+ * 响应统一处理 用于响应加密
+ *
+ * @author 安炯奕
+ * @date 2021/5/2 19:06
+ */
+@Slf4j
+@RestControllerAdvice
+public class EncodeResponseBodyAdvice implements ResponseBodyAdvice {
+
+    @Autowired
+    private ApiSecurity apiSecurity;
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @Value("${spring.profiles.active}")
+    private String profiles;
+
+    @SneakyThrows
+    @Override
+    public boolean supports(MethodParameter methodParameter, Class aClass) {
+        boolean ignoreDataEncryptionByException = methodParameter.getContainingClass().getName().equals("cn.projectan.strix.core.advice.GlobalExceptionHandler");
+        boolean ignoreDataEncryptionByClass = methodParameter.getContainingClass().isAnnotationPresent(IgnoreDataEncryption.class);
+        IgnoreDataEncryption methodAnnotation = methodParameter.getMethodAnnotation(IgnoreDataEncryption.class);
+        return !ignoreDataEncryptionByException && !ignoreDataEncryptionByClass && methodAnnotation == null;
+    }
+
+    @Override
+    public Object beforeBodyWrite(Object body, MethodParameter methodParameter, MediaType mediaType, Class aClass, ServerHttpRequest serverHttpRequest, ServerHttpResponse serverHttpResponse) {
+        try {
+            if ("dev".equals(profiles)) {
+                log.info("返回数据原内容:\n===============================================================\n" +
+                        objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(body) +
+                        "\n===============================================================");
+            }
+            return apiSecurity.encryptByPrivateKey(body);
+        } catch (Exception e) {
+            try {
+                RetResult<Object> errorResponse = RetMarker.makeErrRsp(RetCode.BAT_REQUEST, "响应封装时发生异常");
+                return apiSecurity.encryptByPrivateKey(errorResponse);
+            } catch (Exception exception) {
+                return "An exception occurred in the API server !";
+            }
+        }
+    }
+
+}

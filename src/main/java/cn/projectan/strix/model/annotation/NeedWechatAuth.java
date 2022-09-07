@@ -1,0 +1,15 @@
+package cn.projectan.strix.model.annotation;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+/**
+ * @author 安炯奕
+ * @date 2021/8/26 11:31
+ */
+@Target({ElementType.METHOD, ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+public @interface NeedWechatAuth {
+}

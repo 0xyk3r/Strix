@@ -1,0 +1,61 @@
+package cn.projectan.strix.model.db;
+
+import cn.projectan.strix.model.annotation.UniqueDetection;
+import cn.projectan.strix.model.db.base.BaseModel;
+import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+
+/**
+ * <p>
+ *
+ * </p>
+ *
+ * @author 安炯奕
+ * @since 2021-05-12
+ */
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
+@TableName("tab_system_manager")
+public class SystemManager extends BaseModel {
+
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * 显示昵称
+     */
+    @UniqueDetection("昵称")
+    private String nickname;
+
+    /**
+     * 登录账号
+     */
+    @UniqueDetection("登录账号")
+    private String loginName;
+
+    /**
+     * 登录密码
+     */
+    private String loginPassword;
+
+    /**
+     * 管理人员状态 0禁止登录 1正常
+     */
+    private Integer managerStatus;
+
+    /**
+     * 管理人员类型 1超级账户 2平台账户
+     */
+    private Integer managerType;
+
+    /**
+     * 平台账户拥有的地区权限
+     */
+    private String regionId;
+
+
+}
