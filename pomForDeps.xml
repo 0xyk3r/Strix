@@ -148,23 +148,23 @@
     <build>
         <plugins>
             <!--  供其他依赖于Strix框架的子系统使用的Jar包文件  -->
-            <!--            <plugin>-->
-            <!--                <groupId>org.apache.maven.plugins</groupId>-->
-            <!--                <artifactId>maven-jar-plugin</artifactId>-->
-            <!--                <version>3.2.0</version>-->
-            <!--                <configuration>-->
-            <!--                    &lt;!&ndash;  屏蔽SpringBoot配置文件 子项目须自行创建  &ndash;&gt;-->
-            <!--                    <excludes>-->
-            <!--                        <exclude>application.yml</exclude>-->
-            <!--                        <exclude>application-*.yml</exclude>-->
-            <!--                    </excludes>-->
-            <!--                </configuration>-->
-            <!--            </plugin>-->
-            <!--  可直接运行的SpringBoot Jar包文件  -->
             <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.2.0</version>
+                <configuration>
+                    <!--  屏蔽SpringBoot配置文件 子项目须自行创建  -->
+                    <excludes>
+                        <exclude>application.yml</exclude>
+                        <exclude>application-*.yml</exclude>
+                    </excludes>
+                </configuration>
             </plugin>
+            <!--  可直接运行的SpringBoot Jar包文件  -->
+            <!--            <plugin>-->
+            <!--                <groupId>org.springframework.boot</groupId>-->
+            <!--                <artifactId>spring-boot-maven-plugin</artifactId>-->
+            <!--            </plugin>-->
         </plugins>
     </build>
 
