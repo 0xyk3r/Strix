@@ -29,10 +29,10 @@ jobs:
       - name: Build with Maven
         run: mvn package -Dmaven.test.skip=true --batch-mode
       - name: Stop All Docker
-        run: docker stop $(docker ps -a | awk '{ print $1}' | tail -n +2)
+        run: /Applications/Docker.app/Contents/Resources/bin/docker stop $(docker ps -a | awk '{ print $1}' | tail -n +2)
       - name: Docker Build
-        run: docker build -f ./Dockerfile -t app .
+        run: /Applications/Docker.app/Contents/Resources/bin/docker build -f ./Dockerfile -t app .
       - name: Docker Run
-        run: docker run -d --name app -p 9889:9889 app
+        run: /Applications/Docker.app/Contents/Resources/bin/docker run -d --name app -p 9889:9889 app
       - name: Clean Old Docker Build
-        run: docker image prune -a -f
+        run: /Applications/Docker.app/Contents/Resources/bin/docker image prune -a -f
