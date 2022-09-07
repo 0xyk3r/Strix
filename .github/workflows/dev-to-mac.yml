@@ -28,4 +28,4 @@ jobs:
       - name: Build with Maven
         run: mvn package -Dmaven.test.skip=true --batch-mode
       - name: Run Java Jar
-        run: nohup java -jar -server -Xms1024m -Xmx1024m target/Strix-1.0.0.jar --spring.profiles.active=dev >> Strix.log 2>&1 &
+        run: java -jar -server -Xms1024m -Xmx1024m target/Strix-1.0.0.jar --spring.profiles.active=dev
