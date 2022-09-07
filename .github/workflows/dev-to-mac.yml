@@ -17,9 +17,9 @@ jobs:
       - name: Build with Maven
         run: mvn package -Dmaven.test.skip=true --batch-mode
       - name: Stop Old Docker
-        run: docker stop $(docker images  |  grep "StrixApi*"  | awk '{print $3}')
+        run: docker stop $(docker images  |  grep "StrixApi*"  | awk '{print $3}') 2> /dev/null || true
       - name: Remove Old Docker
-        run: docker rm $(docker images  |  grep "StrixApi*"  | awk '{print $3}')
+        run: docker rm $(docker images  |  grep "StrixApi*"  | awk '{print $3}') 2> /dev/null || true
       - name: Docker Build
         run: docker build -f ./Dockerfile -t StrixApi .
       - name: Docker Run
