@@ -18,6 +18,8 @@ jobs:
         run: mvn package -Dmaven.test.skip=true --batch-mode
       - name: Stop All Docker
         run: docker stop $(docker ps -a | awk '{ print $1}' | tail -n +2)
+      - name: Remove All Docker
+        run: docker rm $(docker ps -a | awk '{ print $1}' | tail -n +2)
       - name: Docker Build
         run: docker build -f ./Dockerfile -t app .
       - name: Docker Run
