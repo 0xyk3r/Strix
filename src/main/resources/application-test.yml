@@ -27,8 +27,8 @@ spring:
     password: str1Xredis
     lettuce:
       pool:
-        max-active: 8
-        max-idle: 8
+        max-active: 1
+        max-idle: 1
         min-idle: 1
 #mybatis
 mybatis-plus:
