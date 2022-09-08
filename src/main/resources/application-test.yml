@@ -8,8 +8,8 @@ spring:
       max-file-size: 5MB
       max-request-size: 20MB
   datasource:
-    driver-class-name: com.p6spy.engine.spy.P6SpyDriver
-    url: jdbc:p6spy:mysql://huibochepolardb001.rwlb.rds.aliyuncs.com:3306/strix?useSSL=true&serverTimezone=Asia/Shanghai&autoReconnect=true
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://huibochepolardb001.rwlb.rds.aliyuncs.com:3306/strix?useSSL=true&serverTimezone=Asia/Shanghai&autoReconnect=true
     username: strix
     password: Str1XP8Pr0j3cTAAAm
     type: com.zaxxer.hikari.HikariDataSource
@@ -25,6 +25,11 @@ spring:
     host: 192.168.31.188
     port: 6379
     password: str1Xredis
+    lettuce:
+      pool:
+        max-active: 8
+        max-idle: 8
+        min-idle: 1
 #mybatis
 mybatis-plus:
   mapper-locations: classpath*:/mapper/**Mapper.xml
