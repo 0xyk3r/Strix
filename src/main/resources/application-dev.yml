@@ -25,6 +25,12 @@ spring:
     host: 127.0.0.1
     port: 6379
     password:
+    lettuce:
+      shutdown-timeout: 100
+      pool:
+        max-active: 1
+        max-idle: 1
+        min-idle: 1
 #mybatis
 mybatis-plus:
   mapper-locations: classpath*:/mapper/**Mapper.xml
