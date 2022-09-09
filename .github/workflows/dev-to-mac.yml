@@ -20,8 +20,6 @@ jobs:
         run: mvn package -Dmaven.test.skip=true --batch-mode
       - name: Start Docker Container
         run: docker restart strix-java
-      - name: Kill Java
-        run: docker exec -i strix-java bash -c "pkill -9 java"
       - name: Copy New Jar File
         run: docker cp target/Strix-1.0.0.jar strix-java:/strix/strix.jar
       - name: Run Jar With Java
