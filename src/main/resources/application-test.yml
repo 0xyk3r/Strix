@@ -26,6 +26,7 @@ spring:
     port: 6379
     password: str1Xredis
     lettuce:
+      shutdown-timeout: 100
       pool:
         max-active: 1
         max-idle: 1
