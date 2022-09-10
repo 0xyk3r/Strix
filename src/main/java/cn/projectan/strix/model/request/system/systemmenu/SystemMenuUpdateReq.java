@@ -39,7 +39,6 @@ public class SystemMenuUpdateReq extends BaseReq {
     /**
      * 父菜单ID
      */
-    @NotEmpty(groups = {ValidationGroup.Insert.class, ValidationGroup.Update.class}, message = "父菜单未选择")
     @UpdateField
     private String parentId;
 

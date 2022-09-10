@@ -26,7 +26,7 @@ public class SystemMenuListQueryResp {
             menus = menus.stream().sorted(Comparator.comparing(SystemMenu::getSortValue)).collect(Collectors.toList());
             for (SystemMenu sm : menus) {
                 if ("0".equals(sm.getParentId())) {
-                    SystemMenuItem item = new SystemMenuItem(sm.getId(), sm.getName(), sm.getUrl(), null, sm.getSortValue(), findChildren(menus, sm.getId()));
+                    SystemMenuItem item = new SystemMenuItem(sm.getId(), sm.getName(), sm.getUrl(), sm.getIcon(), sm.getSortValue(), findChildren(menus, sm.getId()));
                     systemMenuList.add(item);
                 }
             }
@@ -34,7 +34,7 @@ public class SystemMenuListQueryResp {
     }
 
     public List<SystemMenuItem> findChildren(List<SystemMenu> menus, String id) {
-        return menus.stream().filter(m -> id.equals(m.getParentId())).sorted(Comparator.comparing(SystemMenu::getSortValue)).map(m -> new SystemMenuItem(m.getId(), m.getName(), m.getUrl(), null, m.getSortValue(), findChildren(menus, m.getId()))).collect(Collectors.toList());
+        return menus.stream().filter(m -> id.equals(m.getParentId())).sorted(Comparator.comparing(SystemMenu::getSortValue)).map(m -> new SystemMenuItem(m.getId(), m.getName(), m.getUrl(), m.getIcon(), m.getSortValue(), findChildren(menus, m.getId()))).collect(Collectors.toList());
     }
 
     @Data

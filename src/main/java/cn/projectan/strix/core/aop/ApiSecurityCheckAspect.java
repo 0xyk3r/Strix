@@ -5,6 +5,7 @@ import cn.projectan.strix.core.ret.RetMarker;
 import cn.projectan.strix.model.annotation.IgnoreDataEncryption;
 import cn.projectan.strix.model.request.base.BaseReq;
 import cn.projectan.strix.utils.ApiSignUtil;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -13,7 +14,6 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -24,6 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.SortedMap;
+import java.util.TimeZone;
 
 /**
  * api统一安全校验
@@ -37,8 +38,13 @@ import java.util.SortedMap;
 @Component
 public class ApiSecurityCheckAspect {
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper;
+
+    public ApiSecurityCheckAspect() {
+        objectMapper = new ObjectMapper();
+        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+        objectMapper.setTimeZone(TimeZone.getTimeZone("GMT+8"));
+    }
 
     @Pointcut("execution(public * cn.projectan.strix..controller..*(..))")
     public void controller() {
