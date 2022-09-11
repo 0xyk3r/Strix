@@ -24,7 +24,11 @@ import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author 安炯奕
@@ -132,18 +136,39 @@ public class SystemMenuController extends BaseSystemController {
         Assert.hasText(menuId, "参数错误");
         SystemMenu systemMenu = systemMenuService.getById(menuId);
         Assert.notNull(systemMenu, "系统菜单信息不存在");
-        // TODO 权限验证
-        systemMenuService.removeById(systemMenu);
 
+        // 查找子菜单
+        List<SystemMenu> systemMenuList = systemMenuService.list();
+        Set<String> childrenMenusIdList = findSystemMenuChildrenIdList(systemMenuList, menuId);
+
+        // 批量删除菜单
+        systemMenuService.removeByIds(childrenMenusIdList);
         // 删除角色和菜单间关系
         QueryWrapper<SystemRoleMenu> deleteRoleMenuRelationQueryWrapper = new QueryWrapper<>();
-        deleteRoleMenuRelationQueryWrapper.eq("system_menu_id", systemMenu.getId());
+        deleteRoleMenuRelationQueryWrapper.in("system_menu_id", childrenMenusIdList);
         systemRoleMenuService.remove(deleteRoleMenuRelationQueryWrapper);
 
         // 更新缓存
         systemMenuCache.updateRamAndRedis();
 
         return RetMarker.makeSuccessRsp();
+    }
+
+    private Set<String> findSystemMenuChildrenIdList(List<SystemMenu> menus, String parentId) {
+        List<String> menuIds = new ArrayList<>();
+        menuIds.add(parentId);
+
+        SystemMenu parentSystemMenu = menus.stream().filter(m -> m.getId().equals(parentId)).findFirst().orElse(null);
+        if (parentSystemMenu == null) return null;
+
+        List<String> subMenuIds = menus.stream().filter(m -> m.getParentId().equals(parentId)).map(SystemMenu::getId).collect(Collectors.toList());
+        for (String subMenuId : subMenuIds) {
+            Set<String> systemMenuChildrenIdList = findSystemMenuChildrenIdList(menus, subMenuId);
+            if (systemMenuChildrenIdList != null) {
+                menuIds.addAll(systemMenuChildrenIdList);
+            }
+        }
+        return new HashSet<>(menuIds);
     }
 
 }
