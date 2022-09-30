@@ -50,11 +50,12 @@ public class SystemController extends BaseSystemController {
     @PostMapping("login")
     public RetResult<Object> login(@RequestBody SystemLoginReq systemLoginReq) {
         // 验证码校验
+        Assert.hasText(systemLoginReq.getCaptchaVerification(), "行为验证不通过，请重新验证");
         CaptchaVO captchaVO = new CaptchaVO();
         captchaVO.setCaptchaVerification(systemLoginReq.getCaptchaVerification());
         ResponseModel response = captchaService.verification(captchaVO);
         if (!response.isSuccess()) {
-            return RetMarker.makeErrRsp("行为验证失败");
+            return RetMarker.makeErrRsp("行为验证不通过，请重新验证");
         }
 
         QueryWrapper<SystemManager> loginQueryWrapper = new QueryWrapper<>();
