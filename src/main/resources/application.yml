@@ -16,6 +16,16 @@ spring:
   web:
     resources:
       add-mappings: true
+aj:
+  captcha:
+    cache-type: redis
+    aes-status: true
+    water-mark: Strix
+    interference-options: 1
+    req-frequency-limit-enable: true
+    req-get-lock-limit: 5
+    req-get-lock-seconds: 300
+    req-get-minute-limit: 20
 strix:
   use-oss-aliyun: false
   use-sms-aliyun: false

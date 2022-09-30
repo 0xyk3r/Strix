@@ -14,6 +14,9 @@ import cn.projectan.strix.model.response.system.SystemLoginResp;
 import cn.projectan.strix.model.response.system.SystemMenuResp;
 import cn.projectan.strix.service.SystemManagerService;
 import cn.projectan.strix.utils.RedisUtil;
+import com.anji.captcha.model.common.ResponseModel;
+import com.anji.captcha.model.vo.CaptchaVO;
+import com.anji.captcha.service.CaptchaService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,12 +41,22 @@ public class SystemController extends BaseSystemController {
     private SystemManagerService systemManagerService;
 
     @Autowired
+    private CaptchaService captchaService;
+    @Autowired
     private SystemSettingCache systemSettingCache;
     @Autowired
     private RedisUtil redisUtil;
 
     @PostMapping("login")
-    public RetResult<SystemLoginResp> login(@RequestBody SystemLoginReq systemLoginReq) {
+    public RetResult<Object> login(@RequestBody SystemLoginReq systemLoginReq) {
+        // 验证码校验
+        CaptchaVO captchaVO = new CaptchaVO();
+        captchaVO.setCaptchaVerification(systemLoginReq.getCaptchaVerification());
+        ResponseModel response = captchaService.verification(captchaVO);
+        if (!response.isSuccess()) {
+            return RetMarker.makeErrRsp("行为验证失败");
+        }
+
         QueryWrapper<SystemManager> loginQueryWrapper = new QueryWrapper<>();
         loginQueryWrapper.eq("login_name", systemLoginReq.getLoginName());
         SystemManager systemManager = systemManagerService.getOne(loginQueryWrapper);

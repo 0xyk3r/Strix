@@ -14,4 +14,6 @@ public class SystemLoginReq extends BaseReq {
 
     private String loginPassword;
 
+    private String captchaVerification;
+
 }
