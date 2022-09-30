@@ -48,10 +48,14 @@ public class DecodeRequestBodyAdvice implements RequestBodyAdvice {
 
     @Override
     public boolean supports(MethodParameter methodParameter, Type type, Class<? extends HttpMessageConverter<?>> aClass) {
+        // 验证码接口不加密
+        String packageName = methodParameter.getContainingClass().getPackage().getName();
+        boolean isCapturePackage = "com.anji.captcha.controller".equals(packageName);
+
         boolean ignoreDataEncryptionByException = methodParameter.getContainingClass().getName().equals("cn.projectan.strix.core.advice.GlobalExceptionHandler");
         boolean ignoreDataEncryptionByClass = methodParameter.getContainingClass().isAnnotationPresent(IgnoreDataEncryption.class);
         IgnoreDataEncryption methodAnnotation = methodParameter.getMethodAnnotation(IgnoreDataEncryption.class);
-        return !ignoreDataEncryptionByException && !ignoreDataEncryptionByClass && methodAnnotation == null;
+        return !ignoreDataEncryptionByException && !ignoreDataEncryptionByClass && methodAnnotation == null && !isCapturePackage;
     }
 
     @Override
