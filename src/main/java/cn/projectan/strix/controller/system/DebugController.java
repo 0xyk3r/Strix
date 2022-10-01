@@ -29,11 +29,14 @@ public class DebugController {
     @IgnoreDataEncryption
     @GetMapping("ip")
     public RetResult<Object> getMyIpAddress(HttpServletRequest request) {
+        long start = System.nanoTime();
         Map<String, String> result = new HashMap<>();
         String ip = IpUtils.getIpAddr(request);
-        String address = Ip2RegionUtil.getRegion(ip);
+        String address = Ip2RegionUtil.convert(ip);
         result.put("ip", ip);
         result.put("address", address);
+        long end = System.nanoTime();
+        result.put("time", String.valueOf((end - start) / 1000000));
         return RetMarker.makeSuccessRsp(result);
     }
 
