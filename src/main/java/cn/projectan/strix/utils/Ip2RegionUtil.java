@@ -4,16 +4,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.lionsoul.ip2region.xdb.Searcher;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
-import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.io.RandomAccessFile;
 
 /**
  * @author 安炯奕
  * @date 2022/10/1 18:07
  */
 @Slf4j
-@Component
 public class Ip2RegionUtil {
 
     private static Searcher searcher;
@@ -21,8 +20,8 @@ public class Ip2RegionUtil {
     static {
         Resource resource = new ClassPathResource("ip2region/ip2region.xdb");
         byte[] cBuff;
-        try {
-            cBuff = Searcher.loadContentFromFile(resource.getFile().getAbsolutePath());
+        try (RandomAccessFile raf = new RandomAccessFile(resource.getFile(), "r")) {
+            cBuff = Searcher.loadContent(raf);
             searcher = Searcher.newWithBuffer(cBuff);
             log.info("Strix IP-Region: 初始化成功");
         } catch (Exception e) {
