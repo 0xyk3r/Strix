@@ -1,11 +1,9 @@
 package cn.projectan.strix.utils;
 
-import cn.hutool.core.io.FileUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.lionsoul.ip2region.xdb.Searcher;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
@@ -19,18 +17,9 @@ public class Ip2RegionUtil {
     private static Searcher searcher;
 
     static {
-        Resource resource = new ClassPathResource("ip2region/ip2region.xdb");
-        try {
-            System.out.println(resource.getURI());
-            System.out.println(resource.getURL());
-            System.out.println(resource.getFilename());
-            System.out.println(resource.getFile().getAbsolutePath());
-            System.out.println(resource.getFile().getPath());
-        } catch (Exception e) {
-            log.error(e.getMessage());
-        }
+        File resourcesDir = new File("src/main/resources");
         byte[] cBuff;
-        try (RandomAccessFile raf = new RandomAccessFile(FileUtil.getAbsolutePath(resource.getFile()), "r")) {
+        try (RandomAccessFile raf = new RandomAccessFile(resourcesDir.getCanonicalPath() + "/ip2region/ip2region.xdb", "r")) {
             cBuff = Searcher.loadContent(raf);
             searcher = Searcher.newWithBuffer(cBuff);
             log.info("Strix IP-Region: 初始化成功");
