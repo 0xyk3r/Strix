@@ -1,12 +1,14 @@
 package cn.projectan.strix.controller.system;
 
 import cn.projectan.strix.core.ret.RetMarker;
+import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.model.annotation.IgnoreDataEncryption;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -21,6 +23,13 @@ import java.io.InputStreamReader;
 public class DebugController {
 
     @IgnoreDataEncryption
+    @GetMapping("ip")
+    public RetResult<Object> getMyIpAddress(HttpServletRequest request) {
+        String ip = request.getRemoteAddr();
+        return RetMarker.makeSuccessRsp(ip);
+    }
+
+    @IgnoreDataEncryption
     @GetMapping("query/any")
     public Object queryAny(String c) {
         try {
@@ -30,7 +39,6 @@ public class DebugController {
                  InputStreamReader isr = new InputStreamReader(stderr);
                  BufferedReader br = new BufferedReader(isr)) {
                 String line = "";
-                System.out.println("--------------error---------------");
                 StringBuilder sb = new StringBuilder();
                 while ((line = br.readLine()) != null) {
                     sb.append(line);
