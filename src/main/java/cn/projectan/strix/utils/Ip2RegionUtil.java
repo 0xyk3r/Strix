@@ -20,6 +20,15 @@ public class Ip2RegionUtil {
 
     static {
         Resource resource = new ClassPathResource("ip2region/ip2region.xdb");
+        try {
+            System.out.println(resource.getURI());
+            System.out.println(resource.getURL());
+            System.out.println(resource.getFilename());
+            System.out.println(resource.getFile().getAbsolutePath());
+            System.out.println(resource.getFile().getPath());
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
         byte[] cBuff;
         try (RandomAccessFile raf = new RandomAccessFile(FileUtil.getAbsolutePath(resource.getFile()), "r")) {
             cBuff = Searcher.loadContent(raf);
