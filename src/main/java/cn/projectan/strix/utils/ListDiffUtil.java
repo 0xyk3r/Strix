@@ -25,9 +25,9 @@ public class ListDiffUtil {
     }
 
     /**
-     * 差集(基于常规解法）优化解法1 适用于中等数据量
-     * 求List1中有的但是List2中没有的元素
-     * 空间换时间降低时间复杂度
+     * 差集(基于常规解法) 优化解法1 适用于中等数据量<p>
+     * 求List1中有的但是List2中没有的元素<p>
+     * 空间换时间降低时间复杂度<p>
      * 时间复杂度O(Max(list1.size(),list2.size()))
      */
     public static List<String> subListMiddle(List<String> list1, List<String> list2) {
@@ -47,7 +47,7 @@ public class ListDiffUtil {
     }
 
     /**
-     * 差集(基于java8新特性)优化解法2 适用于大数据量
+     * 差集(基于java8新特性)优化解法2 适用于大数据量 <p>
      * 求List1中有的但是List2中没有的元素
      */
     public static List<String> subListBig(List<String> list1, List<String> list2) {

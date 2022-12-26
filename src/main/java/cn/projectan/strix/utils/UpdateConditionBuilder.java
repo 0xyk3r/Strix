@@ -75,12 +75,13 @@ public class UpdateConditionBuilder {
 
             Field[] fields = reqClazz.getDeclaredFields();
             for (Field field : fields) {
-                if (field.getAnnotation(UpdateField.class) != null) {
+                UpdateField annotation = field.getAnnotation(UpdateField.class);
+                if (annotation != null) {
                     Method reqGetter = reqClazz.getMethod(GETTER_PREFIX + StrUtil.upperFirst(field.getName()));
                     Object reqGetterInvoke = reqGetter.invoke(req);
                     Method originalFieldGetter = beanClazz.getMethod(GETTER_PREFIX + StrUtil.upperFirst(field.getName()));
                     Object originalFieldGetterInvoke = originalFieldGetter.invoke(bean);
-                    if (reqGetterInvoke != null && StringUtils.hasText(reqGetterInvoke.toString())) {
+                    if (annotation.allowEmpty() || (reqGetterInvoke != null && StringUtils.hasText(reqGetterInvoke.toString()))) {
                         String newValue = reqGetterInvoke.toString();
 
                         // 仅当数据发生变动才执行set语句
