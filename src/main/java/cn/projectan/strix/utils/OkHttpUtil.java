@@ -164,8 +164,9 @@ public class OkHttpUtil {
         RequestBody requestBody = RequestBody.create(json, MediaType.parse("application/json; charset=utf-8"));
 
         Request request = new Request.Builder().url(url).post(requestBody).build();
-        try {
-            Response response = getInstance().newCall(request).execute();
+        // 这里使用了try-with-resources，暂不清楚是否会出现问题
+        // 根据OKHttp说明，string()方法会自动关闭response
+        try (Response response = getInstance().newCall(request).execute()) {
             result = response.body().string();
         } catch (IOException e) {
             e.printStackTrace();

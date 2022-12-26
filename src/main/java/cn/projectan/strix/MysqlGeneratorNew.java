@@ -84,7 +84,7 @@ public class MysqlGeneratorNew {
                             // Service 策略配置
                             .serviceBuilder()
                             .formatServiceFileName("%sService")
-                            .formatServiceImplFileName("%sServiceImp")
+                            .formatServiceImplFileName("%sServiceImpl")
                             .build();
                 })
                 .execute();

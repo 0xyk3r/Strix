@@ -12,4 +12,10 @@ import java.lang.annotation.Target;
 @Target({ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface UpdateField {
+
+    /**
+     * 是否允许将有内容字段更新为空值
+     */
+    boolean allowEmpty() default false;
+
 }

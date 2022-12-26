@@ -22,9 +22,9 @@ spring:
       max-lifetime: 120000
   redis:
     database: 6
-    host: 127.0.0.1
+    host: 192.168.31.188
     port: 6379
-    password:
+    password: str1Xredis
     lettuce:
       shutdown-timeout: 100
       pool:

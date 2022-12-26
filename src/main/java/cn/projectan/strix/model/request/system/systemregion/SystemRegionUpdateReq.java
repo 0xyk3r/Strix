@@ -24,7 +24,7 @@ public class SystemRegionUpdateReq extends BaseReq {
     private String parentId;
 
     @Size(groups = {ValidationGroup.Insert.class, ValidationGroup.Update.class}, max = 128, message = "地区备注信息长度不符合要求")
-    @UpdateField
+    @UpdateField(allowEmpty = true)
     private String remarks;
 
 }
