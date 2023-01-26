@@ -205,6 +205,7 @@ public class SystemRegionController extends BaseSystemController {
         if (!StringUtils.hasText(req.getParentId())) {
             req.setParentId("0");
         }
+        boolean parentChanged = !systemRegion.getParentId().equals(req.getParentId());
 
         if (!isLoggedInSuperManager()) {
             StrixAssert.in(id, "没有相应的地区权限", getLoginManagerRegionIdListExcludeCurrent().toArray(new String[0]));
@@ -212,21 +213,28 @@ public class SystemRegionController extends BaseSystemController {
 
         UpdateWrapper<SystemRegion> updateWrapper = UpdateConditionBuilder.build(systemRegion, req, getLoginManagerId());
         UniqueDetectionTool.check(systemRegion);
-        Assert.isTrue(systemRegionService.update(updateWrapper), "保存失败");
 
-        systemRegionCache.refreshRedisCacheById(systemRegion.getId());
-        systemRegionCache.refreshRedisCacheById(systemRegion.getParentId());
-        List<String> childrenIdList = systemRegionService.getChildrenIdList(systemRegion.getId());
-        childrenIdList.forEach(cid -> {
-            Map<String, String> fullInfo = systemRegionService.getFullInfo(cid);
-            UpdateWrapper<SystemRegion> systemRegionUpdateWrapper = new UpdateWrapper<>();
-            systemRegionUpdateWrapper.eq("id", cid);
-            systemRegionUpdateWrapper.set("full_name", fullInfo.get("name"));
-            systemRegionUpdateWrapper.set("full_path", fullInfo.get("path"));
-            systemRegionUpdateWrapper.set("level", fullInfo.get("level"));
-            Assert.isTrue(systemRegionService.update(systemRegionUpdateWrapper), "处理信息失败");
-            systemRegionCache.refreshRedisCacheById(id);
-        });
+        if (parentChanged) {
+            systemRegionService.updateRelevantRegion(systemRegion, req.getParentId(), updateWrapper);
+        } else {
+            Assert.isTrue(systemRegionService.update(updateWrapper), "保存失败");
+        }
+
+//        Assert.isTrue(systemRegionService.update(updateWrapper), "保存失败");
+//
+//        systemRegionCache.refreshRedisCacheById(systemRegion.getId());
+//        systemRegionCache.refreshRedisCacheById(systemRegion.getParentId());
+//        List<String> childrenIdList = systemRegionService.getChildrenIdList(systemRegion.getId());
+//        childrenIdList.forEach(cid -> {
+//            Map<String, String> fullInfo = systemRegionService.getFullInfo(cid);
+//            UpdateWrapper<SystemRegion> systemRegionUpdateWrapper = new UpdateWrapper<>();
+//            systemRegionUpdateWrapper.eq("id", cid);
+//            systemRegionUpdateWrapper.set("full_name", fullInfo.get("name"));
+//            systemRegionUpdateWrapper.set("full_path", fullInfo.get("path"));
+//            systemRegionUpdateWrapper.set("level", fullInfo.get("level"));
+//            Assert.isTrue(systemRegionService.update(systemRegionUpdateWrapper), "处理信息失败");
+//            systemRegionCache.refreshRedisCacheById(id);
+//        });
 
         return RetMarker.makeSuccessRsp();
     }

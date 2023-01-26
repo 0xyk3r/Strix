@@ -2,4 +2,10 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="cn.projectan.strix.mapper.SystemRegionMapper">
 
+    <select id="getMatchChildren" resultType="cn.projectan.strix.model.db.SystemRegion">
+        select *
+        from tab_system_region
+        where match(full_path) against(#{parentFullName} in boolean mode)
+    </select>
+
 </mapper>
