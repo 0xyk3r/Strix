@@ -4,6 +4,7 @@ import cn.projectan.strix.utils.RedisUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 /**
  * @author 安炯奕
@@ -22,8 +23,10 @@ public class SystemRegionCache {
     }
 
     public void refreshRedisCacheById(String id) {
-        redisUtil.del("strix:system:region:queryRegionById::" + id);
-        redisUtil.del("strix:system:region:getChildrenIdList::" + id);
+        if (StringUtils.hasText(id)) {
+            redisUtil.del("strix:system:region:queryRegionById::" + id);
+            redisUtil.del("strix:system:region:getChildrenIdList::" + id);
+        }
     }
 
 }

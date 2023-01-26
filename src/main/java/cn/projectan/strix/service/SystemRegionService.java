@@ -1,6 +1,7 @@
 package cn.projectan.strix.service;
 
 import cn.projectan.strix.model.db.SystemRegion;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 import java.util.List;
@@ -39,5 +40,9 @@ public interface SystemRegionService extends IService<SystemRegion> {
      * @return 所有子节点的地区id集合
      */
     List<String> getChildrenIdList(String id);
+
+    List<SystemRegion> getMatchChildren(String parentFullName);
+
+    void updateRelevantRegion(SystemRegion systemRegion, String newParentId, UpdateWrapper<SystemRegion> updateWrapper);
 
 }

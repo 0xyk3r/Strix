@@ -2,15 +2,20 @@ package cn.projectan.strix.mapper;
 
 import cn.projectan.strix.model.db.SystemRegion;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 /**
  * <p>
- *  Mapper 接口
+ * Mapper 接口
  * </p>
  *
  * @author 安炯奕
  * @since 2021-09-29
  */
 public interface SystemRegionMapper extends BaseMapper<SystemRegion> {
+
+    List<SystemRegion> getMatchChildren(@Param("parentFullName") String parentFullName);
 
 }
