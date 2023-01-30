@@ -55,7 +55,6 @@ public class MysqlGeneratorNew {
                             .mapper("mapper")
                             .xml("mapper.xml")
                             .controller("controller")
-                            .other("other")
                             .pathInfo(Collections.singletonMap(OutputFile.xml, projectPath + "/src/main/resources/mapper"))
                             .build();
                 })

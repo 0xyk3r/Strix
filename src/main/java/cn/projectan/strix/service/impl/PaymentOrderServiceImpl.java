@@ -12,12 +12,12 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ijpay.core.IJPayHttpResponse;
-import com.ijpay.core.enums.RequestMethod;
+import com.ijpay.core.enums.RequestMethodEnum;
 import com.ijpay.core.kit.WxPayKit;
 import com.ijpay.core.utils.DateTimeZoneUtil;
 import com.ijpay.wxpay.WxPayApi;
-import com.ijpay.wxpay.enums.WxApiType;
-import com.ijpay.wxpay.enums.WxDomain;
+import com.ijpay.wxpay.enums.WxDomainEnum;
+import com.ijpay.wxpay.enums.v3.BasePayApiEnum;
 import com.ijpay.wxpay.model.v3.Amount;
 import com.ijpay.wxpay.model.v3.Payer;
 import com.ijpay.wxpay.model.v3.UnifiedOrderModel;
@@ -108,9 +108,9 @@ public class PaymentOrderServiceImpl extends ServiceImpl<PaymentOrderMapper, Pay
                     .setPayer(new Payer().setOpenid(pd.get("openId")));
 
             IJPayHttpResponse response = WxPayApi.v3(
-                    RequestMethod.POST,
-                    WxDomain.CHINA.toString(),
-                    WxApiType.JS_API_PAY.toString(),
+                    RequestMethodEnum.POST,
+                    WxDomainEnum.CHINA.getDomain(),
+                    BasePayApiEnum.JS_API_PAY.getUrl(),
                     wxPayConfig.getMchId(),
                     wxPayConfig.getSerialNumber(),
                     null,

@@ -10,13 +10,13 @@ import cn.projectan.strix.model.wechat.payment.WxPayConfig;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ijpay.core.IJPayHttpResponse;
-import com.ijpay.core.enums.RequestMethod;
+import com.ijpay.core.enums.RequestMethodEnum;
 import com.ijpay.core.kit.AesUtil;
 import com.ijpay.core.kit.PayKit;
 import com.ijpay.core.kit.WxPayKit;
 import com.ijpay.wxpay.WxPayApi;
-import com.ijpay.wxpay.enums.WxApiType;
-import com.ijpay.wxpay.enums.WxDomain;
+import com.ijpay.wxpay.enums.WxDomainEnum;
+import com.ijpay.wxpay.enums.v3.OtherApiEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -94,8 +94,8 @@ public class WxPayTools {
             requestMap.put("filename", fileName);
             requestMap.put("sha256", sha256);
             IJPayHttpResponse response = WxPayApi.v3(
-                    WxDomain.CHINA.toString(),
-                    WxApiType.MERCHANT_UPLOAD_MEDIA.getUrl(),
+                    WxDomainEnum.CHINA.getDomain(),
+                    OtherApiEnum.MERCHANT_UPLOAD_MEDIA.getUrl(),
                     wxPayConfig.getMchId(),
                     WxPayTools.getCertSerialNumber(wxPayConfig.getV3CertPath()),
                     WxPayTools.getCertSerialNumber(wxPayConfig.getV3CertPath()),
@@ -133,9 +133,9 @@ public class WxPayTools {
             String serialNo = certificate.getSerialNumber().toString(16).toUpperCase();
 
             IJPayHttpResponse response = WxPayApi.v3(
-                    RequestMethod.GET,
-                    WxDomain.CHINA.toString(),
-                    WxApiType.GET_CERTIFICATES.toString(),
+                    RequestMethodEnum.GET,
+                    WxDomainEnum.CHINA.getDomain(),
+                    OtherApiEnum.GET_CERTIFICATES.getUrl(),
                     wxPayConfig.getMchId(),
                     serialNo,
                     null,
