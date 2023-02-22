@@ -23,7 +23,7 @@ jobs:
       - name: Check Docker Container Exist If Not Create
         run: docker ps -a | grep Strix > /dev/null || docker run -p 9889:80 --name Strix -d spring-boot-app:latest
       - name: Kill App In Docker Container
-        run: docker exec -i Strix bash -c "pkill -f /mnt/app.jar && echo 'Process killed.' || echo 'Process not found.'"
+        run: docker exec -i Strix bash -c "pkill -f /mnt/app.jar && echo 'Process killed.' || echo 'Process not found.'" || true
       - name: Copy Jar File To Docker Container
         run: docker cp ./build/libs/Strix.jar Strix:/mnt/app.jar
       - name: Run Jar With Java In Docker Container
