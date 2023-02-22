@@ -51,11 +51,11 @@ public class EncodeResponseBodyAdvice implements ResponseBodyAdvice {
     @Override
     public Object beforeBodyWrite(Object body, MethodParameter methodParameter, MediaType mediaType, Class aClass, ServerHttpRequest serverHttpRequest, ServerHttpResponse serverHttpResponse) {
         try {
-            if ("dev".equals(profiles)) {
-                log.info("返回数据原内容:\n===============================================================\n" +
-                        objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(body) +
-                        "\n===============================================================");
-            }
+//            if ("dev".equals(profiles)) {
+//                log.info("返回数据原内容:\n===============================================================\n" +
+//                        objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(body) +
+//                        "\n===============================================================");
+//            }
             return apiSecurity.encryptByPrivateKey(body);
         } catch (Exception e) {
             try {

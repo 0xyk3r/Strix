@@ -129,9 +129,9 @@ public class DecodeRequestBodyAdvice implements RequestBodyAdvice {
                         log.error(e.getMessage(), e);
                         return null;
                     }
-                    if ("dev".equals(profiles)) {
-                        log.info("请求数据原内容: " + content);
-                    }
+//                    if ("dev".equals(profiles)) {
+//                        log.info("请求数据原内容: " + content);
+//                    }
                 }
             }
             return content;

@@ -30,7 +30,7 @@ public class SystemSettingCache {
     private void init() {
         List<SystemSetting> systemSettingList = systemSettingService.list();
         systemSettingList.forEach(ss -> instance.put(ss.getSettingKey(), ss.getSettingValue()));
-        log.info(String.format("Strix Cache : 系统配置项加载完成, 加载了 %d 个配置项.", systemSettingList.size()));
+        log.info(String.format("Strix Cache: 系统配置项加载完成, 加载了 %d 个配置项.", systemSettingList.size()));
     }
 
     public void update(String key) {

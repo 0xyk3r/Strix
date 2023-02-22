@@ -2,6 +2,7 @@ package cn.projectan.strix.config;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import org.springframework.context.annotation.Bean;
@@ -33,8 +34,8 @@ public class JacksonConfig {
 //        javaTimeModule.addSerializer(LocalTime.class, new LocalTimeSerializer(DateTimeFormatter.ofPattern("HH:mm:ss")));
 //        objectMapper.registerModule(javaTimeModule);
 
-        SimpleBeanPropertyFilter filter = SimpleBeanPropertyFilter.serializeAllExcept("password");
-        SimpleFilterProvider filterProvider = new SimpleFilterProvider().addFilter("passwordFilter", filter);
+        SimpleBeanPropertyFilter filter = SimpleBeanPropertyFilter.serializeAllExcept("password", "newPassword", "oldPassword", "confirmPassword", "loginPassword");
+        FilterProvider filterProvider = new SimpleFilterProvider().addFilter("passwordFilter", filter);
         objectMapper.setFilterProvider(filterProvider);
 
         return objectMapper;

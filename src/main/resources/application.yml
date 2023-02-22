@@ -16,8 +16,9 @@ spring:
   web:
     resources:
       add-mappings: true
-aj:
+strix:
   captcha:
+    type: blockPuzzle
     cache-type: redis
     aes-status: true
     water-mark: Strix
@@ -26,7 +27,6 @@ aj:
     req-get-lock-limit: 5
     req-get-lock-seconds: 300
     req-get-minute-limit: 20
-strix:
   use-oss-aliyun: false
   use-sms-aliyun: false
   use-wechat-auth: false

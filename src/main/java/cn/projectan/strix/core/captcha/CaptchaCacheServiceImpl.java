@@ -1,7 +1,7 @@
 package cn.projectan.strix.core.captcha;
 
+import cn.projectan.captcha.service.CaptchaCacheService;
 import cn.projectan.strix.utils.RedisUtil;
-import com.anji.captcha.service.CaptchaCacheService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
@@ -17,11 +17,12 @@ public class CaptchaCacheServiceImpl implements CaptchaCacheService {
     private StringRedisTemplate stringRedisTemplate;
 
     private String redisKeyHandler(String key) {
-        key = key.toLowerCase();
-        key = key.replace("aj.captcha.req.limit-get-", "strix:captcha:limit:get:");
-        key = key.replace("aj.captcha.req.limit-check-", "strix:captcha:limit:check:");
-        key = key.replace("aj.captcha.req.limit-fail-", "strix:captcha:limit:fail:");
-        key = key.replace("running:captcha", "strix:captcha:running");
+//        已经在Strix Captcha Jar包内处理
+//        key = key.toLowerCase();
+//        key = key.replace("aj.captcha.req.limit-get-", "strix:captcha:limit:get:");
+//        key = key.replace("aj.captcha.req.limit-check-", "strix:captcha:limit:check:");
+//        key = key.replace("aj.captcha.req.limit-fail-", "strix:captcha:limit:fail:");
+//        key = key.replace("running:captcha", "strix:captcha:running");
         return key;
     }
 
