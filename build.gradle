@@ -15,6 +15,10 @@ configurations {
     }
 }
 
+bootJar {
+    archiveFileName = "Strix.jar"
+}
+
 repositories {
     mavenLocal()
     mavenCentral()

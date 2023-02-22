@@ -16,11 +16,13 @@ jobs:
         uses: actions/checkout@v3.0.2
         with:
           clean: false
-      - name: Package with Maven
-        run: mvn package -Dmaven.test.skip=true --batch-mode
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+      - name: Build with Gradle
+        run: ./gradlew build
       - name: Start Docker Container
         run: docker restart strix-java
       - name: Copy New Jar File
-        run: docker cp target/Strix-1.0.0.jar strix-java:/strix/strix.jar
+        run: docker cp ./build/libs/Strix.jar strix-java:/strix/strix.jar
       - name: Run Jar With Java
         run: docker exec -i strix-java bash -c "nohup java -jar -server -Xms1024m -Xmx1024m strix.jar --spring.profiles.active=test > strix.log 2>&1 &"
