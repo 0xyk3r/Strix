@@ -20,9 +20,11 @@ jobs:
         run: chmod +x gradlew
       - name: Build with Gradle
         run: ./gradlew build
-      - name: Start Docker Container
-        run: docker restart strix-java
-      - name: Copy New Jar File
-        run: docker cp ./build/libs/Strix.jar strix-java:/strix/strix.jar
-      - name: Run Jar With Java
-        run: docker exec -i strix-java bash -c "nohup java -jar -server -Xms1024m -Xmx1024m strix.jar --spring.profiles.active=test > strix.log 2>&1 &"
+      - name: Check Docker Container Exist If Not Create
+        run: docker ps -a | grep Strix > /dev/null || docker run -p 9889:80 --name Strix -d spring-boot-app:latest
+      - name: Kill App In Docker Container
+        run: docker exec -i Strix bash -c "ps aux | grep '/mnt/app.jar' | cut -c 9-15| xargs kill -9"
+      - name: Copy Jar File To Docker Container
+        run: docker cp ./build/libs/Strix.jar Strix:/mnt/app.jar
+      - name: Run Jar With Java In Docker Container
+        run: docker exec -i Strix bash -c "nohup java -jar -server -Xms1024m -Xmx1024m /mnt/app.jar --spring.profiles.active=test > /mnt/app.log 2>&1 &"
