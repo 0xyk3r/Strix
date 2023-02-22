@@ -1,6 +1,9 @@
 package cn.projectan.strix.controller.system;
 
 import cn.hutool.core.util.IdUtil;
+import cn.projectan.captcha.model.common.ResponseModel;
+import cn.projectan.captcha.model.vo.CaptchaVO;
+import cn.projectan.captcha.service.CaptchaService;
 import cn.projectan.strix.controller.system.base.BaseSystemController;
 import cn.projectan.strix.core.ramcache.SystemSettingCache;
 import cn.projectan.strix.core.ret.RetMarker;
@@ -14,9 +17,6 @@ import cn.projectan.strix.model.response.system.SystemLoginResp;
 import cn.projectan.strix.model.response.system.SystemMenuResp;
 import cn.projectan.strix.service.SystemManagerService;
 import cn.projectan.strix.utils.RedisUtil;
-import com.anji.captcha.model.common.ResponseModel;
-import com.anji.captcha.model.vo.CaptchaVO;
-import com.anji.captcha.service.CaptchaService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
