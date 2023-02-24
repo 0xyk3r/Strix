@@ -33,7 +33,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author 安炯奕
@@ -112,7 +112,7 @@ public class SystemManagerController extends BaseSystemController {
         UpdateWrapper<SystemManager> systemManagerUpdateWrapper = new UpdateWrapper<>();
         systemManagerUpdateWrapper.eq("id", managerId);
 
-        boolean needReturnNewData = false;
+        AtomicBoolean needReturnNewData = new AtomicBoolean(false);
 
         switch (singleFieldModifyReq.getField()) {
             case "managerStatus":
@@ -129,37 +129,36 @@ public class SystemManagerController extends BaseSystemController {
                 systemManagerRoleQueryWrapper.select("system_manager_role_id");
                 systemManagerRoleQueryWrapper.eq("system_manager_id", managerId);
                 List<String> systemManagerRoleIds = systemManagerRoleService.listObjs(systemManagerRoleQueryWrapper, Object::toString);
-                Map<String, List<String>> roleIdDiff = RelationDiffHandler.handle(systemManagerRoleIds, Arrays.asList(singleFieldModifyReq.getValue().split(",")));
-                List<String> removeRoleKeys = roleIdDiff.get("remove");
-                List<String> addRoleKeys = roleIdDiff.get("add");
-                if (removeRoleKeys != null && removeRoleKeys.size() > 0) {
-                    QueryWrapper<SystemManagerRole> removeQueryWrapper = new QueryWrapper<>();
-                    removeQueryWrapper.eq("system_manager_id", managerId);
-                    removeQueryWrapper.in("system_manager_role_id", removeRoleKeys);
-                    Assert.isTrue(systemManagerRoleService.remove(removeQueryWrapper), "移除该管理用户的角色失败");
-                }
-                if (addRoleKeys != null && addRoleKeys.size() > 0) {
-                    List<SystemManagerRole> systemManagerRoleList = new ArrayList<>();
-                    addRoleKeys.forEach(k -> {
-                        SystemManagerRole systemManagerRole = new SystemManagerRole();
-                        systemManagerRole.setSystemManagerId(managerId);
-                        systemManagerRole.setSystemManagerRoleId(k);
-                        systemManagerRole.setCreateBy(getLoginManagerId());
-                        systemManagerRole.setUpdateBy(getLoginManagerId());
-                        systemManagerRoleList.add(systemManagerRole);
-                    });
-                    Assert.isTrue(systemManagerRoleService.saveBatch(systemManagerRoleList), "增加该角色的菜单权限失败");
-                }
-                // 刷新redis缓存
-                systemMenuCache.updateRedisBySystemManageId(managerId);
-                systemPermissionCache.updateRedisBySystemManageId(managerId);
-                needReturnNewData = true;
+                RelationDiffHandler.handle(systemManagerRoleIds, Arrays.asList(singleFieldModifyReq.getValue().split(",")), (removeKeys, addKeys) -> {
+                    if (removeKeys.size() > 0) {
+                        QueryWrapper<SystemManagerRole> removeQueryWrapper = new QueryWrapper<>();
+                        removeQueryWrapper.eq("system_manager_id", managerId);
+                        removeQueryWrapper.in("system_manager_role_id", removeKeys);
+                        Assert.isTrue(systemManagerRoleService.remove(removeQueryWrapper), "移除该管理用户的角色失败");
+                    }
+                    if (addKeys.size() > 0) {
+                        List<SystemManagerRole> systemManagerRoleList = new ArrayList<>();
+                        addKeys.forEach(k -> {
+                            SystemManagerRole systemManagerRole = new SystemManagerRole();
+                            systemManagerRole.setSystemManagerId(managerId);
+                            systemManagerRole.setSystemManagerRoleId(k);
+                            systemManagerRole.setCreateBy(getLoginManagerId());
+                            systemManagerRole.setUpdateBy(getLoginManagerId());
+                            systemManagerRoleList.add(systemManagerRole);
+                        });
+                        Assert.isTrue(systemManagerRoleService.saveBatch(systemManagerRoleList), "增加该角色的菜单权限失败");
+                    }
+                    // 刷新redis缓存
+                    systemMenuCache.updateRedisBySystemManageId(managerId);
+                    systemPermissionCache.updateRedisBySystemManageId(managerId);
+                    needReturnNewData.set(true);
+                });
                 break;
             default:
                 return RetMarker.makeErrRsp("参数错误");
         }
 
-        if (needReturnNewData) {
+        if (needReturnNewData.get()) {
             QueryWrapper<SystemManagerRole> systemManagerRoleQueryWrapper = new QueryWrapper<>();
             systemManagerRoleQueryWrapper.select("system_manager_role_id");
             systemManagerRoleQueryWrapper.eq("system_manager_id", managerId);

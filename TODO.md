@@ -7,7 +7,3 @@
 
     增加注解@SystemLog实现，存储载体暂未决定，MySQL存储日志可能会导致数据库压力过大，后续再考虑使用ElasticSearch或ClickHouse存储日志
     日志线程池 StrixLogThreadPoolConfig
-
-# RelationDiffHandler 关系表差异更变处理器
-
-    可以考虑传入两个Callback/Function（add和remove），用于处理差异更变的数据
