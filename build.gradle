@@ -61,7 +61,7 @@ dependencies {
     implementation 'org.apache.velocity:velocity-engine-core:2.3'
     implementation 'p6spy:p6spy:3.9.1'
     // strix-module
-    implementation 'cn.projectan:strix-captcha:1.1.1'
+    implementation files('libs/strix-captcha-1.1.1.jar')
     // other
     implementation 'com.squareup.okhttp3:okhttp:4.9.3'
     implementation 'com.aliyun:aliyun-java-sdk-core:4.6.0'
