@@ -33,7 +33,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author 安炯奕
@@ -92,7 +92,7 @@ public class SystemRoleController extends BaseSystemController {
         UpdateWrapper<SystemRole> systemRoleUpdateWrapper = new UpdateWrapper<>();
         systemRoleUpdateWrapper.eq("id", roleId);
 
-        boolean needReturnNewData = false;
+        AtomicBoolean needReturnNewData = new AtomicBoolean(false);
 
         switch (singleFieldModifyReq.getField()) {
             case "name":
@@ -104,30 +104,29 @@ public class SystemRoleController extends BaseSystemController {
                 systemRoleMenuQueryWrapper.select("system_menu_id");
                 systemRoleMenuQueryWrapper.eq("system_role_id", roleId);
                 List<String> systemRoleMenuIds = systemRoleMenuService.listObjs(systemRoleMenuQueryWrapper, Object::toString);
-                Map<String, List<String>> menuIdDiff = RelationDiffHandler.handle(systemRoleMenuIds, Arrays.asList(singleFieldModifyReq.getValue().split(",")));
-                List<String> removeMenuKeys = menuIdDiff.get("remove");
-                List<String> addMenuKeys = menuIdDiff.get("add");
-                if (removeMenuKeys != null && removeMenuKeys.size() > 0) {
-                    QueryWrapper<SystemRoleMenu> removeQueryWrapper = new QueryWrapper<>();
-                    removeQueryWrapper.eq("system_role_id", roleId);
-                    removeQueryWrapper.in("system_menu_id", removeMenuKeys);
-                    Assert.isTrue(systemRoleMenuService.remove(removeQueryWrapper), "移除该角色的菜单权限失败");
-                }
-                if (addMenuKeys != null && addMenuKeys.size() > 0) {
-                    List<SystemRoleMenu> systemRoleMenuList = new ArrayList<>();
-                    addMenuKeys.forEach(k -> {
-                        SystemRoleMenu systemRoleMenu = new SystemRoleMenu();
-                        systemRoleMenu.setSystemRoleId(roleId);
-                        systemRoleMenu.setSystemMenuId(k);
-                        systemRoleMenu.setCreateBy(getLoginManagerId());
-                        systemRoleMenu.setUpdateBy(getLoginManagerId());
-                        systemRoleMenuList.add(systemRoleMenu);
-                    });
-                    Assert.isTrue(systemRoleMenuService.saveBatch(systemRoleMenuList), "增加该角色的菜单权限失败");
-                }
-                // 刷新redis缓存
-                systemMenuCache.updateRedisBySystemRoleId(roleId);
-                needReturnNewData = true;
+                RelationDiffHandler.handle(systemRoleMenuIds, Arrays.asList(singleFieldModifyReq.getValue().split(",")), ((removeKeys, addKeys) -> {
+                    if (removeKeys.size() > 0) {
+                        QueryWrapper<SystemRoleMenu> removeQueryWrapper = new QueryWrapper<>();
+                        removeQueryWrapper.eq("system_role_id", roleId);
+                        removeQueryWrapper.in("system_menu_id", removeKeys);
+                        Assert.isTrue(systemRoleMenuService.remove(removeQueryWrapper), "移除该角色的菜单权限失败");
+                    }
+                    if (addKeys.size() > 0) {
+                        List<SystemRoleMenu> systemRoleMenuList = new ArrayList<>();
+                        addKeys.forEach(k -> {
+                            SystemRoleMenu systemRoleMenu = new SystemRoleMenu();
+                            systemRoleMenu.setSystemRoleId(roleId);
+                            systemRoleMenu.setSystemMenuId(k);
+                            systemRoleMenu.setCreateBy(getLoginManagerId());
+                            systemRoleMenu.setUpdateBy(getLoginManagerId());
+                            systemRoleMenuList.add(systemRoleMenu);
+                        });
+                        Assert.isTrue(systemRoleMenuService.saveBatch(systemRoleMenuList), "增加该角色的菜单权限失败");
+                    }
+                    // 刷新redis缓存
+                    systemMenuCache.updateRedisBySystemRoleId(roleId);
+                    needReturnNewData.set(true);
+                }));
                 break;
             case "permissions":
                 // 修改角色的系统权限
@@ -135,35 +134,34 @@ public class SystemRoleController extends BaseSystemController {
                 systemRolePermissionQueryWrapper.select("system_permission_id");
                 systemRolePermissionQueryWrapper.eq("system_role_id", roleId);
                 List<String> systemRolePermissionIds = systemRolePermissionService.listObjs(systemRolePermissionQueryWrapper, Object::toString);
-                Map<String, List<String>> permissionIdDiff = RelationDiffHandler.handle(systemRolePermissionIds, Arrays.asList(singleFieldModifyReq.getValue().split(",")));
-                List<String> removePermissionKeys = permissionIdDiff.get("remove");
-                List<String> addPermissionKeys = permissionIdDiff.get("add");
-                if (removePermissionKeys != null && removePermissionKeys.size() > 0) {
-                    QueryWrapper<SystemRolePermission> removeQueryWrapper = new QueryWrapper<>();
-                    removeQueryWrapper.eq("system_role_id", roleId);
-                    removeQueryWrapper.in("system_permission_id", removePermissionKeys);
-                    Assert.isTrue(systemRolePermissionService.remove(removeQueryWrapper), "移除该角色的菜单权限失败");
-                }
-                if (addPermissionKeys != null && addPermissionKeys.size() > 0) {
-                    List<SystemRolePermission> systemRoleMenuList = new ArrayList<>();
-                    addPermissionKeys.forEach(k -> {
-                        SystemRolePermission systemRolePermission = new SystemRolePermission();
-                        systemRolePermission.setSystemRoleId(roleId);
-                        systemRolePermission.setSystemPermissionId(k);
-                        systemRolePermission.setCreateBy(getLoginManagerId());
-                        systemRolePermission.setUpdateBy(getLoginManagerId());
-                        systemRoleMenuList.add(systemRolePermission);
-                    });
-                    Assert.isTrue(systemRolePermissionService.saveBatch(systemRoleMenuList), "增加该角色的菜单权限失败");
-                }
-                // 刷新redis缓存
-                systemPermissionCache.updateRedisBySystemRoleId(roleId);
-                needReturnNewData = true;
+                RelationDiffHandler.handle(systemRolePermissionIds, Arrays.asList(singleFieldModifyReq.getValue().split(",")), ((removeKeys, addKeys) -> {
+                    if (removeKeys.size() > 0) {
+                        QueryWrapper<SystemRolePermission> removeQueryWrapper = new QueryWrapper<>();
+                        removeQueryWrapper.eq("system_role_id", roleId);
+                        removeQueryWrapper.in("system_permission_id", removeKeys);
+                        Assert.isTrue(systemRolePermissionService.remove(removeQueryWrapper), "移除该角色的菜单权限失败");
+                    }
+                    if (addKeys.size() > 0) {
+                        List<SystemRolePermission> systemRoleMenuList = new ArrayList<>();
+                        addKeys.forEach(k -> {
+                            SystemRolePermission systemRolePermission = new SystemRolePermission();
+                            systemRolePermission.setSystemRoleId(roleId);
+                            systemRolePermission.setSystemPermissionId(k);
+                            systemRolePermission.setCreateBy(getLoginManagerId());
+                            systemRolePermission.setUpdateBy(getLoginManagerId());
+                            systemRoleMenuList.add(systemRolePermission);
+                        });
+                        Assert.isTrue(systemRolePermissionService.saveBatch(systemRoleMenuList), "增加该角色的菜单权限失败");
+                    }
+                    // 刷新redis缓存
+                    systemPermissionCache.updateRedisBySystemRoleId(roleId);
+                    needReturnNewData.set(true);
+                }));
                 break;
             default:
                 return RetMarker.makeErrRsp("参数错误");
         }
-        if (needReturnNewData) {
+        if (needReturnNewData.get()) {
             List<SystemMenu> menusByRoleId = systemRoleService.getMenusByRoleId(systemRole.getId());
             List<SystemMenuListQueryResp.SystemMenuItem> menuItems = new SystemMenuListQueryResp(menusByRoleId).getSystemMenuList();
             List<SystemPermission> systemPermissionByRoleId = systemRoleService.getSystemPermissionByRoleId(roleId);
