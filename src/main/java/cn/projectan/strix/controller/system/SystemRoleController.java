@@ -97,6 +97,7 @@ public class SystemRoleController extends BaseSystemController {
         switch (singleFieldModifyReq.getField()) {
             case "name":
                 systemRoleUpdateWrapper.set("name", singleFieldModifyReq.getValue());
+                Assert.isTrue(systemRoleService.update(systemRoleUpdateWrapper), "修改失败");
                 break;
             case "menus":
                 // 修改角色的菜单权限
@@ -168,8 +169,6 @@ public class SystemRoleController extends BaseSystemController {
             List<SystemPermissionListQueryResp.SystemPermissionItem> permissionList = new SystemPermissionListQueryResp(systemPermissionByRoleId).getSystemPermissionList();
             return RetMarker.makeSuccessRsp(new SystemRoleQueryByIdResp(systemRole.getId(), systemRole.getName(), menuItems, permissionList));
         }
-
-        Assert.isTrue(systemRoleService.update(systemRoleUpdateWrapper), "修改失败");
 
         return RetMarker.makeSuccessRsp();
     }
