@@ -7,3 +7,12 @@
 
     增加注解@SystemLog实现，存储载体暂未决定，MySQL存储日志可能会导致数据库压力过大，后续再考虑使用ElasticSearch或ClickHouse存储日志
     日志线程池 StrixLogThreadPoolConfig
+
+# 系统定时任务功能
+
+    引入Quartz实现，备选方案ElasticJob
+
+# 重构现有OSS、SMS等功能
+
+    现在的相关代码依托答辩，需要重构
+
