@@ -25,17 +25,14 @@ import java.util.Set;
 @Slf4j
 public class UniqueDetectionTool {
 
-    private static final char UNDERLINE = '_';
-
     private static final String GETTER_PREFIX = "get";
-
-    private static final String SERVICE_PACKAGE_PREFIX = "cn.projectan.strix.service.";
 
     private static final String SERVICE_SUFFIX = "Service";
 
     /**
      * 重复性检查工具
-     * 注意：暂时只能在Controller调用
+     * 注意：仅支持在Controller或Service中调用
+     * 注意：调用方不得包含超过1个与"controller"或"service"完全匹配的包路径
      *
      * @param obj 需要检查的对象，需为数据库bean
      * @param <T> 对象类型
@@ -81,7 +78,16 @@ public class UniqueDetectionTool {
 
             Class<?> caller = CallerUtil.getCallerCaller();
             String callerName = caller.getName();
-            String callerPackageName = callerName.substring(0, callerName.indexOf("controller")) + "service.";
+            String callerPackageName = null;
+            // FIXME 如果用户包名完全匹配controller或service，这里的判断会有问题，不过几乎不可能
+            if (callerName.contains(".controller.")) {
+                callerPackageName = callerName.substring(0, callerName.indexOf(".controller.")) + ".service.";
+            } else if (callerName.contains(".service.")) {
+                callerPackageName = callerName.substring(0, callerName.indexOf(".service.")) + ".service.";
+            } else {
+                log.error("UniqueDetectionTool: 调用方" + callerName + "不是Controller或Service，不支持调用");
+                throw new StrixUniqueDetectionException("重复检查器配置异常");
+            }
             Class<?> serviceClazz = Class.forName(callerPackageName + clazz.getSimpleName() + SERVICE_SUFFIX);
             IService<T> service = (IService<T>) SpringUtil.getBean(serviceClazz);
 
