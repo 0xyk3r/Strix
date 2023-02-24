@@ -11,7 +11,3 @@
 # RelationDiffHandler 关系表差异更变处理器
 
     可以考虑传入两个Callback/Function（add和remove），用于处理差异更变的数据
-
-# UniqueDetectionTool 数据库字段重复检测工具
-
-    可以考虑兼容在service层使用，尝试在callerPackageName附近处理
