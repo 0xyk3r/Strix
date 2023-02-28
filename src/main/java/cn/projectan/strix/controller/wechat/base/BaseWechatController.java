@@ -1,6 +1,7 @@
 package cn.projectan.strix.controller.wechat.base;
 
-import cn.projectan.strix.model.db.WechatUser;
+import cn.projectan.strix.model.db.SystemUser;
+import cn.projectan.strix.utils.SecurityUtils;
 import org.springframework.util.Assert;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -13,10 +14,10 @@ import javax.servlet.http.HttpServletRequest;
  */
 public class BaseWechatController {
 
-    protected WechatUser getLoginWechatUser() {
-        WechatUser wechatUser = (WechatUser) getRequest().getAttribute("_LoginWechatUser");
-        Assert.notNull(wechatUser, "获取登录信息失败");
-        return wechatUser;
+    protected SystemUser getLoginSystemUser() {
+        SystemUser systemUser = (SystemUser) SecurityUtils.getAuthentication().getPrincipal();
+        Assert.notNull(systemUser, "获取登录信息失败");
+        return systemUser;
     }
 
     protected HttpServletRequest getRequest() {
@@ -29,7 +30,7 @@ public class BaseWechatController {
     }
 
     protected String getLoginWechatUserId() {
-        return getLoginWechatUser().getId();
+        return getLoginSystemUser().getId();
     }
 
 }

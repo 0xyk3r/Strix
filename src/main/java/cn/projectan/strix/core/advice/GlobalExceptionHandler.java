@@ -1,11 +1,13 @@
 package cn.projectan.strix.core.advice;
 
+import cn.projectan.strix.core.exception.StrixNoAuthException;
 import cn.projectan.strix.core.exception.StrixUniqueDetectionException;
 import cn.projectan.strix.core.ret.RetCode;
 import cn.projectan.strix.core.ret.RetMarker;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -42,6 +44,16 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(NoHandlerFoundException.class)
     public Object handleNoHandlerFoundException(NoHandlerFoundException e) {
         return RetMarker.makeRsp(RetCode.NOT_FOUND, "API不存在");
+    }
+
+    @ExceptionHandler(StrixNoAuthException.class)
+    public Object handleStrixNoAuthException(StrixNoAuthException e) {
+        return RetMarker.makeRsp(RetCode.NOT_LOGIN, "未登录或登录已失效，请重新登录");
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public Object handleAccessDeniedException(AccessDeniedException e) {
+        return RetMarker.makeRsp(RetCode.NOT_PERMISSION, "您的账号无访问权限");
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

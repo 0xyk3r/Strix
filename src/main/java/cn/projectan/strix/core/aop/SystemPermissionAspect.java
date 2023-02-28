@@ -12,12 +12,9 @@ import cn.projectan.strix.utils.RedisUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
-import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.annotation.Order;
-import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -31,11 +28,12 @@ import java.util.List;
  *
  * @author 安炯奕
  * @date 2021/5/13 13:30
+ * @deprecated
  */
 @Slf4j
-@Aspect
-@Order(2)
-@Component
+//@Aspect
+//@Order(2)
+//@Component
 public class SystemPermissionAspect {
 
     @Autowired

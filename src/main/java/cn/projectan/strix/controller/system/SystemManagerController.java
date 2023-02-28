@@ -7,7 +7,6 @@ import cn.projectan.strix.core.ramcache.SystemRegionCache;
 import cn.projectan.strix.core.ret.RetMarker;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.core.validation.ValidationGroup;
-import cn.projectan.strix.model.annotation.NeedSystemPermission;
 import cn.projectan.strix.model.constant.SystemManagerStatus;
 import cn.projectan.strix.model.constant.SystemManagerType;
 import cn.projectan.strix.model.db.SystemManager;
@@ -25,6 +24,7 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
@@ -57,10 +57,10 @@ public class SystemManagerController extends BaseSystemController {
     private SystemRegionCache systemRegionCache;
 
     @GetMapping("")
-    @NeedSystemPermission("System_Manager")
+    @PreAuthorize("@ss.hasRead('System_Manager')")
     public RetResult<SystemManagerListQueryResp> getSystemManagerList(SystemManagerListQueryReq systemManagerListQueryReq) {
         QueryWrapper<SystemManager> systemManagerQueryWrapper = new QueryWrapper<>();
-        if (!isLoggedInSuperManager()) {
+        if (!isSuperManager()) {
             // 非超级管理员用户 根据地区权限查询
             systemManagerQueryWrapper.eq("manager_type", SystemManagerType.PLATFORM_ACCOUNT);
             systemManagerQueryWrapper.in("region_id", getLoginManagerRegionIdList());
@@ -85,7 +85,7 @@ public class SystemManagerController extends BaseSystemController {
     }
 
     @GetMapping("{managerId}")
-    @NeedSystemPermission("System_Manager")
+    @PreAuthorize("@ss.hasRead('System_Manager')")
     public RetResult<SystemManagerQueryByIdResp> getSystemManager(@PathVariable String managerId) {
         Assert.notNull(managerId, "参数错误");
         SystemManager systemManager = systemManagerService.getById(managerId);
@@ -100,7 +100,7 @@ public class SystemManagerController extends BaseSystemController {
     }
 
     @PostMapping("modify/{managerId}")
-    @NeedSystemPermission(value = "System_Manager", isEdit = true)
+    @PreAuthorize("@ss.hasWrite('System_Manager')")
     public RetResult<Object> modifyField(@PathVariable String managerId, @RequestBody SingleFieldModifyReq singleFieldModifyReq) {
         Assert.hasText(singleFieldModifyReq.getField(), "参数错误");
         if (!"region".equals(singleFieldModifyReq.getField())) {
@@ -173,7 +173,7 @@ public class SystemManagerController extends BaseSystemController {
     }
 
     @PostMapping("update")
-    @NeedSystemPermission(value = "System_Manager", isEdit = true)
+    @PreAuthorize("@ss.hasWrite('System_Manager')")
     public RetResult<Object> update(@RequestBody @Validated(ValidationGroup.Insert.class) SystemManagerUpdateReq systemManagerUpdateReq) {
         Assert.notNull(systemManagerUpdateReq, "参数错误");
         StrixAssert.in(systemManagerUpdateReq.getManagerStatus(), "参数错误", SystemManagerStatus.BANNED, SystemManagerStatus.NORMAL);
@@ -198,7 +198,7 @@ public class SystemManagerController extends BaseSystemController {
     }
 
     @PostMapping("update/{managerId}")
-    @NeedSystemPermission(value = "System_Manager", isEdit = true)
+    @PreAuthorize("@ss.hasWrite('System_Manager')")
     public RetResult<Object> update(@PathVariable String managerId, @RequestBody @Validated(ValidationGroup.Update.class) SystemManagerUpdateReq systemManagerUpdateReq) {
         Assert.hasText(managerId, "参数错误");
         Assert.isTrue(!"anjiongyi".equals(managerId), "该用户不允许编辑或删除");
@@ -216,7 +216,7 @@ public class SystemManagerController extends BaseSystemController {
     }
 
     @PostMapping("remove/{managerId}")
-    @NeedSystemPermission(value = "System_Manager", isEdit = true)
+    @PreAuthorize("@ss.hasWrite('System_Manager')")
     public RetResult<Object> remove(@PathVariable String managerId) {
         Assert.hasText(managerId, "参数错误");
         Assert.isTrue(!"anjiongyi".equals(managerId), "该用户不允许编辑或删除");

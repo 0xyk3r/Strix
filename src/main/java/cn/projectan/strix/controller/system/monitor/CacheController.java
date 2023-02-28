@@ -3,7 +3,6 @@ package cn.projectan.strix.controller.system.monitor;
 import cn.projectan.strix.controller.system.base.BaseSystemController;
 import cn.projectan.strix.core.ret.RetMarker;
 import cn.projectan.strix.core.ret.RetResult;
-import cn.projectan.strix.model.annotation.NeedSystemPermission;
 import cn.projectan.strix.model.constant.monitor.CacheConstants;
 import cn.projectan.strix.model.other.monitor.cache.SystemCache;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.connection.RedisServerCommands;
 import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -41,7 +41,7 @@ public class CacheController extends BaseSystemController {
     }
 
     @GetMapping()
-    @NeedSystemPermission("System_Monitor_Cache")
+    @PreAuthorize("@ss.hasRead('System_Monitor_Cache')")
     public RetResult<Object> getCacheInfo() throws Exception {
         Properties info = (Properties) redisTemplate.execute((RedisCallback<Object>) RedisServerCommands::info);
         Properties commandStats = (Properties) redisTemplate.execute((RedisCallback<Object>) connection -> connection.info("commandstats"));
@@ -64,20 +64,20 @@ public class CacheController extends BaseSystemController {
     }
 
     @GetMapping("names")
-    @NeedSystemPermission(value = "System_Monitor_Cache", isEdit = true)
+    @PreAuthorize("@ss.hasWrite('System_Monitor_Cache')")
     public RetResult<Object> getCacheNames() {
         return RetMarker.makeSuccessRsp(Collections.singletonMap("names", caches));
     }
 
     @GetMapping("keys/{cacheName}")
-    @NeedSystemPermission(value = "System_Monitor_Cache", isEdit = true)
+    @PreAuthorize("@ss.hasWrite('System_Monitor_Cache')")
     public RetResult<Object> getCacheKeys(@PathVariable String cacheName) {
         Set<String> cacheKeys = redisTemplate.keys(cacheName + "*");
         return RetMarker.makeSuccessRsp(Collections.singletonMap("cacheKeys", cacheKeys));
     }
 
     @GetMapping("value/{cacheName}/{cacheKey}")
-    @NeedSystemPermission(value = "System_Monitor_Cache", isEdit = true)
+    @PreAuthorize("@ss.hasWrite('System_Monitor_Cache')")
     public RetResult<Object> getCacheValue(@PathVariable String cacheName, @PathVariable String cacheKey) {
         String cacheValue = (String) redisTemplate.opsForValue().get(cacheKey);
         SystemCache cache = new SystemCache(cacheName, cacheKey, cacheValue);
@@ -85,7 +85,7 @@ public class CacheController extends BaseSystemController {
     }
 
     @DeleteMapping("clear/{cacheName}")
-    @NeedSystemPermission(value = "System_Monitor_Cache", isEdit = true)
+    @PreAuthorize("@ss.hasWrite('System_Monitor_Cache')")
     public RetResult<Object> clearCacheKeys(@PathVariable String cacheName) {
         Collection<String> cacheKeys = redisTemplate.keys(cacheName + "*");
         if (cacheKeys != null && cacheKeys.size() > 0) {
@@ -95,14 +95,14 @@ public class CacheController extends BaseSystemController {
     }
 
     @DeleteMapping("remove/{cacheKey}")
-    @NeedSystemPermission(value = "System_Monitor_Cache", isEdit = true)
+    @PreAuthorize("@ss.hasWrite('System_Monitor_Cache')")
     public RetResult<Object> clearCacheKey(@PathVariable String cacheKey) {
         redisTemplate.delete(cacheKey);
         return RetMarker.makeSuccessRsp();
     }
 
     @DeleteMapping("clear")
-    @NeedSystemPermission(value = "System_Monitor_Cache", isEdit = true)
+    @PreAuthorize("@ss.hasWrite('System_Monitor_Cache')")
     public RetResult<Object> clearCacheAll() {
         Collection<String> cacheKeys = redisTemplate.keys("*");
         if (cacheKeys != null && cacheKeys.size() > 0) {

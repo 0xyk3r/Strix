@@ -4,7 +4,6 @@ import cn.projectan.strix.controller.system.base.BaseSystemController;
 import cn.projectan.strix.core.ret.RetMarker;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.core.validation.ValidationGroup;
-import cn.projectan.strix.model.annotation.NeedSystemPermission;
 import cn.projectan.strix.model.constant.SystemUserStatus;
 import cn.projectan.strix.model.db.SystemUser;
 import cn.projectan.strix.model.db.SystemUserRelation;
@@ -24,6 +23,7 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
@@ -44,7 +44,7 @@ public class SystemUserController extends BaseSystemController {
     private SystemUserRelationService systemUserRelationService;
 
     @GetMapping("")
-    @NeedSystemPermission("System_User")
+    @PreAuthorize("@ss.hasRead('System_User')")
     public RetResult<SystemUserListQueryResp> getSystemUserList(SystemUserListQueryReq systemUserListQueryReq) {
         QueryWrapper<SystemUser> systemUserQueryWrapper = new QueryWrapper<>();
         if (StringUtils.hasText(systemUserListQueryReq.getKeyword())) {
@@ -63,7 +63,7 @@ public class SystemUserController extends BaseSystemController {
     }
 
     @GetMapping("{userId}")
-    @NeedSystemPermission("System_User")
+    @PreAuthorize("@ss.hasRead('System_User')")
     public RetResult<SystemUserQueryByIdResp> getSystemUser(@PathVariable String userId) {
         Assert.notNull(userId, "参数错误");
         SystemUser systemUser = systemUserService.getById(userId);
@@ -73,7 +73,7 @@ public class SystemUserController extends BaseSystemController {
     }
 
     @PostMapping("modify/{userId}")
-    @NeedSystemPermission(value = "System_User", isEdit = true)
+    @PreAuthorize("@ss.hasWrite('System_User')")
     public RetResult<Object> modifyField(@PathVariable String userId, @RequestBody SingleFieldModifyReq singleFieldModifyReq) {
         SystemUser systemUser = systemUserService.getById(userId);
         Assert.notNull(systemUser, "系统用户信息不存在");
@@ -103,7 +103,7 @@ public class SystemUserController extends BaseSystemController {
     }
 
     @PostMapping("update")
-    @NeedSystemPermission(value = "System_User", isEdit = true)
+    @PreAuthorize("@ss.hasWrite('System_User')")
     public RetResult<Object> update(@RequestBody @Validated(ValidationGroup.Insert.class) SystemUserUpdateReq systemUserUpdateReq) {
         Assert.notNull(systemUserUpdateReq, "参数错误");
 
@@ -123,7 +123,7 @@ public class SystemUserController extends BaseSystemController {
     }
 
     @PostMapping("update/{userId}")
-    @NeedSystemPermission(value = "System_User", isEdit = true)
+    @PreAuthorize("@ss.hasWrite('System_User')")
     public RetResult<Object> update(@PathVariable String userId, @RequestBody @Validated(ValidationGroup.Update.class) SystemUserUpdateReq systemUserUpdateReq) {
         Assert.hasText(userId, "参数错误");
         Assert.notNull(systemUserUpdateReq, "参数错误");
@@ -138,7 +138,7 @@ public class SystemUserController extends BaseSystemController {
     }
 
     @PostMapping("remove/{userId}")
-    @NeedSystemPermission(value = "System_User", isEdit = true)
+    @PreAuthorize("@ss.hasWrite('System_User')")
     public RetResult<Object> remove(@PathVariable String userId) {
         Assert.hasText(userId, "参数错误");
         Assert.isTrue(!"1".equalsIgnoreCase(userId), "该用户不支持删除");

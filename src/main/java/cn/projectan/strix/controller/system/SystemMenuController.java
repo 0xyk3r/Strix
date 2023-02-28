@@ -5,7 +5,6 @@ import cn.projectan.strix.core.ramcache.SystemMenuCache;
 import cn.projectan.strix.core.ret.RetMarker;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.core.validation.ValidationGroup;
-import cn.projectan.strix.model.annotation.NeedSystemPermission;
 import cn.projectan.strix.model.db.SystemMenu;
 import cn.projectan.strix.model.db.SystemRoleMenu;
 import cn.projectan.strix.model.request.common.SingleFieldModifyReq;
@@ -20,6 +19,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -48,7 +48,7 @@ public class SystemMenuController extends BaseSystemController {
     private SystemMenuCache systemMenuCache;
 
     @GetMapping("")
-    @NeedSystemPermission("System_Menu")
+    @PreAuthorize("@ss.hasRead('System_Menu')")
     public RetResult<SystemMenuListQueryResp> getSystemMenuList() {
         List<SystemMenu> systemMenuList = systemMenuService.list();
 
@@ -56,7 +56,7 @@ public class SystemMenuController extends BaseSystemController {
     }
 
     @GetMapping("{menuId}")
-    @NeedSystemPermission("System_Menu")
+    @PreAuthorize("@ss.hasRead('System_Menu')")
     public RetResult<SystemMenuQueryByIdResp> getSystemMenu(@PathVariable String menuId) {
         Assert.notNull(menuId, "参数错误");
         SystemMenu sm = systemMenuService.getById(menuId);
@@ -66,7 +66,7 @@ public class SystemMenuController extends BaseSystemController {
     }
 
     @PostMapping("modify/{menuId}")
-    @NeedSystemPermission(value = "System_Menu", isEdit = true)
+    @PreAuthorize("@ss.hasWrite('System_Menu')")
     public RetResult<Object> modifyField(@PathVariable String menuId, @RequestBody SingleFieldModifyReq singleFieldModifyReq) {
         SystemMenu systemMenu = systemMenuService.getById(menuId);
         Assert.notNull(systemMenu, "系统人员信息不存在");
@@ -90,7 +90,7 @@ public class SystemMenuController extends BaseSystemController {
     }
 
     @PostMapping("update")
-    @NeedSystemPermission(value = "System_Menu", isEdit = true)
+    @PreAuthorize("@ss.hasWrite('System_Menu')")
     public RetResult<Object> update(@RequestBody @Validated(ValidationGroup.Insert.class) SystemMenuUpdateReq systemMenuUpdateReq) {
         Assert.notNull(systemMenuUpdateReq, "参数错误");
 
@@ -114,7 +114,7 @@ public class SystemMenuController extends BaseSystemController {
     }
 
     @PostMapping("update/{menuId}")
-    @NeedSystemPermission(value = "System_Menu", isEdit = true)
+    @PreAuthorize("@ss.hasWrite('System_Menu')")
     public RetResult<Object> update(@PathVariable String menuId, @RequestBody @Validated(ValidationGroup.Update.class) SystemMenuUpdateReq systemMenuUpdateReq) {
         Assert.hasText(menuId, "参数错误");
         Assert.notNull(systemMenuUpdateReq, "参数错误");
@@ -131,7 +131,7 @@ public class SystemMenuController extends BaseSystemController {
     }
 
     @PostMapping("remove/{menuId}")
-    @NeedSystemPermission(value = "System_Menu", isEdit = true)
+    @PreAuthorize("@ss.hasWrite('System_Menu')")
     public RetResult<Object> remove(@PathVariable String menuId) {
         Assert.hasText(menuId, "参数错误");
         SystemMenu systemMenu = systemMenuService.getById(menuId);

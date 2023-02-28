@@ -3,7 +3,6 @@ package cn.projectan.strix.controller.system;
 import cn.projectan.strix.controller.system.base.BaseSystemController;
 import cn.projectan.strix.core.ret.RetMarker;
 import cn.projectan.strix.core.ret.RetResult;
-import cn.projectan.strix.model.annotation.NeedSystemPermission;
 import cn.projectan.strix.service.SystemDictService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +25,6 @@ public class SystemDictController extends BaseSystemController {
     private SystemDictService systemDictService;
 
     @GetMapping("{dictKey}")
-    @NeedSystemPermission
     public RetResult<String> getSystemManagerList(@PathVariable String dictKey) {
         Assert.hasText(dictKey, "参数错误");
         String value = systemDictService.getDict(dictKey);

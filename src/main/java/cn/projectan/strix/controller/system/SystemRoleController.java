@@ -6,7 +6,6 @@ import cn.projectan.strix.core.ramcache.SystemPermissionCache;
 import cn.projectan.strix.core.ret.RetMarker;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.core.validation.ValidationGroup;
-import cn.projectan.strix.model.annotation.NeedSystemPermission;
 import cn.projectan.strix.model.db.*;
 import cn.projectan.strix.model.request.common.SingleFieldModifyReq;
 import cn.projectan.strix.model.request.system.systemrole.SystemRoleUpdateReq;
@@ -26,6 +25,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -59,7 +59,7 @@ public class SystemRoleController extends BaseSystemController {
     private SystemPermissionCache systemPermissionCache;
 
     @GetMapping("")
-    @NeedSystemPermission("System_Role")
+    @PreAuthorize("@ss.hasRead('System_Role')")
     public RetResult<SystemRoleListQueryResp> getSystemRoleList() {
         QueryWrapper<SystemRole> systemRoleQueryWrapper = new QueryWrapper<>();
         systemRoleQueryWrapper.orderByAsc("create_time");
@@ -69,7 +69,7 @@ public class SystemRoleController extends BaseSystemController {
     }
 
     @GetMapping("{roleId}")
-    @NeedSystemPermission("System_Role")
+    @PreAuthorize("@ss.hasRead('System_Role')")
     public RetResult<SystemRoleQueryByIdResp> getSystemRole(@PathVariable String roleId) {
         Assert.notNull(roleId, "参数错误");
         SystemRole systemRole = systemRoleService.getById(roleId);
@@ -83,7 +83,7 @@ public class SystemRoleController extends BaseSystemController {
     }
 
     @PostMapping("modify/{roleId}")
-    @NeedSystemPermission(value = "System_Role", isEdit = true)
+    @PreAuthorize("@ss.hasWrite('System_Role')")
     public RetResult<Object> modifyField(@PathVariable String roleId, @RequestBody SingleFieldModifyReq singleFieldModifyReq) {
         SystemRole systemRole = systemRoleService.getById(roleId);
         Assert.notNull(systemRole, "系统角色信息不存在");
@@ -174,7 +174,7 @@ public class SystemRoleController extends BaseSystemController {
     }
 
     @PostMapping("update")
-    @NeedSystemPermission(value = "System_Role", isEdit = true)
+    @PreAuthorize("@ss.hasWrite('System_Role')")
     public RetResult<Object> update(@RequestBody @Validated(ValidationGroup.Insert.class) SystemRoleUpdateReq systemRoleUpdateReq) {
         Assert.notNull(systemRoleUpdateReq, "参数错误");
 
@@ -192,7 +192,7 @@ public class SystemRoleController extends BaseSystemController {
     }
 
     @PostMapping("update/{roleId}")
-    @NeedSystemPermission(value = "System_Role", isEdit = true)
+    @PreAuthorize("@ss.hasWrite('System_Role')")
     public RetResult<Object> update(@PathVariable String roleId, @RequestBody @Validated(ValidationGroup.Update.class) SystemRoleUpdateReq systemRoleUpdateReq) {
         Assert.hasText(roleId, "参数错误");
         Assert.notNull(systemRoleUpdateReq, "参数错误");
@@ -207,7 +207,7 @@ public class SystemRoleController extends BaseSystemController {
     }
 
     @PostMapping("remove/{roleId}")
-    @NeedSystemPermission(value = "System_Role", isEdit = true)
+    @PreAuthorize("@ss.hasWrite('System_Role')")
     public RetResult<Object> remove(@PathVariable String roleId) {
         Assert.hasText(roleId, "参数错误");
         // TODO 改为lock字段
@@ -240,7 +240,7 @@ public class SystemRoleController extends BaseSystemController {
      * @param menuId 菜单ID
      */
     @PostMapping("remove/{roleId}/menu/{menuId}")
-    @NeedSystemPermission(value = "System_Role", isEdit = true)
+    @PreAuthorize("@ss.hasWrite('System_Role')")
     public RetResult<SystemRoleQueryByIdResp> removeRoleMenu(@PathVariable String roleId, @PathVariable String menuId) {
         Assert.hasText(roleId, "参数错误");
         Assert.hasText(menuId, "参数错误");
@@ -273,7 +273,7 @@ public class SystemRoleController extends BaseSystemController {
      * @param permissionId 系统权限id
      */
     @PostMapping("remove/{roleId}/permission/{permissionId}")
-    @NeedSystemPermission(value = "System_Role", isEdit = true)
+    @PreAuthorize("@ss.hasWrite('System_Role')")
     public RetResult<SystemRoleQueryByIdResp> removeRolePermission(@PathVariable String roleId, @PathVariable String permissionId) {
         Assert.hasText(roleId, "参数错误");
         Assert.hasText(permissionId, "参数错误");
@@ -297,7 +297,6 @@ public class SystemRoleController extends BaseSystemController {
     }
 
     @GetMapping("select")
-    @NeedSystemPermission()
     public RetResult<CommonSelectDataResp> getSystemRoleSelectList() {
         return RetMarker.makeSuccessRsp(systemRoleService.getSelectData());
     }

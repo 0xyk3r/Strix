@@ -1,8 +1,9 @@
 package cn.projectan.strix.controller.system.base;
 
+import cn.projectan.strix.core.ss.details.LoginSystemManager;
 import cn.projectan.strix.model.constant.SystemManagerType;
 import cn.projectan.strix.model.db.SystemManager;
-import org.springframework.util.Assert;
+import cn.projectan.strix.utils.SecurityUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -15,10 +16,12 @@ import java.util.List;
  */
 public class BaseSystemController {
 
-    protected SystemManager getLoginManager() {
-        SystemManager systemManager = (SystemManager) getRequest().getAttribute("_LoginSystemManager");
-        Assert.notNull(systemManager, "获取登录信息失败");
-        return systemManager;
+    protected LoginSystemManager getLoginSystemManager() {
+        return SecurityUtils.getLoginSystemManager();
+    }
+
+    protected SystemManager getSystemManager() {
+        return SecurityUtils.getSystemManager();
     }
 
     protected HttpServletRequest getRequest() {
@@ -31,27 +34,27 @@ public class BaseSystemController {
     }
 
     protected String getLoginManagerId() {
-        return getLoginManager().getId();
+        return getSystemManager().getId();
     }
 
     protected Integer getLoginManagerStatus() {
-        return getLoginManager().getManagerStatus();
+        return getSystemManager().getManagerStatus();
     }
 
     protected Integer getLoginManagerType() {
-        return getLoginManager().getManagerType();
+        return getSystemManager().getManagerType();
     }
 
     protected String getLoginManagerRegionId() {
-        return getLoginManager().getRegionId();
+        return getSystemManager().getRegionId();
     }
 
-    protected boolean isLoggedInSuperManager() {
-        return getLoginManager().getManagerType() == SystemManagerType.SUPER_ACCOUNT;
+    protected boolean isSuperManager() {
+        return getSystemManager().getManagerType() == SystemManagerType.SUPER_ACCOUNT;
     }
 
     protected List<String> getLoginManagerRegionIdList() {
-        List<String> loginSystemManagerRegionIdList = (List<String>) getRequest().getAttribute("_LoginSystemManagerRegionIdList");
+        List<String> loginSystemManagerRegionIdList = getLoginSystemManager().getRegionIds();
         if (loginSystemManagerRegionIdList.size() == 0) {
             loginSystemManagerRegionIdList.add("NullData");
         }
@@ -59,7 +62,7 @@ public class BaseSystemController {
     }
 
     protected List<String> getLoginManagerRegionIdListExcludeCurrent() {
-        List<String> loginSystemManagerRegionIdList = (List<String>) getRequest().getAttribute("_LoginSystemManagerRegionIdList");
+        List<String> loginSystemManagerRegionIdList = getLoginSystemManager().getRegionIds();
         if (loginSystemManagerRegionIdList.size() == 0) {
             loginSystemManagerRegionIdList.add("NullData");
         }

@@ -1,7 +1,5 @@
 package cn.projectan.strix.utils;
 
-import cn.hutool.core.util.RandomUtil;
-
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -59,10 +57,17 @@ public class ListDiffUtil {
         List<String> a = new ArrayList<>();
         List<String> b = new ArrayList<>();
 
-        for (int i = 0; i < 666; i++) {
-            a.add(RandomUtil.randomInt(1, 666) + "");
-            b.add(RandomUtil.randomInt(1, 666) + "");
-        }
+        a.add("1");
+        a.add("2");
+
+        b.add("1");
+        b.add("2");
+        b.add("3");
+        b.add("4");
+//        for (int i = 0; i < 666; i++) {
+//            a.add(RandomUtil.randomInt(1, 666) + "");
+//            b.add(RandomUtil.randomInt(1, 666) + "");
+//        }
         long start;
 
 //        System.out.println("----Plan One----");

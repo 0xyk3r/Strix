@@ -8,14 +8,16 @@ import cn.projectan.strix.controller.system.base.BaseSystemController;
 import cn.projectan.strix.core.ramcache.SystemSettingCache;
 import cn.projectan.strix.core.ret.RetMarker;
 import cn.projectan.strix.core.ret.RetResult;
-import cn.projectan.strix.model.annotation.NeedSystemPermission;
+import cn.projectan.strix.core.ss.details.LoginSystemManager;
 import cn.projectan.strix.model.constant.SystemManagerStatus;
 import cn.projectan.strix.model.db.SystemManager;
 import cn.projectan.strix.model.db.SystemMenu;
+import cn.projectan.strix.model.db.SystemPermission;
 import cn.projectan.strix.model.request.system.SystemLoginReq;
 import cn.projectan.strix.model.response.system.SystemLoginResp;
 import cn.projectan.strix.model.response.system.SystemMenuResp;
 import cn.projectan.strix.service.SystemManagerService;
+import cn.projectan.strix.service.SystemRegionService;
 import cn.projectan.strix.utils.RedisUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import lombok.extern.slf4j.Slf4j;
@@ -39,6 +41,9 @@ public class SystemController extends BaseSystemController {
 
     @Autowired
     private SystemManagerService systemManagerService;
+
+    @Autowired
+    private SystemRegionService systemRegionService;
 
     @Autowired
     private CaptchaService captchaService;
@@ -81,19 +86,25 @@ public class SystemController extends BaseSystemController {
             effectiveTime = Long.parseLong(et);
         }
 
+        List<SystemPermission> permissions = systemManagerService.getAllSystemPermissionByManager(systemManager.getId());
+        List<String> regionIds = null;
+        if (StringUtils.hasText(systemManager.getRegionId())) {
+            regionIds = systemRegionService.getChildrenIdList(systemManager.getRegionId());
+        }
+        LoginSystemManager loginSystemManager = new LoginSystemManager(systemManager, permissions, regionIds);
+
         String token = IdUtil.fastSimpleUUID();
         redisUtil.set("strix:system:manager:login_token:login:id_" + systemManager.getId(), token, effectiveTime, TimeUnit.MINUTES);
-        redisUtil.set("strix:system:manager:login_token:token:" + token, systemManager, effectiveTime, TimeUnit.MINUTES);
+        redisUtil.set("strix:system:manager:login_token:token:" + token, loginSystemManager, effectiveTime, TimeUnit.MINUTES);
 
         return RetMarker.makeSuccessRsp(new SystemLoginResp(
                 new SystemLoginResp.LoginManagerInfo(systemManager.getId(), systemManager.getNickname(), systemManager.getManagerType()),
                 token, LocalDateTime.now().plusMinutes(effectiveTime)));
     }
 
-    @NeedSystemPermission
     @PostMapping("checkToken")
     public RetResult<SystemLoginResp> checkToken() {
-        SystemManager systemManager = getLoginManager();
+        SystemManager systemManager = getSystemManager();
         LocalDateTime tokenExpire = redisUtil.getExpireDateTime("strix:system:manager:login_token:login:id_" + systemManager.getId());
 
         return RetMarker.makeSuccessRsp(new SystemLoginResp(
@@ -101,10 +112,9 @@ public class SystemController extends BaseSystemController {
                 "original token", tokenExpire));
     }
 
-    @NeedSystemPermission
     @PostMapping("renewToken")
     public RetResult<SystemLoginResp> renewToken() {
-        SystemManager systemManager = getLoginManager();
+        SystemManager systemManager = getSystemManager();
         systemManager = systemManagerService.getById(systemManager.getId());
         Object oldTokenObj = redisUtil.get("strix:system:manager:login_token:login:id_" + systemManager.getId());
         Assert.notNull(oldTokenObj, "旧token已失效，请重新登陆");
@@ -121,7 +131,6 @@ public class SystemController extends BaseSystemController {
                 oldTokenObj.toString(), LocalDateTime.now().plusMinutes(effectiveTime)));
     }
 
-    @NeedSystemPermission
     @GetMapping("menus")
     public RetResult<SystemMenuResp> getMenuList() {
         List<SystemMenu> systemMenuList = systemManagerService.getAllSystemMenuByManager(getLoginManagerId());

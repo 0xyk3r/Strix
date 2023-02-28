@@ -45,6 +45,7 @@ public class GlobalTimeSerializerConfig {
     @Bean
     public Jackson2ObjectMapperBuilderCustomizer jackson2ObjectMapperBuilderCustomizer() {
         return builder -> builder
+                .timeZone("GMT+8")
                 .serializerByType(LocalDateTime.class, localDateTimeSerializer())
                 .deserializerByType(LocalDateTime.class, localDateTimeDeserializer())
                 .serializerByType(LocalDate.class, localDateSerializer())

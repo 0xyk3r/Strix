@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 /**
  * <p>
@@ -33,13 +34,18 @@ public class SystemUserServiceImpl extends ServiceImpl<SystemUserMapper, SystemU
     @Override
     public SystemUser createSystemUser(String nickname, String phoneNumber) {
         QueryWrapper<SystemUser> checkOneQueryWrapper = new QueryWrapper<>();
-        checkOneQueryWrapper.eq("nickname", nickname).or(qw -> qw.eq("phone_number", phoneNumber));
+        checkOneQueryWrapper.eq("nickname", nickname);
+        if (StringUtils.hasText(phoneNumber)) {
+            checkOneQueryWrapper.or(qw -> qw.eq("phone_number", phoneNumber));
+        }
         Assert.isTrue(getBaseMapper().selectCount(checkOneQueryWrapper) == 0, "昵称或手机号码已被使用，请更换后重试");
 
         SystemUser systemUser = new SystemUser();
         systemUser.setNickname(nickname);
         systemUser.setStatus(SystemUserStatus.NORMAL);
         systemUser.setPhoneNumber(phoneNumber);
+        systemUser.setCreateBy("CreateUser");
+        systemUser.setUpdateBy("CreateUser");
         Assert.isTrue(save(systemUser), "创建用户失败，请稍后重试");
         return systemUser;
     }
@@ -59,6 +65,8 @@ public class SystemUserServiceImpl extends ServiceImpl<SystemUserMapper, SystemU
         systemUserRelation.setRelationType(relationType);
         systemUserRelation.setRelationId(relationId);
         systemUserRelation.setSystemUserId(systemUserId);
+        systemUserRelation.setCreateBy("CreateUser");
+        systemUserRelation.setUpdateBy("CreateUser");
 
         redisUtil.del("strix:system:user:userRelation::" + relationType + "-" + relationId);
 

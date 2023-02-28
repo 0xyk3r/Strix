@@ -2,6 +2,7 @@ package cn.projectan.strix.utils;
 
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.aop.framework.AopContext;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -64,6 +65,17 @@ public class SpringUtil implements ApplicationContextAware {
      */
     public static <T> T getBean(String name, Class<T> clazz) {
         return getApplicationContext().getBean(name, clazz);
+    }
+
+    /**
+     * 获取AOP代理对象
+     *
+     * @param invoker 调用者
+     * @param <T>     调用者类型
+     * @return 代理对象
+     */
+    public static <T> T getAopProxy(T invoker) {
+        return (T) AopContext.currentProxy();
     }
 
 }
