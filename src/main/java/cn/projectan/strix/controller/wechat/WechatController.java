@@ -5,10 +5,11 @@ import cn.projectan.strix.config.GlobalWechatConfig;
 import cn.projectan.strix.core.ret.RetMarker;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.model.annotation.IgnoreDataEncryption;
-import cn.projectan.strix.model.annotation.NeedWechatAuth;
+import cn.projectan.strix.model.db.SystemUser;
 import cn.projectan.strix.model.db.WechatUser;
 import cn.projectan.strix.model.wechat.Oauth2Token;
 import cn.projectan.strix.model.wechat.WechatConfigBean;
+import cn.projectan.strix.service.SystemUserService;
 import cn.projectan.strix.service.WechatUserService;
 import cn.projectan.strix.utils.RedisUtil;
 import cn.projectan.strix.utils.WechatSignUtil;
@@ -46,6 +47,9 @@ public class WechatController {
 
     @Value("${spring.profiles.active}")
     private String profiles;
+
+    @Autowired
+    private SystemUserService systemUserService;
 
     @Autowired
     private WechatUserService wechatUserService;
@@ -93,33 +97,32 @@ public class WechatController {
 
             // 获取网页授权access_token
             Oauth2Token oauth2Token = wechatUtils.getOauth2AccessToken(wechatConfigBean.getAppId(), wechatConfigBean.getAppSecret(), code);
+
             // 保存至数据库
             QueryWrapper<WechatUser> wechatUserQueryWrapper = new QueryWrapper<>();
             wechatUserQueryWrapper.eq("app_id", wechatConfigBean.getAppId());
             wechatUserQueryWrapper.eq("open_id", oauth2Token.getOpenId());
             WechatUser wechatUser = wechatUserService.getOne(wechatUserQueryWrapper);
             if (wechatUser == null) {
-                // 新建账号
-                wechatUser = new WechatUser();
-                wechatUser.setConfigId(wechatConfigBean.getId());
-                wechatUser.setAppId(wechatConfigBean.getAppId());
-                wechatUser.setOpenId(oauth2Token.getOpenId());
-                wechatUser.setCreateBy("WechatAuth");
-                wechatUser.setUpdateBy("WechatAuth");
-                wechatUserService.save(wechatUser);
+                // 新建微信用户信息 并创建系统用户 并绑定
+                wechatUser = wechatUserService.createWechatUser(oauth2Token.getOpenId(), wechatConfigBean);
             }
 
+            // 获取SystemUser
+            SystemUser systemUser = systemUserService.getSystemUser(1, wechatUser.getId());
+            Assert.notNull(systemUser, "系统用户创建异常");
+
             // 检查之前该账号是否存在token
-            Object existToken = redisUtil.get("strix:wxUserLogin:" + wechatConfigId + ":wxUserToken:" + wechatUser.getId());
+            Object existToken = redisUtil.get("strix:system:user:login_token:login:id_" + systemUser.getId());
             if (existToken != null) {
                 // 使旧数据失效
-                redisUtil.del("strix:wxUserLogin:" + wechatConfigId + ":tokenToWxUser:" + existToken);
-                redisUtil.del("strix:wxUserLogin:" + wechatConfigId + ":wxUserToken:" + wechatUser.getId());
+                redisUtil.del("strix:system:user:login_token:token:" + existToken);
+                redisUtil.del("strix:system:user:login_token:login:id_" + systemUser.getId());
             }
             // 生成并保存Token 有效期30天
             String token = IdUtil.simpleUUID();
-            redisUtil.set("strix:wxUserLogin:" + wechatConfigId + ":wxUserToken:" + wechatUser.getId(), token, 60 * 60 * 24 * 30);
-            redisUtil.set("strix:wxUserLogin:" + wechatConfigId + ":tokenToWxUser:" + token, wechatUser, 60 * 60 * 24 * 30);
+            redisUtil.set("strix:system:user:login_token:login:id_" + systemUser.getId(), token, 60 * 60 * 24 * 30);
+            redisUtil.set("strix:system:user:login_token:token:" + token, systemUser, 60 * 60 * 24 * 30);
 
             redirect(wechatConfigBean.getWebIndexUrl(), model, params, token, wechatConfigId, response);
         } catch (Exception e) {
@@ -179,27 +182,26 @@ public class WechatController {
     @RequestMapping("giveMeSessionTokenOnDevMode")
     public void devMode(@PathVariable String wechatConfigId, HttpServletResponse response) throws IOException {
         if ("dev".equals(profiles)) {
-            log.info("获取开发者微信Token");
+            log.warn("通过api获取微信Token...");
 
-            WechatUser wechatUser = wechatUserService.getById(1);
+            SystemUser systemUser = systemUserService.getById("1629392552362844162");
 
             // 检查之前该账号是否存在token
-            Object existToken = redisUtil.get("strix:wxUserLogin:" + wechatConfigId + ":wxUserToken:" + wechatUser.getId());
+            Object existToken = redisUtil.get("strix:system:user:login_token:login:id_" + systemUser.getId());
             if (existToken != null) {
                 // 使旧数据失效
-                redisUtil.del("strix:wxUserLogin:" + wechatConfigId + ":tokenToWxUser:" + existToken);
-                redisUtil.del("strix:wxUserLogin:" + wechatConfigId + ":wxUserToken:" + wechatUser.getId());
+                redisUtil.del("strix:system:user:login_token:token:" + existToken);
+                redisUtil.del("strix:system:user:login_token:login:id_" + systemUser.getId());
             }
             // 生成并保存Token 有效期30天
             String token = IdUtil.simpleUUID();
-            redisUtil.set("strix:wxUserLogin:" + wechatConfigId + ":wxUserToken:" + wechatUser.getId(), token, 60 * 60 * 24 * 30);
-            redisUtil.set("strix:wxUserLogin:" + wechatConfigId + ":tokenToWxUser:" + token, wechatUser, 60 * 60 * 24 * 30);
+            redisUtil.set("strix:system:user:login_token:login:id_" + systemUser.getId(), token, 60 * 60 * 24 * 30);
+            redisUtil.set("strix:system:user:login_token:token:" + token, systemUser, 60 * 60 * 24 * 30);
 
             response.sendRedirect("http://localhost:8080/?token=" + token + "&cfid=" + wechatConfigId);
         }
     }
 
-    @NeedWechatAuth
     @ResponseBody
     @RequestMapping("checkToken")
     public RetResult<Object> checkToken() {

@@ -7,7 +7,6 @@ import cn.projectan.strix.core.ramcache.SystemRegionCache;
 import cn.projectan.strix.core.ret.RetMarker;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.core.validation.ValidationGroup;
-import cn.projectan.strix.model.annotation.NeedSystemPermission;
 import cn.projectan.strix.model.db.SystemRegion;
 import cn.projectan.strix.model.request.common.SingleFieldModifyReq;
 import cn.projectan.strix.model.request.system.systemregion.SystemRegionListQueryReq;
@@ -27,6 +26,7 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
@@ -55,7 +55,7 @@ public class SystemRegionController extends BaseSystemController {
     private StrixCommonListener strixCommonListener;
 
     @GetMapping("")
-    @NeedSystemPermission("System_Region")
+    @PreAuthorize("@ss.hasRead('System_Region')")
     public RetResult<SystemRegionListQueryResp> getSystemRegionList(SystemRegionListQueryReq req) {
         QueryWrapper<SystemRegion> systemRegionQueryWrapper = new QueryWrapper<>();
         if (StringUtils.hasText(req.getKeyword())) {
@@ -63,7 +63,7 @@ public class SystemRegionController extends BaseSystemController {
         } else {
             systemRegionQueryWrapper.eq("parent_id", "0");
         }
-        if (!isLoggedInSuperManager()) {
+        if (!isSuperManager()) {
             systemRegionQueryWrapper = new QueryWrapper<>();
             systemRegionQueryWrapper.in("id", getLoginManagerRegionIdList());
             if (StringUtils.hasText(req.getKeyword())) {
@@ -90,7 +90,7 @@ public class SystemRegionController extends BaseSystemController {
     }
 
     @GetMapping("{id}")
-    @NeedSystemPermission("System_Region")
+    @PreAuthorize("@ss.hasRead('System_Region')")
     public RetResult<SystemRegionQueryByIdResp> getSystemRegion(@PathVariable String id) {
         Assert.notNull(id, "参数错误");
         SystemRegion systemRegion = systemRegionService.getById(id);
@@ -100,7 +100,7 @@ public class SystemRegionController extends BaseSystemController {
     }
 
     @GetMapping("{id}/children")
-    @NeedSystemPermission("System_Region")
+    @PreAuthorize("@ss.hasRead('System_Region')")
     public RetResult<SystemRegionChildrenListResp> getSystemRegionChildren(@PathVariable String id) {
         Assert.notNull(id, "参数错误");
         SystemRegion systemRegion = systemRegionService.getById(id);
@@ -109,7 +109,7 @@ public class SystemRegionController extends BaseSystemController {
         QueryWrapper<SystemRegion> systemRegionQueryWrapper = new QueryWrapper<>();
         systemRegionQueryWrapper.eq("parent_id", systemRegion.getId());
         List<SystemRegion> childrenList = systemRegionService.list(systemRegionQueryWrapper);
-        if (!isLoggedInSuperManager()) {
+        if (!isSuperManager()) {
             Set<SystemRegion> resultList = new HashSet<>();
             getLoginManagerRegionIdList().forEach(lmr -> {
                 childrenList.forEach(c -> {
@@ -125,13 +125,13 @@ public class SystemRegionController extends BaseSystemController {
     }
 
     @PostMapping("modify/{id}")
-    @NeedSystemPermission(value = "System_Region", isEdit = true)
+    @PreAuthorize("@ss.hasWrite('System_Region')")
     public RetResult<Object> modifyField(@PathVariable String id, @RequestBody SingleFieldModifyReq singleFieldModifyReq) {
         SystemRegion systemRegion = systemRegionService.getById(id);
         Assert.notNull(systemRegion, "系统地区信息不存在");
         Assert.hasText(singleFieldModifyReq.getField(), "参数错误");
 
-        if (!isLoggedInSuperManager()) {
+        if (!isSuperManager()) {
             StrixAssert.in(id, "没有相应的地区权限", getLoginManagerRegionIdListExcludeCurrent().toArray(new String[0]));
         }
 
@@ -157,14 +157,14 @@ public class SystemRegionController extends BaseSystemController {
     }
 
     @PostMapping("update")
-    @NeedSystemPermission(value = "System_Region", isEdit = true)
+    @PreAuthorize("@ss.hasWrite('System_Region')")
     public RetResult<Object> update(@RequestBody @Validated(ValidationGroup.Insert.class) SystemRegionUpdateReq req) {
         Assert.notNull(req, "参数错误");
         if (!StringUtils.hasText(req.getParentId())) {
             req.setParentId("0");
         }
 
-        if (!isLoggedInSuperManager()) {
+        if (!isSuperManager()) {
             StrixAssert.in(req.getParentId(), "没有相应的地区权限", getLoginManagerRegionIdListExcludeCurrent().toArray(new String[0]));
         }
 
@@ -196,7 +196,7 @@ public class SystemRegionController extends BaseSystemController {
     }
 
     @PostMapping("update/{id}")
-    @NeedSystemPermission(value = "System_Region", isEdit = true)
+    @PreAuthorize("@ss.hasWrite('System_Region')")
     public RetResult<Object> update(@PathVariable String id, @RequestBody @Validated(ValidationGroup.Update.class) SystemRegionUpdateReq req) {
         Assert.hasText(id, "参数错误");
         Assert.notNull(req, "参数错误");
@@ -207,7 +207,7 @@ public class SystemRegionController extends BaseSystemController {
         }
         boolean parentChanged = !systemRegion.getParentId().equals(req.getParentId());
 
-        if (!isLoggedInSuperManager()) {
+        if (!isSuperManager()) {
             StrixAssert.in(id, "没有相应的地区权限", getLoginManagerRegionIdListExcludeCurrent().toArray(new String[0]));
         }
 
@@ -240,11 +240,11 @@ public class SystemRegionController extends BaseSystemController {
     }
 
     @PostMapping("remove/{id}")
-    @NeedSystemPermission(value = "System_Region", isEdit = true)
+    @PreAuthorize("@ss.hasWrite('System_Region')")
     public RetResult<Object> remove(@PathVariable String id) {
         Assert.hasText(id, "参数错误");
 
-        if (!isLoggedInSuperManager()) {
+        if (!isSuperManager()) {
             StrixAssert.in(id, "没有相应的地区权限", getLoginManagerRegionIdListExcludeCurrent().toArray(new String[0]));
         }
 
@@ -277,10 +277,9 @@ public class SystemRegionController extends BaseSystemController {
     }
 
     @GetMapping("cascader")
-    @NeedSystemPermission
     public RetResult<CommonCascaderDataResp> getCascaderData() {
         List<SystemRegion> systemRegionList = systemRegionService.list();
-        if (!isLoggedInSuperManager()) {
+        if (!isSuperManager()) {
             List<SystemRegion> resultList = new ArrayList<>();
             Set<String> returnIdList = new HashSet<>();
             systemRegionList.forEach(r -> getLoginManagerRegionIdList().forEach(id -> {
@@ -299,10 +298,9 @@ public class SystemRegionController extends BaseSystemController {
     }
 
     @GetMapping("tree")
-    @NeedSystemPermission
     public RetResult<CommonTreeDataResp> getTreeData() {
         List<SystemRegion> systemRegionList = systemRegionService.list();
-        if (!isLoggedInSuperManager()) {
+        if (!isSuperManager()) {
             List<SystemRegion> resultList = new ArrayList<>();
             Set<String> returnIdList = new HashSet<>();
             systemRegionList.forEach(r -> getLoginManagerRegionIdList().forEach(id -> {

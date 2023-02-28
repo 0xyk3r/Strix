@@ -69,7 +69,7 @@ public class SystemRegionServiceImpl extends ServiceImpl<SystemRegionMapper, Sys
         return result;
     }
 
-    @Cacheable(value = "strix:system:region:getChildrenIdList", key = "#id")
+    @Cacheable(value = "strix:system:region:getChildrenIdList", key = "'r_'.concat(#id)")
     @Override
     public List<String> getChildrenIdList(String id) {
         SystemRegion systemRegion = getBaseMapper().selectById(id);

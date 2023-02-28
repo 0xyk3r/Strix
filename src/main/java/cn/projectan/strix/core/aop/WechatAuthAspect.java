@@ -10,12 +10,9 @@ import cn.projectan.strix.utils.RedisUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
-import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.annotation.Order;
-import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -27,11 +24,12 @@ import java.util.Map;
 /**
  * @author 安炯奕
  * @date 2021/8/26 11:55
+ * @deprecated
  */
 @Slf4j
-@Aspect
-@Order(3)
-@Component
+//@Aspect
+//@Order(3)
+//@Component
 public class WechatAuthAspect {
 
     @Autowired

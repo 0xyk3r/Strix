@@ -1,0 +1,39 @@
+package cn.projectan.strix.core.ss.error;
+
+import cn.projectan.strix.core.ret.RetCode;
+import cn.projectan.strix.core.ret.RetMarker;
+import cn.projectan.strix.core.ret.RetResult;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.stereotype.Component;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.PrintWriter;
+
+/**
+ * @author 安炯奕
+ * @date 2023/2/25 0:53
+ */
+@Component
+public class AuthenticationEntryPointImpl implements AuthenticationEntryPoint {
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @Override
+    public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
+        response.setContentType("application/json;charset=utf-8");
+        response.setStatus(HttpServletResponse.SC_OK);
+        PrintWriter out = response.getWriter();
+        RetResult<Object> res = RetMarker.makeErrRsp(RetCode.NOT_LOGIN, "Token不存在或已失效，请重新登录");
+        out.write(objectMapper.writeValueAsString(res));
+        out.flush();
+        out.close();
+    }
+
+}

@@ -5,7 +5,6 @@ import cn.projectan.strix.core.ramcache.SystemPermissionCache;
 import cn.projectan.strix.core.ret.RetMarker;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.core.validation.ValidationGroup;
-import cn.projectan.strix.model.annotation.NeedSystemPermission;
 import cn.projectan.strix.model.constant.SystemPermissionType;
 import cn.projectan.strix.model.db.SystemPermission;
 import cn.projectan.strix.model.db.SystemRolePermission;
@@ -22,6 +21,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -46,7 +46,7 @@ public class SystemPermissionController extends BaseSystemController {
     private SystemPermissionCache systemPermissionCache;
 
     @GetMapping("")
-    @NeedSystemPermission("System_Permission")
+    @PreAuthorize("@ss.hasRead('System_Permission')")
     public RetResult<SystemPermissionListQueryResp> getSystemPermissionList() {
         QueryWrapper<SystemPermission> systemPermissionQueryWrapper = new QueryWrapper<>();
         systemPermissionQueryWrapper.orderByAsc("create_time");
@@ -56,7 +56,7 @@ public class SystemPermissionController extends BaseSystemController {
     }
 
     @GetMapping("{permissionId}")
-    @NeedSystemPermission("System_Permission")
+    @PreAuthorize("@ss.hasRead('System_Permission')")
     public RetResult<SystemPermissionQueryByIdResp> getSystemPermission(@PathVariable String permissionId) {
         Assert.notNull(permissionId, "参数错误");
         SystemPermission systemPermission = systemPermissionService.getById(permissionId);
@@ -66,7 +66,7 @@ public class SystemPermissionController extends BaseSystemController {
     }
 
     @PostMapping("update")
-    @NeedSystemPermission(value = "System_Permission", isEdit = true)
+    @PreAuthorize("@ss.hasWrite('System_Permission')")
     public RetResult<Object> update(@RequestBody @Validated(ValidationGroup.Insert.class) SystemPermissionUpdateReq systemPermissionUpdateReq) {
         Assert.notNull(systemPermissionUpdateReq, "参数错误");
         StrixAssert.in(systemPermissionUpdateReq.getPermissionType(), "参数错误", SystemPermissionType.READ_ONLY, SystemPermissionType.READ_WRITE);
@@ -88,7 +88,7 @@ public class SystemPermissionController extends BaseSystemController {
     }
 
     @PostMapping("update/{permissionId}")
-    @NeedSystemPermission(value = "System_Permission", isEdit = true)
+    @PreAuthorize("@ss.hasWrite('System_Permission')")
     public RetResult<Object> update(@PathVariable String permissionId, @RequestBody @Validated(ValidationGroup.Update.class) SystemPermissionUpdateReq systemPermissionUpdateReq) {
         Assert.hasText(permissionId, "参数错误");
         Assert.notNull(systemPermissionUpdateReq, "参数错误");
@@ -104,7 +104,7 @@ public class SystemPermissionController extends BaseSystemController {
     }
 
     @PostMapping("remove/{permissionId}")
-    @NeedSystemPermission(value = "System_Permission", isEdit = true)
+    @PreAuthorize("@ss.hasWrite('System_Permission')")
     public RetResult<Object> remove(@PathVariable String permissionId) {
         Assert.hasText(permissionId, "参数错误");
         SystemPermission systemPermission = systemPermissionService.getById(permissionId);
@@ -121,7 +121,6 @@ public class SystemPermissionController extends BaseSystemController {
     }
 
     @GetMapping("transfer")
-    @NeedSystemPermission
     public RetResult<CommonTransferDataResp> getTransferData() {
         QueryWrapper<SystemPermission> systemPermissionQueryWrapper = new QueryWrapper<>();
         systemPermissionQueryWrapper.select("id", "name", "permission_type");

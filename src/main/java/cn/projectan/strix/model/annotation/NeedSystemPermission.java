@@ -10,6 +10,7 @@ import java.lang.annotation.Target;
  *
  * @author 安炯奕
  * @date 2021/5/13 13:23
+ * @deprecated
  */
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
