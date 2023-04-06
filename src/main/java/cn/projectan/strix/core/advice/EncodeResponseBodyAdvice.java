@@ -38,14 +38,10 @@ public class EncodeResponseBodyAdvice implements ResponseBodyAdvice {
     @SneakyThrows
     @Override
     public boolean supports(MethodParameter methodParameter, Class aClass) {
-        // 验证码接口不加密
-        String packageName = methodParameter.getContainingClass().getPackage().getName();
-        boolean isCapturePackage = "com.anji.captcha.controller".equals(packageName);
-
         boolean ignoreDataEncryptionByException = methodParameter.getContainingClass().getName().equals("cn.projectan.strix.core.advice.GlobalExceptionHandler");
         boolean ignoreDataEncryptionByClass = methodParameter.getContainingClass().isAnnotationPresent(IgnoreDataEncryption.class);
         IgnoreDataEncryption methodAnnotation = methodParameter.getMethodAnnotation(IgnoreDataEncryption.class);
-        return !ignoreDataEncryptionByException && !ignoreDataEncryptionByClass && methodAnnotation == null && !isCapturePackage;
+        return !ignoreDataEncryptionByException && !ignoreDataEncryptionByClass && methodAnnotation == null;
     }
 
     @Override
