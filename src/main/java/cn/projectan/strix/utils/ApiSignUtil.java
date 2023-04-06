@@ -2,6 +2,7 @@ package cn.projectan.strix.utils;
 
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.crypto.symmetric.AES;
+import cn.projectan.strix.core.security.ApiSecurityClient;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -48,7 +49,7 @@ public class ApiSignUtil {
             log.error("获取参数Sign时发生异常", e);
             return null;
         }
-        AES aes = new AES("CBC", "PKCS7Padding", ("fUCkUon" + timestamp + "T1me").getBytes(StandardCharsets.UTF_8), "fuckyouObabyFUCK".getBytes(StandardCharsets.UTF_8));
+        AES aes = new AES("CBC", "PKCS7Padding", ("fUCkUon" + timestamp + "T1me").getBytes(StandardCharsets.UTF_8), ApiSecurityClient.AES_IV.getBytes(StandardCharsets.UTF_8));
         return aes.encryptHex(paramsJsonStr);
     }
 
