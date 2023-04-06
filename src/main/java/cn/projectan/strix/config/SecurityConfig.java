@@ -6,6 +6,7 @@ import cn.projectan.strix.core.ss.filter.SystemManagerAuthenticationTokenFilter;
 import cn.projectan.strix.core.ss.filter.SystemUserAuthenticationTokenFilter;
 import cn.projectan.strix.core.ss.provider.SystemManagerAuthenticationProvider;
 import cn.projectan.strix.core.ss.provider.SystemUserAuthenticationProvider;
+import cn.projectan.strix.initialize.AnonymousUrlInit;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -13,6 +14,7 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -45,29 +47,25 @@ public class SecurityConfig {
                                                    SystemManagerAuthenticationProvider systemManagerAuthenticationProvider,
                                                    SystemUserAuthenticationProvider systemUserAuthenticationProvider,
                                                    AccessDeniedHandlerImpl accessDeniedHandler,
-                                                   AuthenticationEntryPointImpl authenticationEntryPoint) throws Exception {
+                                                   AuthenticationEntryPointImpl authenticationEntryPoint,
+                                                   AnonymousUrlInit anonymousUrlInit) throws Exception {
+
+        ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry registry = http.authorizeRequests();
+        anonymousUrlInit.getUrls().forEach(url -> registry.antMatchers(url).permitAll());
+
         http
                 .csrf().disable()
                 .formLogin().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests()
-                // 管理端策略
-                .antMatchers("/captcha/get").anonymous()
-                .antMatchers("/captcha/check").anonymous()
-                .antMatchers("/system/login").anonymous()
-                .antMatchers("/system/logout").anonymous()
                 .antMatchers("/system/**").hasRole("SYSTEM_MANAGER")
-                // 用户端策略
-                .antMatchers("/wechat/*/jump/*").anonymous()
-                .antMatchers("/wechat/*/auth").anonymous()
-                .antMatchers("/wechat/*/config").anonymous()
-                .antMatchers("/wechat/*/giveMeSessionTokenOnDevMode").anonymous()
-                .antMatchers("/wechat/file/get/**").anonymous()
-                .antMatchers("/wechat/*/file/get/**").anonymous()
                 .antMatchers("/wechat/**").hasRole("SYSTEM_USER")
-                // 除上面外的所有请求全部需要鉴权认证
+                // 所有请求全部需要鉴权认证
                 .anyRequest().authenticated();
+
+        // 禁止自动跳转登录页面
+        http.httpBasic().disable();
 
         http.addFilterBefore(systemManagerAuthenticationTokenFilter, UsernamePasswordAuthenticationFilter.class);
         http.addFilterBefore(systemUserAuthenticationTokenFilter, UsernamePasswordAuthenticationFilter.class);

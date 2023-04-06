@@ -1,6 +1,6 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '2.7.9'
+    id 'org.springframework.boot' version '2.7.10'
     id 'io.spring.dependency-management' version '1.0.15.RELEASE'
 }
 
@@ -47,11 +47,11 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-aop'
     implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'org.springframework.boot:spring-boot-configuration-processor'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    implementation 'org.springframework.boot:spring-boot-starter-security'
     // lombok
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
@@ -66,10 +66,10 @@ dependencies {
     // other
     implementation 'com.squareup.okhttp3:okhttp:4.9.3'
     implementation 'com.aliyun:aliyun-java-sdk-core:4.6.0'
-    implementation 'com.aliyun.oss:aliyun-sdk-oss:3.16.0'
+    implementation 'com.aliyun.oss:aliyun-sdk-oss:3.16.2'
     implementation 'cn.hutool:hutool-all:5.8.11'
     implementation 'org.bouncycastle:bcprov-jdk15to18:1.71'
-    implementation 'com.github.javen205:IJPay-WxPay:2.9.4'
+    implementation 'com.github.javen205:IJPay-WxPay:2.9.7'
     implementation 'commons-io:commons-io:2.11.0'
     implementation 'com.github.oshi:oshi-core:6.2.2'
     implementation 'org.lionsoul:ip2region:2.6.5'

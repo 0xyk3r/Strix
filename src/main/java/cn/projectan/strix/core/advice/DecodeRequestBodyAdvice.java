@@ -1,15 +1,10 @@
 package cn.projectan.strix.core.advice;
 
 import cn.hutool.core.io.IoUtil;
-import cn.hutool.core.util.CharsetUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.crypto.asymmetric.KeyType;
-import cn.hutool.crypto.asymmetric.RSA;
-import cn.hutool.crypto.symmetric.AES;
 import cn.projectan.strix.core.security.ApiSecurity;
 import cn.projectan.strix.model.annotation.IgnoreDataEncryption;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
@@ -27,8 +22,6 @@ import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
-import java.util.Base64;
-import java.util.Map;
 
 /**
  * 请求体统一处理 用于请求体解密
@@ -41,6 +34,8 @@ import java.util.Map;
 public class DecodeRequestBodyAdvice implements RequestBodyAdvice {
 
     @Autowired
+    private ApiSecurity apiSecurity;
+    @Autowired
     private ObjectMapper objectMapper;
 
     @Value("${spring.profiles.active}")
@@ -48,14 +43,10 @@ public class DecodeRequestBodyAdvice implements RequestBodyAdvice {
 
     @Override
     public boolean supports(MethodParameter methodParameter, Type type, Class<? extends HttpMessageConverter<?>> aClass) {
-        // 验证码接口不加密
-        String packageName = methodParameter.getContainingClass().getPackage().getName();
-        boolean isCapturePackage = "com.anji.captcha.controller".equals(packageName);
-
         boolean ignoreDataEncryptionByException = methodParameter.getContainingClass().getName().equals("cn.projectan.strix.core.advice.GlobalExceptionHandler");
         boolean ignoreDataEncryptionByClass = methodParameter.getContainingClass().isAnnotationPresent(IgnoreDataEncryption.class);
         IgnoreDataEncryption methodAnnotation = methodParameter.getMethodAnnotation(IgnoreDataEncryption.class);
-        return !ignoreDataEncryptionByException && !ignoreDataEncryptionByClass && methodAnnotation == null && !isCapturePackage;
+        return !ignoreDataEncryptionByException && !ignoreDataEncryptionByClass && methodAnnotation == null;
     }
 
     @Override
@@ -111,30 +102,10 @@ public class DecodeRequestBodyAdvice implements RequestBodyAdvice {
         }
 
         public String handleSecurity(String requestData) throws JsonProcessingException {
-            String content = null;
             if (StringUtils.hasText(requestData)) {
-                Map<String, String> map = objectMapper.readValue(requestData, new TypeReference<Map<String, String>>() {
-                });
-                String data = map.get("data");
-                String sign = map.get("sign");
-                if (!StringUtils.hasText(data) || !StringUtils.hasText(sign)) {
-                    return null;
-                } else {
-                    try {
-                        RSA rsa = new RSA(ApiSecurity.RSA_PRIVATE_KEY, null);
-                        byte[] decrypt = rsa.decrypt(Base64.getDecoder().decode(sign), KeyType.PrivateKey);
-                        AES aes = new AES("CBC", "PKCS7Padding", decrypt, ApiSecurity.AES_IV.getBytes(StandardCharsets.UTF_8));
-                        content = aes.decryptStr(data, CharsetUtil.CHARSET_UTF_8);
-                    } catch (Exception e) {
-                        log.error(e.getMessage(), e);
-                        return null;
-                    }
-//                    if ("dev".equals(profiles)) {
-//                        log.info("请求数据原内容: " + content);
-//                    }
-                }
+                return apiSecurity.decryptByPrivateKey(requestData);
             }
-            return content;
+            return null;
         }
     }
 }

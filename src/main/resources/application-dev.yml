@@ -35,7 +35,7 @@ spring:
 mybatis-plus:
   mapper-locations: classpath*:/mapper/**Mapper.xml
   #实体扫描，多个package用逗号或者分号分隔
-  typeAliasesPackage: cn.projectan.strix.model.db
+  typeAliasesPackage: cn.projectan.**.model.db
   global-config:
     db-config:
       #逻辑删除配置（下面3个配置）
