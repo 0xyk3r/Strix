@@ -4,6 +4,7 @@ import cn.projectan.strix.core.exception.StrixNoAuthException;
 import cn.projectan.strix.core.exception.StrixUniqueDetectionException;
 import cn.projectan.strix.core.ret.RetCode;
 import cn.projectan.strix.core.ret.RetMarker;
+import cn.projectan.strix.utils.I18nUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -38,22 +39,22 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public Object handleHttpMessageNotReadableException(HttpMessageNotReadableException e) {
         log.error(e.getMessage(), e);
-        return RetMarker.makeErrRsp("参数非法");
+        return RetMarker.makeErrRsp(I18nUtil.getMessage("error.params_not_allow"));
     }
 
     @ExceptionHandler(NoHandlerFoundException.class)
     public Object handleNoHandlerFoundException(NoHandlerFoundException e) {
-        return RetMarker.makeRsp(RetCode.NOT_FOUND, "API不存在");
+        return RetMarker.makeRsp(RetCode.NOT_FOUND, I18nUtil.getMessage("error.api_not_found"));
     }
 
     @ExceptionHandler(StrixNoAuthException.class)
     public Object handleStrixNoAuthException(StrixNoAuthException e) {
-        return RetMarker.makeRsp(RetCode.NOT_LOGIN, "未登录或登录已失效，请重新登录");
+        return RetMarker.makeRsp(RetCode.NOT_LOGIN, I18nUtil.getMessage("error.not_login"));
     }
 
     @ExceptionHandler(AccessDeniedException.class)
     public Object handleAccessDeniedException(AccessDeniedException e) {
-        return RetMarker.makeRsp(RetCode.NOT_PERMISSION, "您的账号无访问权限");
+        return RetMarker.makeRsp(RetCode.NOT_PERMISSION, I18nUtil.getMessage("error.not_permission"));
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
@@ -69,12 +70,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public Object handleException(Exception e) {
         if (e instanceof NoHandlerFoundException) {
-            return RetMarker.makeRsp(RetCode.NOT_FOUND, "API不存在");
+            return RetMarker.makeRsp(RetCode.NOT_FOUND, I18nUtil.getMessage("error.api_not_found"));
         } else if (e instanceof HttpRequestMethodNotSupportedException) {
-            return RetMarker.makeRsp(RetCode.METHOD_ERROR, "API请求方式错误");
+            return RetMarker.makeRsp(RetCode.METHOD_ERROR, I18nUtil.getMessage("error.api_method_unsupported"));
         }
         log.error(e.getMessage(), e);
-        return RetMarker.makeErrRsp("内部错误");
+        return RetMarker.makeErrRsp(I18nUtil.getMessage("error.other"));
     }
 
 }

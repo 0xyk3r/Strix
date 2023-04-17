@@ -3,6 +3,7 @@ package cn.projectan.strix.core.ss.error;
 import cn.projectan.strix.core.ret.RetCode;
 import cn.projectan.strix.core.ret.RetMarker;
 import cn.projectan.strix.core.ret.RetResult;
+import cn.projectan.strix.utils.I18nUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
@@ -30,7 +31,7 @@ public class AccessDeniedHandlerImpl implements AccessDeniedHandler {
         response.setContentType("application/json;charset=utf-8");
         response.setStatus(HttpServletResponse.SC_OK);
         PrintWriter out = response.getWriter();
-        RetResult<Object> res = RetMarker.makeErrRsp(RetCode.NOT_PERMISSION, "无权访问");
+        RetResult<Object> res = RetMarker.makeErrRsp(RetCode.NOT_PERMISSION, I18nUtil.getMessage("error.not_permission"));
         out.write(objectMapper.writeValueAsString(res));
         out.flush();
         out.close();

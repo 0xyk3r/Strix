@@ -16,6 +16,8 @@ spring:
   web:
     resources:
       add-mappings: true
+  messages:
+    basename: i18n/strix
 strix:
   captcha:
     type: blockPuzzle
@@ -32,3 +34,4 @@ strix:
   use-wechat-auth: false
   use-wechat-push: false
   use-wechat-payment: false
+  default-locale: zh_CN
