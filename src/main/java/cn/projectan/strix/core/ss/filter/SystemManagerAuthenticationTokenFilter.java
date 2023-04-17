@@ -37,7 +37,7 @@ public class SystemManagerAuthenticationTokenFilter extends OncePerRequestFilter
 
         // 从redis中获取用户信息
         Object loginInfo = redisUtil.get("strix:system:manager:login_token:token:" + token);
-        if (loginInfo == null || !(loginInfo instanceof LoginSystemManager)) {
+        if (!(loginInfo instanceof LoginSystemManager)) {
             filterChain.doFilter(request, response);
             return;
         }

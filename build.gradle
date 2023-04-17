@@ -64,21 +64,21 @@ dependencies {
     // strix-module
     implementation files('libs/strix-captcha-1.1.1.jar')
     // other
-    implementation 'com.squareup.okhttp3:okhttp:4.9.3'
-    implementation 'com.aliyun:aliyun-java-sdk-core:4.6.0'
+    implementation 'com.squareup.okhttp3:okhttp:4.10.0'
+    implementation 'com.aliyun:aliyun-java-sdk-core:4.6.3'
     implementation 'com.aliyun.oss:aliyun-sdk-oss:3.16.2'
-    implementation 'cn.hutool:hutool-all:5.8.11'
-    implementation 'org.bouncycastle:bcprov-jdk15to18:1.71'
+    implementation 'cn.hutool:hutool-all:5.8.18'
+    implementation 'org.bouncycastle:bcprov-jdk15to18:1.73'
     implementation 'com.github.javen205:IJPay-WxPay:2.9.7'
     implementation 'commons-io:commons-io:2.11.0'
-    implementation 'com.github.oshi:oshi-core:6.2.2'
-    implementation 'org.lionsoul:ip2region:2.6.5'
+    implementation 'com.github.oshi:oshi-core:6.4.1'
+    implementation 'org.lionsoul:ip2region:2.7.0'
 }
 
-tasks.withType(JavaCompile) {
+tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
 }
 
-tasks.withType(Javadoc) {
+tasks.withType(Javadoc).configureEach {
     options.encoding = 'UTF-8'
 }

@@ -45,7 +45,7 @@ public class FindSameValueInObjectListTest {
         }
     }
 
-    public static <A, B> Set<A> fuckComm(List<A> aList, List<B> bList, String aFieldName, String bFieldName) throws Exception {
+    public static <A, B> Set<A> fuckComm(List<A> aList, List<B> bList, String aFieldName, String bFieldName) {
         Set<A> result = new HashSet<>();
 
         try {
@@ -79,7 +79,7 @@ public class FindSameValueInObjectListTest {
         return result;
     }
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         List<AAA> aList = new ArrayList<>();
         aList.add(new AAA("aa", "bb", "cc", "dd"));
         aList.add(new AAA("aa", "bb", "dd", "ee"));

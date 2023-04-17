@@ -61,7 +61,7 @@ public final class DataMaskSerializer extends StdScalarSerializer<Object> {
     }
 
     @Override
-    public final void serializeWithType(Object value, JsonGenerator gen, SerializerProvider provider, TypeSerializer typeSer) throws IOException {
+    public void serializeWithType(Object value, JsonGenerator gen, SerializerProvider provider, TypeSerializer typeSer) throws IOException {
         this.serialize(value, gen, provider);
     }
 

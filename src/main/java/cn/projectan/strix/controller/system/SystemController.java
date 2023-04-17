@@ -124,7 +124,7 @@ public class SystemController extends BaseSystemController {
             effectiveTime = Long.parseLong(et);
         }
         redisUtil.set("strix:system:manager:login_token:login:id_" + systemManager.getId(), oldTokenObj.toString(), effectiveTime, TimeUnit.MINUTES);
-        redisUtil.set("strix:system:manager:login_token:token:" + oldTokenObj.toString(), systemManager, effectiveTime, TimeUnit.MINUTES);
+        redisUtil.set("strix:system:manager:login_token:token:" + oldTokenObj, systemManager, effectiveTime, TimeUnit.MINUTES);
 
         return RetMarker.makeSuccessRsp(new SystemLoginResp(
                 new SystemLoginResp.LoginManagerInfo(systemManager.getId(), systemManager.getNickname(), systemManager.getManagerType()),

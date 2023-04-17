@@ -78,7 +78,7 @@ public class UniqueDetectionTool {
 
             Class<?> caller = CallerUtil.getCallerCaller();
             String callerName = caller.getName();
-            String callerPackageName = null;
+            String callerPackageName;
             // FIXME 如果用户包名完全匹配controller或service，这里的判断会有问题，不过几乎不可能
             if (callerName.contains(".controller.")) {
                 callerPackageName = callerName.substring(0, callerName.indexOf(".controller.")) + ".service.";

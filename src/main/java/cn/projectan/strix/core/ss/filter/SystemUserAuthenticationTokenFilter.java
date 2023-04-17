@@ -39,7 +39,7 @@ public class SystemUserAuthenticationTokenFilter extends OncePerRequestFilter {
 
         // 从redis中获取用户信息
         Object loginInfo = redisUtil.get("strix:system:user:login_token:token:" + token);
-        if (loginInfo == null || !(loginInfo instanceof SystemUser)) {
+        if (!(loginInfo instanceof SystemUser)) {
             filterChain.doFilter(request, response);
             return;
         }

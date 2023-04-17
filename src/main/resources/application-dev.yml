@@ -47,7 +47,6 @@ mybatis-plus:
       #字段验证策略
       insert-strategy: not_empty
       update-strategy: not_empty
-      select-strategy: not_empty
     banner: false
   configuration:
     #是否开启自动驼峰命名规则映射

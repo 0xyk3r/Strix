@@ -159,7 +159,7 @@ public class WechatController {
             Map<String, String> signMap = new HashMap<>();
             signMap.put("jsapi_ticket", wechatConfigBean.getJsApiTicket());
             signMap.put("noncestr", WechatUtils.generateNonceStr());
-            signMap.put("timestamp", WechatUtils.getCurrentTimestamp() + "");
+            signMap.put("timestamp", String.valueOf(WechatUtils.getCurrentTimestamp()));
             signMap.put("url", webUrl);
 
             Map<String, String> resultMap = new HashMap<>();

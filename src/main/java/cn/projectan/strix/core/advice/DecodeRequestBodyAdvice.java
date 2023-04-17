@@ -4,7 +4,6 @@ import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.projectan.strix.core.security.ApiSecurity;
 import cn.projectan.strix.model.annotation.IgnoreDataEncryption;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
@@ -108,9 +107,9 @@ public class DecodeRequestBodyAdvice implements RequestBodyAdvice {
             return this.headers;
         }
 
-        public String handleSecurity(String requestData) throws JsonProcessingException {
+        public String handleSecurity(String requestData) {
             if (StringUtils.hasText(requestData)) {
-                return apiSecurity.decryptByPrivateKey(requestData);
+                return apiSecurity.decrypt(requestData);
             }
             return null;
         }

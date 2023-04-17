@@ -40,52 +40,44 @@ public class MysqlGeneratorNew {
                 .keyWordsHandler(new MySqlKeyWordsHandler());
 
         FastAutoGenerator.create(dataSourceConfigBuilder)
-                .globalConfig(builder -> {
-                    builder.outputDir(projectPath + "/src/main/java")
-                            .author("安炯奕")
-                            .dateType(DateType.TIME_PACK)
-                            .commentDate("yyyy-MM-dd")
-                            .build();
-                })
-                .packageConfig(builder -> {
-                    builder.parent("cn.projectan.strix")
-                            .entity("model.db")
-                            .service("service")
-                            .serviceImpl("service.impl")
-                            .mapper("mapper")
-                            .xml("mapper.xml")
-                            .controller("controller")
-                            .pathInfo(Collections.singletonMap(OutputFile.xml, projectPath + "/src/main/resources/mapper"))
-                            .build();
-                })
-                .templateConfig(builder -> {
-                    builder.disable(TemplateType.CONTROLLER)
-                            .build();
-                })
-                .strategyConfig((scanner, builder) -> {
-                    builder.addInclude(getTables(scanner.apply("请输入表名，多个英文逗号分隔。所有输入 all")))
-                            .addTablePrefix("tab_") // 表前缀过滤
-                            // Entity 策略配置
-                            .entityBuilder()
-                            .enableLombok()
-                            .enableChainModel()
-                            .superClass(BaseModel.class)
-                            .addSuperEntityColumns("id", "deleted_status", "create_time", "create_by", "update_time", "update_by")
-                            .idType(IdType.ASSIGN_ID)
-                            .logicDeleteColumnName("deleted_status")
-                            .logicDeletePropertyName("deletedStatus")
-                            .addTableFills(new Column("create_time", FieldFill.INSERT))
-                            .addTableFills(new Property("createTime", FieldFill.INSERT))
-                            .addTableFills(new Column("update_time", FieldFill.INSERT_UPDATE))
-                            .addTableFills(new Property("update_time", FieldFill.INSERT_UPDATE))
-                            .addTableFills(new Column("deleted_status", FieldFill.INSERT))
-                            .addTableFills(new Property("deleted_status", FieldFill.INSERT))
-                            // Service 策略配置
-                            .serviceBuilder()
-                            .formatServiceFileName("%sService")
-                            .formatServiceImplFileName("%sServiceImpl")
-                            .build();
-                })
+                .globalConfig(builder -> builder.outputDir(projectPath + "/src/main/java")
+                        .author("安炯奕")
+                        .dateType(DateType.TIME_PACK)
+                        .commentDate("yyyy-MM-dd")
+                        .build())
+                .packageConfig(builder -> builder.parent("cn.projectan.strix")
+                        .entity("model.db")
+                        .service("service")
+                        .serviceImpl("service.impl")
+                        .mapper("mapper")
+                        .xml("mapper.xml")
+                        .controller("controller")
+                        .pathInfo(Collections.singletonMap(OutputFile.xml, projectPath + "/src/main/resources/mapper"))
+                        .build())
+                .templateConfig(builder -> builder.disable(TemplateType.CONTROLLER)
+                        .build())
+                .strategyConfig((scanner, builder) -> builder.addInclude(getTables(scanner.apply("请输入表名，多个英文逗号分隔。所有输入 all")))
+                        .addTablePrefix("tab_") // 表前缀过滤
+                        // Entity 策略配置
+                        .entityBuilder()
+                        .enableLombok()
+                        .enableChainModel()
+                        .superClass(BaseModel.class)
+                        .addSuperEntityColumns("id", "deleted_status", "create_time", "create_by", "update_time", "update_by")
+                        .idType(IdType.ASSIGN_ID)
+                        .logicDeleteColumnName("deleted_status")
+                        .logicDeletePropertyName("deletedStatus")
+                        .addTableFills(new Column("create_time", FieldFill.INSERT))
+                        .addTableFills(new Property("createTime", FieldFill.INSERT))
+                        .addTableFills(new Column("update_time", FieldFill.INSERT_UPDATE))
+                        .addTableFills(new Property("update_time", FieldFill.INSERT_UPDATE))
+                        .addTableFills(new Column("deleted_status", FieldFill.INSERT))
+                        .addTableFills(new Property("deleted_status", FieldFill.INSERT))
+                        // Service 策略配置
+                        .serviceBuilder()
+                        .formatServiceFileName("%sService")
+                        .formatServiceImplFileName("%sServiceImpl")
+                        .build())
                 .execute();
 
     }
