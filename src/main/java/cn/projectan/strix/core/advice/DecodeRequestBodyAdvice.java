@@ -43,10 +43,11 @@ public class DecodeRequestBodyAdvice implements RequestBodyAdvice {
 
     @Override
     public boolean supports(MethodParameter methodParameter, Type type, Class<? extends HttpMessageConverter<?>> aClass) {
+        boolean apiSecurityCheckAspect = methodParameter.getContainingClass().getName().equals("cn.projectan.strix.core.aop.ApiSecurityCheckAspect");
         boolean ignoreDataEncryptionByException = methodParameter.getContainingClass().getName().equals("cn.projectan.strix.core.advice.GlobalExceptionHandler");
         boolean ignoreDataEncryptionByClass = methodParameter.getContainingClass().isAnnotationPresent(IgnoreDataEncryption.class);
         IgnoreDataEncryption methodAnnotation = methodParameter.getMethodAnnotation(IgnoreDataEncryption.class);
-        return !ignoreDataEncryptionByException && !ignoreDataEncryptionByClass && methodAnnotation == null;
+        return !apiSecurityCheckAspect && !ignoreDataEncryptionByException && !ignoreDataEncryptionByClass && methodAnnotation == null;
     }
 
     @Override
