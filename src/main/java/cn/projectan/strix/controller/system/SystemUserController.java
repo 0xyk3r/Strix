@@ -110,7 +110,9 @@ public class SystemUserController extends BaseSystemController {
         SystemUser systemUser = new SystemUser(
                 systemUserUpdateReq.getNickname(),
                 systemUserUpdateReq.getStatus(),
-                systemUserUpdateReq.getPhoneNumber()
+                systemUserUpdateReq.getPhoneNumber(),
+                null,
+                null
         );
         systemUser.setCreateBy(getLoginManagerId());
         systemUser.setUpdateBy(getLoginManagerId());

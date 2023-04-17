@@ -7,6 +7,7 @@ import cn.hutool.crypto.asymmetric.KeyType;
 import cn.hutool.crypto.asymmetric.RSA;
 import cn.hutool.crypto.symmetric.AES;
 import cn.hutool.crypto.symmetric.SymmetricAlgorithm;
+import cn.projectan.strix.utils.ApiSignUtil;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -14,6 +15,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * @author 安炯奕
@@ -22,22 +24,33 @@ import java.util.Map;
 public class ApiSecurityTest {
 
     public static void main(String[] args) throws Exception {
-//        aes();
-//        System.out.println("-----------------------");
-//        rsa();
-//        System.out.println("-----------------------");
-//        Map<String, Object> map = new HashMap<>();
-//        map.put("abc", "123accACCh哈哈哈");
-//        System.out.println(genRequest(map));
         ObjectMapper objectMapper = new ObjectMapper();
         ApiSecurity apiSecurity = new ApiSecurity(objectMapper);
 
-        String encrypt = "{\"loginName\":\"anjiongyi\",\"loginPassword\":\"An1212\"}";
-        // String decrypt = "";
-        // String decrypt = "";
-        String decrypt = "{ \"data\": \"8c457210a4db771eebfab480c09a5de35b176ba4421cdd2b31391b997b7e96ad6dd1cffe371437d8e4c4922a7f52042a\", \"sign\": \"SMfptSkWqjTj+uKcIwMfhqhZgA38qK4I4Waf409xWFqYeM7J2xQq4Bhbb2bSYcQS45hnV0ejt6MkBabbv0lOSRYPpgtJ7Jubxswj/LZPMZI84Az1Y/dXYhpdKeIlGwO6fSOo9CEYZpFIbSRLuyT9Y3e5AAz0QZ7bFGS6hP5iwAI=\" }";
+        Map<String, Object> map = new TreeMap<>();
+        map.put("_requestUrl", "/v1/login");
+        map.put("loginName", "anjiongyi");
+        map.put("loginPass", "An1212");
 
-        decrypt = decrypt.replaceAll(" ", "");
+        System.out.println(System.currentTimeMillis());
+        String sign = ApiSignUtil.getSign(map, String.valueOf(System.currentTimeMillis()), objectMapper);
+        System.out.println("=================SIGN=================");
+        System.out.println(sign);
+        System.out.println("======================================");
+
+        // String encrypt = "";
+        String encrypt = objectMapper.writeValueAsString(map);
+        encrypt = encrypt.replace("\n", "");
+        encrypt = encrypt.replace(" ", "");
+        System.out.println(encrypt);
+        // String decrypt = "";
+        String decrypt = "{\n" +
+                "    \"data\": \"d92e4384e7865ffb438c74c2881b9846ec3e6da113af11253c443651735481201156661cafc0522256ffa0486314790a\",\n" +
+                "    \"sign\": \"AyhA5J/z0mZmxQCCgwmaZOxQdrEZ65fn0ZEo5iDgtP4eZpzka2uJ1ZsJ18oK8w9b3qqKOt1LEZlCLF0j3i5k32JjrXDFNfUPmQq2K5QsiJqj93Ib0BGcrPhXViOaZ5NvBDXlzeiQ2zqUZ6LrPP75gGxsytrJ/XmjB9msuNykEVM=\"\n" +
+                "}";
+        decrypt = decrypt.replace("\n", "");
+        decrypt = decrypt.replace(" ", "");
+
         Map<String, Object> encryptMap = objectMapper.readValue(encrypt, new TypeReference<Map<String, Object>>() {
         });
 
@@ -69,13 +82,15 @@ public class ApiSecurityTest {
     }
 
     private static void aes() {
-        String content = "test中文";
+        String timestamp = "1680781898948";
+        String content = "{\"_requestUrl\":\"/v1/login\",\"loginName\":\"admin\",\"loginPass\":\"admin\"}";
 
         // 生成随机AES秘钥
-        byte[] aesKeyBase64 = SecureUtil.generateKey(SymmetricAlgorithm.AES.getValue()).getEncoded();
-        String aesKey = Base64.getEncoder().encodeToString(aesKeyBase64);
+//        byte[] aesKeyBase64 = SecureUtil.generateKey(SymmetricAlgorithm.AES.getValue()).getEncoded();
+//        String aesKey = Base64.getEncoder().encodeToString(aesKeyBase64);
+//        AES aes = new AES("CBC", "PKCS7Padding", aesKey.getBytes(StandardCharsets.UTF_8), ApiSecurity.AES_IV.getBytes());
 
-        AES aes = new AES("CBC", "PKCS7Padding", aesKey.getBytes(StandardCharsets.UTF_8), ApiSecurity.AES_IV.getBytes());
+        AES aes = new AES("CBC", "PKCS7Padding", ("fUCkUon" + timestamp + "T1me").getBytes(StandardCharsets.UTF_8), ApiSecurity.AES_IV.getBytes(StandardCharsets.UTF_8));
 
         byte[] encrypt = aes.encrypt(content);
         byte[] decrypt = aes.decrypt(encrypt);
@@ -83,8 +98,10 @@ public class ApiSecurityTest {
         String encryptHex = aes.encryptHex(content);
         String decryptStr = aes.decryptStr(encryptHex, CharsetUtil.CHARSET_UTF_8);
 
+        System.out.println("======AES======");
         System.out.println(encryptHex);
         System.out.println(decryptStr);
+        System.out.println("===============");
     }
 
     private static void rsa() {

@@ -42,5 +42,15 @@ public class SystemUser extends BaseModel {
     @UniqueDetection("用户手机号码")
     private String phoneNumber;
 
+    /**
+     * 登录名
+     */
+    private String loginName;
+
+    /**
+     * 密码
+     */
+    private String loginPass;
+
 
 }

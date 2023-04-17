@@ -34,24 +34,27 @@ public class EncodeResponseBodyAdvice implements ResponseBodyAdvice {
 
     @Value("${spring.profiles.active}")
     private String profiles;
+    @Value("${strix.show-response:/false}")
+    private Boolean showResponse;
 
     @SneakyThrows
     @Override
     public boolean supports(MethodParameter methodParameter, Class aClass) {
+        boolean apiSecurityCheckAspect = methodParameter.getContainingClass().getName().equals("cn.projectan.strix.core.aop.ApiSecurityCheckAspect");
         boolean ignoreDataEncryptionByException = methodParameter.getContainingClass().getName().equals("cn.projectan.strix.core.advice.GlobalExceptionHandler");
         boolean ignoreDataEncryptionByClass = methodParameter.getContainingClass().isAnnotationPresent(IgnoreDataEncryption.class);
         IgnoreDataEncryption methodAnnotation = methodParameter.getMethodAnnotation(IgnoreDataEncryption.class);
-        return !ignoreDataEncryptionByException && !ignoreDataEncryptionByClass && methodAnnotation == null;
+        return !apiSecurityCheckAspect && !ignoreDataEncryptionByException && !ignoreDataEncryptionByClass && methodAnnotation == null;
     }
 
     @Override
     public Object beforeBodyWrite(Object body, MethodParameter methodParameter, MediaType mediaType, Class aClass, ServerHttpRequest serverHttpRequest, ServerHttpResponse serverHttpResponse) {
         try {
-//            if ("dev".equals(profiles)) {
-//                log.info("返回数据原内容:\n===============================================================\n" +
-//                        objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(body) +
-//                        "\n===============================================================");
-//            }
+            if ("dev".equals(profiles) && showResponse) {
+                log.info("返回数据原内容:\n===============================================================\n" +
+                        objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(body) +
+                        "\n===============================================================");
+            }
             return apiSecurity.encryptByPrivateKey(body);
         } catch (Exception e) {
             try {

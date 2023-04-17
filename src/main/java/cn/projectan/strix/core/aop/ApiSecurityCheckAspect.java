@@ -21,10 +21,10 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TimeZone;
+import java.util.TreeMap;
 
 /**
  * api统一安全校验
@@ -46,7 +46,7 @@ public class ApiSecurityCheckAspect {
         objectMapper.setTimeZone(TimeZone.getTimeZone("GMT+8"));
     }
 
-    @Pointcut("execution(public * cn.projectan.strix..controller..*(..))")
+    @Pointcut("execution(public * cn.projectan..controller..*(..)) && !execution(public * cn.projectan.captcha.controller..*(..))")
     public void controller() {
     }
 
@@ -88,15 +88,26 @@ public class ApiSecurityCheckAspect {
         }
 
         if ("GET".equalsIgnoreCase(request.getMethod())) {
-            HashMap<String, Object> paramsMap = new HashMap<>();
-            paramsMap.put("_requestUrl", url + (StringUtils.hasText(queryString) ? "?" + queryString : ""));
+            Map<String, Object> paramsMap = new TreeMap<>();
+            // 将queryString转换为map
+            if (StringUtils.hasText(queryString)) {
+                String[] params = queryString.split("&");
+                for (String param : params) {
+                    String[] kv = param.split("=");
+                    if (kv.length == 2) {
+                        paramsMap.put(kv[0], kv[1]);
+                    }
+                }
+            }
+//            paramsMap.put("_requestUrl", url + (StringUtils.hasText(queryString) ? "?" + queryString : ""));
+            paramsMap.put("_requestUrl", url);
             if (ApiSignUtil.verifySign(paramsMap, timestamp, sign)) {
                 return pjp.proceed();
             } else {
                 return RetMarker.makeErrRsp(RetCode.BAT_REQUEST, "无效请求2");
             }
         } else {
-            Map<String, Object> paramsMap = new HashMap<>();
+            Map<String, Object> paramsMap = new TreeMap<>();
             // 处理请求体为空报空指针的问题
             if (bodyObj != null) {
                 paramsMap = objectMapper.readValue(objectMapper.writeValueAsString(bodyObj), new TypeReference<SortedMap<String, Object>>() {
