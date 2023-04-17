@@ -5,6 +5,7 @@ import cn.projectan.strix.model.db.SystemManager;
 import cn.projectan.strix.model.db.SystemPermission;
 import cn.projectan.strix.service.SystemManagerService;
 import cn.projectan.strix.service.SystemRegionService;
+import cn.projectan.strix.utils.I18nUtil;
 import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -34,7 +35,7 @@ public class SystemManagerUserDetailsServiceImpl implements UserDetailsService {
         SystemManager systemManager = query.one();
 
         if (systemManager == null) {
-            throw new UsernameNotFoundException("用户名或密码错误");
+            throw new UsernameNotFoundException(I18nUtil.getMessage("warn.login"));
         }
 
         List<SystemPermission> permissions = systemManagerService.getAllSystemPermissionByManager(systemManager.getId());

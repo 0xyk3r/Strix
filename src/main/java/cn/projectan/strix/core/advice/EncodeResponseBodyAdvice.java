@@ -40,8 +40,14 @@ public class EncodeResponseBodyAdvice implements ResponseBodyAdvice {
     @SneakyThrows
     @Override
     public boolean supports(MethodParameter methodParameter, Class aClass) {
-        boolean apiSecurityCheckAspect = methodParameter.getContainingClass().getName().equals("cn.projectan.strix.core.aop.ApiSecurityCheckAspect");
-        boolean ignoreDataEncryptionByException = methodParameter.getContainingClass().getName().equals("cn.projectan.strix.core.advice.GlobalExceptionHandler");
+        String className = methodParameter.getContainingClass().getName();
+        // 排除swagger3的接口
+        if (className.startsWith("springfox") || className.startsWith("io.swagger")) {
+            return false;
+        }
+
+        boolean apiSecurityCheckAspect = className.equals("cn.projectan.strix.core.aop.ApiSecurityCheckAspect");
+        boolean ignoreDataEncryptionByException = className.equals("cn.projectan.strix.core.advice.GlobalExceptionHandler");
         boolean ignoreDataEncryptionByClass = methodParameter.getContainingClass().isAnnotationPresent(IgnoreDataEncryption.class);
         IgnoreDataEncryption methodAnnotation = methodParameter.getMethodAnnotation(IgnoreDataEncryption.class);
         return !apiSecurityCheckAspect && !ignoreDataEncryptionByException && !ignoreDataEncryptionByClass && methodAnnotation == null;

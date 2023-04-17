@@ -1,19 +1,12 @@
 package cn.projectan.strix.core.security;
 
 import cn.hutool.core.util.CharsetUtil;
-import cn.hutool.core.util.StrUtil;
-import cn.hutool.crypto.SecureUtil;
-import cn.hutool.crypto.asymmetric.KeyType;
-import cn.hutool.crypto.asymmetric.RSA;
 import cn.hutool.crypto.symmetric.AES;
-import cn.hutool.crypto.symmetric.SymmetricAlgorithm;
 import cn.projectan.strix.utils.ApiSignUtil;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Base64;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -54,8 +47,8 @@ public class ApiSecurityTest {
         Map<String, Object> encryptMap = objectMapper.readValue(encrypt, new TypeReference<Map<String, Object>>() {
         });
 
-        System.out.println("===================私钥加密（服务端响应）===================");
-        System.out.println(objectMapper.writeValueAsString(apiSecurity.encryptByPrivateKey(encryptMap)));
+//        System.out.println("===================私钥加密（服务端响应）===================");
+//        System.out.println(objectMapper.writeValueAsString(apiSecurity.encryptByPrivateKey(encryptMap)));
         System.out.println("===================公钥加密（客户端请求）===================");
         System.out.println(objectMapper.writeValueAsString(apiSecurity.encryptByPublicKey(encryptMap)));
 
@@ -69,15 +62,15 @@ public class ApiSecurityTest {
 
         }
 
-        try {
-            System.out.println("===================公钥解密（解密服务端响应）===================");
-            String decryptByPublicKey = apiSecurity.decryptByPublicKey(decrypt);
-            Map<String, Object> m2 = objectMapper.readValue(decryptByPublicKey, new TypeReference<Map<String, Object>>() {
-            });
-            System.out.println(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(m2));
-        } catch (Throwable e) {
-
-        }
+//        try {
+//            System.out.println("===================公钥解密（解密服务端响应）===================");
+//            String decryptByPublicKey = apiSecurity.decryptByPublicKey(decrypt);
+//            Map<String, Object> m2 = objectMapper.readValue(decryptByPublicKey, new TypeReference<Map<String, Object>>() {
+//            });
+//            System.out.println(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(m2));
+//        } catch (Throwable e) {
+//
+//        }
 
     }
 
@@ -104,48 +97,47 @@ public class ApiSecurityTest {
         System.out.println("===============");
     }
 
-    private static void rsa() {
-        RSA rsa = new RSA(ApiSecurity.RSA_PRIVATE_KEY, ApiSecurity.RSA_PUBLIC_KEY);
+//    private static void rsa() {
+//        RSA rsa = new RSA(ApiSecurity.SERVER_RSA_PRIVATE_KEY, ApiSecurity.SERVER_RSA_PUBLIC_KEY);
+//
+//        // 公钥加密，私钥解密
+//        byte[] encrypt = rsa.encrypt(StrUtil.bytes("我是一段测试1234", CharsetUtil.CHARSET_UTF_8), KeyType.PublicKey);
+//        System.out.println(Base64.getEncoder().encodeToString(encrypt));
+//        byte[] decrypt = rsa.decrypt(encrypt, KeyType.PrivateKey);
+//        System.out.println(StrUtil.str(decrypt, CharsetUtil.CHARSET_UTF_8));
+//
+//        // 私钥加密，公钥解密
+//        byte[] encrypt2 = rsa.encrypt(StrUtil.bytes("我是一段测试4321", CharsetUtil.CHARSET_UTF_8), KeyType.PrivateKey);
+//        System.out.println(Base64.getEncoder().encodeToString(encrypt2));
+//        byte[] decrypt2 = rsa.decrypt(encrypt2, KeyType.PublicKey);
+//        System.out.println(StrUtil.str(decrypt2, CharsetUtil.CHARSET_UTF_8));
+//    }
 
-        // 公钥加密，私钥解密
-        byte[] encrypt = rsa.encrypt(StrUtil.bytes("我是一段测试1234", CharsetUtil.CHARSET_UTF_8), KeyType.PublicKey);
-        System.out.println(Base64.getEncoder().encodeToString(encrypt));
-        byte[] decrypt = rsa.decrypt(encrypt, KeyType.PrivateKey);
-        System.out.println(StrUtil.str(decrypt, CharsetUtil.CHARSET_UTF_8));
-
-        // 私钥加密，公钥解密
-        byte[] encrypt2 = rsa.encrypt(StrUtil.bytes("我是一段测试4321", CharsetUtil.CHARSET_UTF_8), KeyType.PrivateKey);
-        System.out.println(Base64.getEncoder().encodeToString(encrypt2));
-        byte[] decrypt2 = rsa.decrypt(encrypt2, KeyType.PublicKey);
-        System.out.println(StrUtil.str(decrypt2, CharsetUtil.CHARSET_UTF_8));
-
-    }
-
-    private static String genRequest(Object object) {
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
-
-            String result = objectMapper.writeValueAsString(object);
-            // 生成AES秘钥
-            byte[] aesKeyBase64 = SecureUtil.generateKey(SymmetricAlgorithm.AES.getValue()).getEncoded();
-            String aesKey = Base64.getEncoder().encodeToString(aesKeyBase64);
-            System.out.println("aesKey: " + aesKey);
-            // 使用RSA公钥加密AES秘钥
-            RSA rsa = new RSA(null, ApiSecurity.RSA_PUBLIC_KEY);
-            byte[] encryptedByte = rsa.encrypt(aesKey, KeyType.PublicKey);
-            String encrypted = Base64.getEncoder().encodeToString(encryptedByte);
-            System.out.println(encrypted);
-            // aes加密
-            AES aes = new AES("CBC", "PKCS7Padding", aesKey.getBytes(StandardCharsets.UTF_8), ApiSecurity.AES_IV.getBytes());
-            String data = aes.encryptHex(result);
-            Map<String, String> map = new HashMap<>();
-            map.put("sign", encrypted);
-            map.put("data", data);
-            return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(map);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return "null";
-        }
-    }
+//    private static String genRequest(Object object) {
+//        try {
+//            ObjectMapper objectMapper = new ObjectMapper();
+//
+//            String result = objectMapper.writeValueAsString(object);
+//            // 生成AES秘钥
+//            byte[] aesKeyBase64 = SecureUtil.generateKey(SymmetricAlgorithm.AES.getValue()).getEncoded();
+//            String aesKey = Base64.getEncoder().encodeToString(aesKeyBase64);
+//            System.out.println("aesKey: " + aesKey);
+//            // 使用RSA公钥加密AES秘钥
+//            RSA rsa = new RSA(null, ApiSecurity.SERVER_RSA_PUBLIC_KEY);
+//            byte[] encryptedByte = rsa.encrypt(aesKey, KeyType.PublicKey);
+//            String encrypted = Base64.getEncoder().encodeToString(encryptedByte);
+//            System.out.println(encrypted);
+//            // aes加密
+//            AES aes = new AES("CBC", "PKCS7Padding", aesKey.getBytes(StandardCharsets.UTF_8), ApiSecurity.AES_IV.getBytes());
+//            String data = aes.encryptHex(result);
+//            Map<String, String> map = new HashMap<>();
+//            map.put("sign", encrypted);
+//            map.put("data", data);
+//            return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(map);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            return "null";
+//        }
+//    }
 
 }

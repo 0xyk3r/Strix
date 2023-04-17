@@ -16,8 +16,8 @@ import javax.validation.constraints.Size;
 @Data
 public class SystemUserUpdateReq extends BaseReq {
 
-    @NotEmpty(groups = {ValidationGroup.Insert.class, ValidationGroup.Update.class}, message = "用户昵称不可为空")
-    @Size(groups = {ValidationGroup.Insert.class, ValidationGroup.Update.class}, min = 2, max = 16, message = "用户昵称长度不符合要求")
+    @NotEmpty(groups = {ValidationGroup.Insert.class, ValidationGroup.Update.class}, message = "{user_name_not_empty}")
+    @Size(groups = {ValidationGroup.Insert.class, ValidationGroup.Update.class}, min = 2, max = 16, message = "{user_name_length_error}")
     @UpdateField
     private String nickname;
 

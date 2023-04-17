@@ -5,6 +5,7 @@ import cn.projectan.strix.core.ret.RetMarker;
 import cn.projectan.strix.model.annotation.IgnoreDataEncryption;
 import cn.projectan.strix.model.request.base.BaseReq;
 import cn.projectan.strix.utils.ApiSignUtil;
+import cn.projectan.strix.utils.I18nUtil;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -59,7 +60,7 @@ public class ApiSecurityCheckAspect {
                 bodyObj = obj;
                 BaseReq bd = (BaseReq) obj;
                 if (!bd.getSecurity()) {
-                    return RetMarker.makeErrRsp(RetCode.BAT_REQUEST, "无效请求");
+                    return RetMarker.makeErrRsp(RetCode.BAT_REQUEST, I18nUtil.getMessage("error.bad_request") + "1");
                 }
             }
         }
@@ -84,7 +85,7 @@ public class ApiSecurityCheckAspect {
         String sign = request.getHeader("sign");
 
         if (!StringUtils.hasText(sign) || !StringUtils.hasText(timestamp)) {
-            return RetMarker.makeErrRsp(RetCode.BAT_REQUEST, "无效请求3");
+            return RetMarker.makeErrRsp(RetCode.BAT_REQUEST, I18nUtil.getMessage("error.bad_request") + "3");
         }
 
         if ("GET".equalsIgnoreCase(request.getMethod())) {
@@ -104,7 +105,7 @@ public class ApiSecurityCheckAspect {
             if (ApiSignUtil.verifySign(paramsMap, timestamp, sign)) {
                 return pjp.proceed();
             } else {
-                return RetMarker.makeErrRsp(RetCode.BAT_REQUEST, "无效请求2");
+                return RetMarker.makeErrRsp(RetCode.BAT_REQUEST, I18nUtil.getMessage("error.bad_request") + "2");
             }
         } else {
             Map<String, Object> paramsMap = new TreeMap<>();
@@ -118,7 +119,7 @@ public class ApiSecurityCheckAspect {
             if (ApiSignUtil.verifySign(paramsMap, timestamp, sign)) {
                 return pjp.proceed();
             } else {
-                return RetMarker.makeErrRsp(RetCode.BAT_REQUEST, "无效请求2");
+                return RetMarker.makeErrRsp(RetCode.BAT_REQUEST, I18nUtil.getMessage("error.bad_request") + "2");
             }
         }
 
