@@ -12,7 +12,6 @@ import oshi.software.os.OSFileStore;
 import oshi.software.os.OperatingSystem;
 import oshi.util.Util;
 
-import java.net.UnknownHostException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
@@ -46,7 +45,7 @@ public class Server {
     /**
      * 磁盘相关信息
      */
-    private List<SysFile> sysFiles = new LinkedList<SysFile>();
+    private List<SysFile> sysFiles = new LinkedList<>();
 
     public Cpu getCpu() {
         return cpu;
@@ -88,7 +87,7 @@ public class Server {
         this.sysFiles = sysFiles;
     }
 
-    public void loadAll() throws Exception {
+    public void loadAll() {
         SystemInfo si = new SystemInfo();
         HardwareAbstractionLayer hal = si.getHardware();
         setCpuInfo(hal.getProcessor());
@@ -147,7 +146,7 @@ public class Server {
     /**
      * 设置Java虚拟机
      */
-    private void setJvmInfo() throws UnknownHostException {
+    private void setJvmInfo() {
         Properties props = System.getProperties();
         jvm.setTotal(Runtime.getRuntime().totalMemory());
         jvm.setMax(Runtime.getRuntime().maxMemory());

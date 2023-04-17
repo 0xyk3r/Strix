@@ -58,7 +58,7 @@ public class WechatSignUtil {
     public static String signBySha1(Map<String, String> data) {
         try {
             Set<String> keySet = data.keySet();
-            String[] array = keySet.toArray(new String[keySet.size()]);
+            String[] array = keySet.toArray(new String[0]);
             StringBuilder sb = new StringBuilder();
             // 字符串排序
             Arrays.sort(array);

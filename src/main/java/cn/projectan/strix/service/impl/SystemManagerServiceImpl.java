@@ -7,7 +7,6 @@ import cn.projectan.strix.model.db.SystemMenu;
 import cn.projectan.strix.model.db.SystemPermission;
 import cn.projectan.strix.service.SystemManagerRoleService;
 import cn.projectan.strix.service.SystemManagerService;
-import cn.projectan.strix.service.SystemRegionService;
 import cn.projectan.strix.service.SystemRoleService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;

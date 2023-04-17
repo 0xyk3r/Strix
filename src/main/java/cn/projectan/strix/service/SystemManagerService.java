@@ -3,7 +3,6 @@ package cn.projectan.strix.service;
 import cn.projectan.strix.model.db.SystemManager;
 import cn.projectan.strix.model.db.SystemMenu;
 import cn.projectan.strix.model.db.SystemPermission;
-import cn.projectan.strix.model.db.SystemRegion;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 import java.util.List;

@@ -28,7 +28,7 @@ public class CacheController extends BaseSystemController {
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
 
-    private final static List<SystemCache> caches = new ArrayList<SystemCache>();
+    private final static List<SystemCache> caches = new ArrayList<>();
 
     static {
         caches.add(new SystemCache(CacheConstants.LOGIN_TOKEN_KEY, "用户信息"));
@@ -42,7 +42,7 @@ public class CacheController extends BaseSystemController {
 
     @GetMapping()
     @PreAuthorize("@ss.hasRead('System_Monitor_Cache')")
-    public RetResult<Object> getCacheInfo() throws Exception {
+    public RetResult<Object> getCacheInfo() {
         Properties info = (Properties) redisTemplate.execute((RedisCallback<Object>) RedisServerCommands::info);
         Properties commandStats = (Properties) redisTemplate.execute((RedisCallback<Object>) connection -> connection.info("commandstats"));
         Object dbSize = redisTemplate.execute((RedisCallback<Object>) RedisServerCommands::dbSize);

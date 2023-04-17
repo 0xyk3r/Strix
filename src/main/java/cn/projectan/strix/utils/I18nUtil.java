@@ -89,7 +89,7 @@ public class I18nUtil {
         try {
             content = messageSource.getMessage(code, args, locale);
         } catch (Exception e) {
-            log.error("国际化参数获取失败===>{},{}", e.getMessage(), e);
+            log.error("国际化参数获取失败，{}", e.getMessage(), e);
             content = defaultMessage;
         }
         return content;

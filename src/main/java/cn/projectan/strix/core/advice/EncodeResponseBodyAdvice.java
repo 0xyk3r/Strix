@@ -25,7 +25,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
  */
 @Slf4j
 @RestControllerAdvice
-public class EncodeResponseBodyAdvice implements ResponseBodyAdvice {
+public class EncodeResponseBodyAdvice implements ResponseBodyAdvice<Object> {
 
     @Autowired
     private ApiSecurity apiSecurity;
@@ -61,11 +61,11 @@ public class EncodeResponseBodyAdvice implements ResponseBodyAdvice {
                         objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(body) +
                         "\n===============================================================");
             }
-            return apiSecurity.encryptByPrivateKey(body);
+            return apiSecurity.encrypt(body);
         } catch (Exception e) {
             try {
                 RetResult<Object> errorResponse = RetMarker.makeErrRsp(RetCode.BAT_REQUEST, "响应封装时发生异常");
-                return apiSecurity.encryptByPrivateKey(errorResponse);
+                return apiSecurity.encrypt(errorResponse);
             } catch (Exception exception) {
                 return "An exception occurred in the API server !";
             }

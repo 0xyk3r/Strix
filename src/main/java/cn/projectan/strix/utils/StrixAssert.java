@@ -29,6 +29,7 @@ public class StrixAssert {
         for (int v : passValue) {
             if (cv == v) {
                 found = true;
+                break;
             }
         }
         if (!found) {
@@ -44,6 +45,7 @@ public class StrixAssert {
         for (int v : passValue) {
             if (checkValue == v) {
                 found = true;
+                break;
             }
         }
         if (!found) {

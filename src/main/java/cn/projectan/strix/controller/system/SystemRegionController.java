@@ -111,13 +111,11 @@ public class SystemRegionController extends BaseSystemController {
         List<SystemRegion> childrenList = systemRegionService.list(systemRegionQueryWrapper);
         if (!isSuperManager()) {
             Set<SystemRegion> resultList = new HashSet<>();
-            getLoginManagerRegionIdList().forEach(lmr -> {
-                childrenList.forEach(c -> {
-                    if (c.getId().equals(lmr)) {
-                        resultList.add(c);
-                    }
-                });
-            });
+            getLoginManagerRegionIdList().forEach(lmr -> childrenList.forEach(c -> {
+                if (c.getId().equals(lmr)) {
+                    resultList.add(c);
+                }
+            }));
             return RetMarker.makeSuccessRsp(new SystemRegionChildrenListResp(resultList));
         }
 

@@ -64,7 +64,7 @@ public class SystemRegionServiceImpl extends ServiceImpl<SystemRegionMapper, Sys
 
         result.put("path", fullPath);
         result.put("name", fullName);
-        result.put("level", level + "");
+        result.put("level", String.valueOf(level));
 
         return result;
     }
