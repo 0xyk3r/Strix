@@ -34,7 +34,7 @@ public class EncodeResponseBodyAdvice implements ResponseBodyAdvice {
 
     @Value("${spring.profiles.active}")
     private String profiles;
-    @Value("${strix.show-response:/false}")
+    @Value("${strix.show-response:false}")
     private Boolean showResponse;
 
     @SneakyThrows
