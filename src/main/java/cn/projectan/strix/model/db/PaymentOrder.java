@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName("tab_payment_order")
+@TableName("sys_payment_order")
 public class PaymentOrder extends BaseModel {
 
     private static final long serialVersionUID = 1L;

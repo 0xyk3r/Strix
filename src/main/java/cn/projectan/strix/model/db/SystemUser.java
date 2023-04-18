@@ -20,7 +20,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-@TableName("tab_system_user")
+@TableName("sys_system_user")
 public class SystemUser extends BaseModel {
 
     private static final long serialVersionUID = 1L;

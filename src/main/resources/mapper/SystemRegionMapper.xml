@@ -4,7 +4,7 @@
 
     <select id="getMatchChildren" resultType="cn.projectan.strix.model.db.SystemRegion">
         select *
-        from tab_system_region
+        from sys_system_region
         where match(full_path) against(#{parentFullName} in boolean mode)
     </select>
 

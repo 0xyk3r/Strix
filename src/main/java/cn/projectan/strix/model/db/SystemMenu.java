@@ -20,7 +20,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-@TableName("tab_system_menu")
+@TableName("sys_system_menu")
 public class SystemMenu extends BaseModel {
 
     private static final long serialVersionUID = 1L;

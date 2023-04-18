@@ -1,8 +1,8 @@
 package cn.projectan.strix.model.db;
 
 import cn.projectan.strix.model.annotation.UniqueDetection;
-import com.baomidou.mybatisplus.annotation.TableName;
 import cn.projectan.strix.model.db.base.BaseModel;
+import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -20,7 +20,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-@TableName("tab_system_region")
+@TableName("sys_system_region")
 public class SystemRegion extends BaseModel {
 
     private static final long serialVersionUID = 1L;

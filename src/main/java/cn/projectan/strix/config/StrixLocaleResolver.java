@@ -1,6 +1,9 @@
 package cn.projectan.strix.config;
 
+import cn.projectan.strix.utils.I18nUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.LocaleResolver;
@@ -16,8 +19,16 @@ import java.util.Locale;
 @Configuration
 public class StrixLocaleResolver implements LocaleResolver {
 
+    @Value("${strix.default-locale:zh_CN}")
+    private String defaultLocale;
+
     @Autowired
     private HttpServletRequest request;
+
+    @Bean
+    public LocaleResolver localeResolver() {
+        return new StrixLocaleResolver();
+    }
 
     public Locale getLocal() {
         return resolveLocale(request);
@@ -26,13 +37,10 @@ public class StrixLocaleResolver implements LocaleResolver {
     @Override
     public Locale resolveLocale(HttpServletRequest request) {
         // 获取请求中的语言参数
-        String language = request.getParameter("lang");
-        // 如果没有就使用默认的 根据主机的语言环境生成一个 Locale
-        Locale locale = Locale.getDefault();
-        // 如果请求的链接中携带了 国际化的参数
+        String language = request.getHeader("lang");
+        Locale locale = I18nUtil.convertLocale(defaultLocale);
         if (StringUtils.hasText(language)) {
-            String[] s = language.split("_");
-            locale = new Locale(s[0], s[1]);
+            locale = I18nUtil.convertLocale(language);
         }
         return locale;
     }
