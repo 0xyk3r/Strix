@@ -57,7 +57,7 @@ public class MysqlGeneratorNew {
                 .templateConfig(builder -> builder.disable(TemplateType.CONTROLLER)
                         .build())
                 .strategyConfig((scanner, builder) -> builder.addInclude(getTables(scanner.apply("请输入表名，多个英文逗号分隔。所有输入 all")))
-                        .addTablePrefix("tab_") // 表前缀过滤
+                        .addTablePrefix("sys_", "tab_") // 表前缀过滤
                         // Entity 策略配置
                         .entityBuilder()
                         .enableLombok()

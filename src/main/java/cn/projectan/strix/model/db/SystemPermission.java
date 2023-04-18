@@ -20,7 +20,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-@TableName("tab_system_permission")
+@TableName("sys_system_permission")
 public class SystemPermission extends BaseModel {
 
     private static final long serialVersionUID = 1L;

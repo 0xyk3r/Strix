@@ -1,13 +1,13 @@
 package cn.projectan.strix.model.db;
 
-import com.baomidou.mybatisplus.annotation.TableName;
 import cn.projectan.strix.model.db.base.BaseModel;
+import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
  * <p>
- * 
+ *
  * </p>
  *
  * @author 安炯奕
@@ -15,7 +15,7 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName("tab_wechat_push")
+@TableName("sys_wechat_push")
 public class WechatPush extends BaseModel {
 
     private static final long serialVersionUID = 1L;

@@ -41,11 +41,6 @@ public class EncodeResponseBodyAdvice implements ResponseBodyAdvice<Object> {
     @Override
     public boolean supports(MethodParameter methodParameter, Class aClass) {
         String className = methodParameter.getContainingClass().getName();
-        // 排除swagger3的接口
-        if (className.startsWith("springfox") || className.startsWith("io.swagger")) {
-            return false;
-        }
-
         boolean apiSecurityCheckAspect = className.equals("cn.projectan.strix.core.aop.ApiSecurityCheckAspect");
         boolean ignoreDataEncryptionByException = className.equals("cn.projectan.strix.core.advice.GlobalExceptionHandler");
         boolean ignoreDataEncryptionByClass = methodParameter.getContainingClass().isAnnotationPresent(IgnoreDataEncryption.class);
@@ -57,7 +52,8 @@ public class EncodeResponseBodyAdvice implements ResponseBodyAdvice<Object> {
     public Object beforeBodyWrite(Object body, MethodParameter methodParameter, MediaType mediaType, Class aClass, ServerHttpRequest serverHttpRequest, ServerHttpResponse serverHttpResponse) {
         try {
             if ("dev".equals(profiles) && showResponse) {
-                log.info("返回数据原内容:\n===============================================================\n" +
+                log.info("\n===============================================================\n" +
+                        "返回数据原内容: ------" + methodParameter.getContainingClass().getName() + "------\n" +
                         objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(body) +
                         "\n===============================================================");
             }

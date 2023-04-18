@@ -17,7 +17,7 @@ import lombok.experimental.Accessors;
 @Getter
 @Setter
 @Accessors(chain = true)
-@TableName("tab_security_url")
+@TableName("sys_security_url")
 public class SecurityUrl extends BaseModel {
 
     private static final long serialVersionUID = 1L;

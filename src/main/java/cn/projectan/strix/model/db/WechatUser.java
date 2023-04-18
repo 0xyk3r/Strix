@@ -15,7 +15,7 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName("tab_wechat_user")
+@TableName("sys_wechat_user")
 public class WechatUser extends BaseModel {
 
     private static final long serialVersionUID = 1L;

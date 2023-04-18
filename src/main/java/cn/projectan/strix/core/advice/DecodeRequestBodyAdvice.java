@@ -43,11 +43,6 @@ public class DecodeRequestBodyAdvice implements RequestBodyAdvice {
     @Override
     public boolean supports(MethodParameter methodParameter, Type type, Class<? extends HttpMessageConverter<?>> aClass) {
         String className = methodParameter.getContainingClass().getName();
-        // 排除swagger3的接口
-        if (className.startsWith("springfox") || className.startsWith("io.swagger")) {
-            return false;
-        }
-
         boolean apiSecurityCheckAspect = className.equals("cn.projectan.strix.core.aop.ApiSecurityCheckAspect");
         boolean ignoreDataEncryptionByException = className.equals("cn.projectan.strix.core.advice.GlobalExceptionHandler");
         boolean ignoreDataEncryptionByClass = methodParameter.getContainingClass().isAnnotationPresent(IgnoreDataEncryption.class);
