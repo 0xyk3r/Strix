@@ -1,7 +1,9 @@
 package cn.projectan.strix.model.db.base;
 
 import com.baomidou.mybatisplus.annotation.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
@@ -10,6 +12,8 @@ import java.time.LocalDateTime;
  * @date 2021/5/2 16:54
  */
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class BaseModel implements java.io.Serializable {
 
     /**
@@ -46,4 +50,15 @@ public class BaseModel implements java.io.Serializable {
      */
     private String updateBy;
 
+    public BaseModel(String createBy, String updateBy) {
+        this.createBy = createBy;
+        this.updateBy = updateBy;
+    }
+
+    public BaseModel(LocalDateTime createTime, String createBy, LocalDateTime updateTime, String updateBy) {
+        this.createTime = createTime;
+        this.createBy = createBy;
+        this.updateTime = updateTime;
+        this.updateBy = updateBy;
+    }
 }

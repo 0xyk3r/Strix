@@ -14,10 +14,14 @@ import javax.servlet.http.HttpServletRequest;
  */
 public class BaseApiController {
 
-    protected SystemUser getLoginSystemUser() {
+    protected SystemUser getLoginUser() {
         SystemUser systemUser = (SystemUser) SecurityUtils.getAuthentication().getPrincipal();
         Assert.notNull(systemUser, "获取登录信息失败");
         return systemUser;
+    }
+
+    protected String getLoginUserId() {
+        return getLoginUser().getId();
     }
 
     protected HttpServletRequest getRequest() {
