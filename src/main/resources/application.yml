@@ -29,6 +29,13 @@ strix:
     req-get-lock-limit: 5
     req-get-lock-seconds: 300
     req-get-minute-limit: 20
+  verifier-counter:
+    sms:
+      limit: 5
+      seconds: 300
+    email:
+      limit: 5
+      seconds: 300
   use-oss-aliyun: false
   use-sms-aliyun: false
   use-wechat-auth: false
