@@ -1,10 +1,10 @@
-name: Build and Run with Docker
+name: Test On Mac Docker
 
 on:
   push:
     branches: [ "master" ]
-  pull_request:
-    branches: [ "master" ]
+  #  pull_request:
+  #    branches: [ "master" ]
 
   workflow_dispatch:
 
@@ -12,7 +12,7 @@ jobs:
   build:
     runs-on: self-hosted
     steps:
-      - name: Checkout
+      - name: Checkout form Git
         uses: actions/checkout@v3.3.0
         with:
           clean: false
@@ -21,7 +21,7 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew build
       - name: Check Docker Container Exist If Not Create
-        run: docker ps -a | grep Strix > /dev/null || docker run -p 9889:80 --name Strix -d spring-boot-app:latest
+        run: docker ps -a | grep Strix > /dev/null || docker run -p 9889:80 --name Strix -d springboot-app:latest
       - name: Kill App In Docker Container
         run: docker exec -i Strix bash -c "pkill -f /mnt/app.jar && echo 'Process killed.' || echo 'Process not found.'" || true
       - name: Copy Jar File To Docker Container

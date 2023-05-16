@@ -26,6 +26,7 @@ jar {
         configurations.runtimeClasspath.filter { it.name.endsWith('strix-captcha-1.1.1.jar') }.collect {
             zipTree(it).matching {
                 exclude 'META-INF/services/cn.projectan.captcha.service.CaptchaCacheService'
+                exclude 'META-INF/spring-configuration-metadata.json'
             }
         }
     }
@@ -47,10 +48,10 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-aop'
     implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-    implementation 'org.springframework.boot:spring-boot-configuration-processor'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     // lombok
     compileOnly 'org.projectlombok:lombok'
@@ -73,6 +74,9 @@ dependencies {
     implementation 'commons-io:commons-io:2.11.0'
     implementation 'com.github.oshi:oshi-core:6.4.1'
     implementation 'org.lionsoul:ip2region:2.7.0'
+    implementation 'javax.mail:javax.mail-api:1.6.2'
+
+    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
 }
 
 tasks.withType(JavaCompile).configureEach {
