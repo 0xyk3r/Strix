@@ -18,12 +18,11 @@ import java.util.stream.Collectors;
 public class RelationDiffHandler {
 
     /**
-     * 获取关系Id列表差异
+     * 获取关系Id列表差异 并返回差异Map
      *
      * @param oldKeys 旧的关系Id列表
      * @param newKeys 新的关系Id列表
      * @return 返回差异列表 包含remove和add两个key
-     * @deprecated 请使用{@link #handle(List, List, HandleFunction)}
      */
     public static Map<String, List<String>> handle(List<String> oldKeys, List<String> newKeys) {
         Map<String, List<String>> result = new HashMap<>();
@@ -43,7 +42,7 @@ public class RelationDiffHandler {
     }
 
     /**
-     * 处理关系Id列表差异
+     * 处理关系Id列表差异 并执行处理函数
      *
      * @param oldKeys 旧的关系Id列表
      * @param newKeys 新的关系Id列表

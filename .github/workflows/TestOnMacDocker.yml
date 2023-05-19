@@ -27,4 +27,4 @@ jobs:
       - name: Copy Jar File To Docker Container
         run: docker cp ./build/libs/Strix.jar Strix:/mnt/app.jar
       - name: Run Jar With Java In Docker Container
-        run: docker exec -i Strix bash -c "nohup java -jar -server -Xms1024m -Xmx1024m /mnt/app.jar --spring.profiles.active=test > /mnt/app.log 2>&1 &"
+        run: docker exec -i Strix bash -c "nohup java -jar /mnt/app.jar -Dspring.profiles.active=test -Duser.timezone=Asia/Shanghai -server -Xms512m -Xmx1024m -XX:MetaspaceSize=128m -XX:MaxMetaspaceSize=512m -XX:+HeapDumpOnOutOfMemoryError -XX:+PrintGCDateStamps  -XX:+PrintGCDetails -XX:NewRatio=1 -XX:SurvivorRatio=30 -XX:+UseParallelGC -XX:+UseParallelOldGC > /mnt/app.log 2>&1 &"
