@@ -3,6 +3,7 @@ name: Test On Mac Docker
 on:
   push:
     branches: [ "master" ]
+  # pull_request
   #  pull_request:
   #    branches: [ "master" ]
 
@@ -27,4 +28,4 @@ jobs:
       - name: Copy Jar File To Docker Container
         run: docker cp ./build/libs/Strix.jar Strix:/mnt/app.jar
       - name: Run Jar With Java In Docker Container
-        run: docker exec -i Strix bash -c "nohup java -jar -server -Xms1024m -Xmx1024m /mnt/app.jar --spring.profiles.active=test > /mnt/app.log 2>&1 & echo $! > app.pid"
+        run: docker exec -i Strix bash -c "nohup java -jar -server -Xms1024m -Xmx1024m /mnt/app.jar --spring.profiles.active=test > /mnt/app.log 2>&1 &"
