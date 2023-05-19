@@ -3,6 +3,7 @@ name: Test On Mac Docker
 on:
   push:
     branches: [ "master" ]
+  # pull_request
   #  pull_request:
   #    branches: [ "master" ]
 
