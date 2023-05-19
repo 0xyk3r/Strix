@@ -95,11 +95,11 @@ public class SystemRoleController extends BaseSystemController {
         AtomicBoolean needReturnNewData = new AtomicBoolean(false);
 
         switch (singleFieldModifyReq.getField()) {
-            case "name":
+            case "name" -> {
                 systemRoleUpdateWrapper.set("name", singleFieldModifyReq.getValue());
                 Assert.isTrue(systemRoleService.update(systemRoleUpdateWrapper), "修改失败");
-                break;
-            case "menus":
+            }
+            case "menus" -> {
                 // 修改角色的菜单权限
                 QueryWrapper<SystemRoleMenu> systemRoleMenuQueryWrapper = new QueryWrapper<>();
                 systemRoleMenuQueryWrapper.select("system_menu_id");
@@ -128,8 +128,8 @@ public class SystemRoleController extends BaseSystemController {
                     systemMenuCache.updateRedisBySystemRoleId(roleId);
                     needReturnNewData.set(true);
                 }));
-                break;
-            case "permissions":
+            }
+            case "permissions" -> {
                 // 修改角色的系统权限
                 QueryWrapper<SystemRolePermission> systemRolePermissionQueryWrapper = new QueryWrapper<>();
                 systemRolePermissionQueryWrapper.select("system_permission_id");
@@ -158,9 +158,10 @@ public class SystemRoleController extends BaseSystemController {
                     systemPermissionCache.updateRedisBySystemRoleId(roleId);
                     needReturnNewData.set(true);
                 }));
-                break;
-            default:
+            }
+            default -> {
                 return RetMarker.makeErrRsp("参数错误");
+            }
         }
         if (needReturnNewData.get()) {
             List<SystemMenu> menusByRoleId = systemRoleService.getMenusByRoleId(systemRole.getId());

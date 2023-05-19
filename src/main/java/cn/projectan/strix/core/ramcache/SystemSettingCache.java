@@ -2,11 +2,11 @@ package cn.projectan.strix.core.ramcache;
 
 import cn.projectan.strix.model.db.SystemSetting;
 import cn.projectan.strix.service.SystemSettingService;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,7 +24,7 @@ public class SystemSettingCache {
     @Autowired
     private SystemSettingService systemSettingService;
 
-    private Map<String, String> instance = new HashMap<>();
+    private final Map<String, String> instance = new HashMap<>();
 
     @PostConstruct
     private void init() {

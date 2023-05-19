@@ -3,6 +3,10 @@ package cn.projectan.strix.core.ss.filter;
 import cn.projectan.strix.core.ss.token.SystemUserAuthenticationToken;
 import cn.projectan.strix.model.db.SystemUser;
 import cn.projectan.strix.utils.RedisUtil;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
@@ -11,10 +15,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Collections;
 
@@ -39,11 +39,10 @@ public class SystemUserAuthenticationTokenFilter extends OncePerRequestFilter {
 
         // 从redis中获取用户信息
         Object loginInfo = redisUtil.get("strix:system:user:login_token:token:" + token);
-        if (!(loginInfo instanceof SystemUser)) {
+        if (!(loginInfo instanceof SystemUser systemUser)) {
             filterChain.doFilter(request, response);
             return;
         }
-        SystemUser systemUser = (SystemUser) loginInfo;
 
         // 存入SecurityContextHolder
         SystemUserAuthenticationToken authentication =

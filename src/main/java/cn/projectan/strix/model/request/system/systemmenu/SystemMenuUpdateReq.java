@@ -3,9 +3,8 @@ package cn.projectan.strix.model.request.system.systemmenu;
 import cn.projectan.strix.core.validation.ValidationGroup;
 import cn.projectan.strix.model.annotation.UpdateField;
 import cn.projectan.strix.model.request.base.BaseReq;
+import jakarta.validation.constraints.*;
 import lombok.Data;
-
-import javax.validation.constraints.*;
 
 /**
  * @author 安炯奕

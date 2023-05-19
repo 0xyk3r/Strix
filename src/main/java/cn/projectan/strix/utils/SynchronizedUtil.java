@@ -31,8 +31,6 @@ public class SynchronizedUtil {
 
         try {
             runnable.run();
-        } catch (Exception e) {
-            throw e;
         } finally {
             if (mutex.getQueueLength() == 0) {
                 mutexCache.remove(key);

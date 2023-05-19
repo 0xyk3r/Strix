@@ -1,5 +1,6 @@
 package cn.projectan.strix.service;
 
+import cn.projectan.strix.core.ss.details.LoginSystemManager;
 import cn.projectan.strix.model.db.SystemManager;
 import cn.projectan.strix.model.db.SystemMenu;
 import cn.projectan.strix.model.db.SystemPermission;
@@ -26,5 +27,13 @@ public interface SystemManagerService extends IService<SystemManager> {
      * 获取管理用户的所有菜单权限
      */
     List<SystemMenu> getAllSystemMenuByManager(String systemManagerId);
+
+    /**
+     * 登陆时获取用户完整权限信息
+     *
+     * @param systemManagerId 管理用户ID
+     * @return LoginSystemManager
+     */
+    LoginSystemManager getLoginInfo(String systemManagerId);
 
 }

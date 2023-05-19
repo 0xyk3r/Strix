@@ -1,13 +1,15 @@
 package cn.projectan.strix.core.ramcache;
 
+import cn.projectan.strix.core.ss.details.LoginSystemManager;
 import cn.projectan.strix.model.db.SystemPermission;
+import cn.projectan.strix.service.SystemManagerService;
 import cn.projectan.strix.service.SystemPermissionService;
 import cn.projectan.strix.utils.RedisUtil;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -21,6 +23,8 @@ import java.util.stream.Collectors;
 @Component
 public class SystemPermissionCache {
 
+    @Autowired
+    private SystemManagerService systemManagerService;
     @Autowired
     private SystemPermissionService systemPermissionService;
     @Autowired
@@ -58,6 +62,14 @@ public class SystemPermissionCache {
     public void updateRedisBySystemManageId(String managerId) {
         redisUtil.delLike("strix:system:manager:permission_by_smid::" + managerId);
         redisUtil.delLike("strix:system:manager:is_super_manager_by_smid::" + managerId);
+
+        // TODO 暂不确定写在这里是否合适
+        Object existToken = redisUtil.get("strix:system:manager:login_token:login:id_" + managerId);
+        if (existToken != null) {
+            // 刷新登录token信息
+            LoginSystemManager loginSystemManager = systemManagerService.getLoginInfo(managerId);
+            redisUtil.set("strix:system:manager:login_token:token:" + existToken, loginSystemManager);
+        }
     }
 
     public void updateRamAndRedis() {

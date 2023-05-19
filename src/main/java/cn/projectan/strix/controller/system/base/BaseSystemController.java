@@ -4,10 +4,11 @@ import cn.projectan.strix.core.ss.details.LoginSystemManager;
 import cn.projectan.strix.model.constant.SystemManagerType;
 import cn.projectan.strix.model.db.SystemManager;
 import cn.projectan.strix.utils.SecurityUtils;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 /**
@@ -15,6 +16,8 @@ import java.util.List;
  * @date 2021/5/13 18:30
  */
 public class BaseSystemController {
+
+    private static final List<String> NO_REGION_PERMISSION = List.of("NullData");
 
     protected LoginSystemManager getLoginSystemManager() {
         return SecurityUtils.getLoginSystemManager();
@@ -55,16 +58,16 @@ public class BaseSystemController {
 
     protected List<String> getLoginManagerRegionIdList() {
         List<String> loginSystemManagerRegionIdList = getLoginSystemManager().getRegionIds();
-        if (loginSystemManagerRegionIdList.size() == 0) {
-            loginSystemManagerRegionIdList.add("NullData");
+        if (CollectionUtils.isEmpty(loginSystemManagerRegionIdList)) {
+            return NO_REGION_PERMISSION;
         }
         return loginSystemManagerRegionIdList;
     }
 
     protected List<String> getLoginManagerRegionIdListExcludeCurrent() {
         List<String> loginSystemManagerRegionIdList = getLoginSystemManager().getRegionIds();
-        if (loginSystemManagerRegionIdList.size() == 0) {
-            loginSystemManagerRegionIdList.add("NullData");
+        if (CollectionUtils.isEmpty(loginSystemManagerRegionIdList)) {
+            return NO_REGION_PERMISSION;
         }
         loginSystemManagerRegionIdList.remove(getLoginManagerRegionId());
         return loginSystemManagerRegionIdList;

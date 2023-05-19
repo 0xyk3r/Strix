@@ -44,7 +44,7 @@ public class ApiSecurityClientTest {
         decrypt = decrypt.replace("\n", "");
         decrypt = decrypt.replace(" ", "");
 
-        Map<String, Object> encryptMap = objectMapper.readValue(encrypt, new TypeReference<Map<String, Object>>() {
+        Map<String, Object> encryptMap = objectMapper.readValue(encrypt, new TypeReference<>() {
         });
 
         System.out.println("☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★ REQUEST  BODY ☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★");
@@ -52,7 +52,7 @@ public class ApiSecurityClientTest {
 
         System.out.println("☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★ 解 密 响 应 体 ☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★");
         String decryptByPublicKey = apiSecurityClient.decrypt(decrypt);
-        Map<String, Object> m2 = objectMapper.readValue(decryptByPublicKey, new TypeReference<Map<String, Object>>() {
+        Map<String, Object> m2 = objectMapper.readValue(decryptByPublicKey, new TypeReference<>() {
         });
         System.out.println(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(m2));
         System.out.println("☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★");

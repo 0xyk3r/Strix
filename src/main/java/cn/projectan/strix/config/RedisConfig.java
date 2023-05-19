@@ -103,7 +103,6 @@ public class RedisConfig {
     }
 
     private Jackson2JsonRedisSerializer<Object> jackson2JsonRedisSerializer() {
-        Jackson2JsonRedisSerializer<Object> jackson2JsonRedisSerializer = new Jackson2JsonRedisSerializer<>(Object.class);
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         objectMapper.setTimeZone(TimeZone.getTimeZone("GMT+8"));
@@ -120,8 +119,7 @@ public class RedisConfig {
         javaTimeModule.addSerializer(LocalTime.class, new LocalTimeSerializer(DateTimeFormatter.ofPattern("HH:mm:ss")));
         objectMapper.registerModule(javaTimeModule);
 
-        jackson2JsonRedisSerializer.setObjectMapper(objectMapper);
-        return jackson2JsonRedisSerializer;
+        return new Jackson2JsonRedisSerializer<>(objectMapper, Object.class);
     }
 
 }

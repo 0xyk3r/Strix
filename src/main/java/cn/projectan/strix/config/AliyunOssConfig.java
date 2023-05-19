@@ -17,7 +17,7 @@ import java.util.Map;
 @ConditionalOnProperty(prefix = "strix", name = "use-oss-aliyun", havingValue = "true")
 public class AliyunOssConfig {
 
-    private Map<String, AliyunOssInstance> aliyunOssInstanceMap = new HashMap<>();
+    private final Map<String, AliyunOssInstance> aliyunOssInstanceMap = new HashMap<>();
 
     public void addInstance(String id, AliyunOssInstance instance) {
         aliyunOssInstanceMap.put(id, instance);

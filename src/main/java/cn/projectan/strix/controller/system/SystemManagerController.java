@@ -115,17 +115,17 @@ public class SystemManagerController extends BaseSystemController {
         AtomicBoolean needReturnNewData = new AtomicBoolean(false);
 
         switch (singleFieldModifyReq.getField()) {
-            case "managerStatus":
+            case "managerStatus" -> {
                 StrixAssert.in(singleFieldModifyReq.getValue(), "参数错误", SystemManagerStatus.BANNED, SystemManagerStatus.NORMAL);
                 systemManagerUpdateWrapper.set("manager_status", singleFieldModifyReq.getValue());
                 Assert.isTrue(systemManagerService.update(systemManagerUpdateWrapper), "修改失败");
-                break;
-            case "managerType":
+            }
+            case "managerType" -> {
                 StrixAssert.in(singleFieldModifyReq.getValue(), "参数错误", SystemManagerType.SUPER_ACCOUNT, SystemManagerType.PLATFORM_ACCOUNT);
                 systemManagerUpdateWrapper.set("manager_type", singleFieldModifyReq.getValue());
                 Assert.isTrue(systemManagerService.update(systemManagerUpdateWrapper), "修改失败");
-                break;
-            case "role":
+            }
+            case "role" -> {
                 // 修改管理用户的角色
                 QueryWrapper<SystemManagerRole> systemManagerRoleQueryWrapper = new QueryWrapper<>();
                 systemManagerRoleQueryWrapper.select("system_manager_role_id");
@@ -155,9 +155,10 @@ public class SystemManagerController extends BaseSystemController {
                     systemPermissionCache.updateRedisBySystemManageId(managerId);
                     needReturnNewData.set(true);
                 });
-                break;
-            default:
+            }
+            default -> {
                 return RetMarker.makeErrRsp("参数错误");
+            }
         }
 
         if (needReturnNewData.get()) {

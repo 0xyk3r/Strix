@@ -21,7 +21,7 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew build
       - name: Check Docker Container Exist If Not Create
-        run: docker ps -a | grep Strix > /dev/null || docker run -p 9889:80 --name Strix -d springboot-app:latest
+        run: docker ps -a | grep Strix > /dev/null || docker run -p 9889:80 --name Strix -d springboot3:latest
       - name: Kill App In Docker Container
         run: docker exec -i Strix bash -c "pkill -f /mnt/app.jar && echo 'Process killed.' || echo 'Process not found.'" || true
       - name: Copy Jar File To Docker Container

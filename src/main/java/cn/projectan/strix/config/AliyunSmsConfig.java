@@ -17,7 +17,7 @@ import java.util.Map;
 @ConditionalOnProperty(prefix = "strix", name = "use-sms-aliyun", havingValue = "true")
 public class AliyunSmsConfig {
 
-    private Map<String, IAcsClient> aliyunSmsInstanceMap = new HashMap<>();
+    private final Map<String, IAcsClient> aliyunSmsInstanceMap = new HashMap<>();
 
     public void addInstance(String id, IAcsClient instance) {
         aliyunSmsInstanceMap.put(id, instance);

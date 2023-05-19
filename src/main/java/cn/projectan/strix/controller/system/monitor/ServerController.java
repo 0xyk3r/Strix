@@ -23,7 +23,7 @@ public class ServerController extends BaseSystemController {
 
     @GetMapping()
     @PreAuthorize("@ss.hasRead('System_Monitor_Cache')")
-    public RetResult<Object> getServerInfo() throws Exception {
+    public RetResult<Object> getServerInfo() {
         Server server = new Server();
         server.loadAll();
         return RetMarker.makeSuccessRsp(Collections.singletonMap("server", server));

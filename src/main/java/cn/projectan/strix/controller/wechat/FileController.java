@@ -6,12 +6,12 @@ import cn.projectan.strix.core.ret.RetMarker;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.model.annotation.IgnoreDataEncryption;
 import cn.projectan.strix.service.SystemFileService;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
 
 /**

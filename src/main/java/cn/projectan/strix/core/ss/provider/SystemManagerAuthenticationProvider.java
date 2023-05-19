@@ -1,6 +1,7 @@
 package cn.projectan.strix.core.ss.provider;
 
 import cn.projectan.strix.core.ss.token.SystemManagerAuthenticationToken;
+import jakarta.annotation.Resource;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -8,8 +9,6 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
-
-import javax.annotation.Resource;
 
 /**
  * @author 安炯奕

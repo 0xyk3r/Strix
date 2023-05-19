@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 /**
  * @author 安炯奕
  * @date 2021/8/26 11:31
- * @deprecated
+ * @deprecated 已使用 Spring Security 替代
  */
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)

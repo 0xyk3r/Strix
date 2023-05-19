@@ -106,7 +106,7 @@ public class WxPayTools {
 
             boolean verifySignature = WxPayKit.verifySignature(response, wxPayConfig.getV3PlatformCertPath());
             Assert.isTrue(verifySignature, "校验微信JSAPI支付请求响应签名失败： " + response.getBody());
-            Map<String, Object> respMap = objectMapper.readValue(response.getBody(), new TypeReference<Map<String, Object>>() {
+            Map<String, Object> respMap = objectMapper.readValue(response.getBody(), new TypeReference<>() {
             });
 
             String mediaId = MapUtil.getStr(respMap, "media_id");

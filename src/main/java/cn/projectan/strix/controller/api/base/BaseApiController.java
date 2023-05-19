@@ -2,11 +2,10 @@ package cn.projectan.strix.controller.api.base;
 
 import cn.projectan.strix.model.db.SystemUser;
 import cn.projectan.strix.utils.SecurityUtils;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.util.Assert;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
-
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author 安炯奕

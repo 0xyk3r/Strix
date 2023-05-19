@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.io.Serial;
+
 /**
  * <p>
  *
@@ -18,6 +20,7 @@ import lombok.EqualsAndHashCode;
 @TableName("sys_payment_config")
 public class PaymentConfig extends BaseModel {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /**

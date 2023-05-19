@@ -9,6 +9,7 @@ import cn.projectan.strix.utils.I18nUtil;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -21,7 +22,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TimeZone;
@@ -56,9 +56,8 @@ public class ApiSecurityCheckAspect {
         Object[] args = pjp.getArgs();
         Object bodyObj = null;
         for (Object obj : args) {
-            if (obj instanceof BaseReq) {
+            if (obj instanceof BaseReq bd) {
                 bodyObj = obj;
-                BaseReq bd = (BaseReq) obj;
                 if (!bd.getSecurity()) {
                     return RetMarker.makeErrRsp(RetCode.BAT_REQUEST, I18nUtil.getMessage("error.bad_request") + "1");
                 }

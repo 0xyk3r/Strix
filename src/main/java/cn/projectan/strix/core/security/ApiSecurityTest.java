@@ -44,7 +44,7 @@ public class ApiSecurityTest {
         decrypt = decrypt.replace("\n", "");
         decrypt = decrypt.replace(" ", "");
 
-        Map<String, Object> encryptMap = objectMapper.readValue(encrypt, new TypeReference<Map<String, Object>>() {
+        Map<String, Object> encryptMap = objectMapper.readValue(encrypt, new TypeReference<>() {
         });
         System.out.println("===================使用客户端公钥加密（服务端响应给客户端）===================");
         System.out.println(objectMapper.writeValueAsString(apiSecurity.encrypt(encryptMap)));
@@ -52,7 +52,7 @@ public class ApiSecurityTest {
         try {
             System.out.println("===================私钥解密（解密客户端请求）===================");
             String decryptByPrivateKey = apiSecurity.decrypt(decrypt);
-            Map<String, Object> m1 = objectMapper.readValue(decryptByPrivateKey, new TypeReference<Map<String, Object>>() {
+            Map<String, Object> m1 = objectMapper.readValue(decryptByPrivateKey, new TypeReference<>() {
             });
             System.out.println(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(m1));
         } catch (Throwable e) {

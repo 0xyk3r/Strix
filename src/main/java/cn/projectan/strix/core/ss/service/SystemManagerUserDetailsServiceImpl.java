@@ -1,8 +1,6 @@
 package cn.projectan.strix.core.ss.service;
 
-import cn.projectan.strix.core.ss.details.LoginSystemManager;
 import cn.projectan.strix.model.db.SystemManager;
-import cn.projectan.strix.model.db.SystemPermission;
 import cn.projectan.strix.service.SystemManagerService;
 import cn.projectan.strix.service.SystemRegionService;
 import cn.projectan.strix.utils.I18nUtil;
@@ -12,9 +10,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
-
-import java.util.List;
 
 /**
  * @author 安炯奕
@@ -38,13 +33,7 @@ public class SystemManagerUserDetailsServiceImpl implements UserDetailsService {
             throw new UsernameNotFoundException(I18nUtil.getMessage("warn.login"));
         }
 
-        List<SystemPermission> permissions = systemManagerService.getAllSystemPermissionByManager(systemManager.getId());
-        List<String> regionIds = null;
-        if (StringUtils.hasText(systemManager.getRegionId())) {
-            regionIds = systemRegionService.getChildrenIdList(systemManager.getRegionId());
-        }
-
-        return new LoginSystemManager(systemManager, permissions, regionIds);
+        return systemManagerService.getLoginInfo(systemManager.getId());
     }
 
 }

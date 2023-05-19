@@ -22,7 +22,7 @@ public class GlobalWechatConfig {
     @Autowired
     private WechatUtils wechatUtils;
 
-    private Map<String, WechatConfigBean> wechatConfigInstanceMap = new HashMap<>();
+    private final Map<String, WechatConfigBean> wechatConfigInstanceMap = new HashMap<>();
 
     public void addInstance(WechatConfig wechatConfig) {
         WechatConfigBean wechatConfigBean = new WechatConfigBean();

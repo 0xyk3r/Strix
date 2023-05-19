@@ -83,18 +83,15 @@ public class SystemUserController extends BaseSystemController {
         systemUserUpdateWrapper.eq("id", userId);
 
         switch (singleFieldModifyReq.getField()) {
-            case "nickname":
-                systemUserUpdateWrapper.set("nickname", singleFieldModifyReq.getValue());
-                break;
-            case "status":
+            case "nickname" -> systemUserUpdateWrapper.set("nickname", singleFieldModifyReq.getValue());
+            case "status" -> {
                 StrixAssert.in(singleFieldModifyReq.getValue(), "参数错误", SystemUserStatus.BANNED, SystemUserStatus.NORMAL);
                 systemUserUpdateWrapper.set("status", singleFieldModifyReq.getValue());
-                break;
-            case "phoneNumber":
-                systemUserUpdateWrapper.set("phone_number", singleFieldModifyReq.getValue());
-                break;
-            default:
+            }
+            case "phoneNumber" -> systemUserUpdateWrapper.set("phone_number", singleFieldModifyReq.getValue());
+            default -> {
                 return RetMarker.makeErrRsp("参数错误");
+            }
         }
 
         Assert.isTrue(systemUserService.update(systemUserUpdateWrapper), "修改失败");

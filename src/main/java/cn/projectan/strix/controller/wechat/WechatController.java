@@ -15,6 +15,8 @@ import cn.projectan.strix.utils.RedisUtil;
 import cn.projectan.strix.utils.WechatSignUtil;
 import cn.projectan.strix.utils.WechatUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,10 +27,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -72,7 +73,7 @@ public class WechatController {
             if (params == null) {
                 params = "";
             }
-            response.sendRedirect(wechatUtils.getAuthorizeUrl(wechatConfigBean.getAppId(), URLEncoder.encode(wechatConfigBean.getAuthUrl() + wechatConfigId + "/auth?model=" + model + "&params=" + params, "utf-8"), 1));
+            response.sendRedirect(wechatUtils.getAuthorizeUrl(wechatConfigBean.getAppId(), URLEncoder.encode(wechatConfigBean.getAuthUrl() + wechatConfigId + "/auth?model=" + model + "&params=" + params, StandardCharsets.UTF_8), 1));
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }

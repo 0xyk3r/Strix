@@ -21,6 +21,7 @@ import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 
 /**
  * 请求体统一处理 用于请求体解密
@@ -76,7 +77,7 @@ public class DecodeRequestBodyAdvice implements RequestBodyAdvice {
     }
 
     private class HttpInputMessageHandler implements HttpInputMessage {
-        private HttpHeaders headers;
+        private final HttpHeaders headers;
         private InputStream body;
 
         public HttpInputMessageHandler(HttpInputMessage inputMessage) throws Exception {
@@ -85,11 +86,7 @@ public class DecodeRequestBodyAdvice implements RequestBodyAdvice {
             String originalBody = StrUtil.str(IoUtil.readBytes(this.body, false), StandardCharsets.UTF_8);
 
             String handlingData = handleSecurity(originalBody);
-            if (handlingData != null) {
-                this.body = IOUtils.toInputStream(handlingData, StandardCharsets.UTF_8);
-            } else {
-                this.body = IOUtils.toInputStream("{\"security\": false}", StandardCharsets.UTF_8);
-            }
+            this.body = IOUtils.toInputStream(Objects.requireNonNullElse(handlingData, "{\"security\": false}"), StandardCharsets.UTF_8);
         }
 
         @Override

@@ -11,10 +11,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer;
+import org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -27,7 +27,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
  */
 @Configuration
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
+@EnableMethodSecurity(prePostEnabled = true, securedEnabled = true)
 public class SecurityConfig {
 
     @Bean
@@ -50,17 +50,17 @@ public class SecurityConfig {
                                                    AuthenticationEntryPointImpl authenticationEntryPoint,
                                                    AnonymousUrlInit anonymousUrlInit) throws Exception {
 
-        ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry registry = http.authorizeRequests();
-        anonymousUrlInit.getUrls().forEach(url -> registry.antMatchers(url).permitAll());
+        AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry registry = http.authorizeHttpRequests();
+        anonymousUrlInit.getUrls().forEach(url -> registry.requestMatchers(url).permitAll());
 
         http
                 .csrf().disable()
                 .formLogin().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
-                .authorizeRequests()
-                .antMatchers("/system/**").hasRole("SYSTEM_MANAGER")
-                .antMatchers("/wechat/**").hasRole("SYSTEM_USER")
+                .authorizeHttpRequests()
+                .requestMatchers("/system/**").hasRole("SYSTEM_MANAGER")
+                .requestMatchers("/wechat/**").hasRole("SYSTEM_USER")
                 // 所有请求全部需要鉴权认证
                 .anyRequest().authenticated();
 

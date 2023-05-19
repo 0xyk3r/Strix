@@ -9,6 +9,7 @@ import cn.projectan.strix.model.db.SystemPermission;
 import cn.projectan.strix.service.SystemManagerService;
 import cn.projectan.strix.service.SystemRegionService;
 import cn.projectan.strix.utils.RedisUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -19,7 +20,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,12 +28,13 @@ import java.util.List;
  *
  * @author 安炯奕
  * @date 2021/5/13 13:30
- * @deprecated
+ * @deprecated 已使用 Spring Security 替代
  */
 @Slf4j
 //@Aspect
 //@Order(2)
 //@Component
+@Deprecated
 public class SystemPermissionAspect {
 
     @Autowired
@@ -70,7 +71,7 @@ public class SystemPermissionAspect {
         }
         List<String> systemManagerRegionIdList = new ArrayList<>();
         if ("StrixDevTestToken00195342366901".equals(token)) {
-            // TODO 开发专用token
+            // 开发专用token
             SystemManager systemManager = systemManagerService.getById("anjiongyi");
             request.setAttribute("_LoginSystemManager", systemManager);
             if (StringUtils.hasText(systemManager.getRegionId())) {

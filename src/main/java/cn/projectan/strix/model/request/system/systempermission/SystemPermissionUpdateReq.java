@@ -3,11 +3,10 @@ package cn.projectan.strix.model.request.system.systempermission;
 import cn.projectan.strix.core.validation.ValidationGroup;
 import cn.projectan.strix.model.annotation.UpdateField;
 import cn.projectan.strix.model.request.base.BaseReq;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
-
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 
 /**
  * @author 安炯奕

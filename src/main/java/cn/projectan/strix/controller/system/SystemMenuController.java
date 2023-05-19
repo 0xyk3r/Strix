@@ -28,7 +28,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * @author 安炯奕
@@ -75,12 +74,10 @@ public class SystemMenuController extends BaseSystemController {
         UpdateWrapper<SystemMenu> systemMenuUpdateWrapper = new UpdateWrapper<>();
         systemMenuUpdateWrapper.eq("id", menuId);
 
-        switch (singleFieldModifyReq.getField()) {
-            case "icon":
-                systemMenuUpdateWrapper.set("icon", singleFieldModifyReq.getValue());
-                break;
-            default:
-                return RetMarker.makeErrRsp("参数错误");
+        if (singleFieldModifyReq.getField().equals("icon")) {
+            systemMenuUpdateWrapper.set("icon", singleFieldModifyReq.getValue());
+        } else {
+            return RetMarker.makeErrRsp("参数错误");
         }
         Assert.isTrue(systemMenuService.update(systemMenuUpdateWrapper), "修改失败");
         // 更新缓存
@@ -161,7 +158,7 @@ public class SystemMenuController extends BaseSystemController {
         SystemMenu parentSystemMenu = menus.stream().filter(m -> m.getId().equals(parentId)).findFirst().orElse(null);
         if (parentSystemMenu == null) return null;
 
-        List<String> subMenuIds = menus.stream().filter(m -> m.getParentId().equals(parentId)).map(SystemMenu::getId).collect(Collectors.toList());
+        List<String> subMenuIds = menus.stream().filter(m -> m.getParentId().equals(parentId)).map(SystemMenu::getId).toList();
         for (String subMenuId : subMenuIds) {
             Set<String> systemMenuChildrenIdList = findSystemMenuChildrenIdList(menus, subMenuId);
             if (systemMenuChildrenIdList != null) {

@@ -35,9 +35,6 @@ public class SmsUtil {
 
     public void send(SystemSmsLog log) {
         IAcsClient client = aliyunSmsConfig.getInstance(log.getSmsConfigId());
-//        String signName = "北京惠泊车";
-//        String templateCode = "SMS_176975427";
-//        String templateParam = "{\"code\":\"" + code + "\"}";
 
         CommonRequest request = new CommonRequest();
         request.setSysMethod(MethodType.POST);
@@ -52,7 +49,7 @@ public class SmsUtil {
         try {
             CommonResponse response = client.getCommonResponse(request);
             ObjectMapper objectMapper = new ObjectMapper();
-            Map<String, Object> resultMap = objectMapper.readValue(response.getData(), new TypeReference<Map<String, Object>>() {
+            Map<String, Object> resultMap = objectMapper.readValue(response.getData(), new TypeReference<>() {
             });
 
             String resultCode = MapUtil.getStr(resultMap, "Code");
