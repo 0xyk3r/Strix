@@ -107,6 +107,7 @@ public class SecurityUtils {
      * @return 结果
      */
     public static boolean isSuperAdmin() {
+        // TODO 这里理论上应该是判断角色是否为超级管理员，但是目前判断的是账号的数据权限。需要修改。
         return getSystemManager().getManagerType() == SystemManagerType.SUPER_ACCOUNT;
     }
 

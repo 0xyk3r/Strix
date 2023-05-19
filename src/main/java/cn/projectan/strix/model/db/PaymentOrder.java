@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.io.Serial;
 import java.time.LocalDateTime;
 
 /**
@@ -20,6 +21,7 @@ import java.time.LocalDateTime;
 @TableName("sys_payment_order")
 public class PaymentOrder extends BaseModel {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /**

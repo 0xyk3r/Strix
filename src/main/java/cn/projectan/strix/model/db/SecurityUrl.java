@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
+import java.io.Serial;
+
 /**
  * <p>
  *
@@ -20,6 +22,7 @@ import lombok.experimental.Accessors;
 @TableName("sys_security_url")
 public class SecurityUrl extends BaseModel {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     private String url;

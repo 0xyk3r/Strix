@@ -12,7 +12,6 @@ import cn.projectan.strix.core.ss.details.LoginSystemManager;
 import cn.projectan.strix.model.constant.SystemManagerStatus;
 import cn.projectan.strix.model.db.SystemManager;
 import cn.projectan.strix.model.db.SystemMenu;
-import cn.projectan.strix.model.db.SystemPermission;
 import cn.projectan.strix.model.request.system.SystemLoginReq;
 import cn.projectan.strix.model.response.system.SystemLoginResp;
 import cn.projectan.strix.model.response.system.SystemMenuResp;
@@ -86,12 +85,7 @@ public class SystemController extends BaseSystemController {
             effectiveTime = Long.parseLong(et);
         }
 
-        List<SystemPermission> permissions = systemManagerService.getAllSystemPermissionByManager(systemManager.getId());
-        List<String> regionIds = null;
-        if (StringUtils.hasText(systemManager.getRegionId())) {
-            regionIds = systemRegionService.getChildrenIdList(systemManager.getRegionId());
-        }
-        LoginSystemManager loginSystemManager = new LoginSystemManager(systemManager, permissions, regionIds);
+        LoginSystemManager loginSystemManager = systemManagerService.getLoginInfo(systemManager.getId());
 
         String token = IdUtil.fastSimpleUUID();
         redisUtil.set("strix:system:manager:login_token:login:id_" + systemManager.getId(), token, effectiveTime, TimeUnit.MINUTES);

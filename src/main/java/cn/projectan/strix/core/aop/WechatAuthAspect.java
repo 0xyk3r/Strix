@@ -7,6 +7,7 @@ import cn.projectan.strix.model.annotation.NeedWechatAuth;
 import cn.projectan.strix.model.db.WechatUser;
 import cn.projectan.strix.service.WechatUserService;
 import cn.projectan.strix.utils.RedisUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -18,18 +19,18 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.servlet.HandlerMapping;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 
 /**
  * @author 安炯奕
  * @date 2021/8/26 11:55
- * @deprecated
+ * @deprecated 已使用 Spring Security 替代
  */
 @Slf4j
 //@Aspect
 //@Order(3)
 //@Component
+@Deprecated
 public class WechatAuthAspect {
 
     @Autowired
@@ -64,7 +65,7 @@ public class WechatAuthAspect {
             return RetMarker.makeErrRsp(RetCode.NOT_LOGIN, "您还没有授权微信登录，请授权后再使用");
         }
         if ("StrixDevTestToken00195342366901".equals(token)) {
-            // TODO 开发专用token
+            // 开发专用token
             WechatUser wechatUser = wechatUserService.getById("1");
             request.setAttribute("_LoginWechatUser", wechatUser);
             return pjp.proceed();

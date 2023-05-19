@@ -8,6 +8,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+import java.io.Serial;
+
 /**
  * <p>
  *
@@ -23,6 +25,7 @@ import lombok.NoArgsConstructor;
 @TableName("sys_system_permission")
 public class SystemPermission extends BaseModel {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /**

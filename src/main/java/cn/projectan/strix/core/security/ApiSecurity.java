@@ -72,7 +72,7 @@ public class ApiSecurity {
     public String decrypt(String body) {
         String content = null;
         try {
-            Map<String, String> map = objectMapper.readValue(body, new TypeReference<Map<String, String>>() {
+            Map<String, String> map = objectMapper.readValue(body, new TypeReference<>() {
             });
             // 从请求结果中获取加密数据和加密签名
             String data = map.get("data");

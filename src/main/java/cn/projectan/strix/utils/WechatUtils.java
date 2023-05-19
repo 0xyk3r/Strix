@@ -39,7 +39,7 @@ public class WechatUtils {
         try {
             String json = OkHttpUtil.httpGet(url);
             log.info(json);
-            Map<String, Object> resultData = objectMapper.readValue(json, new TypeReference<Map<String, Object>>() {
+            Map<String, Object> resultData = objectMapper.readValue(json, new TypeReference<>() {
             });
             return resultData.get("access_token").toString();
         } catch (Exception e) {
@@ -58,7 +58,7 @@ public class WechatUtils {
         try {
             String json = OkHttpUtil.httpGet(url);
             log.info(json);
-            Map<String, Object> data = objectMapper.readValue(json, new TypeReference<Map<String, Object>>() {
+            Map<String, Object> data = objectMapper.readValue(json, new TypeReference<>() {
             });
             return data.get("ticket").toString();
         } catch (Exception e) {
@@ -94,7 +94,7 @@ public class WechatUtils {
         requestUrl = requestUrl.replace("SECRET", appSecret);
         requestUrl = requestUrl.replace("CODE", code);
         // 获取网页授权凭证
-        Map<String, Object> data = objectMapper.readValue(OkHttpUtil.httpGet(requestUrl), new TypeReference<Map<String, Object>>() {
+        Map<String, Object> data = objectMapper.readValue(OkHttpUtil.httpGet(requestUrl), new TypeReference<>() {
         });
         if (null != data) {
             try {

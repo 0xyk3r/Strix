@@ -136,16 +136,14 @@ public class SystemRegionController extends BaseSystemController {
         UpdateWrapper<SystemRegion> systemRegionUpdateWrapper = new UpdateWrapper<>();
         systemRegionUpdateWrapper.eq("id", id);
 
-        switch (singleFieldModifyReq.getField()) {
-            case "parentId":
-                systemRegionUpdateWrapper.set("parent_id", id);
-                Map<String, String> fullInfo = systemRegionService.getFullInfo(id);
-                systemRegionUpdateWrapper.set("full_name", fullInfo.get("name"));
-                systemRegionUpdateWrapper.set("full_path", fullInfo.get("path"));
-                systemRegionUpdateWrapper.set("level", fullInfo.get("level"));
-                break;
-            default:
-                return RetMarker.makeErrRsp("参数错误");
+        if (singleFieldModifyReq.getField().equals("parentId")) {
+            systemRegionUpdateWrapper.set("parent_id", id);
+            Map<String, String> fullInfo = systemRegionService.getFullInfo(id);
+            systemRegionUpdateWrapper.set("full_name", fullInfo.get("name"));
+            systemRegionUpdateWrapper.set("full_path", fullInfo.get("path"));
+            systemRegionUpdateWrapper.set("level", fullInfo.get("level"));
+        } else {
+            return RetMarker.makeErrRsp("参数错误");
         }
 
         Assert.isTrue(systemRegionService.update(systemRegionUpdateWrapper), "修改失败");

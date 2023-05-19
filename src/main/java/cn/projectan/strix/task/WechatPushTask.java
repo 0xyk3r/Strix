@@ -77,7 +77,7 @@ public class WechatPushTask {
             public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
                 String result = response.body().string();
                 wp.setResultBody(result);
-                Map<String, Object> resultMap = objectMapper.readValue(result, new TypeReference<Map<String, Object>>() {
+                Map<String, Object> resultMap = objectMapper.readValue(result, new TypeReference<>() {
                 });
 
                 Integer errCode = MapUtil.getInt(resultMap, "errcode", -1);

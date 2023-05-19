@@ -43,3 +43,4 @@ out/
 # 项目排除路径
 /logs/
 /others/
+*.bak

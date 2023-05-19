@@ -32,7 +32,7 @@ public class GlobalPaymentConfig {
     @Value("${spring.application.name}")
     private String applicationName;
 
-    private Map<String, BasePaymentConfig> paymentConfigInstanceMap = new HashMap<>();
+    private final Map<String, BasePaymentConfig> paymentConfigInstanceMap = new HashMap<>();
 
     public void addInstance(String id, PaymentConfig paymentConfig) {
         // TODO 增加其他平台的处理 并改为枚举
@@ -40,7 +40,7 @@ public class GlobalPaymentConfig {
             String configData = paymentConfig.getConfigData();
             if (StringUtils.hasText(configData)) {
                 try {
-                    WxPayConfig.WxPayConfigFull config = objectMapper.readValue(configData, new TypeReference<WxPayConfig.WxPayConfigFull>() {
+                    WxPayConfig.WxPayConfigFull config = objectMapper.readValue(configData, new TypeReference<>() {
                     });
                     WxPayConfig wxPayConfig = new WxPayConfig();
                     wxPayConfig.setId(paymentConfig.getId());

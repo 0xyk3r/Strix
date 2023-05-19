@@ -88,7 +88,7 @@ public class PaymentOrderServiceImpl extends ServiceImpl<PaymentOrderMapper, Pay
         WxPayConfig wxPayConfig = (WxPayConfig) globalPaymentConfig.getInstance(paymentOrder.getPaymentConfigId());
         Assert.notNull(wxPayConfig, "支付配置无效，无法创建订单");
         try {
-            Map<String, String> pd = objectMapper.readValue(paymentOrder.getPaymentData(), new TypeReference<Map<String, String>>() {
+            Map<String, String> pd = objectMapper.readValue(paymentOrder.getPaymentData(), new TypeReference<>() {
             });
 
             String callbackUrl = wxPayConfig.getCallbackUrl().replace("{mchName}", paymentOrder.getPaymentConfigId());
@@ -123,7 +123,7 @@ public class PaymentOrderServiceImpl extends ServiceImpl<PaymentOrderMapper, Pay
             boolean verifySignature = WxPayKit.verifySignature(response, wxPayConfig.getV3PlatformCertPath());
             Assert.isTrue(verifySignature, "校验微信JSAPI支付请求响应签名失败： " + response.getBody());
 
-            Map<String, Object> jsonResponse = objectMapper.readValue(response.getBody(), new TypeReference<Map<String, Object>>() {
+            Map<String, Object> jsonResponse = objectMapper.readValue(response.getBody(), new TypeReference<>() {
             });
             String prepayId = MapUtil.getStr(jsonResponse, "prepay_id");
 
@@ -146,7 +146,7 @@ public class PaymentOrderServiceImpl extends ServiceImpl<PaymentOrderMapper, Pay
         Assert.notNull(paymentOrder, "未查询到商户订单号对应订单");
 
         Integer paymentOrderTotalAmount = paymentOrder.getTotalAmount();
-        Map<String, Object> amountMap = MapUtil.get(payResult, "amount", new cn.hutool.core.lang.TypeReference<Map<String, Object>>() {
+        Map<String, Object> amountMap = MapUtil.get(payResult, "amount", new cn.hutool.core.lang.TypeReference<>() {
         });
         Integer payerTotal = MapUtil.getInt(amountMap, "payer_total");
         Assert.isTrue(paymentOrderTotalAmount.equals(payerTotal), "实际支付金额与订单金额不一致");

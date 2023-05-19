@@ -25,40 +25,12 @@ public class CountryUtil {
      */
     static {
         try {
-            countryInfos = OBJECT_MAPPER.readValue(COUNTRY_INFO_JSON, new TypeReference<List<CountryInfo>>() {
+            countryInfos = OBJECT_MAPPER.readValue(COUNTRY_INFO_JSON, new TypeReference<>() {
             });
         } catch (JsonProcessingException e) {
             log.error("初始化国家信息失败", e);
         }
     }
-
-//    static {
-//        countryInfos = new ArrayList<>();
-//        ResourceBundleBasedAdapter resourceBundleBasedAdapter = ((ResourceBundleBasedAdapter) LocaleProviderAdapter.forJRE());
-//        OpenListResourceBundle openListResourceBundle = resourceBundleBasedAdapter.getLocaleData().getLocaleNames(Locale.CHINA);
-//        // 提取出国家的二字码，长度为2和全是大写
-//        List<String> twoCodes = openListResourceBundle.keySet().stream()
-//                .filter(code -> code.length() == 2 && StringUtils.isAllUpperCase(code)).sorted(Comparator.naturalOrder()).collect(Collectors.toList());
-//
-//        twoCodes.forEach(twoCode -> {
-//            Locale locale = new Locale("", twoCode);
-//            String countryName = openListResourceBundle.getString(twoCode);
-//            String threeCode = null;
-//            try {
-//                // 获取国家的三字码
-//                threeCode = locale.getISO3Country();
-//            } catch (Exception ignored) {
-//            }
-//
-//            countryInfos.add(new CountryInfo(countryName, twoCode, threeCode));
-//        });
-//
-//        try {
-//            System.out.println(OBJECT_MAPPER.writeValueAsString(countryInfos));
-//        } catch (JsonProcessingException e) {
-//            e.printStackTrace();
-//        }
-//    }
 
     public static List<CountryInfo> getCountryInfos() {
         return countryInfos;

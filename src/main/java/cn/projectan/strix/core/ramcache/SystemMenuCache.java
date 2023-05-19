@@ -4,11 +4,11 @@ import cn.projectan.strix.model.db.SystemMenu;
 import cn.projectan.strix.service.SystemMenuService;
 import cn.projectan.strix.utils.RedisUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.List;
 

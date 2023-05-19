@@ -17,7 +17,6 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
 
 import java.util.*;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 /**
  * @author 安炯奕
@@ -40,7 +39,7 @@ public class AnonymousUrlInit implements InitializingBean, ApplicationContextAwa
                                 .select("url")
                                 .eq("rule_type", "permitAll")
                 )
-                .stream().map(SecurityUrl::getUrl).collect(Collectors.toList());
+                .stream().map(SecurityUrl::getUrl).toList();
         urls.addAll(urlList);
     }
 
