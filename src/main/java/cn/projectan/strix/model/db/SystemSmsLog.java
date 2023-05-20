@@ -1,5 +1,6 @@
 package cn.projectan.strix.model.db;
 
+import cn.projectan.strix.model.constant.StrixSmsPlatform;
 import cn.projectan.strix.model.db.base.BaseModel;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
@@ -24,7 +25,9 @@ public class SystemSmsLog extends BaseModel {
     private static final long serialVersionUID = 1L;
 
     /**
-     * 短信发送平台 1阿里云
+     * 短信发送平台
+     *
+     * @see StrixSmsPlatform
      */
     private Integer smsPlatform;
 

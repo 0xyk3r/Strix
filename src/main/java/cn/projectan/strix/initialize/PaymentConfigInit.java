@@ -20,7 +20,7 @@ import java.util.List;
 @Slf4j
 @Order(value = 11)
 @Component
-@ConditionalOnProperty(prefix = "strix", name = "use-wechat-payment", havingValue = "true")
+@ConditionalOnProperty(prefix = "strix.module", name = "payment", havingValue = "true")
 public class PaymentConfigInit implements ApplicationRunner {
 
     @Autowired

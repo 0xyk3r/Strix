@@ -19,6 +19,12 @@ spring:
   messages:
     basename: i18n/strix
 strix:
+  module:
+    sms: true
+    oss: false
+    auth: false
+    push: false
+    payment: false
   captcha:
     type: blockPuzzle
     cache-type: redis
@@ -36,9 +42,4 @@ strix:
     email:
       limit: 5
       seconds: 300
-  use-oss-aliyun: false
-  use-sms-aliyun: false
-  use-wechat-auth: false
-  use-wechat-push: false
-  use-wechat-payment: false
   default-locale: zh_CN

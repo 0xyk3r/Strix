@@ -22,6 +22,8 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TimeZone;
@@ -95,6 +97,8 @@ public class ApiSecurityCheckAspect {
                 for (String param : params) {
                     String[] kv = param.split("=");
                     if (kv.length == 2) {
+                        // 这里kv[1]是url编码后的值，需要解码
+                        kv[1] = URLDecoder.decode(kv[1], StandardCharsets.UTF_8);
                         paramsMap.put(kv[0], kv[1]);
                     }
                 }

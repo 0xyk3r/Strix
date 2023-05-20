@@ -58,7 +58,7 @@ public class FindSameValueInObjectList {
      * @param <B>        对象B泛型
      * @return 两个对象集合中查找两个字段相同的对象集合
      */
-    public static <A, B> Set<A> fuckComm(List<A> aList, List<B> bList, String aFieldName, String bFieldName) {
+    public static <A, B> Set<A> find(List<A> aList, List<B> bList, String aFieldName, String bFieldName) {
         Set<A> result = new HashSet<>();
 
         try {

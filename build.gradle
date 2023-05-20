@@ -66,15 +66,14 @@ dependencies {
     implementation files('libs/strix-captcha-1.2.0.jar')
     // other
     implementation 'com.squareup.okhttp3:okhttp:4.10.0'
-    implementation 'com.aliyun:aliyun-java-sdk-core:4.6.3'
-    implementation 'com.aliyun.oss:aliyun-sdk-oss:3.16.2'
+    implementation 'com.aliyun:aliyun-java-sdk-dysmsapi:2.2.1'
+    implementation 'com.aliyun.oss:aliyun-sdk-oss:3.16.3'
     implementation 'cn.hutool:hutool-all:5.8.18'
     implementation 'org.bouncycastle:bcprov-jdk15to18:1.73'
     implementation 'com.github.javen205:IJPay-WxPay:2.9.7'
     implementation 'commons-io:commons-io:2.11.0'
     implementation 'com.github.oshi:oshi-core:6.4.1'
     implementation 'org.lionsoul:ip2region:2.7.0'
-//    implementation 'javax.mail:javax.mail-api:1.6.2'
     implementation 'jakarta.mail:jakarta.mail-api:2.1.1'
 
     annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"

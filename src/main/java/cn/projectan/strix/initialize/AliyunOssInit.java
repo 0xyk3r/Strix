@@ -22,7 +22,7 @@ import java.util.List;
 @Slf4j
 @Order(value = 1)
 @Component
-@ConditionalOnProperty(prefix = "strix", name = "use-oss-aliyun", havingValue = "true")
+@ConditionalOnProperty(prefix = "strix.module", name = "oss", havingValue = "true")
 public class AliyunOssInit implements ApplicationRunner {
 
     @Autowired
