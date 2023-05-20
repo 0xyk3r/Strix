@@ -16,10 +16,6 @@
 
     现在的相关代码依托答辩，需要重构
 
-# Spring Security
-
-    redis中的permission和regionIds需要在被修改时更新
-
 # 菜单权限和系统权限重构
 
     计划将菜单权限以MENU_开头，交给Spring Security管理。这样只要给角色分配了菜单权限就可以访问该菜单的基础功能（列表、查看单个信息）。
