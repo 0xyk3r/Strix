@@ -29,7 +29,7 @@ import java.util.Map;
 @Slf4j
 @Component
 @EnableScheduling
-@ConditionalOnProperty(prefix = "strix", name = "use-wechat-push", havingValue = "true")
+@ConditionalOnProperty(prefix = "strix.module", name = "push", havingValue = "true")
 public class WechatPushTask {
 
     @Autowired

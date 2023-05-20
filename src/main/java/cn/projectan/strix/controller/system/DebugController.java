@@ -3,18 +3,22 @@ package cn.projectan.strix.controller.system;
 import cn.projectan.strix.core.ret.RetMarker;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.model.annotation.IgnoreDataEncryption;
+import cn.projectan.strix.model.system.StrixSmsTemplate;
 import cn.projectan.strix.service.SystemManagerService;
 import cn.projectan.strix.utils.Ip2RegionUtil;
 import cn.projectan.strix.utils.IpUtils;
+import cn.projectan.strix.utils.SmsUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -23,14 +27,24 @@ import java.util.Map;
  */
 @Slf4j
 @RestController
-@RequestMapping("system")
+@RequestMapping("debug")
+@ConditionalOnProperty(prefix = "spring.profiles", name = "active", havingValue = "dev")
 public class DebugController {
 
+    @Autowired
+    private SmsUtil smsUtil;
     @Autowired
     private SystemManagerService systemManagerService;
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @IgnoreDataEncryption
+    @GetMapping("test")
+    public RetResult<Object> test(HttpServletRequest request) {
+        List<StrixSmsTemplate> signs = smsUtil.getTemplateList("HuiBoChe");
+        return RetMarker.makeSuccessRsp(signs);
+    }
 
     @IgnoreDataEncryption
     @GetMapping("ip")

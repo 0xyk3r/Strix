@@ -1,5 +1,6 @@
 package cn.projectan.strix;
 
+import cn.projectan.strix.model.properties.StrixModuleProperties;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -19,7 +20,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableScheduling
 @EnableAspectJAutoProxy(exposeProxy = true)
 @SpringBootApplication(scanBasePackages = "cn.projectan")
-@EnableConfigurationProperties
+@EnableConfigurationProperties(StrixModuleProperties.class)
 public class StrixApplication {
 
     public static void main(String[] args) {

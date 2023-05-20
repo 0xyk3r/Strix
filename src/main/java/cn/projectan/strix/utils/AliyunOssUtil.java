@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
  */
 @Slf4j
 @Component
-@ConditionalOnProperty(prefix = "strix", name = "use-oss-aliyun", havingValue = "true")
+@ConditionalOnProperty(prefix = "strix.module", name = "oss", havingValue = "true")
 public class AliyunOssUtil {
 
     @Value("${spring.profiles.active}")

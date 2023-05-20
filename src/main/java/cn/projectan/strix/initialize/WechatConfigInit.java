@@ -20,7 +20,7 @@ import java.util.List;
 @Slf4j
 @Order(value = 10)
 @Component
-@ConditionalOnProperty(prefix = "strix", name = "use-wechat-auth", havingValue = "true")
+@ConditionalOnProperty(prefix = "strix.module", name = "auth", havingValue = "true")
 public class WechatConfigInit implements ApplicationRunner {
 
     @Autowired
