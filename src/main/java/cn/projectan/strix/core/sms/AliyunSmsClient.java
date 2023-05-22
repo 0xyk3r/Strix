@@ -3,7 +3,7 @@ package cn.projectan.strix.core.sms;
 import cn.projectan.strix.model.constant.StrixSmsSignStatus;
 import cn.projectan.strix.model.constant.StrixSmsTemplateStatus;
 import cn.projectan.strix.model.constant.StrixSmsTemplateType;
-import cn.projectan.strix.model.db.SystemSmsLog;
+import cn.projectan.strix.model.db.SmsLog;
 import cn.projectan.strix.model.system.StrixSmsSign;
 import cn.projectan.strix.model.system.StrixSmsTemplate;
 import com.aliyuncs.IAcsClient;
@@ -33,7 +33,7 @@ public class AliyunSmsClient extends StrixSmsClient {
     }
 
     @Override
-    public void send(SystemSmsLog sms) {
+    public void send(SmsLog sms) {
         SendSmsRequest request = new SendSmsRequest();
         request.setPhoneNumbers(sms.getPhoneNumber());
         request.setSignName(sms.getSmsSignName());
@@ -99,6 +99,14 @@ public class AliyunSmsClient extends StrixSmsClient {
                         t.getTemplateContent(),
                         LocalDateTime.parse(t.getCreateDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
                 )).toList();
+    }
+
+    @Override
+    public void close() {
+        if (client != null) {
+            client.shutdown();
+            client = null;
+        }
     }
 
     private List<QuerySmsSignListResponse.QuerySmsSignDTO> getSignListPrivate(int index) {

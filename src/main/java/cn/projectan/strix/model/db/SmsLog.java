@@ -18,11 +18,16 @@ import java.io.Serial;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName("sys_system_sms_log")
-public class SystemSmsLog extends BaseModel {
+@TableName("sys_sms_log")
+public class SmsLog extends BaseModel {
 
     @Serial
     private static final long serialVersionUID = 1L;
+
+    /**
+     * 使用的短信配置 Key
+     */
+    private String smsConfigKey;
 
     /**
      * 短信发送平台
@@ -32,11 +37,6 @@ public class SystemSmsLog extends BaseModel {
     private Integer smsPlatform;
 
     /**
-     * 使用的短信配置id
-     */
-    private String smsConfigId;
-
-    /**
      * 短信发往号码
      */
     private String phoneNumber;
@@ -44,7 +44,7 @@ public class SystemSmsLog extends BaseModel {
     /**
      * 请求短信用户ip地址
      */
-    private String senderIpAddress;
+    private String requesterIpAddress;
 
     /**
      * 短信签名

@@ -55,4 +55,4 @@ mybatis-plus:
     cache-enabled: true
     call-setters-on-nulls: true
 strix:
-  show-response: true
+  show-response: false

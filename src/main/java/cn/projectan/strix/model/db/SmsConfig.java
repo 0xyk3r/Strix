@@ -1,28 +1,47 @@
 package cn.projectan.strix.model.db;
 
+import cn.projectan.strix.model.annotation.UniqueDetection;
 import cn.projectan.strix.model.constant.StrixSmsPlatform;
 import cn.projectan.strix.model.db.base.BaseModel;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 import java.io.Serial;
 
 /**
  * <p>
- * 阿里云短信服务配置
+ * 短信服务配置
  * </p>
  *
  * @author 安炯奕
- * @since 2021-05-02
+ * @since 2023/5/22 11:59
  */
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @TableName("sys_sms_config")
 public class SmsConfig extends BaseModel {
 
     @Serial
     private static final long serialVersionUID = 1L;
+
+    /**
+     * key
+     */
+    @TableField("`key`")
+    @UniqueDetection("配置 Key ")
+    private String key;
+
+    /**
+     * 短信服务名称
+     */
+    @TableField("`name`")
+    private String name;
 
     /**
      * 短信服务平台
@@ -34,17 +53,24 @@ public class SmsConfig extends BaseModel {
     /**
      * 短信服务地区ID
      */
+    @UniqueDetection(value = "地域", group = 1)
     private String regionId;
 
     /**
      * 授权令牌key
      */
+    @UniqueDetection(value = "AccessKey", group = 1)
     private String accessKey;
 
     /**
      * 授权令牌秘钥
      */
+    @UniqueDetection(value = "AccessSecret", group = 1)
     private String accessSecret;
 
+    /**
+     * 备注
+     */
+    private String remark;
 
 }

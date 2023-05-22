@@ -23,7 +23,7 @@ public class SystemSmsSignListQueryResp extends BasePageResp {
     private List<SmsSignItem> signs = new ArrayList<>();
 
     public SystemSmsSignListQueryResp(List<SmsSign> data, Long total) {
-        signs = data.stream().map(d -> new SmsSignItem(d.getId(), d.getConfigId(), d.getName(), d.getStatus(), d.getCreateTime())).collect(Collectors.toList());
+        signs = data.stream().map(d -> new SmsSignItem(d.getId(), d.getConfigKey(), d.getName(), d.getStatus(), d.getCreateTime())).collect(Collectors.toList());
         this.setTotal(total);
     }
 
@@ -34,7 +34,7 @@ public class SystemSmsSignListQueryResp extends BasePageResp {
 
         private String id;
 
-        private String configId;
+        private String configKey;
 
         private String name;
 

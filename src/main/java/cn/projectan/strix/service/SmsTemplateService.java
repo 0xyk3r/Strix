@@ -16,6 +16,6 @@ import java.util.List;
  */
 public interface SmsTemplateService extends IService<SmsTemplate> {
 
-        void syncTemplateList(String configId, List<StrixSmsTemplate> templateList);
+        void syncTemplateList(String configKey, List<StrixSmsTemplate> templateList);
 
 }

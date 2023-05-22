@@ -18,7 +18,7 @@ import cn.projectan.strix.service.SystemManagerRoleService;
 import cn.projectan.strix.service.SystemRoleMenuService;
 import cn.projectan.strix.service.SystemRolePermissionService;
 import cn.projectan.strix.service.SystemRoleService;
-import cn.projectan.strix.utils.RelationDiffHandler;
+import cn.projectan.strix.utils.KeysDiffHandler;
 import cn.projectan.strix.utils.UniqueDetectionTool;
 import cn.projectan.strix.utils.UpdateConditionBuilder;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -105,7 +105,7 @@ public class SystemRoleController extends BaseSystemController {
                 systemRoleMenuQueryWrapper.select("system_menu_id");
                 systemRoleMenuQueryWrapper.eq("system_role_id", roleId);
                 List<String> systemRoleMenuIds = systemRoleMenuService.listObjs(systemRoleMenuQueryWrapper, Object::toString);
-                RelationDiffHandler.handle(systemRoleMenuIds, Arrays.asList(singleFieldModifyReq.getValue().split(",")), ((removeKeys, addKeys) -> {
+                KeysDiffHandler.handle(systemRoleMenuIds, Arrays.asList(singleFieldModifyReq.getValue().split(",")), ((removeKeys, addKeys) -> {
                     if (removeKeys.size() > 0) {
                         QueryWrapper<SystemRoleMenu> removeQueryWrapper = new QueryWrapper<>();
                         removeQueryWrapper.eq("system_role_id", roleId);
@@ -135,7 +135,7 @@ public class SystemRoleController extends BaseSystemController {
                 systemRolePermissionQueryWrapper.select("system_permission_id");
                 systemRolePermissionQueryWrapper.eq("system_role_id", roleId);
                 List<String> systemRolePermissionIds = systemRolePermissionService.listObjs(systemRolePermissionQueryWrapper, Object::toString);
-                RelationDiffHandler.handle(systemRolePermissionIds, Arrays.asList(singleFieldModifyReq.getValue().split(",")), ((removeKeys, addKeys) -> {
+                KeysDiffHandler.handle(systemRolePermissionIds, Arrays.asList(singleFieldModifyReq.getValue().split(",")), ((removeKeys, addKeys) -> {
                     if (removeKeys.size() > 0) {
                         QueryWrapper<SystemRolePermission> removeQueryWrapper = new QueryWrapper<>();
                         removeQueryWrapper.eq("system_role_id", roleId);

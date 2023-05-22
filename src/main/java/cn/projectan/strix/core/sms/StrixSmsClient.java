@@ -1,6 +1,6 @@
 package cn.projectan.strix.core.sms;
 
-import cn.projectan.strix.model.db.SystemSmsLog;
+import cn.projectan.strix.model.db.SmsLog;
 import cn.projectan.strix.model.system.StrixSmsSign;
 import cn.projectan.strix.model.system.StrixSmsTemplate;
 import lombok.Getter;
@@ -16,10 +16,12 @@ import java.util.List;
 @Setter
 public abstract class StrixSmsClient {
 
-    public abstract void send(SystemSmsLog sms);
+    public abstract void send(SmsLog sms);
 
     public abstract List<StrixSmsSign> getSignList();
 
     public abstract List<StrixSmsTemplate> getTemplateList();
+
+    public abstract void close();
 
 }

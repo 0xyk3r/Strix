@@ -4,7 +4,7 @@ import cn.projectan.strix.mapper.SmsTemplateMapper;
 import cn.projectan.strix.model.db.SmsTemplate;
 import cn.projectan.strix.model.system.StrixSmsTemplate;
 import cn.projectan.strix.service.SmsTemplateService;
-import cn.projectan.strix.utils.RelationDiffHandler;
+import cn.projectan.strix.utils.KeysDiffHandler;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
@@ -27,18 +27,18 @@ public class SmsTemplateServiceImpl extends ServiceImpl<SmsTemplateMapper, SmsTe
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void syncTemplateList(String configId, List<StrixSmsTemplate> templateList) {
+    public void syncTemplateList(String configKey, List<StrixSmsTemplate> templateList) {
         QueryWrapper<SmsTemplate> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("config_id", configId);
+        queryWrapper.eq("config_key", configKey);
         List<SmsTemplate> dbTemplateList = this.list(queryWrapper);
 
         List<String> dbTemplateCodeList = dbTemplateList.stream().map(SmsTemplate::getCode).toList();
         List<String> templateCodeList = templateList.stream().map(StrixSmsTemplate::getCode).toList();
 
-        RelationDiffHandler.handle(dbTemplateCodeList, templateCodeList, ((removeKeys, addKeys) -> {
+        KeysDiffHandler.handle(dbTemplateCodeList, templateCodeList, ((removeKeys, addKeys) -> {
             if (removeKeys.size() > 0) {
                 QueryWrapper<SmsTemplate> removeQueryWrapper = new QueryWrapper<>();
-                removeQueryWrapper.eq("config_id", configId);
+                removeQueryWrapper.eq("config_key", configKey);
                 removeQueryWrapper.in("code", removeKeys);
                 Assert.isTrue(remove(removeQueryWrapper), "Strix Sms: 同步删除模板失败.");
             }
@@ -47,7 +47,7 @@ public class SmsTemplateServiceImpl extends ServiceImpl<SmsTemplateMapper, SmsTe
                 addKeys.forEach(k -> {
                     StrixSmsTemplate strixSmsTemplate = templateList.stream().filter(s -> s.getCode().equals(k)).findFirst().get();
                     SmsTemplate smsTemplate = new SmsTemplate();
-                    smsTemplate.setConfigId(configId);
+                    smsTemplate.setConfigKey(configKey);
                     smsTemplate.setCode(k);
                     smsTemplate.setName(strixSmsTemplate.getName());
                     smsTemplate.setType(strixSmsTemplate.getType());
