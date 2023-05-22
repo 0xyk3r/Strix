@@ -1,6 +1,7 @@
 package cn.projectan.strix.service;
 
 import cn.projectan.strix.model.db.SmsConfig;
+import cn.projectan.strix.model.response.common.CommonSelectDataResp;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 import java.util.List;
@@ -16,5 +17,7 @@ import java.util.List;
 public interface SmsConfigService extends IService<SmsConfig> {
 
     void createSmsInstance(List<SmsConfig> smsConfigList);
+
+    CommonSelectDataResp getSelectData();
 
 }

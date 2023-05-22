@@ -15,7 +15,6 @@ import cn.projectan.strix.model.response.system.user.SystemUserQueryByIdResp;
 import cn.projectan.strix.service.SystemUserRelationService;
 import cn.projectan.strix.service.SystemUserService;
 import cn.projectan.strix.utils.NumUtils;
-import cn.projectan.strix.utils.StrixAssert;
 import cn.projectan.strix.utils.UniqueDetectionTool;
 import cn.projectan.strix.utils.UpdateConditionBuilder;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -85,7 +84,7 @@ public class SystemUserController extends BaseSystemController {
         switch (singleFieldModifyReq.getField()) {
             case "nickname" -> systemUserUpdateWrapper.set("nickname", singleFieldModifyReq.getValue());
             case "status" -> {
-                StrixAssert.in(singleFieldModifyReq.getValue(), "参数错误", SystemUserStatus.BANNED, SystemUserStatus.NORMAL);
+                Assert.isTrue(SystemUserStatus.valid(Integer.parseInt(singleFieldModifyReq.getValue())), "参数错误");
                 systemUserUpdateWrapper.set("status", singleFieldModifyReq.getValue());
             }
             case "phoneNumber" -> systemUserUpdateWrapper.set("phone_number", singleFieldModifyReq.getValue());

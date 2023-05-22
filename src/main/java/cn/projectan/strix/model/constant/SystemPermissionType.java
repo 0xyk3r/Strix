@@ -6,10 +6,14 @@ package cn.projectan.strix.model.constant;
  * @author 安炯奕
  * @date 2021/7/20 15:48
  */
-public class SystemPermissionType {
+public interface SystemPermissionType {
 
-    public static final int READ_ONLY = 1;
+    int READ_ONLY = 1;
 
-    public static final int READ_WRITE = 2;
+    int READ_WRITE = 2;
+
+    static boolean valid(int type) {
+        return type == READ_ONLY || type == READ_WRITE;
+    }
 
 }

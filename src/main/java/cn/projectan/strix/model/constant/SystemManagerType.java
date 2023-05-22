@@ -6,10 +6,14 @@ package cn.projectan.strix.model.constant;
  * @author 安炯奕
  * @date 2021/6/16 15:32
  */
-public class SystemManagerType {
+public interface SystemManagerType {
 
-    public static final int SUPER_ACCOUNT = 1;
+    int SUPER_ACCOUNT = 1;
 
-    public static final int PLATFORM_ACCOUNT = 2;
+    int PLATFORM_ACCOUNT = 2;
+
+    static boolean valid(int type) {
+        return type == SUPER_ACCOUNT || type == PLATFORM_ACCOUNT;
+    }
 
 }

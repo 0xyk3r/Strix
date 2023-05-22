@@ -18,7 +18,10 @@ import cn.projectan.strix.model.response.system.manager.SystemManagerListQueryRe
 import cn.projectan.strix.model.response.system.manager.SystemManagerQueryByIdResp;
 import cn.projectan.strix.service.SystemManagerRoleService;
 import cn.projectan.strix.service.SystemManagerService;
-import cn.projectan.strix.utils.*;
+import cn.projectan.strix.utils.KeysDiffHandler;
+import cn.projectan.strix.utils.NumUtils;
+import cn.projectan.strix.utils.UniqueDetectionTool;
+import cn.projectan.strix.utils.UpdateConditionBuilder;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -116,12 +119,12 @@ public class SystemManagerController extends BaseSystemController {
 
         switch (singleFieldModifyReq.getField()) {
             case "managerStatus" -> {
-                StrixAssert.in(singleFieldModifyReq.getValue(), "参数错误", SystemManagerStatus.BANNED, SystemManagerStatus.NORMAL);
+                Assert.isTrue(SystemManagerStatus.valid(Integer.valueOf(singleFieldModifyReq.getValue())), "参数错误");
                 systemManagerUpdateWrapper.set("manager_status", singleFieldModifyReq.getValue());
                 Assert.isTrue(systemManagerService.update(systemManagerUpdateWrapper), "修改失败");
             }
             case "managerType" -> {
-                StrixAssert.in(singleFieldModifyReq.getValue(), "参数错误", SystemManagerType.SUPER_ACCOUNT, SystemManagerType.PLATFORM_ACCOUNT);
+                Assert.isTrue(SystemManagerType.valid(Integer.parseInt(singleFieldModifyReq.getValue())), "参数错误");
                 systemManagerUpdateWrapper.set("manager_type", singleFieldModifyReq.getValue());
                 Assert.isTrue(systemManagerService.update(systemManagerUpdateWrapper), "修改失败");
             }
@@ -177,8 +180,8 @@ public class SystemManagerController extends BaseSystemController {
     @PreAuthorize("@ss.hasWrite('System_Manager')")
     public RetResult<Object> update(@RequestBody @Validated(ValidationGroup.Insert.class) SystemManagerUpdateReq systemManagerUpdateReq) {
         Assert.notNull(systemManagerUpdateReq, "参数错误");
-        StrixAssert.in(systemManagerUpdateReq.getManagerStatus(), "参数错误", SystemManagerStatus.BANNED, SystemManagerStatus.NORMAL);
-        StrixAssert.in(systemManagerUpdateReq.getManagerType(), "参数错误", SystemManagerType.SUPER_ACCOUNT, SystemManagerType.PLATFORM_ACCOUNT);
+        Assert.isTrue(SystemManagerStatus.valid(systemManagerUpdateReq.getManagerStatus()), "参数错误");
+        Assert.isTrue(SystemManagerType.valid(systemManagerUpdateReq.getManagerType()), "参数错误");
 
         SystemManager systemManager = new SystemManager(
                 systemManagerUpdateReq.getNickname(),
@@ -204,8 +207,8 @@ public class SystemManagerController extends BaseSystemController {
         Assert.hasText(managerId, "参数错误");
         Assert.isTrue(!"anjiongyi".equals(managerId), "该用户不允许编辑或删除");
         Assert.notNull(systemManagerUpdateReq, "参数错误");
-        StrixAssert.in(systemManagerUpdateReq.getManagerStatus(), "参数错误", SystemManagerStatus.BANNED, SystemManagerStatus.NORMAL);
-        StrixAssert.in(systemManagerUpdateReq.getManagerType(), "参数错误", SystemManagerType.SUPER_ACCOUNT, SystemManagerType.PLATFORM_ACCOUNT);
+        Assert.isTrue(SystemManagerStatus.valid(systemManagerUpdateReq.getManagerStatus()), "参数错误");
+        Assert.isTrue(SystemManagerType.valid(systemManagerUpdateReq.getManagerType()), "参数错误");
         SystemManager systemManager = systemManagerService.getById(managerId);
         Assert.notNull(systemManager, "系统人员信息不存在");
 

@@ -17,4 +17,6 @@ public class SystemSmsTemplateListQueryReq extends BasePageQueryReq<SmsTemplate>
 
     private Integer status;
 
+    private String configKey;
+
 }
