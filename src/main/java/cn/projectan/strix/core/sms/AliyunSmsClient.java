@@ -1,5 +1,6 @@
 package cn.projectan.strix.core.sms;
 
+import cn.projectan.strix.model.constant.StrixSmsLogStatus;
 import cn.projectan.strix.model.constant.StrixSmsSignStatus;
 import cn.projectan.strix.model.constant.StrixSmsTemplateStatus;
 import cn.projectan.strix.model.constant.StrixSmsTemplateType;
@@ -36,19 +37,19 @@ public class AliyunSmsClient extends StrixSmsClient {
     public void send(SmsLog sms) {
         SendSmsRequest request = new SendSmsRequest();
         request.setPhoneNumbers(sms.getPhoneNumber());
-        request.setSignName(sms.getSmsSignName());
-        request.setTemplateCode(sms.getSmsTemplateCode());
-        request.setTemplateParam(sms.getSmsTemplateParam());
+        request.setSignName(sms.getSignName());
+        request.setTemplateCode(sms.getTemplateCode());
+        request.setTemplateParam(sms.getTemplateParam());
 
         try {
             SendSmsResponse response = client.getAcsResponse(request);
 
-            sms.setSmsSendStatus("OK".equalsIgnoreCase(response.getCode()) ? 1 : 2);
-            sms.setSmsPlatformResponse(response.getMessage());
+            sms.setStatus("OK".equalsIgnoreCase(response.getCode()) ? StrixSmsLogStatus.SUCCESS : StrixSmsLogStatus.FAIL);
+            sms.setPlatformResponse(response.getMessage());
         } catch (Exception e) {
             log.error("Strix Sms: 发送短信失败. (发送短信时发生异常)", e);
-            sms.setSmsSendStatus(2);
-            sms.setSmsPlatformResponse(e.getMessage());
+            sms.setStatus(StrixSmsLogStatus.FAIL);
+            sms.setPlatformResponse(e.getMessage());
         }
     }
 

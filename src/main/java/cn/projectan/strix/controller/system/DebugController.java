@@ -3,6 +3,7 @@ package cn.projectan.strix.controller.system;
 import cn.projectan.strix.core.ret.RetMarker;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.model.annotation.IgnoreDataEncryption;
+import cn.projectan.strix.model.constant.StrixSmsLogStatus;
 import cn.projectan.strix.model.constant.StrixSmsPlatform;
 import cn.projectan.strix.model.db.SmsLog;
 import cn.projectan.strix.service.SystemManagerService;
@@ -43,14 +44,14 @@ public class DebugController {
     @GetMapping("test")
     public RetResult<Object> test(HttpServletRequest request) {
         SmsLog sms = new SmsLog();
-        sms.setSmsConfigKey("HuiBoChe");
-        sms.setSmsPlatform(StrixSmsPlatform.ALIYUN);
+        sms.setConfigKey("HuiBoChe");
+        sms.setPlatform(StrixSmsPlatform.ALIYUN);
         sms.setPhoneNumber("17600116860");
-        sms.setRequesterIpAddress("127.0.0.1");
-        sms.setSmsSignName("惠泊车");
-        sms.setSmsTemplateCode("SMS_211002430");
-        sms.setSmsTemplateParam("{\"code\":\"888666\"}");
-        sms.setSmsSendStatus(0);
+        sms.setRequesterIp("127.0.0.1");
+        sms.setSignName("惠泊车");
+        sms.setTemplateCode("SMS_211002430");
+        sms.setTemplateParam("{\"code\":\"888666\"}");
+        sms.setStatus(StrixSmsLogStatus.INIT);
         sms.setCreateBy("Test");
         sms.setUpdateBy("Test");
         smsUtil.send(sms);

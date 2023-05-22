@@ -6,16 +6,20 @@ package cn.projectan.strix.model.constant;
  * @author 安炯奕
  * @date 2021/5/12 18:52
  */
-public class SystemManagerStatus {
+public interface SystemManagerStatus {
 
     /**
      * 禁止登录
      */
-    public static final int BANNED = 0;
+    int BANNED = 0;
 
     /**
      * 正常
      */
-    public static final int NORMAL = 1;
+    int NORMAL = 1;
+
+    static boolean valid(Integer status) {
+        return status != null && (status == BANNED || status == NORMAL);
+    }
 
 }

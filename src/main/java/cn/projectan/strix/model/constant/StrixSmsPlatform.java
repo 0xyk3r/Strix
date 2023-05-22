@@ -10,4 +10,8 @@ public interface StrixSmsPlatform {
 
     int TENCENT = 2;
 
+    static boolean valid(int platform) {
+        return platform == ALIYUN || platform == TENCENT;
+    }
+
 }

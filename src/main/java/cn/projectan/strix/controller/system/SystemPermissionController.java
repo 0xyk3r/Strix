@@ -14,7 +14,6 @@ import cn.projectan.strix.model.response.system.permission.SystemPermissionListQ
 import cn.projectan.strix.model.response.system.permission.SystemPermissionQueryByIdResp;
 import cn.projectan.strix.service.SystemPermissionService;
 import cn.projectan.strix.service.SystemRolePermissionService;
-import cn.projectan.strix.utils.StrixAssert;
 import cn.projectan.strix.utils.UniqueDetectionTool;
 import cn.projectan.strix.utils.UpdateConditionBuilder;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -69,7 +68,7 @@ public class SystemPermissionController extends BaseSystemController {
     @PreAuthorize("@ss.hasWrite('System_Permission')")
     public RetResult<Object> update(@RequestBody @Validated(ValidationGroup.Insert.class) SystemPermissionUpdateReq systemPermissionUpdateReq) {
         Assert.notNull(systemPermissionUpdateReq, "参数错误");
-        StrixAssert.in(systemPermissionUpdateReq.getPermissionType(), "参数错误", SystemPermissionType.READ_ONLY, SystemPermissionType.READ_WRITE);
+        Assert.isTrue(SystemPermissionType.valid(systemPermissionUpdateReq.getPermissionType()), "参数错误");
 
         SystemPermission systemPermission = new SystemPermission(
                 systemPermissionUpdateReq.getName(),

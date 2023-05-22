@@ -31,7 +31,7 @@ public class SmsUtil {
     private StrixSmsConfig strixSmsConfig;
 
     public void send(SmsLog sms) {
-        StrixSmsClient client = strixSmsConfig.getInstance(sms.getSmsConfigKey());
+        StrixSmsClient client = strixSmsConfig.getInstance(sms.getConfigKey());
         Assert.notNull(client, "Strix Sms: 发送短信失败. (短信服务实例不存在)");
 
         client.send(sms);

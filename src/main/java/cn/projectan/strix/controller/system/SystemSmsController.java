@@ -7,21 +7,21 @@ import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.core.validation.ValidationGroup;
 import cn.projectan.strix.model.constant.StrixSmsPlatform;
 import cn.projectan.strix.model.db.SmsConfig;
+import cn.projectan.strix.model.db.SmsLog;
 import cn.projectan.strix.model.db.SmsSign;
 import cn.projectan.strix.model.db.SmsTemplate;
-import cn.projectan.strix.model.request.system.sms.SystemSmsConfigListQueryReq;
-import cn.projectan.strix.model.request.system.sms.SystemSmsConfigUpdateReq;
-import cn.projectan.strix.model.request.system.sms.SystemSmsSignListQueryReq;
-import cn.projectan.strix.model.request.system.sms.SystemSmsTemplateListQueryReq;
-import cn.projectan.strix.model.response.system.sms.SystemSmsConfigListQueryResp;
-import cn.projectan.strix.model.response.system.sms.SystemSmsConfigQueryByIdResp;
-import cn.projectan.strix.model.response.system.sms.SystemSmsSignListQueryResp;
-import cn.projectan.strix.model.response.system.sms.SystemSmsTemplateListQueryResp;
+import cn.projectan.strix.model.request.system.sms.*;
+import cn.projectan.strix.model.response.common.CommonSelectDataResp;
+import cn.projectan.strix.model.response.system.sms.*;
 import cn.projectan.strix.service.SmsConfigService;
+import cn.projectan.strix.service.SmsLogService;
 import cn.projectan.strix.service.SmsSignService;
 import cn.projectan.strix.service.SmsTemplateService;
 import cn.projectan.strix.task.StrixSmsTask;
-import cn.projectan.strix.utils.*;
+import cn.projectan.strix.utils.NumUtils;
+import cn.projectan.strix.utils.SpringUtil;
+import cn.projectan.strix.utils.UniqueDetectionTool;
+import cn.projectan.strix.utils.UpdateConditionBuilder;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
@@ -51,6 +51,8 @@ public class SystemSmsController extends BaseSystemController {
     private SmsSignService smsSignService;
     @Autowired
     private SmsTemplateService smsTemplateService;
+    @Autowired
+    private SmsLogService smsLogService;
 
     @GetMapping("")
     @PreAuthorize("@ss.hasRead('System_Sms')")
@@ -58,8 +60,8 @@ public class SystemSmsController extends BaseSystemController {
         QueryWrapper<SmsConfig> queryWrapper = new QueryWrapper<>();
 
         if (StringUtils.hasText(req.getKeyword())) {
-            queryWrapper.like("key", req.getKeyword())
-                    .or(q -> q.like("name", req.getKeyword()));
+            queryWrapper.like("`key`", req.getKeyword())
+                    .or(q -> q.like("`name`", req.getKeyword()));
         }
 
         Page<SmsConfig> page = smsConfigService.page(req.getPage(), queryWrapper);
@@ -100,7 +102,7 @@ public class SystemSmsController extends BaseSystemController {
     @PostMapping("update")
     @PreAuthorize("@ss.hasWrite('System_Sms')")
     public RetResult<Object> update(@RequestBody @Validated(ValidationGroup.Insert.class) SystemSmsConfigUpdateReq req) {
-        StrixAssert.in(req.getPlatform(), "参数错误", StrixSmsPlatform.ALIYUN, StrixSmsPlatform.TENCENT);
+        Assert.isTrue(StrixSmsPlatform.valid(req.getPlatform()), "请选择正确的短信平台");
 
         SmsConfig smsConfig = new SmsConfig(
                 req.getKey(),
@@ -127,7 +129,7 @@ public class SystemSmsController extends BaseSystemController {
     @PostMapping("update/{id}")
     @PreAuthorize("@ss.hasWrite('System_Sms')")
     public RetResult<Object> update(@PathVariable String id, @RequestBody @Validated(ValidationGroup.Update.class) SystemSmsConfigUpdateReq req) {
-        StrixAssert.in(req.getPlatform(), "参数错误", StrixSmsPlatform.ALIYUN, StrixSmsPlatform.TENCENT);
+        Assert.isTrue(StrixSmsPlatform.valid(req.getPlatform()), "请选择正确的短信平台");
 
         SmsConfig smsConfig = smsConfigService.getById(id);
         Assert.notNull(smsConfig, "原记录不存在");
@@ -173,6 +175,9 @@ public class SystemSmsController extends BaseSystemController {
         if (NumUtils.isPositiveNumber(req.getStatus())) {
             queryWrapper.eq("status", req.getStatus());
         }
+        if (StringUtils.hasText(req.getConfigKey())) {
+            queryWrapper.eq("config_key", req.getConfigKey());
+        }
 
         Page<SmsSign> page = smsSignService.page(req.getPage(), queryWrapper);
 
@@ -193,10 +198,38 @@ public class SystemSmsController extends BaseSystemController {
         if (NumUtils.isPositiveNumber(req.getStatus())) {
             queryWrapper.eq("status", req.getStatus());
         }
+        if (StringUtils.hasText(req.getConfigKey())) {
+            queryWrapper.eq("config_key", req.getConfigKey());
+        }
 
         Page<SmsTemplate> page = smsTemplateService.page(req.getPage(), queryWrapper);
 
         return RetMarker.makeSuccessRsp(new SystemSmsTemplateListQueryResp(page.getRecords(), page.getTotal()));
+    }
+
+    @GetMapping("log")
+    @PreAuthorize("@ss.hasRead('System_Sms')")
+    public RetResult<SystemSmsLogListQueryResp> getSmsLogList(SystemSmsLogListQueryReq req) {
+        QueryWrapper<SmsLog> queryWrapper = new QueryWrapper<>();
+
+        if (StringUtils.hasText(req.getKeyword())) {
+            queryWrapper.like("phone_number", req.getKeyword());
+        }
+        if (req.getStatus() != null) {
+            queryWrapper.eq("status", req.getStatus());
+        }
+        if (StringUtils.hasText(req.getConfigKey())) {
+            queryWrapper.eq("config_key", req.getConfigKey());
+        }
+
+        Page<SmsLog> page = smsLogService.page(req.getPage(), queryWrapper);
+
+        return RetMarker.makeSuccessRsp(new SystemSmsLogListQueryResp(page.getRecords(), page.getTotal()));
+    }
+
+    @GetMapping("config/select")
+    public RetResult<CommonSelectDataResp> getSmsConfigSelectList() {
+        return RetMarker.makeSuccessRsp(smsConfigService.getSelectData());
     }
 
 }

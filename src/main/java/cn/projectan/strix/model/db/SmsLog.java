@@ -27,14 +27,14 @@ public class SmsLog extends BaseModel {
     /**
      * 使用的短信配置 Key
      */
-    private String smsConfigKey;
+    private String configKey;
 
     /**
      * 短信发送平台
      *
      * @see StrixSmsPlatform
      */
-    private Integer smsPlatform;
+    private Integer platform;
 
     /**
      * 短信发往号码
@@ -44,32 +44,32 @@ public class SmsLog extends BaseModel {
     /**
      * 请求短信用户ip地址
      */
-    private String requesterIpAddress;
+    private String requesterIp;
 
     /**
      * 短信签名
      */
-    private String smsSignName;
+    private String signName;
 
     /**
      * 短信模板
      */
-    private String smsTemplateCode;
+    private String templateCode;
 
     /**
      * 短信参数
      */
-    private String smsTemplateParam;
+    private String templateParam;
 
     /**
      * 0待发送 1已发送 2发送失败
      */
-    private Integer smsSendStatus;
+    private Integer status;
 
     /**
      * 短信平台返回结果
      */
-    private String smsPlatformResponse;
+    private String platformResponse;
 
 
 }

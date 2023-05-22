@@ -6,11 +6,13 @@ import cn.projectan.strix.core.sms.AliyunSmsClient;
 import cn.projectan.strix.mapper.SmsConfigMapper;
 import cn.projectan.strix.model.constant.StrixSmsPlatform;
 import cn.projectan.strix.model.db.SmsConfig;
+import cn.projectan.strix.model.response.common.CommonSelectDataResp;
 import cn.projectan.strix.service.SmsConfigService;
 import cn.projectan.strix.task.StrixSmsTask;
 import cn.projectan.strix.utils.SpringUtil;
 import com.aliyuncs.DefaultAcsClient;
 import com.aliyuncs.profile.DefaultProfile;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -57,6 +59,12 @@ public class SmsConfigServiceImpl extends ServiceImpl<SmsConfigMapper, SmsConfig
         // 全部初始化完成后，进行初始化签名和模板信息
         strixSmsTask.refreshSignList();
         strixSmsTask.refreshTemplateList();
+    }
+
+    @Override
+    public CommonSelectDataResp getSelectData() {
+        List<SmsConfig> systemRoleList = getBaseMapper().selectList(Wrappers.emptyWrapper());
+        return new CommonSelectDataResp(systemRoleList, "key", "key", "name");
     }
 
 }
