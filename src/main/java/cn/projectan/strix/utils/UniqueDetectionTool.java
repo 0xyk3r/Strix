@@ -106,7 +106,7 @@ public class UniqueDetectionTool {
                                 if (invoke != null) {
                                     String value = invoke.toString();
                                     if (StringUtils.hasText(value)) {
-                                        qw.eq(StrUtil.toUnderlineCase(field), value).or();
+                                        qw.eq("`" + StrUtil.toUnderlineCase(field) + "`", value).or();
                                     }
                                 }
                             }

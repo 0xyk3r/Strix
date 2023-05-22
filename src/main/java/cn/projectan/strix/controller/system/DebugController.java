@@ -3,7 +3,8 @@ package cn.projectan.strix.controller.system;
 import cn.projectan.strix.core.ret.RetMarker;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.model.annotation.IgnoreDataEncryption;
-import cn.projectan.strix.model.system.StrixSmsTemplate;
+import cn.projectan.strix.model.constant.StrixSmsPlatform;
+import cn.projectan.strix.model.db.SmsLog;
 import cn.projectan.strix.service.SystemManagerService;
 import cn.projectan.strix.utils.Ip2RegionUtil;
 import cn.projectan.strix.utils.IpUtils;
@@ -18,7 +19,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -42,8 +42,19 @@ public class DebugController {
     @IgnoreDataEncryption
     @GetMapping("test")
     public RetResult<Object> test(HttpServletRequest request) {
-        List<StrixSmsTemplate> signs = smsUtil.getTemplateList("HuiBoChe");
-        return RetMarker.makeSuccessRsp(signs);
+        SmsLog sms = new SmsLog();
+        sms.setSmsConfigKey("HuiBoChe");
+        sms.setSmsPlatform(StrixSmsPlatform.ALIYUN);
+        sms.setPhoneNumber("17600116860");
+        sms.setRequesterIpAddress("127.0.0.1");
+        sms.setSmsSignName("惠泊车");
+        sms.setSmsTemplateCode("SMS_211002430");
+        sms.setSmsTemplateParam("{\"code\":\"888666\"}");
+        sms.setSmsSendStatus(0);
+        sms.setCreateBy("Test");
+        sms.setUpdateBy("Test");
+        smsUtil.send(sms);
+        return RetMarker.makeSuccessRsp(sms);
     }
 
     @IgnoreDataEncryption

@@ -30,9 +30,9 @@ public class SmsSign extends BaseModel {
     private static final long serialVersionUID = 1L;
 
     /**
-     * 短信配置ID
+     * 短信配置 Key
      */
-    private String configId;
+    private String configKey;
 
     /**
      * 签名内容

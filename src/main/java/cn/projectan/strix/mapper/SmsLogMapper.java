@@ -1,16 +1,16 @@
 package cn.projectan.strix.mapper;
 
-import cn.projectan.strix.model.db.SystemSmsLog;
+import cn.projectan.strix.model.db.SmsLog;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**
  * <p>
- *  Mapper 接口
+ * Mapper 接口
  * </p>
  *
  * @author 安炯奕
  * @since 2021-08-30
  */
-public interface SystemSmsLogMapper extends BaseMapper<SystemSmsLog> {
+public interface SmsLogMapper extends BaseMapper<SmsLog> {
 
 }

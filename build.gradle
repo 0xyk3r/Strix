@@ -15,6 +15,11 @@ configurations {
     }
 }
 
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
 jar {
     // 用于子项目引入的Jar文件
     // Maven导入语句：
@@ -37,9 +42,8 @@ bootJar {
     archiveFileName = "Strix.jar"
 }
 
-repositories {
-    mavenLocal()
-    mavenCentral()
+test {
+    useJUnitPlatform()
 }
 
 dependencies {

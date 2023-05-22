@@ -23,7 +23,7 @@ public class SystemSmsConfigListQueryResp extends BasePageResp {
     private List<SmsConfigItem> configs = new ArrayList<>();
 
     public SystemSmsConfigListQueryResp(List<SmsConfig> data, Long total) {
-        configs = data.stream().map(d -> new SmsConfigItem(d.getId(), d.getPlatform(), d.getRegionId(), d.getAccessKey(), d.getCreateTime())).collect(Collectors.toList());
+        configs = data.stream().map(d -> new SmsConfigItem(d.getId(), d.getKey(), d.getName(), d.getPlatform(), d.getRegionId(), d.getAccessKey(), d.getRemark(), d.getCreateTime())).collect(Collectors.toList());
         this.setTotal(total);
     }
 
@@ -34,11 +34,17 @@ public class SystemSmsConfigListQueryResp extends BasePageResp {
 
         private String id;
 
+        private String key;
+
+        private String name;
+
         private Integer platform;
 
         private String regionId;
 
         private String accessKey;
+
+        private String remark;
 
         private LocalDateTime createTime;
 

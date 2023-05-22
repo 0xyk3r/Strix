@@ -5,17 +5,30 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * List差异获取
+ * 集合差异获取
  *
  * @author 安炯奕
  * @date 2021/7/2 17:35
  */
 public class ListDiffUtil {
 
-    public static List<String> subList(List<String> list1, List<String> list2) {
-        int size = list1.size() + list2.size();
+    /**
+     * 阈值 用于判断使用哪种算法 <br>
+     * 低于阈值使用 {@link #subListMiddle(Collection, Collection)} 空间占用大 时间占用小<br>
+     * 高于阈值使用 {@link #subListBig(Collection, Collection)} 空间占用小 时间占用大
+     */
+    private static final int THRESHOLD = 20000;
 
-        if (size < 15000) {
+    /**
+     * 以 list1 为基准，求 list1 中有的但是 list2 中没有的元素
+     * 根据 list1 和 list2 的大小，自动选择合适的算法
+     *
+     * @param list1 基准列表
+     * @param list2 比较列表
+     * @return list1 中有的但是 list2 中没有的元素
+     */
+    public static List<String> subList(Collection<String> list1, Collection<String> list2) {
+        if (list1.size() < THRESHOLD || list2.size() < THRESHOLD) {
             return subListMiddle(list1, list2);
         } else {
             return subListBig(list1, list2);
@@ -23,21 +36,22 @@ public class ListDiffUtil {
     }
 
     /**
-     * 差集(基于常规解法) 优化解法1 适用于中等数据量<p>
+     * 差集 适用于少量-中等数据量<p>
      * 求List1中有的但是List2中没有的元素<p>
      * 空间换时间降低时间复杂度<p>
-     * 时间复杂度O(Max(list1.size(),list2.size()))
+     * <p>
+     * 时间复杂度:O(n + m)<p>
+     * 空间复杂度:O(m + n)
+     *
+     * @param list1 基准列表
+     * @param list2 比较列表
+     * @return list1 中有的但是 list2 中没有的元素
      */
-    public static List<String> subListMiddle(List<String> list1, List<String> list2) {
-        // 空间换时间 降低时间复杂度
-        Map<String, String> tempMap = new HashMap<>();
-        for (String str : list2) {
-            tempMap.put(str, str);
-        }
-        // LinkedList 频繁添加删除 也可以ArrayList容量初始化为List1.size(),防止数据量过大时频繁扩容以及数组复制
-        List<String> resList = new LinkedList<>();
+    public static List<String> subListMiddle(Collection<String> list1, Collection<String> list2) {
+        Set<String> set2 = new HashSet<>(list2);
+        List<String> resList = new ArrayList<>(list1.size());
         for (String str : list1) {
-            if (!tempMap.containsKey(str)) {
+            if (!set2.contains(str)) {
                 resList.add(str);
             }
         }
@@ -48,45 +62,9 @@ public class ListDiffUtil {
      * 差集(基于java8新特性)优化解法2 适用于大数据量 <p>
      * 求List1中有的但是List2中没有的元素
      */
-    public static List<String> subListBig(List<String> list1, List<String> list2) {
+    public static List<String> subListBig(Collection<String> list1, Collection<String> list2) {
         Map<String, String> tempMap = list2.parallelStream().collect(Collectors.toMap(Function.identity(), Function.identity(), (oldData, newData) -> newData));
         return list1.parallelStream().filter(str -> !tempMap.containsKey(str)).collect(Collectors.toList());
-    }
-
-    public static void main(String[] args) {
-        List<String> a = new ArrayList<>();
-        List<String> b = new ArrayList<>();
-
-        a.add("1");
-        a.add("2");
-
-        b.add("1");
-        b.add("2");
-        b.add("3");
-        b.add("4");
-//        for (int i = 0; i < 666; i++) {
-//            a.add(RandomUtil.randomInt(1, 666) + "");
-//            b.add(RandomUtil.randomInt(1, 666) + "");
-//        }
-        long start;
-
-//        System.out.println("----Plan One----");
-//        start = System.currentTimeMillis();
-//        System.out.println("size: " + subListSmall(a, b).size());
-//        System.out.println(System.currentTimeMillis() - start);
-//        System.out.println("----Plan Two----");
-//        start = System.currentTimeMillis();
-//        System.out.println("size: " + subListMiddle(a, b).size());
-//        System.out.println(System.currentTimeMillis() - start);
-//        System.out.println("----Plan Three----");
-//        start = System.currentTimeMillis();
-//        System.out.println("size: " + subListBig(a, b).size());
-//        System.out.println(System.currentTimeMillis() - start);
-        System.out.println("----Plan Final----");
-        start = System.currentTimeMillis();
-        System.out.println("size: " + subList(a, b).size());
-        System.out.println(System.currentTimeMillis() - start);
-
     }
 
 }

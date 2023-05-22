@@ -131,7 +131,7 @@ public class SystemManagerController extends BaseSystemController {
                 systemManagerRoleQueryWrapper.select("system_manager_role_id");
                 systemManagerRoleQueryWrapper.eq("system_manager_id", managerId);
                 List<String> systemManagerRoleIds = systemManagerRoleService.listObjs(systemManagerRoleQueryWrapper, Object::toString);
-                RelationDiffHandler.handle(systemManagerRoleIds, Arrays.asList(singleFieldModifyReq.getValue().split(",")), (removeKeys, addKeys) -> {
+                KeysDiffHandler.handle(systemManagerRoleIds, Arrays.asList(singleFieldModifyReq.getValue().split(",")), (removeKeys, addKeys) -> {
                     if (removeKeys.size() > 0) {
                         QueryWrapper<SystemManagerRole> removeQueryWrapper = new QueryWrapper<>();
                         removeQueryWrapper.eq("system_manager_id", managerId);

@@ -18,11 +18,17 @@ public class SystemSmsConfigQueryByIdResp {
 
     private String id;
 
+    private String key;
+
+    private String name;
+
     private Integer platform;
 
     private String regionId;
 
     private String accessKey;
+
+    private String remark;
 
     private LocalDateTime createTime;
 

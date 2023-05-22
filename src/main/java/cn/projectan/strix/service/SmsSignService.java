@@ -16,6 +16,6 @@ import java.util.List;
  */
 public interface SmsSignService extends IService<SmsSign> {
 
-    void syncSignList(String configId, List<StrixSmsSign> signList);
+    void syncSignList(String configKey, List<StrixSmsSign> signList);
 
 }

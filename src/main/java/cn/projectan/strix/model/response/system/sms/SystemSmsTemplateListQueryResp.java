@@ -23,7 +23,7 @@ public class SystemSmsTemplateListQueryResp extends BasePageResp {
     private List<SmsTemplateItem> templates = new ArrayList<>();
 
     public SystemSmsTemplateListQueryResp(List<SmsTemplate> data, Long total) {
-        templates = data.stream().map(d -> new SmsTemplateItem(d.getId(), d.getConfigId(), d.getCode(), d.getName(), d.getType(), d.getStatus(), d.getContent(), d.getCreateTime())).collect(Collectors.toList());
+        templates = data.stream().map(d -> new SmsTemplateItem(d.getId(), d.getConfigKey(), d.getCode(), d.getName(), d.getType(), d.getStatus(), d.getContent(), d.getCreateTime())).collect(Collectors.toList());
         this.setTotal(total);
     }
 
@@ -34,7 +34,7 @@ public class SystemSmsTemplateListQueryResp extends BasePageResp {
 
         private String id;
 
-        private String configId;
+        private String configKey;
 
         private String code;
 

@@ -4,7 +4,7 @@ import cn.projectan.strix.mapper.SmsSignMapper;
 import cn.projectan.strix.model.db.SmsSign;
 import cn.projectan.strix.model.system.StrixSmsSign;
 import cn.projectan.strix.service.SmsSignService;
-import cn.projectan.strix.utils.RelationDiffHandler;
+import cn.projectan.strix.utils.KeysDiffHandler;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
@@ -27,18 +27,18 @@ public class SmsSignServiceImpl extends ServiceImpl<SmsSignMapper, SmsSign> impl
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void syncSignList(String configId, List<StrixSmsSign> signList) {
+    public void syncSignList(String configKey, List<StrixSmsSign> signList) {
         QueryWrapper<SmsSign> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("config_id", configId);
+        queryWrapper.eq("config_key", configKey);
         List<SmsSign> dbSignList = this.list(queryWrapper);
 
         List<String> dbSignNameList = dbSignList.stream().map(SmsSign::getName).toList();
         List<String> signNameList = signList.stream().map(StrixSmsSign::getName).toList();
 
-        RelationDiffHandler.handle(dbSignNameList, signNameList, ((removeKeys, addKeys) -> {
+        KeysDiffHandler.handle(dbSignNameList, signNameList, ((removeKeys, addKeys) -> {
             if (removeKeys.size() > 0) {
                 QueryWrapper<SmsSign> removeQueryWrapper = new QueryWrapper<>();
-                removeQueryWrapper.eq("config_id", configId);
+                removeQueryWrapper.eq("config_key", configKey);
                 removeQueryWrapper.in("name", removeKeys);
                 Assert.isTrue(remove(removeQueryWrapper), "Strix Sms: 同步删除签名失败.");
             }
@@ -47,7 +47,7 @@ public class SmsSignServiceImpl extends ServiceImpl<SmsSignMapper, SmsSign> impl
                 addKeys.forEach(k -> {
                     StrixSmsSign strixSmsSign = signList.stream().filter(s -> s.getName().equals(k)).findFirst().get();
                     SmsSign smsSign = new SmsSign();
-                    smsSign.setConfigId(configId);
+                    smsSign.setConfigKey(configKey);
                     smsSign.setName(k);
                     smsSign.setStatus(strixSmsSign.getStatus());
                     smsSign.setCreateTime(strixSmsSign.getCreateTime());

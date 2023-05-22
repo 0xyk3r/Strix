@@ -2,10 +2,10 @@ package cn.projectan.strix.utils;
 
 import cn.projectan.strix.config.StrixSmsConfig;
 import cn.projectan.strix.core.sms.StrixSmsClient;
-import cn.projectan.strix.model.db.SystemSmsLog;
+import cn.projectan.strix.model.db.SmsLog;
 import cn.projectan.strix.model.system.StrixSmsSign;
 import cn.projectan.strix.model.system.StrixSmsTemplate;
-import cn.projectan.strix.service.SystemSmsLogService;
+import cn.projectan.strix.service.SmsLogService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -26,26 +26,26 @@ import java.util.List;
 public class SmsUtil {
 
     @Autowired
-    private SystemSmsLogService systemSmsLogService;
+    private SmsLogService smsLogService;
     @Autowired
     private StrixSmsConfig strixSmsConfig;
 
-    public void send(SystemSmsLog sms) {
-        StrixSmsClient client = strixSmsConfig.getInstance(sms.getSmsConfigId());
+    public void send(SmsLog sms) {
+        StrixSmsClient client = strixSmsConfig.getInstance(sms.getSmsConfigKey());
         Assert.notNull(client, "Strix Sms: 发送短信失败. (短信服务实例不存在)");
 
         client.send(sms);
-        systemSmsLogService.save(sms);
+        smsLogService.save(sms);
     }
 
-    public List<StrixSmsSign> getSignList(String configId) {
-        StrixSmsClient client = strixSmsConfig.getInstance(configId);
+    public List<StrixSmsSign> getSignList(String configKey) {
+        StrixSmsClient client = strixSmsConfig.getInstance(configKey);
 
         return client.getSignList();
     }
 
-    public List<StrixSmsTemplate> getTemplateList(String configId) {
-        StrixSmsClient client = strixSmsConfig.getInstance(configId);
+    public List<StrixSmsTemplate> getTemplateList(String configKey) {
+        StrixSmsClient client = strixSmsConfig.getInstance(configKey);
 
         return client.getTemplateList();
     }

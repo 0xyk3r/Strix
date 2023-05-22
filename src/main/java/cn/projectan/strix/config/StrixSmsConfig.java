@@ -20,12 +20,16 @@ public class StrixSmsConfig {
 
     private final Map<String, StrixSmsClient> instanceMap = new HashMap<>();
 
-    public <T> void addInstance(String id, StrixSmsClient client) {
-        instanceMap.put(id, client);
+    public void addInstance(String key, StrixSmsClient client) {
+        instanceMap.put(key, client);
     }
 
-    public StrixSmsClient getInstance(String id) {
-        return instanceMap.get(id);
+    public StrixSmsClient getInstance(String key) {
+        return instanceMap.get(key);
+    }
+
+    public void removeInstance(String key) {
+        instanceMap.remove(key);
     }
 
     public Set<String> getInstanceKeySet() {

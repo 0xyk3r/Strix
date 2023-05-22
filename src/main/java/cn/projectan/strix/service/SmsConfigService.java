@@ -3,6 +3,8 @@ package cn.projectan.strix.service;
 import cn.projectan.strix.model.db.SmsConfig;
 import com.baomidou.mybatisplus.extension.service.IService;
 
+import java.util.List;
+
 /**
  * <p>
  * 服务类
@@ -12,5 +14,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * @since 2021-05-02
  */
 public interface SmsConfigService extends IService<SmsConfig> {
+
+    void createSmsInstance(List<SmsConfig> smsConfigList);
 
 }
