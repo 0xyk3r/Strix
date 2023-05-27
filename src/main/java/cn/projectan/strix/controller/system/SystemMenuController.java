@@ -9,8 +9,8 @@ import cn.projectan.strix.model.db.SystemMenu;
 import cn.projectan.strix.model.db.SystemRoleMenu;
 import cn.projectan.strix.model.request.common.SingleFieldModifyReq;
 import cn.projectan.strix.model.request.system.menu.SystemMenuUpdateReq;
-import cn.projectan.strix.model.response.system.menu.SystemMenuListQueryResp;
-import cn.projectan.strix.model.response.system.menu.SystemMenuQueryByIdResp;
+import cn.projectan.strix.model.response.system.menu.SystemMenuListResp;
+import cn.projectan.strix.model.response.system.menu.SystemMenuResp;
 import cn.projectan.strix.service.SystemMenuService;
 import cn.projectan.strix.service.SystemRoleMenuService;
 import cn.projectan.strix.utils.UniqueDetectionTool;
@@ -48,20 +48,20 @@ public class SystemMenuController extends BaseSystemController {
 
     @GetMapping("")
     @PreAuthorize("@ss.hasRead('System_Menu')")
-    public RetResult<SystemMenuListQueryResp> getSystemMenuList() {
+    public RetResult<SystemMenuListResp> getSystemMenuList() {
         List<SystemMenu> systemMenuList = systemMenuService.list();
 
-        return RetMarker.makeSuccessRsp(new SystemMenuListQueryResp(systemMenuList));
+        return RetMarker.makeSuccessRsp(new SystemMenuListResp(systemMenuList));
     }
 
     @GetMapping("{menuId}")
     @PreAuthorize("@ss.hasRead('System_Menu')")
-    public RetResult<SystemMenuQueryByIdResp> getSystemMenu(@PathVariable String menuId) {
+    public RetResult<SystemMenuResp> getSystemMenu(@PathVariable String menuId) {
         Assert.notNull(menuId, "参数错误");
         SystemMenu sm = systemMenuService.getById(menuId);
         Assert.notNull(sm, "系统菜单信息不存在");
 
-        return RetMarker.makeSuccessRsp(new SystemMenuQueryByIdResp(sm.getId(), sm.getName(), sm.getUrl(), sm.getIcon(), sm.getParentId(), sm.getSortValue()));
+        return RetMarker.makeSuccessRsp(new SystemMenuResp(sm.getId(), sm.getName(), sm.getUrl(), sm.getIcon(), sm.getParentId(), sm.getSortValue()));
     }
 
     @PostMapping("modify/{menuId}")

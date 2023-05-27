@@ -25,8 +25,6 @@ import java.util.Set;
 @Slf4j
 public class UniqueDetectionTool {
 
-    private static final String GETTER_PREFIX = "get";
-
     private static final String SERVICE_SUFFIX = "Service";
 
     /**
@@ -48,7 +46,7 @@ public class UniqueDetectionTool {
                 throw new StrixUniqueDetectionException("重复检查器配置异常");
             }
             // 有ID代表修改，根据ID排除自身
-            Method idGetter = clazz.getMethod("getId");
+            Method idGetter = ReflectUtil.getGetter(clazz, "id");
             Object idObj = idGetter.invoke(obj);
             if (idObj != null) {
                 id = idObj.toString();
@@ -101,7 +99,7 @@ public class UniqueDetectionTool {
                     checkQueryWrapper.and(qw -> {
                         try {
                             for (String field : fieldSet) {
-                                Method getter = clazz.getMethod(GETTER_PREFIX + StrUtil.upperFirst(field));
+                                Method getter = ReflectUtil.getGetter(clazz, field);
                                 Object invoke = getter.invoke(obj);
                                 if (invoke != null) {
                                     String value = invoke.toString();
@@ -130,7 +128,7 @@ public class UniqueDetectionTool {
                     }
                     Set<String> fieldSet = group.getValue();
                     for (String field : fieldSet) {
-                        Method getter = clazz.getMethod(GETTER_PREFIX + StrUtil.upperFirst(field));
+                        Method getter = ReflectUtil.getGetter(clazz, field);
                         Object invoke = getter.invoke(obj);
                         if (invoke != null) {
                             String value = invoke.toString();

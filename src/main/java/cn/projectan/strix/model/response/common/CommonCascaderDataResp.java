@@ -1,6 +1,6 @@
 package cn.projectan.strix.model.response.common;
 
-import cn.hutool.core.util.StrUtil;
+import cn.projectan.strix.utils.ReflectUtil;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -39,11 +39,11 @@ public class CommonCascaderDataResp {
         try {
             for (T d : data) {
                 Class<?> clazz = d.getClass();
-                Method keyGetter = clazz.getMethod("get" + StrUtil.upperFirst(valueFieldName));
+                Method keyGetter = ReflectUtil.getGetter(clazz, valueFieldName);
                 Object keyGetterInvoke = keyGetter.invoke(d);
-                Method labelGetter = clazz.getMethod("get" + StrUtil.upperFirst(labelFieldName));
+                Method labelGetter = ReflectUtil.getGetter(clazz, labelFieldName);
                 Object labelGetterInvoke = labelGetter.invoke(d);
-                Method relationGetter = clazz.getMethod("get" + StrUtil.upperFirst(relationFieldName));
+                Method relationGetter = ReflectUtil.getGetter(clazz, relationFieldName);
                 Object relationGetterInvoke = relationGetter.invoke(d);
                 if (rootRelation.equals(relationGetterInvoke) && keyGetterInvoke != null && labelGetterInvoke != null) {
                     options.add(new CascaderDataItem(keyGetterInvoke.toString(), labelGetterInvoke.toString(), findChildren(data, valueFieldName, labelFieldName, relationFieldName, keyGetterInvoke.toString())));
@@ -59,11 +59,11 @@ public class CommonCascaderDataResp {
         try {
             for (T d : data) {
                 Class<?> clazz = d.getClass();
-                Method keyGetter = clazz.getMethod("get" + StrUtil.upperFirst(valueFieldName));
+                Method keyGetter = ReflectUtil.getGetter(clazz, valueFieldName);
                 Object keyGetterInvoke = keyGetter.invoke(d);
-                Method labelGetter = clazz.getMethod("get" + StrUtil.upperFirst(labelFieldName));
+                Method labelGetter = ReflectUtil.getGetter(clazz, labelFieldName);
                 Object labelGetterInvoke = labelGetter.invoke(d);
-                Method relationGetter = clazz.getMethod("get" + StrUtil.upperFirst(relationFieldName));
+                Method relationGetter = ReflectUtil.getGetter(clazz, relationFieldName);
                 Object relationGetterInvoke = relationGetter.invoke(d);
                 if (parentValue.equals(relationGetterInvoke.toString()) && keyGetterInvoke != null && labelGetterInvoke != null) {
                     result.add(new CascaderDataItem(keyGetterInvoke.toString(), labelGetterInvoke.toString(), findChildren(data, valueFieldName, labelFieldName, relationFieldName, keyGetterInvoke.toString())));

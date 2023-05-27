@@ -1,6 +1,6 @@
 package cn.projectan.strix.model.response.common;
 
-import cn.hutool.core.util.StrUtil;
+import cn.projectan.strix.utils.ReflectUtil;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -41,12 +41,12 @@ public class CommonTransferDataResp {
         try {
             for (T d : data) {
                 Class<?> clazz = d.getClass();
-                Method keyGetter = clazz.getMethod("get" + StrUtil.upperFirst(keyFieldName));
+                Method keyGetter = ReflectUtil.getGetter(clazz, keyFieldName);
                 Object keyGetterInvoke = keyGetter.invoke(d);
-                Method labelGetter = clazz.getMethod("get" + StrUtil.upperFirst(labelFieldName));
+                Method labelGetter = ReflectUtil.getGetter(clazz, labelFieldName);
                 Object labelGetterInvoke = labelGetter.invoke(d);
                 if (StringUtils.hasText(statusFieldName)) {
-                    Method statusGetter = clazz.getMethod("get" + StrUtil.upperFirst(statusFieldName));
+                    Method statusGetter = ReflectUtil.getGetter(clazz, statusFieldName);
                     Object statusGetterInvoke = statusGetter.invoke(d);
                     if (keyGetterInvoke != null && labelGetterInvoke != null && statusGetterInvoke != null) {
                         transferData.add(new TransferDataItem(keyGetterInvoke.toString(), labelGetterInvoke.toString(), Integer.valueOf(statusGetterInvoke.toString())));
@@ -68,7 +68,7 @@ public class CommonTransferDataResp {
     @AllArgsConstructor
     private static class TransferDataItem {
 
-        private String key;
+        private String value;
 
         private String label;
 

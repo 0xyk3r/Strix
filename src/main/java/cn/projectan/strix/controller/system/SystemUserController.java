@@ -8,10 +8,10 @@ import cn.projectan.strix.model.constant.SystemUserStatus;
 import cn.projectan.strix.model.db.SystemUser;
 import cn.projectan.strix.model.db.SystemUserRelation;
 import cn.projectan.strix.model.request.common.SingleFieldModifyReq;
-import cn.projectan.strix.model.request.system.user.SystemUserListQueryReq;
+import cn.projectan.strix.model.request.system.user.SystemUserListReq;
 import cn.projectan.strix.model.request.system.user.SystemUserUpdateReq;
-import cn.projectan.strix.model.response.system.user.SystemUserListQueryResp;
-import cn.projectan.strix.model.response.system.user.SystemUserQueryByIdResp;
+import cn.projectan.strix.model.response.system.user.SystemUserListResp;
+import cn.projectan.strix.model.response.system.user.SystemUserResp;
 import cn.projectan.strix.service.SystemUserRelationService;
 import cn.projectan.strix.service.SystemUserService;
 import cn.projectan.strix.utils.NumUtils;
@@ -44,7 +44,7 @@ public class SystemUserController extends BaseSystemController {
 
     @GetMapping("")
     @PreAuthorize("@ss.hasRead('System_User')")
-    public RetResult<SystemUserListQueryResp> getSystemUserList(SystemUserListQueryReq systemUserListQueryReq) {
+    public RetResult<SystemUserListResp> getSystemUserList(SystemUserListReq systemUserListQueryReq) {
         QueryWrapper<SystemUser> systemUserQueryWrapper = new QueryWrapper<>();
         if (StringUtils.hasText(systemUserListQueryReq.getKeyword())) {
             systemUserQueryWrapper.like("nickname", systemUserListQueryReq.getKeyword())
@@ -56,19 +56,19 @@ public class SystemUserController extends BaseSystemController {
         systemUserQueryWrapper.orderByAsc("create_time");
 
         Page<SystemUser> page = systemUserService.page(systemUserListQueryReq.getPage(), systemUserQueryWrapper);
-        SystemUserListQueryResp resp = new SystemUserListQueryResp(page.getRecords(), page.getTotal());
+        SystemUserListResp resp = new SystemUserListResp(page.getRecords(), page.getTotal());
 
         return RetMarker.makeSuccessRsp(resp);
     }
 
     @GetMapping("{userId}")
     @PreAuthorize("@ss.hasRead('System_User')")
-    public RetResult<SystemUserQueryByIdResp> getSystemUser(@PathVariable String userId) {
+    public RetResult<SystemUserResp> getSystemUser(@PathVariable String userId) {
         Assert.notNull(userId, "参数错误");
         SystemUser systemUser = systemUserService.getById(userId);
         Assert.notNull(systemUser, "系统用户信息不存在");
 
-        return RetMarker.makeSuccessRsp(new SystemUserQueryByIdResp(systemUser));
+        return RetMarker.makeSuccessRsp(new SystemUserResp(systemUser));
     }
 
     @PostMapping("modify/{userId}")

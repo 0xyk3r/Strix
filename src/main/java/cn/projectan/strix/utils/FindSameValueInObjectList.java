@@ -1,6 +1,5 @@
 package cn.projectan.strix.utils;
 
-import cn.hutool.core.util.StrUtil;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Method;
@@ -19,8 +18,6 @@ import java.util.stream.Collectors;
 @Slf4j
 public class FindSameValueInObjectList {
 
-    private static final String GETTER_PREFIX = "get";
-
     /**
      * 利用Java反射获取对象的属性值
      * TODO 可以考虑封装到单独的类中
@@ -33,7 +30,7 @@ public class FindSameValueInObjectList {
     private static <T> String getField(T bean, String fieldName) {
         try {
             Class<?> clazz = bean.getClass();
-            Method getter = clazz.getMethod(GETTER_PREFIX + StrUtil.upperFirst(fieldName));
+            Method getter = ReflectUtil.getGetter(clazz, fieldName);
             return getter.invoke(bean).toString();
         } catch (Exception e) {
             log.error(e.getMessage(), e);

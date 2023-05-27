@@ -21,7 +21,7 @@ spring:
 strix:
   module:
     sms: true
-    oss: false
+    oss: true
     auth: false
     push: false
     payment: false

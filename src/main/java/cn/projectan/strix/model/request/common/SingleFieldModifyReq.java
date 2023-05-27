@@ -1,6 +1,5 @@
 package cn.projectan.strix.model.request.common;
 
-import cn.projectan.strix.model.request.base.BaseReq;
 import lombok.Data;
 
 /**
@@ -10,7 +9,7 @@ import lombok.Data;
  * @date 2021/6/16 15:18
  */
 @Data
-public class SingleFieldModifyReq extends BaseReq {
+public class SingleFieldModifyReq {
 
     private String field;
 

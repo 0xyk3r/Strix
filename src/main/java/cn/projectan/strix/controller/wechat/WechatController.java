@@ -4,6 +4,7 @@ import cn.hutool.core.util.IdUtil;
 import cn.projectan.strix.config.GlobalWechatConfig;
 import cn.projectan.strix.core.ret.RetMarker;
 import cn.projectan.strix.core.ret.RetResult;
+import cn.projectan.strix.model.annotation.Anonymous;
 import cn.projectan.strix.model.annotation.IgnoreDataEncryption;
 import cn.projectan.strix.model.db.SystemUser;
 import cn.projectan.strix.model.db.WechatUser;
@@ -47,7 +48,7 @@ import java.util.Map;
 public class WechatController {
 
     @Value("${spring.profiles.active}")
-    private String profiles;
+    private String env;
 
     @Autowired
     private SystemUserService systemUserService;
@@ -65,6 +66,7 @@ public class WechatController {
     /**
      * 统一跳转入口
      */
+    @Anonymous
     @IgnoreDataEncryption
     @RequestMapping("jump/{model}")
     public void jumpToModel(@PathVariable String wechatConfigId, @PathVariable String model, String params, HttpServletResponse response) {
@@ -83,6 +85,7 @@ public class WechatController {
      * 统一授权接口
      * TODO 后续改为独立的授权服务，以应对微信只允许设置两个授权回调域名
      */
+    @Anonymous
     @IgnoreDataEncryption
     @RequestMapping("auth")
     public void userAuth(@PathVariable String wechatConfigId, String model, String params,
@@ -145,6 +148,7 @@ public class WechatController {
     /**
      * 初始化H5 js-sdk 使用的api
      */
+    @Anonymous
     @IgnoreDataEncryption
     @ResponseBody
     @RequestMapping("config")
@@ -153,7 +157,7 @@ public class WechatController {
         String webIndexUrl = wechatConfigBean.getWebIndexUrl();
 
         try {
-            if (!"dev".equals(profiles)) {
+            if (!"dev".equals(env)) {
                 Assert.isTrue(StringUtils.hasText(webUrl) && (webUrl.startsWith(webIndexUrl)), "域名不合法");
             }
 
@@ -179,10 +183,11 @@ public class WechatController {
     /**
      * 本地开发时使用
      */
+    @Anonymous
     @IgnoreDataEncryption
     @RequestMapping("giveMeSessionTokenOnDevMode")
     public void devMode(@PathVariable String wechatConfigId, HttpServletResponse response) throws IOException {
-        if ("dev".equals(profiles)) {
+        if ("dev".equals(env)) {
             log.warn("通过api获取微信Token...");
 
             SystemUser systemUser = systemUserService.getById("1629392552362844162");

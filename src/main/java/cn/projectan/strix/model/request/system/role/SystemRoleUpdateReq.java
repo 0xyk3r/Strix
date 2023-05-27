@@ -2,7 +2,6 @@ package cn.projectan.strix.model.request.system.role;
 
 import cn.projectan.strix.core.validation.ValidationGroup;
 import cn.projectan.strix.model.annotation.UpdateField;
-import cn.projectan.strix.model.request.base.BaseReq;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
@@ -12,8 +11,7 @@ import lombok.Data;
  * @date 2021/7/1 17:14
  */
 @Data
-public class SystemRoleUpdateReq extends BaseReq {
-
+public class SystemRoleUpdateReq {
 
     /**
      * 角色名称

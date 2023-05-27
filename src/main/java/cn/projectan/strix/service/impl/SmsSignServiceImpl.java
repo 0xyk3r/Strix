@@ -5,6 +5,7 @@ import cn.projectan.strix.model.db.SmsSign;
 import cn.projectan.strix.model.system.StrixSmsSign;
 import cn.projectan.strix.service.SmsSignService;
 import cn.projectan.strix.utils.KeysDiffHandler;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
@@ -28,9 +29,7 @@ public class SmsSignServiceImpl extends ServiceImpl<SmsSignMapper, SmsSign> impl
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void syncSignList(String configKey, List<StrixSmsSign> signList) {
-        QueryWrapper<SmsSign> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("config_key", configKey);
-        List<SmsSign> dbSignList = this.list(queryWrapper);
+        List<SmsSign> dbSignList = this.list(new LambdaQueryWrapper<>(SmsSign.class).eq(SmsSign::getConfigKey, configKey));
 
         List<String> dbSignNameList = dbSignList.stream().map(SmsSign::getName).toList();
         List<String> signNameList = signList.stream().map(StrixSmsSign::getName).toList();
@@ -40,7 +39,7 @@ public class SmsSignServiceImpl extends ServiceImpl<SmsSignMapper, SmsSign> impl
                 QueryWrapper<SmsSign> removeQueryWrapper = new QueryWrapper<>();
                 removeQueryWrapper.eq("config_key", configKey);
                 removeQueryWrapper.in("name", removeKeys);
-                Assert.isTrue(remove(removeQueryWrapper), "Strix Sms: 同步删除签名失败.");
+                Assert.isTrue(remove(removeQueryWrapper), "Strix SMS: 同步删除签名失败.");
             }
             if (addKeys.size() > 0) {
                 List<SmsSign> smsSignList = new ArrayList<>();
@@ -55,7 +54,7 @@ public class SmsSignServiceImpl extends ServiceImpl<SmsSignMapper, SmsSign> impl
                     smsSign.setUpdateBy("System");
                     smsSignList.add(smsSign);
                 });
-                Assert.isTrue(saveBatch(smsSignList), "Strix Sms: 同步增加签名失败.");
+                Assert.isTrue(saveBatch(smsSignList), "Strix SMS: 同步增加签名失败.");
             }
         }));
     }

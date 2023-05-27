@@ -1,6 +1,5 @@
 package cn.projectan.strix.model.wechat.payment.v3.request;
 
-import cn.projectan.strix.model.request.base.BaseReq;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,7 +15,7 @@ import java.util.List;
  */
 @Data
 @Accessors(chain = true)
-public class Apply4SubSubmitReq extends BaseReq {
+public class Apply4SubSubmitReq {
 
     /**
      * 业务申请编号

@@ -1,6 +1,6 @@
 package cn.projectan.strix.model.response.common;
 
-import cn.hutool.core.util.StrUtil;
+import cn.projectan.strix.utils.ReflectUtil;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -40,12 +40,12 @@ public class CommonSelectDataResp {
         try {
             for (T d : data) {
                 Class<?> clazz = d.getClass();
-                Method keyGetter = clazz.getMethod("get" + StrUtil.upperFirst(keyFieldName));
+                Method keyGetter = ReflectUtil.getGetter(clazz, keyFieldName);
                 Object keyGetterInvoke = keyGetter.invoke(d);
-                Method labelGetter = clazz.getMethod("get" + StrUtil.upperFirst(labelFieldName));
+                Method labelGetter = ReflectUtil.getGetter(clazz, labelFieldName);
                 Object labelGetterInvoke = labelGetter.invoke(d);
                 if (StringUtils.hasText(attachFieldName)) {
-                    Method statusGetter = clazz.getMethod("get" + StrUtil.upperFirst(attachFieldName));
+                    Method statusGetter = ReflectUtil.getGetter(clazz, attachFieldName);
                     Object statusGetterInvoke = statusGetter.invoke(d);
                     if (keyGetterInvoke != null && labelGetterInvoke != null && statusGetterInvoke != null) {
                         options.add(new SelectDataItem(keyGetterInvoke.toString(), labelGetterInvoke.toString(), statusGetterInvoke.toString()));
@@ -67,9 +67,9 @@ public class CommonSelectDataResp {
     @AllArgsConstructor
     public static class SelectDataItem {
 
-        private String id;
+        private String value;
 
-        private String name;
+        private String label;
 
         private String attach;
 

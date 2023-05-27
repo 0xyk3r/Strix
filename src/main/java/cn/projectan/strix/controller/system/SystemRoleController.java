@@ -10,10 +10,10 @@ import cn.projectan.strix.model.db.*;
 import cn.projectan.strix.model.request.common.SingleFieldModifyReq;
 import cn.projectan.strix.model.request.system.role.SystemRoleUpdateReq;
 import cn.projectan.strix.model.response.common.CommonSelectDataResp;
-import cn.projectan.strix.model.response.system.menu.SystemMenuListQueryResp;
-import cn.projectan.strix.model.response.system.permission.SystemPermissionListQueryResp;
-import cn.projectan.strix.model.response.system.role.SystemRoleListQueryResp;
-import cn.projectan.strix.model.response.system.role.SystemRoleQueryByIdResp;
+import cn.projectan.strix.model.response.system.menu.SystemMenuListResp;
+import cn.projectan.strix.model.response.system.permission.SystemPermissionListResp;
+import cn.projectan.strix.model.response.system.role.SystemRoleListResp;
+import cn.projectan.strix.model.response.system.role.SystemRoleResp;
 import cn.projectan.strix.service.SystemManagerRoleService;
 import cn.projectan.strix.service.SystemRoleMenuService;
 import cn.projectan.strix.service.SystemRolePermissionService;
@@ -60,26 +60,26 @@ public class SystemRoleController extends BaseSystemController {
 
     @GetMapping("")
     @PreAuthorize("@ss.hasRead('System_Role')")
-    public RetResult<SystemRoleListQueryResp> getSystemRoleList() {
+    public RetResult<SystemRoleListResp> getSystemRoleList() {
         QueryWrapper<SystemRole> systemRoleQueryWrapper = new QueryWrapper<>();
         systemRoleQueryWrapper.orderByAsc("create_time");
         List<SystemRole> systemRoleList = systemRoleService.list(systemRoleQueryWrapper);
 
-        return RetMarker.makeSuccessRsp(new SystemRoleListQueryResp(systemRoleList));
+        return RetMarker.makeSuccessRsp(new SystemRoleListResp(systemRoleList));
     }
 
     @GetMapping("{roleId}")
     @PreAuthorize("@ss.hasRead('System_Role')")
-    public RetResult<SystemRoleQueryByIdResp> getSystemRole(@PathVariable String roleId) {
+    public RetResult<SystemRoleResp> getSystemRole(@PathVariable String roleId) {
         Assert.notNull(roleId, "参数错误");
         SystemRole systemRole = systemRoleService.getById(roleId);
         Assert.notNull(systemRole, "系统角色信息不存在");
 
         List<SystemMenu> menusByRoleId = systemRoleService.getMenusByRoleId(systemRole.getId());
-        List<SystemMenuListQueryResp.SystemMenuItem> menuItems = new SystemMenuListQueryResp(menusByRoleId).getSystemMenuList();
+        List<SystemMenuListResp.SystemMenuItem> menuItems = new SystemMenuListResp(menusByRoleId).getSystemMenuList();
         List<SystemPermission> systemPermissionByRoleId = systemRoleService.getSystemPermissionByRoleId(roleId);
-        List<SystemPermissionListQueryResp.SystemPermissionItem> permissionList = new SystemPermissionListQueryResp(systemPermissionByRoleId).getSystemPermissionList();
-        return RetMarker.makeSuccessRsp(new SystemRoleQueryByIdResp(systemRole.getId(), systemRole.getName(), menuItems, permissionList));
+        List<SystemPermissionListResp.SystemPermissionItem> permissionList = new SystemPermissionListResp(systemPermissionByRoleId).getSystemPermissionList();
+        return RetMarker.makeSuccessRsp(new SystemRoleResp(systemRole.getId(), systemRole.getName(), menuItems, permissionList));
     }
 
     @PostMapping("modify/{roleId}")
@@ -165,10 +165,10 @@ public class SystemRoleController extends BaseSystemController {
         }
         if (needReturnNewData.get()) {
             List<SystemMenu> menusByRoleId = systemRoleService.getMenusByRoleId(systemRole.getId());
-            List<SystemMenuListQueryResp.SystemMenuItem> menuItems = new SystemMenuListQueryResp(menusByRoleId).getSystemMenuList();
+            List<SystemMenuListResp.SystemMenuItem> menuItems = new SystemMenuListResp(menusByRoleId).getSystemMenuList();
             List<SystemPermission> systemPermissionByRoleId = systemRoleService.getSystemPermissionByRoleId(roleId);
-            List<SystemPermissionListQueryResp.SystemPermissionItem> permissionList = new SystemPermissionListQueryResp(systemPermissionByRoleId).getSystemPermissionList();
-            return RetMarker.makeSuccessRsp(new SystemRoleQueryByIdResp(systemRole.getId(), systemRole.getName(), menuItems, permissionList));
+            List<SystemPermissionListResp.SystemPermissionItem> permissionList = new SystemPermissionListResp(systemPermissionByRoleId).getSystemPermissionList();
+            return RetMarker.makeSuccessRsp(new SystemRoleResp(systemRole.getId(), systemRole.getName(), menuItems, permissionList));
         }
 
         return RetMarker.makeSuccessRsp();
@@ -242,7 +242,7 @@ public class SystemRoleController extends BaseSystemController {
      */
     @PostMapping("remove/{roleId}/menu/{menuId}")
     @PreAuthorize("@ss.hasWrite('System_Role')")
-    public RetResult<SystemRoleQueryByIdResp> removeRoleMenu(@PathVariable String roleId, @PathVariable String menuId) {
+    public RetResult<SystemRoleResp> removeRoleMenu(@PathVariable String roleId, @PathVariable String menuId) {
         Assert.hasText(roleId, "参数错误");
         Assert.hasText(menuId, "参数错误");
         Assert.isTrue(!"SuperManager".equalsIgnoreCase(roleId), "该角色不支持进行该操作");
@@ -261,10 +261,10 @@ public class SystemRoleController extends BaseSystemController {
 
         // 返回移除后的最新关系信息
         List<SystemMenu> menusByRoleId = systemRoleService.getMenusByRoleId(systemRole.getId());
-        List<SystemMenuListQueryResp.SystemMenuItem> menuItems = new SystemMenuListQueryResp(menusByRoleId).getSystemMenuList();
+        List<SystemMenuListResp.SystemMenuItem> menuItems = new SystemMenuListResp(menusByRoleId).getSystemMenuList();
         List<SystemPermission> systemPermissionByRoleId = systemRoleService.getSystemPermissionByRoleId(roleId);
-        List<SystemPermissionListQueryResp.SystemPermissionItem> permissionList = new SystemPermissionListQueryResp(systemPermissionByRoleId).getSystemPermissionList();
-        return RetMarker.makeSuccessRsp(new SystemRoleQueryByIdResp(systemRole.getId(), systemRole.getName(), menuItems, permissionList));
+        List<SystemPermissionListResp.SystemPermissionItem> permissionList = new SystemPermissionListResp(systemPermissionByRoleId).getSystemPermissionList();
+        return RetMarker.makeSuccessRsp(new SystemRoleResp(systemRole.getId(), systemRole.getName(), menuItems, permissionList));
     }
 
     /**
@@ -275,7 +275,7 @@ public class SystemRoleController extends BaseSystemController {
      */
     @PostMapping("remove/{roleId}/permission/{permissionId}")
     @PreAuthorize("@ss.hasWrite('System_Role')")
-    public RetResult<SystemRoleQueryByIdResp> removeRolePermission(@PathVariable String roleId, @PathVariable String permissionId) {
+    public RetResult<SystemRoleResp> removeRolePermission(@PathVariable String roleId, @PathVariable String permissionId) {
         Assert.hasText(roleId, "参数错误");
         Assert.hasText(permissionId, "参数错误");
         Assert.isTrue(!"SuperManager".equalsIgnoreCase(roleId), "该角色不支持进行该操作");
@@ -291,10 +291,10 @@ public class SystemRoleController extends BaseSystemController {
 
         // 返回移除后的最新关系信息
         List<SystemMenu> menusByRoleId = systemRoleService.getMenusByRoleId(systemRole.getId());
-        List<SystemMenuListQueryResp.SystemMenuItem> menuItems = new SystemMenuListQueryResp(menusByRoleId).getSystemMenuList();
+        List<SystemMenuListResp.SystemMenuItem> menuItems = new SystemMenuListResp(menusByRoleId).getSystemMenuList();
         List<SystemPermission> systemPermissionByRoleId = systemRoleService.getSystemPermissionByRoleId(roleId);
-        List<SystemPermissionListQueryResp.SystemPermissionItem> permissionList = new SystemPermissionListQueryResp(systemPermissionByRoleId).getSystemPermissionList();
-        return RetMarker.makeSuccessRsp(new SystemRoleQueryByIdResp(systemRole.getId(), systemRole.getName(), menuItems, permissionList));
+        List<SystemPermissionListResp.SystemPermissionItem> permissionList = new SystemPermissionListResp(systemPermissionByRoleId).getSystemPermissionList();
+        return RetMarker.makeSuccessRsp(new SystemRoleResp(systemRole.getId(), systemRole.getName(), menuItems, permissionList));
     }
 
     @GetMapping("select")

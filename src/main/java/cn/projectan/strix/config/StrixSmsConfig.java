@@ -1,6 +1,6 @@
 package cn.projectan.strix.config;
 
-import cn.projectan.strix.core.sms.StrixSmsClient;
+import cn.projectan.strix.core.module.sms.StrixSmsClient;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * 阿里云短信服务
+ * Strix SMS 短信服务
  *
  * @author 安炯奕
  * @date 2021/05/02 17:41

@@ -2,7 +2,6 @@ package cn.projectan.strix.model.request.system.menu;
 
 import cn.projectan.strix.core.validation.ValidationGroup;
 import cn.projectan.strix.model.annotation.UpdateField;
-import cn.projectan.strix.model.request.base.BaseReq;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 
@@ -11,7 +10,7 @@ import lombok.Data;
  * @date 2021/6/20 19:02
  */
 @Data
-public class SystemMenuUpdateReq extends BaseReq {
+public class SystemMenuUpdateReq {
 
     /**
      * 菜单名称

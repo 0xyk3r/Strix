@@ -12,10 +12,10 @@ import cn.projectan.strix.model.constant.SystemManagerType;
 import cn.projectan.strix.model.db.SystemManager;
 import cn.projectan.strix.model.db.SystemManagerRole;
 import cn.projectan.strix.model.request.common.SingleFieldModifyReq;
-import cn.projectan.strix.model.request.system.manager.SystemManagerListQueryReq;
+import cn.projectan.strix.model.request.system.manager.SystemManagerListReq;
 import cn.projectan.strix.model.request.system.manager.SystemManagerUpdateReq;
-import cn.projectan.strix.model.response.system.manager.SystemManagerListQueryResp;
-import cn.projectan.strix.model.response.system.manager.SystemManagerQueryByIdResp;
+import cn.projectan.strix.model.response.system.manager.SystemManagerListResp;
+import cn.projectan.strix.model.response.system.manager.SystemManagerResp;
 import cn.projectan.strix.service.SystemManagerRoleService;
 import cn.projectan.strix.service.SystemManagerService;
 import cn.projectan.strix.utils.KeysDiffHandler;
@@ -61,7 +61,7 @@ public class SystemManagerController extends BaseSystemController {
 
     @GetMapping("")
     @PreAuthorize("@ss.hasRead('System_Manager')")
-    public RetResult<SystemManagerListQueryResp> getSystemManagerList(SystemManagerListQueryReq systemManagerListQueryReq) {
+    public RetResult<SystemManagerListResp> getSystemManagerList(SystemManagerListReq systemManagerListQueryReq) {
         QueryWrapper<SystemManager> systemManagerQueryWrapper = new QueryWrapper<>();
         if (!isSuperManager()) {
             // 非超级管理员用户 根据地区权限查询
@@ -82,14 +82,14 @@ public class SystemManagerController extends BaseSystemController {
 
         Page<SystemManager> page = systemManagerService.page(systemManagerListQueryReq.getPage(), systemManagerQueryWrapper);
 
-        SystemManagerListQueryResp resp = new SystemManagerListQueryResp(page.getRecords(), page.getTotal());
+        SystemManagerListResp resp = new SystemManagerListResp(page.getRecords(), page.getTotal());
 
         return RetMarker.makeSuccessRsp(resp);
     }
 
     @GetMapping("{managerId}")
     @PreAuthorize("@ss.hasRead('System_Manager')")
-    public RetResult<SystemManagerQueryByIdResp> getSystemManager(@PathVariable String managerId) {
+    public RetResult<SystemManagerResp> getSystemManager(@PathVariable String managerId) {
         Assert.notNull(managerId, "参数错误");
         SystemManager systemManager = systemManagerService.getById(managerId);
         Assert.notNull(systemManager, "系统人员信息不存在");
@@ -99,7 +99,7 @@ public class SystemManagerController extends BaseSystemController {
         systemManagerRoleQueryWrapper.eq("system_manager_id", managerId);
         List<String> systemManagerRoleIds = systemManagerRoleService.listObjs(systemManagerRoleQueryWrapper, Object::toString);
 
-        return RetMarker.makeSuccessRsp(new SystemManagerQueryByIdResp(systemManager.getId(), systemManager.getNickname(), systemManager.getLoginName(), systemManager.getManagerStatus(), systemManager.getManagerType(), systemManager.getRegionId(), systemManager.getCreateTime(), String.join(",", systemManagerRoleIds)));
+        return RetMarker.makeSuccessRsp(new SystemManagerResp(systemManager.getId(), systemManager.getNickname(), systemManager.getLoginName(), systemManager.getManagerStatus(), systemManager.getManagerType(), systemManager.getRegionId(), systemManager.getCreateTime(), String.join(",", systemManagerRoleIds)));
     }
 
     @PostMapping("modify/{managerId}")
@@ -170,7 +170,7 @@ public class SystemManagerController extends BaseSystemController {
             systemManagerRoleQueryWrapper.eq("system_manager_id", managerId);
             List<String> systemManagerRoleIds = systemManagerRoleService.listObjs(systemManagerRoleQueryWrapper, Object::toString);
 
-            return RetMarker.makeSuccessRsp(new SystemManagerQueryByIdResp(systemManager.getId(), systemManager.getNickname(), systemManager.getLoginName(), systemManager.getManagerStatus(), systemManager.getManagerType(), systemManager.getRegionId(), systemManager.getCreateTime(), String.join(",", systemManagerRoleIds)));
+            return RetMarker.makeSuccessRsp(new SystemManagerResp(systemManager.getId(), systemManager.getNickname(), systemManager.getLoginName(), systemManager.getManagerStatus(), systemManager.getManagerType(), systemManager.getRegionId(), systemManager.getCreateTime(), String.join(",", systemManagerRoleIds)));
         }
 
         return RetMarker.makeSuccessRsp();

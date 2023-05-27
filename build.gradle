@@ -1,6 +1,6 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '3.0.6'
+    id 'org.springframework.boot' version '3.1.0'
     id 'io.spring.dependency-management' version '1.1.0'
 }
 
@@ -79,6 +79,7 @@ dependencies {
     implementation 'com.github.oshi:oshi-core:6.4.1'
     implementation 'org.lionsoul:ip2region:2.7.0'
     implementation 'jakarta.mail:jakarta.mail-api:2.1.1'
+    implementation 'org.apache.tika:tika-core:2.8.0'
 
     annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
 }

@@ -10,8 +10,8 @@ import cn.projectan.strix.model.db.SystemPermission;
 import cn.projectan.strix.model.db.SystemRolePermission;
 import cn.projectan.strix.model.request.system.permission.SystemPermissionUpdateReq;
 import cn.projectan.strix.model.response.common.CommonTransferDataResp;
-import cn.projectan.strix.model.response.system.permission.SystemPermissionListQueryResp;
-import cn.projectan.strix.model.response.system.permission.SystemPermissionQueryByIdResp;
+import cn.projectan.strix.model.response.system.permission.SystemPermissionListResp;
+import cn.projectan.strix.model.response.system.permission.SystemPermissionResp;
 import cn.projectan.strix.service.SystemPermissionService;
 import cn.projectan.strix.service.SystemRolePermissionService;
 import cn.projectan.strix.utils.UniqueDetectionTool;
@@ -46,22 +46,22 @@ public class SystemPermissionController extends BaseSystemController {
 
     @GetMapping("")
     @PreAuthorize("@ss.hasRead('System_Permission')")
-    public RetResult<SystemPermissionListQueryResp> getSystemPermissionList() {
+    public RetResult<SystemPermissionListResp> getSystemPermissionList() {
         QueryWrapper<SystemPermission> systemPermissionQueryWrapper = new QueryWrapper<>();
         systemPermissionQueryWrapper.orderByAsc("create_time");
         List<SystemPermission> systemPermissionList = systemPermissionService.list(systemPermissionQueryWrapper);
 
-        return RetMarker.makeSuccessRsp(new SystemPermissionListQueryResp(systemPermissionList));
+        return RetMarker.makeSuccessRsp(new SystemPermissionListResp(systemPermissionList));
     }
 
     @GetMapping("{permissionId}")
     @PreAuthorize("@ss.hasRead('System_Permission')")
-    public RetResult<SystemPermissionQueryByIdResp> getSystemPermission(@PathVariable String permissionId) {
+    public RetResult<SystemPermissionResp> getSystemPermission(@PathVariable String permissionId) {
         Assert.notNull(permissionId, "参数错误");
         SystemPermission systemPermission = systemPermissionService.getById(permissionId);
         Assert.notNull(systemPermission, "系统权限信息不存在");
 
-        return RetMarker.makeSuccessRsp(new SystemPermissionQueryByIdResp(systemPermission.getId(), systemPermission.getName(), systemPermission.getPermissionKey(), systemPermission.getPermissionType(), systemPermission.getDescription()));
+        return RetMarker.makeSuccessRsp(new SystemPermissionResp(systemPermission.getId(), systemPermission.getName(), systemPermission.getPermissionKey(), systemPermission.getPermissionType(), systemPermission.getDescription()));
     }
 
     @PostMapping("update")

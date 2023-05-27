@@ -30,6 +30,6 @@ public class StrixSmsInit implements ApplicationRunner {
     public void run(ApplicationArguments args) {
         List<SmsConfig> smsConfigList = smsConfigService.list();
 
-        smsConfigService.createSmsInstance(smsConfigList);
+        smsConfigService.createInstance(smsConfigList);
     }
 }

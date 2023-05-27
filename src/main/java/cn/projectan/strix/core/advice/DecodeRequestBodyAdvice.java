@@ -5,6 +5,7 @@ import cn.hutool.core.util.StrUtil;
 import cn.projectan.strix.core.security.ApiSecurity;
 import cn.projectan.strix.model.annotation.IgnoreDataEncryption;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,13 +16,14 @@ import org.springframework.http.HttpInputMessage;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.servlet.mvc.method.annotation.RequestBodyAdvice;
 
 import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
-import java.util.Objects;
 
 /**
  * 请求体统一处理 用于请求体解密
@@ -81,12 +83,21 @@ public class DecodeRequestBodyAdvice implements RequestBodyAdvice {
         private InputStream body;
 
         public HttpInputMessageHandler(HttpInputMessage inputMessage) throws Exception {
+            ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+            HttpServletRequest request = attributes.getRequest();
+
             this.headers = inputMessage.getHeaders();
             this.body = inputMessage.getBody();
             String originalBody = StrUtil.str(IoUtil.readBytes(this.body, false), StandardCharsets.UTF_8);
 
             String handlingData = handleSecurity(originalBody);
-            this.body = IOUtils.toInputStream(Objects.requireNonNullElse(handlingData, "{\"security\": false}"), StandardCharsets.UTF_8);
+            if (!StringUtils.hasText(handlingData)) {
+                request.setAttribute("Strix-Security", false);
+                this.body = InputStream.nullInputStream();
+            } else {
+                request.setAttribute("Strix-Security", true);
+                this.body = IOUtils.toInputStream(handlingData, StandardCharsets.UTF_8);
+            }
         }
 
         @Override

@@ -1,7 +1,7 @@
 package cn.projectan.strix.utils;
 
 import cn.projectan.strix.config.StrixSmsConfig;
-import cn.projectan.strix.core.sms.StrixSmsClient;
+import cn.projectan.strix.core.module.sms.StrixSmsClient;
 import cn.projectan.strix.model.db.SmsLog;
 import cn.projectan.strix.model.system.StrixSmsSign;
 import cn.projectan.strix.model.system.StrixSmsTemplate;
@@ -32,7 +32,7 @@ public class SmsUtil {
 
     public void send(SmsLog sms) {
         StrixSmsClient client = strixSmsConfig.getInstance(sms.getConfigKey());
-        Assert.notNull(client, "Strix Sms: 发送短信失败. (短信服务实例不存在)");
+        Assert.notNull(client, "Strix SMS: 发送短信失败. (短信服务实例不存在)");
 
         client.send(sms);
         smsLogService.save(sms);
@@ -40,12 +40,14 @@ public class SmsUtil {
 
     public List<StrixSmsSign> getSignList(String configKey) {
         StrixSmsClient client = strixSmsConfig.getInstance(configKey);
+        Assert.notNull(client, "Strix SMS: 获取短信签名列表失败. (短信服务实例不存在)");
 
         return client.getSignList();
     }
 
     public List<StrixSmsTemplate> getTemplateList(String configKey) {
         StrixSmsClient client = strixSmsConfig.getInstance(configKey);
+        Assert.notNull(client, "Strix SMS: 获取短信模板列表失败. (短信服务实例不存在)");
 
         return client.getTemplateList();
     }

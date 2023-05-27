@@ -2,7 +2,7 @@ package cn.projectan.strix.service.impl;
 
 import cn.projectan.strix.config.StrixSmsConfig;
 import cn.projectan.strix.core.exception.StrixException;
-import cn.projectan.strix.core.sms.AliyunSmsClient;
+import cn.projectan.strix.core.module.sms.AliyunSmsClient;
 import cn.projectan.strix.mapper.SmsConfigMapper;
 import cn.projectan.strix.model.constant.StrixSmsPlatform;
 import cn.projectan.strix.model.db.SmsConfig;
@@ -33,27 +33,31 @@ import java.util.List;
 public class SmsConfigServiceImpl extends ServiceImpl<SmsConfigMapper, SmsConfig> implements SmsConfigService {
 
     @Override
-    public void createSmsInstance(List<SmsConfig> smsConfigList) {
+    public void createInstance(List<SmsConfig> smsConfigList) {
         StrixSmsTask strixSmsTask = SpringUtil.getBean(StrixSmsTask.class);
         StrixSmsConfig strixSmsConfig = SpringUtil.getBean(StrixSmsConfig.class);
 
         for (SmsConfig smsConfig : smsConfigList) {
+            boolean success = true;
             try {
                 switch (smsConfig.getPlatform()) {
                     case StrixSmsPlatform.ALIYUN -> {
                         DefaultProfile profile = DefaultProfile.getProfile(smsConfig.getRegionId(), smsConfig.getAccessKey(), smsConfig.getAccessSecret());
-                        Assert.notNull(profile, "Strix Sms: 初始化短信服务实例<" + smsConfig.getKey() + ">失败. (阿里云短信服务配置错误)");
+                        Assert.notNull(profile, "Strix SMS: 初始化短信服务实例<" + smsConfig.getKey() + ">失败. (阿里云短信服务配置错误)");
                         strixSmsConfig.addInstance(smsConfig.getKey(), new AliyunSmsClient(new DefaultAcsClient(profile)));
                     }
                     case StrixSmsPlatform.TENCENT ->
-                            throw new StrixException("Strix Sms: 初始化短信服务实例<" + smsConfig.getKey() + ">失败. (暂不支持腾讯云短信服务)");
+                            throw new StrixException("Strix SMS: 初始化短信服务实例<" + smsConfig.getKey() + ">失败. (暂不支持腾讯云短信服务)");
                     default ->
-                            throw new StrixException("Strix Sms: 初始化短信服务实例<" + smsConfig.getKey() + ">失败. (暂不支持该短信服务平台)");
+                            throw new StrixException("Strix SMS: 初始化短信服务实例<" + smsConfig.getKey() + ">失败. (暂不支持该短信服务平台)");
                 }
             } catch (Exception e) {
-                log.error("Strix Sms: 初始化短信服务实例<" + smsConfig.getKey() + ">失败. (其他错误)", e);
+                success = false;
+                log.error("Strix SMS: 初始化短信服务实例<" + smsConfig.getKey() + ">失败. (其他错误)", e);
             }
-            log.info("Strix Sms: 初始化短信服务实例<" + smsConfig.getKey() + ">成功.");
+            if (success) {
+                log.info("Strix SMS: 初始化短信服务实例<" + smsConfig.getKey() + ">成功.");
+            }
         }
 
         // 全部初始化完成后，进行初始化签名和模板信息
@@ -63,8 +67,8 @@ public class SmsConfigServiceImpl extends ServiceImpl<SmsConfigMapper, SmsConfig
 
     @Override
     public CommonSelectDataResp getSelectData() {
-        List<SmsConfig> systemRoleList = getBaseMapper().selectList(Wrappers.emptyWrapper());
-        return new CommonSelectDataResp(systemRoleList, "key", "key", "name");
+        List<SmsConfig> smsConfigList = getBaseMapper().selectList(Wrappers.emptyWrapper());
+        return new CommonSelectDataResp(smsConfigList, "key", "key", "name");
     }
 
 }
