@@ -1,0 +1,36 @@
+package cn.projectan.strix.initialize;
+
+import cn.projectan.strix.config.StrixOssConfig;
+import cn.projectan.strix.model.db.OssConfig;
+import cn.projectan.strix.service.OssConfigService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.core.annotation.Order;
+import org.springframework.stereotype.Component;
+
+import java.util.List;
+
+/**
+ * @author 安炯奕
+ * @date 2021/5/2 17:20
+ */
+@Slf4j
+@Order(10)
+@Component
+@ConditionalOnBean(StrixOssConfig.class)
+public class StrixOssInit implements ApplicationRunner {
+
+    @Autowired
+    private OssConfigService ossConfigService;
+
+    @Override
+    public void run(ApplicationArguments args) {
+        List<OssConfig> ossConfigList = ossConfigService.list();
+
+        ossConfigService.createInstance(ossConfigList);
+    }
+
+}

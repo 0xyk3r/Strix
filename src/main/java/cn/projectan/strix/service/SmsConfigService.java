@@ -16,7 +16,7 @@ import java.util.List;
  */
 public interface SmsConfigService extends IService<SmsConfig> {
 
-    void createSmsInstance(List<SmsConfig> smsConfigList);
+    void createInstance(List<SmsConfig> smsConfigList);
 
     CommonSelectDataResp getSelectData();
 

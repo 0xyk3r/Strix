@@ -48,24 +48,23 @@ public class SmsConfig extends BaseModel {
      *
      * @see StrixSmsPlatform
      */
+    @UniqueDetection(value = "服务平台", group = 1)
     private Integer platform;
 
     /**
      * 短信服务地区ID
      */
-    @UniqueDetection(value = "地域", group = 1)
+    @UniqueDetection(value = "服务地域", group = 1)
     private String regionId;
 
     /**
      * 授权令牌key
      */
-    @UniqueDetection(value = "AccessKey", group = 1)
     private String accessKey;
 
     /**
      * 授权令牌秘钥
      */
-    @UniqueDetection(value = "AccessSecret", group = 1)
     private String accessSecret;
 
     /**

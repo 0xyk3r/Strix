@@ -1,17 +1,22 @@
 package cn.projectan.strix.controller.system;
 
+import cn.projectan.strix.config.StrixOssConfig;
 import cn.projectan.strix.core.ret.RetMarker;
 import cn.projectan.strix.core.ret.RetResult;
+import cn.projectan.strix.model.annotation.Anonymous;
 import cn.projectan.strix.model.annotation.IgnoreDataEncryption;
 import cn.projectan.strix.model.constant.StrixSmsLogStatus;
 import cn.projectan.strix.model.constant.StrixSmsPlatform;
 import cn.projectan.strix.model.db.SmsLog;
+import cn.projectan.strix.model.system.StrixOssBucket;
+import cn.projectan.strix.service.OssFileService;
 import cn.projectan.strix.service.SystemManagerService;
 import cn.projectan.strix.utils.Ip2RegionUtil;
 import cn.projectan.strix.utils.IpUtils;
 import cn.projectan.strix.utils.SmsUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -19,7 +24,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -27,6 +34,7 @@ import java.util.Map;
  * @date 2022/7/29 14:19
  */
 @Slf4j
+@Anonymous
 @RestController
 @RequestMapping("debug")
 @ConditionalOnProperty(prefix = "spring.profiles", name = "active", havingValue = "dev")
@@ -36,13 +44,25 @@ public class DebugController {
     private SmsUtil smsUtil;
     @Autowired
     private SystemManagerService systemManagerService;
+    @Autowired
+    private OssFileService ossFileService;
+    @Autowired
+    private StrixOssConfig strixOssConfig;
 
     @Autowired
     private ObjectMapper objectMapper;
 
     @IgnoreDataEncryption
-    @GetMapping("test")
-    public RetResult<Object> test(HttpServletRequest request) {
+    @GetMapping("test/oss")
+    public RetResult<Object> oss(HttpServletResponse response) throws IOException {
+        List<StrixOssBucket> ossBuckets = strixOssConfig.getInstance("HuiBoChe").getBucketList();
+
+        return RetMarker.makeSuccessRsp(ossBuckets);
+    }
+
+    @IgnoreDataEncryption
+    @GetMapping("test/sms")
+    public RetResult<Object> sms(HttpServletRequest request) {
         SmsLog sms = new SmsLog();
         sms.setConfigKey("HuiBoChe");
         sms.setPlatform(StrixSmsPlatform.ALIYUN);

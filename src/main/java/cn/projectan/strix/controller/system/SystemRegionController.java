@@ -9,14 +9,13 @@ import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.core.validation.ValidationGroup;
 import cn.projectan.strix.model.db.SystemRegion;
 import cn.projectan.strix.model.request.common.SingleFieldModifyReq;
-import cn.projectan.strix.model.request.system.region.SystemRegionListQueryReq;
+import cn.projectan.strix.model.request.system.region.SystemRegionListReq;
 import cn.projectan.strix.model.request.system.region.SystemRegionUpdateReq;
 import cn.projectan.strix.model.response.common.CommonCascaderDataResp;
 import cn.projectan.strix.model.response.common.CommonTreeDataResp;
 import cn.projectan.strix.model.response.system.region.SystemRegionChildrenListResp;
-import cn.projectan.strix.model.response.system.region.SystemRegionListQueryResp;
-import cn.projectan.strix.model.response.system.region.SystemRegionQueryByIdResp;
-import cn.projectan.strix.service.SystemManagerService;
+import cn.projectan.strix.model.response.system.region.SystemRegionListResp;
+import cn.projectan.strix.model.response.system.region.SystemRegionResp;
 import cn.projectan.strix.service.SystemRegionService;
 import cn.projectan.strix.utils.StrixAssert;
 import cn.projectan.strix.utils.UniqueDetectionTool;
@@ -47,8 +46,6 @@ public class SystemRegionController extends BaseSystemController {
     @Autowired
     private SystemRegionService systemRegionService;
     @Autowired
-    private SystemManagerService systemManagerService;
-    @Autowired
     private SystemRegionCache systemRegionCache;
 
     @Autowired(required = false)
@@ -56,7 +53,7 @@ public class SystemRegionController extends BaseSystemController {
 
     @GetMapping("")
     @PreAuthorize("@ss.hasRead('System_Region')")
-    public RetResult<SystemRegionListQueryResp> getSystemRegionList(SystemRegionListQueryReq req) {
+    public RetResult<SystemRegionListResp> getSystemRegionList(SystemRegionListReq req) {
         QueryWrapper<SystemRegion> systemRegionQueryWrapper = new QueryWrapper<>();
         if (StringUtils.hasText(req.getKeyword())) {
             systemRegionQueryWrapper.like("name", req.getKeyword());
@@ -84,19 +81,19 @@ public class SystemRegionController extends BaseSystemController {
                     .collect(Collectors.toMap(SystemRegion::getId, a -> a, (o1, o2) -> o1)).values()));
         }
 
-        SystemRegionListQueryResp resp = new SystemRegionListQueryResp(page.getRecords(), page.getTotal());
+        SystemRegionListResp resp = new SystemRegionListResp(page.getRecords(), page.getTotal());
 
         return RetMarker.makeSuccessRsp(resp);
     }
 
     @GetMapping("{id}")
     @PreAuthorize("@ss.hasRead('System_Region')")
-    public RetResult<SystemRegionQueryByIdResp> getSystemRegion(@PathVariable String id) {
+    public RetResult<SystemRegionResp> getSystemRegion(@PathVariable String id) {
         Assert.notNull(id, "参数错误");
         SystemRegion systemRegion = systemRegionService.getById(id);
         Assert.notNull(systemRegion, "系统地区信息不存在");
 
-        return RetMarker.makeSuccessRsp(new SystemRegionQueryByIdResp(systemRegion.getId(), systemRegion.getName(), systemRegion.getLevel(), systemRegion.getParentId(), systemRegion.getFullPath(), systemRegion.getFullName(), systemRegion.getRemarks()));
+        return RetMarker.makeSuccessRsp(new SystemRegionResp(systemRegion.getId(), systemRegion.getName(), systemRegion.getLevel(), systemRegion.getParentId(), systemRegion.getFullPath(), systemRegion.getFullName(), systemRegion.getRemarks()));
     }
 
     @GetMapping("{id}/children")

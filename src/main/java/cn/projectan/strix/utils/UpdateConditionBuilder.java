@@ -20,14 +20,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Slf4j
 public class UpdateConditionBuilder {
 
-    private static final char UNDERLINE = '_';
-
-    private static final String GETTER_PREFIX = "get";
-
-    private static final String SETTER_PREFIX = "set";
-
-    private static final String UPDATE_BY_SETTER = "setUpdateBy";
-
     /**
      * 构造UpdateWrapper
      *
@@ -58,7 +50,7 @@ public class UpdateConditionBuilder {
             Class<?> reqClazz = req.getClass();
 
             // 先设置要修改的数据id
-            Method idGetter = beanClazz.getMethod("getId");
+            Method idGetter = ReflectUtil.getGetter(beanClazz, "id");
             Object idGetterInvoke = idGetter.invoke(bean);
             if (idGetterInvoke != null && StringUtils.hasText(idGetterInvoke.toString())) {
                 updateWrapper.eq("id", idGetterInvoke.toString());
@@ -77,9 +69,9 @@ public class UpdateConditionBuilder {
             for (Field field : fields) {
                 UpdateField annotation = field.getAnnotation(UpdateField.class);
                 if (annotation != null) {
-                    Method reqGetter = reqClazz.getMethod(GETTER_PREFIX + StrUtil.upperFirst(field.getName()));
+                    Method reqGetter = ReflectUtil.getGetter(reqClazz, field.getName());
                     Object reqGetterInvoke = reqGetter.invoke(req);
-                    Method originalFieldGetter = beanClazz.getMethod(GETTER_PREFIX + StrUtil.upperFirst(field.getName()));
+                    Method originalFieldGetter = ReflectUtil.getGetter(beanClazz, field.getName());
                     Object originalFieldGetterInvoke = originalFieldGetter.invoke(bean);
                     if (annotation.allowEmpty() || (reqGetterInvoke != null && StringUtils.hasText(reqGetterInvoke.toString()))) {
                         String newValue = reqGetterInvoke.toString();
@@ -88,7 +80,7 @@ public class UpdateConditionBuilder {
                         if (originalFieldGetterInvoke == null || !originalFieldGetterInvoke.toString().equals(newValue)) {
                             updateWrapper = updateWrapper.set(StrUtil.toUnderlineCase(field.getName()), newValue).or();
                             setCount.getAndIncrement();
-                            Method newFieldSetter = beanClazz.getMethod(SETTER_PREFIX + StrUtil.upperFirst(field.getName()), field.getType());
+                            Method newFieldSetter = ReflectUtil.getSetter(beanClazz, field.getName());
                             newFieldSetter.invoke(bean, reqGetterInvoke);
                         }
                     }

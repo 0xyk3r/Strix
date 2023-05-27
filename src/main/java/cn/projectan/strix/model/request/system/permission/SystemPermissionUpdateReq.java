@@ -2,7 +2,6 @@ package cn.projectan.strix.model.request.system.permission;
 
 import cn.projectan.strix.core.validation.ValidationGroup;
 import cn.projectan.strix.model.annotation.UpdateField;
-import cn.projectan.strix.model.request.base.BaseReq;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -13,7 +12,7 @@ import lombok.Data;
  * @date 2021/7/20 15:44
  */
 @Data
-public class SystemPermissionUpdateReq extends BaseReq {
+public class SystemPermissionUpdateReq {
 
     /**
      * 权限名称

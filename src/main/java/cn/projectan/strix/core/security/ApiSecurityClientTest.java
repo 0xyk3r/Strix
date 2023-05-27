@@ -17,17 +17,19 @@ public class ApiSecurityClientTest {
         ObjectMapper objectMapper = new ObjectMapper();
         ApiSecurityClient apiSecurityClient = new ApiSecurityClient(objectMapper);
 
+        String timestamp = String.valueOf(System.currentTimeMillis());
+
         // 待签名数据
         Map<String, Object> map = new TreeMap<>();
         // api地址
         map.put("_requestUrl", "/v1/login");
+        map.put("_timestamp", timestamp);
         // 参数
         map.put("loginName", "anjiongyi");
         map.put("loginPass", "An1212");
 
         // 请求头
-        String timestamp = String.valueOf(System.currentTimeMillis());
-        String sign = ApiSignUtil.getSign(map, timestamp, objectMapper);
+        String sign = ApiSignUtil.getSign(map, objectMapper);
         System.out.println("☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★ REQUEST HEADER ☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★");
         System.out.println("sign: " + sign);
         System.out.println("timestamp: " + timestamp);

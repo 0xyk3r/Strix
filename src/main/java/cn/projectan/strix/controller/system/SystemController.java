@@ -9,6 +9,7 @@ import cn.projectan.strix.core.ramcache.SystemSettingCache;
 import cn.projectan.strix.core.ret.RetMarker;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.core.ss.details.LoginSystemManager;
+import cn.projectan.strix.model.annotation.Anonymous;
 import cn.projectan.strix.model.constant.SystemManagerStatus;
 import cn.projectan.strix.model.db.SystemManager;
 import cn.projectan.strix.model.db.SystemMenu;
@@ -16,7 +17,6 @@ import cn.projectan.strix.model.request.system.SystemLoginReq;
 import cn.projectan.strix.model.response.system.SystemLoginResp;
 import cn.projectan.strix.model.response.system.SystemMenuResp;
 import cn.projectan.strix.service.SystemManagerService;
-import cn.projectan.strix.service.SystemRegionService;
 import cn.projectan.strix.utils.RedisUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import lombok.extern.slf4j.Slf4j;
@@ -40,10 +40,6 @@ public class SystemController extends BaseSystemController {
 
     @Autowired
     private SystemManagerService systemManagerService;
-
-    @Autowired
-    private SystemRegionService systemRegionService;
-
     @Autowired
     private CaptchaService captchaService;
     @Autowired
@@ -51,6 +47,7 @@ public class SystemController extends BaseSystemController {
     @Autowired
     private RedisUtil redisUtil;
 
+    @Anonymous
     @PostMapping("login")
     public RetResult<Object> login(@RequestBody SystemLoginReq systemLoginReq) {
         // 验证码校验
