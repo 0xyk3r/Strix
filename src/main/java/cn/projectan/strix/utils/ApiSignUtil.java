@@ -50,9 +50,7 @@ public class ApiSignUtil {
      * @param params       需要进行排序加密的参数
      * @param objectMapper ObjectMapper
      * @return 签名
-     * @deprecated
      */
-    @Deprecated
     public static String getSign(Map<String, Object> params, ObjectMapper objectMapper) {
         // 移除空参数
         params.entrySet().removeIf(entry -> ObjectUtil.isEmpty(entry.getValue()));

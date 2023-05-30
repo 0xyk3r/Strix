@@ -1,4 +1,4 @@
-package cn.projectan.strix.core.advice;
+package cn.projectan.strix.core.aop.advice;
 
 import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.util.StrUtil;
@@ -46,8 +46,8 @@ public class DecodeRequestBodyAdvice implements RequestBodyAdvice {
     @Override
     public boolean supports(MethodParameter methodParameter, Type type, Class<? extends HttpMessageConverter<?>> aClass) {
         String className = methodParameter.getContainingClass().getName();
-        boolean apiSecurityCheckAspect = className.equals("cn.projectan.strix.core.aop.ApiSecurityCheckAspect");
-        boolean ignoreDataEncryptionByException = className.equals("cn.projectan.strix.core.advice.GlobalExceptionHandler");
+        boolean apiSecurityCheckAspect = className.equals("cn.projectan.strix.core.aop.aspect.ApiSecurityCheckAspect");
+        boolean ignoreDataEncryptionByException = className.equals("cn.projectan.strix.core.aop.advice.GlobalExceptionHandler");
         boolean ignoreDataEncryptionByClass = methodParameter.getContainingClass().isAnnotationPresent(IgnoreDataEncryption.class);
         IgnoreDataEncryption methodAnnotation = methodParameter.getMethodAnnotation(IgnoreDataEncryption.class);
         return !apiSecurityCheckAspect && !ignoreDataEncryptionByException && !ignoreDataEncryptionByClass && methodAnnotation == null;

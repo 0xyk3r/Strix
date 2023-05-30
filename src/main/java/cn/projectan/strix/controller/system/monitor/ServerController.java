@@ -22,7 +22,7 @@ import java.util.Collections;
 public class ServerController extends BaseSystemController {
 
     @GetMapping()
-    @PreAuthorize("@ss.hasRead('System_Monitor_Cache')")
+    @PreAuthorize("@ss.hasRead('System_Monitor_Server')")
     public RetResult<Object> getServerInfo() {
         Server server = new Server();
         server.loadAll();

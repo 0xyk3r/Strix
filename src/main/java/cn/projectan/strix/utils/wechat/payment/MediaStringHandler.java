@@ -1,6 +1,6 @@
 package cn.projectan.strix.utils.wechat.payment;
 
-import cn.projectan.strix.core.payment.wxpay.WxPayTools;
+import cn.projectan.strix.core.module.payment.wxpay.WxPayTools;
 import cn.projectan.strix.model.wechat.payment.WxPayConfig;
 
 import java.io.File;

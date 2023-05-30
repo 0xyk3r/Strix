@@ -1,7 +1,7 @@
 package cn.projectan.strix.core.ramcache;
 
-import cn.projectan.strix.model.db.SystemSetting;
-import cn.projectan.strix.service.SystemSettingService;
+import cn.projectan.strix.model.db.SystemConfig;
+import cn.projectan.strix.service.SystemConfigService;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,24 +19,24 @@ import java.util.Map;
  */
 @Slf4j
 @Component
-public class SystemSettingCache {
+public class SystemConfigCache {
 
     @Autowired
-    private SystemSettingService systemSettingService;
+    private SystemConfigService systemConfigService;
 
     private final Map<String, String> instance = new HashMap<>();
 
     @PostConstruct
     private void init() {
-        List<SystemSetting> systemSettingList = systemSettingService.list();
-        systemSettingList.forEach(ss -> instance.put(ss.getSettingKey(), ss.getSettingValue()));
-        log.info(String.format("Strix Cache: 系统配置项加载完成, 加载了 %d 个配置项.", systemSettingList.size()));
+        List<SystemConfig> systemConfigList = systemConfigService.list();
+        systemConfigList.forEach(ss -> instance.put(ss.getKey(), ss.getValue()));
+        log.info(String.format("Strix Config: 系统配置项加载完成, 加载了 %d 个配置项.", systemConfigList.size()));
     }
 
     public void update(String key) {
-        SystemSetting systemSetting = systemSettingService.selectByKey(key);
-        if (systemSetting != null) {
-            instance.put(key, systemSetting.getSettingValue());
+        SystemConfig systemConfig = systemConfigService.getByKey(key);
+        if (systemConfig != null) {
+            instance.put(key, systemConfig.getValue());
         } else {
             instance.remove(key);
         }
@@ -46,9 +46,14 @@ public class SystemSettingCache {
         return instance.get(key);
     }
 
-    public String get(String key, boolean secondConfirmation) {
+    public String get(String key, boolean strict) {
         String result = instance.get(key);
-        return result != null || !secondConfirmation ? result : updateAndGet(key);
+
+        if (result == null || strict) {
+            return updateAndGet(key);
+        } else {
+            return result;
+        }
     }
 
     public String updateAndGet(String key) {

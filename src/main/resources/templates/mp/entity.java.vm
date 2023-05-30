@@ -19,6 +19,7 @@ import lombok.Setter;
     import lombok.experimental.Accessors;
     #end
 #end
+import java.io.Serial;
 
 /**
  * <p>
@@ -56,6 +57,7 @@ public class ${entity} {
 #end
 #if(${entitySerialVersionUID})
 
+@Serial
 private static final long serialVersionUID=1L;
 #end
 ## ----------  BEGIN 字段循环遍历  ----------

@@ -1,4 +1,4 @@
-package cn.projectan.strix.core.advice;
+package cn.projectan.strix.core.aop.advice;
 
 import cn.projectan.strix.core.exception.StrixNoAuthException;
 import cn.projectan.strix.core.exception.StrixUniqueDetectionException;

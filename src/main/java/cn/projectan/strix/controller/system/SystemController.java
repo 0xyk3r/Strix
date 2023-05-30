@@ -5,7 +5,7 @@ import cn.projectan.captcha.model.common.ResponseModel;
 import cn.projectan.captcha.model.vo.CaptchaVO;
 import cn.projectan.captcha.service.CaptchaService;
 import cn.projectan.strix.controller.system.base.BaseSystemController;
-import cn.projectan.strix.core.ramcache.SystemSettingCache;
+import cn.projectan.strix.core.ramcache.SystemConfigCache;
 import cn.projectan.strix.core.ret.RetMarker;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.core.ss.details.LoginSystemManager;
@@ -43,7 +43,7 @@ public class SystemController extends BaseSystemController {
     @Autowired
     private CaptchaService captchaService;
     @Autowired
-    private SystemSettingCache systemSettingCache;
+    private SystemConfigCache systemConfigCache;
     @Autowired
     private RedisUtil redisUtil;
 
@@ -66,7 +66,7 @@ public class SystemController extends BaseSystemController {
         Assert.isTrue(systemManager.getManagerStatus() == SystemManagerStatus.NORMAL, "该管理用户已被禁止使用");
         Assert.isTrue(systemManager.getLoginPassword().equals(systemLoginReq.getLoginPassword()), "账号或密码错误");
 
-        if ("0".equals(systemSettingCache.get("SYSTEM_MANAGER_SUPPORT_MULTIPLE_LOGIN"))) {
+        if ("0".equals(systemConfigCache.get("SYSTEM_MANAGER_SUPPORT_MULTIPLE_LOGIN"))) {
             // 检查该账号上次登录是否还没有超时
             Object existToken = redisUtil.get("strix:system:manager:login_token:login:id_" + systemManager.getId());
             if (existToken != null) {
@@ -77,7 +77,7 @@ public class SystemController extends BaseSystemController {
         }
         // 获取存储时间并存储Token
         long effectiveTime = 1440L;
-        String et = systemSettingCache.get("SYSTEM_MANAGER_LOGIN_EFFECTIVE_TIME");
+        String et = systemConfigCache.get("SYSTEM_MANAGER_LOGIN_EFFECTIVE_TIME");
         if (StringUtils.hasText(et)) {
             effectiveTime = Long.parseLong(et);
         }
@@ -110,7 +110,7 @@ public class SystemController extends BaseSystemController {
         Object oldTokenObj = redisUtil.get("strix:system:manager:login_token:login:id_" + systemManager.getId());
         Assert.notNull(oldTokenObj, "旧token已失效，请重新登陆");
         long effectiveTime = 1440L;
-        String et = systemSettingCache.get("SYSTEM_MANAGER_LOGIN_EFFECTIVE_TIME");
+        String et = systemConfigCache.get("SYSTEM_MANAGER_LOGIN_EFFECTIVE_TIME");
         if (StringUtils.hasText(et)) {
             effectiveTime = Long.parseLong(et);
         }

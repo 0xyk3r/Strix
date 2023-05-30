@@ -1,6 +1,6 @@
 package cn.projectan.strix.config;
 
-import cn.projectan.strix.core.payment.wxpay.WxPayTools;
+import cn.projectan.strix.core.module.payment.wxpay.WxPayTools;
 import cn.projectan.strix.model.db.PaymentConfig;
 import cn.projectan.strix.model.wechat.payment.BasePaymentConfig;
 import cn.projectan.strix.model.wechat.payment.WxPayConfig;

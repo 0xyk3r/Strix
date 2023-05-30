@@ -94,7 +94,7 @@ public interface OssFileService extends IService<OssFile> {
      * @param saveFile       保存文件路径
      * @param downloaderType 下载者类型 见{@link cn.projectan.strix.model.constant.StrixOssFileGroupSecretType StrixOssFileGroupSecretType}
      * @param downloaderId   下载者ID
-     * @return
+     * @return 保存的文件
      */
     File download(String fileId, String saveFile, Integer downloaderType, String downloaderId);
 
