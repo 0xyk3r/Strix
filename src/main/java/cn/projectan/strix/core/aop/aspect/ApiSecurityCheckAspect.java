@@ -1,4 +1,4 @@
-package cn.projectan.strix.core.aop;
+package cn.projectan.strix.core.aop.aspect;
 
 import cn.projectan.strix.core.ret.RetCode;
 import cn.projectan.strix.core.ret.RetMarker;

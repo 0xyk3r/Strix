@@ -1,4 +1,4 @@
-package cn.projectan.strix.core.payment.wxpay;
+package cn.projectan.strix.core.module.payment.wxpay;
 
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.file.FileWriter;

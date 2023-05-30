@@ -1,6 +1,6 @@
-package cn.projectan.strix.core.aop;
+package cn.projectan.strix.core.aop.aspect;
 
-import cn.projectan.strix.core.ramcache.SystemSettingCache;
+import cn.projectan.strix.core.ramcache.SystemConfigCache;
 import cn.projectan.strix.core.ret.RetCode;
 import cn.projectan.strix.core.ret.RetMarker;
 import cn.projectan.strix.model.annotation.NeedSystemPermission;
@@ -15,7 +15,6 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -37,15 +36,15 @@ import java.util.List;
 @Deprecated
 public class SystemPermissionAspect {
 
-    @Autowired
+    //    @Autowired
     private SystemManagerService systemManagerService;
-    @Autowired
+    //    @Autowired
     private SystemRegionService systemRegionService;
 
-    @Autowired
+    //    @Autowired
     private RedisUtil redisUtil;
-    @Autowired
-    private SystemSettingCache systemSettingCache;
+    //    @Autowired
+    private SystemConfigCache systemConfigCache;
 
     @Pointcut("execution(public * cn.projectan.strix..controller.system..*.*(..))")
     public void controller() {

@@ -133,7 +133,7 @@ public class UniqueDetectionTool {
                         if (invoke != null) {
                             String value = invoke.toString();
                             if (StringUtils.hasText(value)) {
-                                checkQueryWrapper.eq(StrUtil.toUnderlineCase(field), value);
+                                checkQueryWrapper.eq('`' + StrUtil.toUnderlineCase(field) + '`', value);
                             }
                         }
                     }

@@ -1,4 +1,4 @@
-package cn.projectan.strix.core.aop;
+package cn.projectan.strix.core.aop.aspect;
 
 import cn.hutool.core.map.MapUtil;
 import cn.projectan.strix.core.ret.RetCode;
@@ -13,7 +13,6 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -33,9 +32,9 @@ import java.util.Map;
 @Deprecated
 public class WechatAuthAspect {
 
-    @Autowired
+    //    @Autowired
     private WechatUserService wechatUserService;
-    @Autowired
+    //    @Autowired
     private RedisUtil redisUtil;
 
     @Pointcut("execution(public * cn.projectan.strix..controller.wechat.*.*(..))")

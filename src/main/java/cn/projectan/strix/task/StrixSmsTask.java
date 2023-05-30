@@ -49,12 +49,10 @@ public class StrixSmsTask {
         Set<String> instanceKeySet = strixSmsConfig.getInstanceKeySet();
 
         KeysDiffHandler.handle(instanceKeySet, smsConfigKeyList,
-                (removeKeys) -> {
-                    removeKeys.forEach(key -> {
-                        Optional.ofNullable(strixSmsConfig.getInstance(key)).ifPresent(StrixSmsClient::close);
-                        strixSmsConfig.removeInstance(key);
-                    });
-                }, (addKeys) -> {
+                (removeKeys) -> removeKeys.forEach(key -> {
+                    Optional.ofNullable(strixSmsConfig.getInstance(key)).ifPresent(StrixSmsClient::close);
+                    strixSmsConfig.removeInstance(key);
+                }), (addKeys) -> {
                     List<SmsConfig> addSmsConfigList = smsConfigList.stream().filter(smsConfig -> addKeys.contains(smsConfig.getKey())).toList();
                     smsConfigService.createInstance(addSmsConfigList);
                 });

@@ -36,4 +36,6 @@ public class OssConfigResp {
 
     private List<OssBucketListResp.OssBucketItem> buckets;
 
+    private List<OssFileGroupListResp.OssFileGroupItem> fileGroups;
+
 }

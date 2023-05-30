@@ -7,10 +7,10 @@ import cn.projectan.strix.mapper.OssFileMapper;
 import cn.projectan.strix.model.constant.StrixOssFileGroupSecretType;
 import cn.projectan.strix.model.db.OssFile;
 import cn.projectan.strix.model.db.OssFileGroup;
+import cn.projectan.strix.service.DictService;
 import cn.projectan.strix.service.OssConfigService;
 import cn.projectan.strix.service.OssFileGroupService;
 import cn.projectan.strix.service.OssFileService;
-import cn.projectan.strix.service.SystemDictService;
 import cn.projectan.strix.utils.FileExtUtil;
 import cn.projectan.strix.utils.RegexUtils;
 import cn.projectan.strix.utils.SnowflakeUtil;
@@ -48,7 +48,7 @@ public class OssFileServiceImpl extends ServiceImpl<OssFileMapper, OssFile> impl
     @Autowired
     private OssFileGroupService ossFileGroupService;
     @Autowired
-    private SystemDictService systemDictService;
+    private DictService dictService;
 
     @Override
     public String getUrl(String fileId, String defaultUrl) {

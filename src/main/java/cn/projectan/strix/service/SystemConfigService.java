@@ -1,6 +1,6 @@
 package cn.projectan.strix.service;
 
-import cn.projectan.strix.model.db.SystemSetting;
+import cn.projectan.strix.model.db.SystemConfig;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 /**
@@ -11,7 +11,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * @author 安炯奕
  * @since 2021-05-13
  */
-public interface SystemSettingService extends IService<SystemSetting> {
+public interface SystemConfigService extends IService<SystemConfig> {
 
     /**
      * 根据key查询系统配置项
@@ -19,6 +19,6 @@ public interface SystemSettingService extends IService<SystemSetting> {
      * @param key 配置项key
      * @return 系统配置项
      */
-    SystemSetting selectByKey(String key);
+    SystemConfig getByKey(String key);
 
 }

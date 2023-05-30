@@ -3,14 +3,35 @@ package cn.projectan.strix.controller.system;
 import cn.projectan.strix.controller.system.base.BaseSystemController;
 import cn.projectan.strix.core.ret.RetMarker;
 import cn.projectan.strix.core.ret.RetResult;
-import cn.projectan.strix.service.SystemDictService;
+import cn.projectan.strix.core.validation.ValidationGroup;
+import cn.projectan.strix.model.constant.DictDataStatus;
+import cn.projectan.strix.model.constant.DictProvided;
+import cn.projectan.strix.model.constant.DictStatus;
+import cn.projectan.strix.model.db.Dict;
+import cn.projectan.strix.model.db.DictData;
+import cn.projectan.strix.model.request.system.dict.DictDataListReq;
+import cn.projectan.strix.model.request.system.dict.DictDataUpdateReq;
+import cn.projectan.strix.model.request.system.dict.DictListReq;
+import cn.projectan.strix.model.request.system.dict.DictUpdateReq;
+import cn.projectan.strix.model.response.system.dict.DictDataListResp;
+import cn.projectan.strix.model.response.system.dict.DictDataResp;
+import cn.projectan.strix.model.response.system.dict.DictListResp;
+import cn.projectan.strix.model.response.system.dict.DictResp;
+import cn.projectan.strix.service.DictDataService;
+import cn.projectan.strix.service.DictService;
+import cn.projectan.strix.utils.NumUtils;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.Assert;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.util.StringUtils;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Optional;
 
 /**
  * @author 安炯奕
@@ -22,15 +43,191 @@ import org.springframework.web.bind.annotation.RestController;
 public class SystemDictController extends BaseSystemController {
 
     @Autowired
-    private SystemDictService systemDictService;
+    private DictService dictService;
+    @Autowired
+    private DictDataService dictDataService;
 
-    @GetMapping("{dictKey}")
-    public RetResult<String> getSystemManagerList(@PathVariable String dictKey) {
-        Assert.hasText(dictKey, "参数错误");
-        String value = systemDictService.getDict(dictKey);
-        Assert.hasText(value, "字典未找到");
 
-        return RetMarker.makeSuccessRsp(value);
+    @GetMapping("")
+    @PreAuthorize("@ss.hasRead('System_Dict')")
+    public RetResult<DictListResp> list(DictListReq req) {
+        LambdaQueryWrapper<Dict> queryWrapper = new LambdaQueryWrapper<>();
+
+        if (StringUtils.hasText(req.getKeyword())) {
+            queryWrapper.like(Dict::getKey, req.getKeyword())
+                    .or()
+                    .like(Dict::getName, req.getKeyword());
+        }
+        if (NumUtils.isPositiveNumber(req.getStatus())) {
+            queryWrapper.eq(Dict::getStatus, req.getStatus());
+        }
+        if (NumUtils.isPositiveNumber(req.getProvided())) {
+            queryWrapper.eq(Dict::getProvided, req.getProvided());
+        }
+
+        Page<Dict> page = dictService.page(req.getPage(), queryWrapper);
+
+        return RetMarker.makeSuccessRsp(
+                new DictListResp(page.getRecords(), page.getTotal())
+        );
+    }
+
+    @GetMapping("{id}")
+    @PreAuthorize("@ss.hasRead('System_Dict')")
+    public RetResult<DictResp> info(@PathVariable String id) {
+        Dict dict = dictService.getById(id);
+        Assert.notNull(dict, "该数据不存在");
+
+        List<DictData> dictDataList = dictDataService.lambdaQuery()
+                .eq(DictData::getKey, dict.getKey()).list();
+        List<DictDataListResp.DictDataItem> dictDataItems = new DictDataListResp(dictDataList, dictDataList.size()).getItems();
+
+        return RetMarker.makeSuccessRsp(
+                new DictResp(
+                        dict.getId(),
+                        dict.getKey(),
+                        dict.getName(),
+                        dict.getStatus(),
+                        dict.getRemark(),
+                        dict.getVersion(),
+                        dict.getProvided(),
+                        dictDataItems
+                )
+        );
+    }
+
+    @PostMapping("update")
+    @PreAuthorize("@ss.hasWrite('System_Dict')")
+    public RetResult<Object> update(@RequestBody @Validated(ValidationGroup.Insert.class) DictUpdateReq req) {
+        Assert.isTrue(DictStatus.valid(req.getStatus()), "请选择正确的字典状态");
+
+        Dict dict = new Dict(
+                req.getKey(),
+                req.getName(),
+                req.getStatus(),
+                req.getRemark(),
+                0,
+                DictProvided.NO
+        );
+        dict.setCreateBy(getLoginManagerId());
+        dict.setUpdateBy(getLoginManagerId());
+
+        dictService.saveDict(dict);
+
+        return RetMarker.makeSuccessRsp();
+    }
+
+    @PostMapping("update/{id}")
+    @PreAuthorize("@ss.hasWrite('System_Dict')")
+    public RetResult<Object> update(@PathVariable String id, @RequestBody @Validated(ValidationGroup.Update.class) DictUpdateReq req) {
+        Assert.isTrue(DictStatus.valid(req.getStatus()), "请选择正确的字典状态");
+
+        Dict dict = dictService.getById(id);
+        Assert.notNull(dict, "原数据不存在");
+
+        dictService.updateDict(dict, req);
+
+        return RetMarker.makeSuccessRsp();
+    }
+
+    @PostMapping("remove/{id}")
+    @PreAuthorize("@ss.hasWrite('System_Dict')")
+    public RetResult<Object> remove(@PathVariable String id) {
+        Assert.hasText(id, "参数错误");
+
+        Dict dict = dictService.getById(id);
+        Optional.ofNullable(dict).ifPresent(dictService::removeDict);
+
+        return RetMarker.makeSuccessRsp();
+    }
+
+    @GetMapping("data/{key}")
+    @PreAuthorize("@ss.hasRead('System_Dict')")
+    public RetResult<DictDataListResp> getDictDataList(@PathVariable String key, DictDataListReq req) {
+        LambdaQueryWrapper<DictData> queryWrapper = new LambdaQueryWrapper<>();
+
+        queryWrapper.eq(DictData::getKey, key);
+        if (StringUtils.hasText(req.getKeyword())) {
+            queryWrapper.like(DictData::getValue, req.getKeyword())
+                    .or()
+                    .like(DictData::getLabel, req.getKeyword());
+        }
+        if (NumUtils.isPositiveNumber(req.getStatus())) {
+            queryWrapper.eq(DictData::getStatus, req.getStatus());
+        }
+        queryWrapper.orderByAsc(DictData::getSort);
+
+        Page<DictData> page = dictDataService.page(req.getPage(), queryWrapper);
+
+        return RetMarker.makeSuccessRsp(
+                new DictDataListResp(page.getRecords(), page.getTotal())
+        );
+    }
+
+    @GetMapping("data/{key}/{id}")
+    @PreAuthorize("@ss.hasRead('System_Dict')")
+    public RetResult<DictDataResp> getDictDataInfo(@PathVariable String key, @PathVariable String id) {
+        DictData dictData = dictDataService.getById(id);
+        Assert.notNull(dictData, "该数据不存在");
+
+        return RetMarker.makeSuccessRsp(
+                new DictDataResp(
+                        dictData.getId(),
+                        dictData.getKey(),
+                        dictData.getValue(),
+                        dictData.getLabel(),
+                        dictData.getSort(),
+                        dictData.getStyle(),
+                        dictData.getStatus(),
+                        dictData.getRemark()
+                )
+        );
+    }
+
+    @PostMapping("data/{key}/update")
+    @PreAuthorize("@ss.hasWrite('System_Dict')")
+    public RetResult<Object> updateDictData(@RequestBody @Validated(ValidationGroup.Insert.class) DictDataUpdateReq req) {
+        Assert.isTrue(DictDataStatus.valid(req.getStatus()), "请选择正确的字典状态");
+
+        DictData dictData = new DictData(
+                req.getKey(),
+                req.getValue(),
+                req.getLabel(),
+                req.getSort(),
+                req.getStyle(),
+                req.getStatus(),
+                req.getRemark()
+        );
+        dictData.setCreateBy(getLoginManagerId());
+        dictData.setUpdateBy(getLoginManagerId());
+
+        dictService.saveDictData(dictData);
+
+        return RetMarker.makeSuccessRsp();
+    }
+
+    @PostMapping("data/{key}/update/{id}")
+    @PreAuthorize("@ss.hasWrite('System_Dict')")
+    public RetResult<Object> updateDictData(@PathVariable String id, @RequestBody @Validated(ValidationGroup.Update.class) DictDataUpdateReq req) {
+        Assert.isTrue(DictDataStatus.valid(req.getStatus()), "请选择正确的字典状态");
+
+        DictData dictData = dictDataService.getById(id);
+        Assert.notNull(dictData, "原数据不存在");
+
+        dictService.updateDictData(dictData, req);
+
+        return RetMarker.makeSuccessRsp();
+    }
+
+    @PostMapping("data/{key}/remove/{id}")
+    @PreAuthorize("@ss.hasWrite('System_Dict')")
+    public RetResult<Object> removeDictData(@PathVariable String id) {
+        Assert.hasText(id, "参数错误");
+
+        DictData dictData = dictDataService.getById(id);
+        Optional.ofNullable(dictData).ifPresent(dictService::removeDictData);
+
+        return RetMarker.makeSuccessRsp();
     }
 
 }

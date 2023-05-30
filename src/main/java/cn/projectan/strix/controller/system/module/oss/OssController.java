@@ -9,16 +9,15 @@ import cn.projectan.strix.model.constant.StrixOssPlatform;
 import cn.projectan.strix.model.db.OssBucket;
 import cn.projectan.strix.model.db.OssConfig;
 import cn.projectan.strix.model.db.OssFile;
+import cn.projectan.strix.model.db.OssFileGroup;
 import cn.projectan.strix.model.request.module.oss.OssConfigListReq;
 import cn.projectan.strix.model.request.module.oss.OssConfigUpdateReq;
 import cn.projectan.strix.model.request.module.oss.OssFileListReq;
 import cn.projectan.strix.model.response.common.CommonSelectDataResp;
-import cn.projectan.strix.model.response.module.oss.OssBucketListResp;
-import cn.projectan.strix.model.response.module.oss.OssConfigListResp;
-import cn.projectan.strix.model.response.module.oss.OssConfigResp;
-import cn.projectan.strix.model.response.module.oss.OssFileListResp;
+import cn.projectan.strix.model.response.module.oss.*;
 import cn.projectan.strix.service.OssBucketService;
 import cn.projectan.strix.service.OssConfigService;
+import cn.projectan.strix.service.OssFileGroupService;
 import cn.projectan.strix.service.OssFileService;
 import cn.projectan.strix.task.StrixOssTask;
 import cn.projectan.strix.utils.SpringUtil;
@@ -53,6 +52,8 @@ public class OssController extends BaseSystemController {
     private OssBucketService ossBucketService;
     @Autowired
     private OssFileService ossFileService;
+    @Autowired
+    private OssFileGroupService ossFileGroupService;
 
     @GetMapping("")
     @PreAuthorize("@ss.hasRead('System_Oss')")
@@ -76,6 +77,9 @@ public class OssController extends BaseSystemController {
         List<OssBucket> buckets = ossBucketService.lambdaQuery().eq(OssBucket::getConfigKey, ossConfig.getKey()).list();
         List<OssBucketListResp.OssBucketItem> bucketItems = new OssBucketListResp(buckets, (long) buckets.size()).getBuckets();
 
+        List<OssFileGroup> fileGroups = ossFileGroupService.lambdaQuery().eq(OssFileGroup::getConfigKey, ossConfig.getKey()).list();
+        List<OssFileGroupListResp.OssFileGroupItem> fileGroupItems = new OssFileGroupListResp(fileGroups, (long) fileGroups.size()).getFileGroups();
+
         return RetMarker.makeSuccessRsp(
                 new OssConfigResp(
                         ossConfig.getId(),
@@ -87,7 +91,8 @@ public class OssController extends BaseSystemController {
                         ossConfig.getAccessKey(),
                         ossConfig.getRemark(),
                         ossConfig.getCreateTime(),
-                        bucketItems
+                        bucketItems,
+                        fileGroupItems
                 )
         );
     }
