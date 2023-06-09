@@ -35,7 +35,7 @@ public class SystemUser extends BaseModel {
     private String nickname;
 
     /**
-     * 0禁用 1启用
+     * 1启用 2禁用
      */
     private Integer status;
 

@@ -5,13 +5,17 @@ import cn.projectan.strix.model.annotation.UpdateField;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * @author 安炯奕
  * @date 2023/5/28 23:03
  */
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class DictUpdateReq {
 
     @NotEmpty(groups = {ValidationGroup.Insert.class, ValidationGroup.Update.class}, message = "字典 Key 不可为空")
