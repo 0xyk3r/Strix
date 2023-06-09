@@ -5,6 +5,7 @@ import cn.projectan.strix.core.ss.details.LoginSystemManager;
 import cn.projectan.strix.model.constant.SystemManagerType;
 import cn.projectan.strix.model.db.SystemManager;
 import cn.projectan.strix.model.db.SystemPermission;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -16,6 +17,7 @@ import java.util.List;
  * @author 安炯奕
  * @date 2023/2/25 16:42
  */
+@Slf4j
 public class SecurityUtils {
 
     /**
@@ -25,7 +27,7 @@ public class SecurityUtils {
         try {
             return getSystemManager().getId();
         } catch (Exception e) {
-            throw new StrixException("获取登录用户信息异常");
+            return null;
         }
     }
 

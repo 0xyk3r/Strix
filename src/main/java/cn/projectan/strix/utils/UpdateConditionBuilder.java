@@ -74,10 +74,9 @@ public class UpdateConditionBuilder {
                     Method originalFieldGetter = ReflectUtil.getGetter(beanClazz, field.getName());
                     Object originalFieldGetterInvoke = originalFieldGetter.invoke(bean);
                     if (annotation.allowEmpty() || (reqGetterInvoke != null && StringUtils.hasText(reqGetterInvoke.toString()))) {
-                        String newValue = reqGetterInvoke == null ? "" : reqGetterInvoke.toString();
-
+                        String newValue = reqGetterInvoke == null ? null : reqGetterInvoke.toString();
                         // 仅当数据发生变动才执行set语句
-                        if (originalFieldGetterInvoke == null || !originalFieldGetterInvoke.toString().equals(newValue)) {
+                        if ((originalFieldGetterInvoke == null && newValue != null) || (originalFieldGetterInvoke != null && !originalFieldGetterInvoke.toString().equals(newValue))) {
                             updateWrapper = updateWrapper.set("`" + StrUtil.toUnderlineCase(field.getName()) + "`", newValue).or();
                             setCount.getAndIncrement();
                             Method newFieldSetter = ReflectUtil.getSetter(beanClazz, field.getName());

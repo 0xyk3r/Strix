@@ -31,7 +31,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * @author 安炯奕
@@ -136,7 +135,9 @@ public class SystemDictController extends BaseSystemController {
         Assert.hasText(id, "参数错误");
 
         Dict dict = dictService.getById(id);
-        Optional.ofNullable(dict).ifPresent(dictService::removeDict);
+        if (dict != null) {
+            dictService.removeDict(dict);
+        }
 
         return RetMarker.makeSuccessRsp();
     }
@@ -225,7 +226,9 @@ public class SystemDictController extends BaseSystemController {
         Assert.hasText(id, "参数错误");
 
         DictData dictData = dictDataService.getById(id);
-        Optional.ofNullable(dictData).ifPresent(dictService::removeDictData);
+        if (dictData != null) {
+            dictService.removeDictData(dictData);
+        }
 
         return RetMarker.makeSuccessRsp();
     }

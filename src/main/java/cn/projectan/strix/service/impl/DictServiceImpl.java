@@ -121,6 +121,10 @@ public class DictServiceImpl extends ServiceImpl<DictMapper, Dict> implements Di
         Assert.isTrue(dictDataService.lambdaUpdate()
                 .eq(DictData::getKey, dict.getKey())
                 .remove(), "删除失败");
+
+        dictDataService.lambdaUpdate()
+                .eq(DictData::getKey, dict.getKey())
+                .remove();
     }
 
     @Override

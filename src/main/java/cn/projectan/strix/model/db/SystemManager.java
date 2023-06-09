@@ -46,7 +46,7 @@ public class SystemManager extends BaseModel {
     private String loginPassword;
 
     /**
-     * 管理人员状态 0禁止登录 1正常
+     * 管理人员状态 1正常 2禁止登录
      */
     private Integer managerStatus;
 
