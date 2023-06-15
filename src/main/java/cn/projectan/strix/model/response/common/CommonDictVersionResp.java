@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,7 +16,10 @@ import java.util.List;
  */
 @Getter
 @NoArgsConstructor
-public class CommonDictVersionResp {
+public class CommonDictVersionResp implements java.io.Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 2L;
 
     private List<DictVersionItem> items = new ArrayList<>();
 

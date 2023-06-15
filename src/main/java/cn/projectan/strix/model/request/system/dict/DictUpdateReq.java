@@ -28,6 +28,10 @@ public class DictUpdateReq {
     @UpdateField
     private String name;
 
+    @NotNull(groups = {ValidationGroup.Insert.class, ValidationGroup.Update.class}, message = "字典数据类型不可为空")
+    @UpdateField
+    private Integer dataType;
+
     @NotNull(groups = {ValidationGroup.Insert.class, ValidationGroup.Update.class}, message = "字典状态不可为空")
     @UpdateField
     private Integer status;
