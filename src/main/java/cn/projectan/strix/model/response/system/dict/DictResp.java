@@ -21,6 +21,8 @@ public class DictResp {
 
     private String name;
 
+    private Integer dataType;
+
     private Integer status;
 
     private String remark;

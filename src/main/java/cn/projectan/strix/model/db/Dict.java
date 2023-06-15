@@ -44,6 +44,11 @@ public class Dict extends BaseModel {
     private String name;
 
     /**
+     * 字典数据类型
+     */
+    private Integer dataType;
+
+    /**
      * 字典状态
      *
      * @see cn.projectan.strix.model.constant.DictStatus

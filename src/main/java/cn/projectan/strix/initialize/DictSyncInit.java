@@ -51,7 +51,7 @@ public class DictSyncInit implements ApplicationRunner {
             String key = StringUtils.hasText(annotationDict.key()) ? annotationDict.key() : clazz.getSimpleName();
             String name = StringUtils.hasText(annotationDict.value()) ? annotationDict.value() : clazz.getSimpleName();
 
-            Dict dict = new Dict(key, name, DictStatus.ENABLE, null, 0, DictProvided.YES);
+            Dict dict = new Dict(key, name, 0, DictStatus.ENABLE, null, 0, DictProvided.YES);
             dict.setCreateBy("SYSTEM");
             dict.setUpdateBy("SYSTEM");
             List<DictData> dictDataList = new ArrayList<>();
@@ -61,6 +61,14 @@ public class DictSyncInit implements ApplicationRunner {
                 for (int i = 0; i < fields.length; i++) {
                     Field field = fields[i];
                     cn.projectan.strix.model.annotation.DictData annotationDictData = field.getAnnotation(cn.projectan.strix.model.annotation.DictData.class);
+
+                    if (i == 0) {
+                        // 获取 field 的类型
+                        String typeName = field.getType().getName();
+                        int dataType = convertTypeName(typeName);
+                        dict.setDataType(dataType);
+                    }
+
                     String value = field.get(null).toString();
                     String label = StringUtils.hasText(annotationDictData.label()) ? annotationDictData.label() : field.getName();
                     int sort = annotationDictData.sort() >= 0 ? annotationDictData.sort() : i;
@@ -79,6 +87,19 @@ public class DictSyncInit implements ApplicationRunner {
 
     }
 
+    private int convertTypeName(String typeName) {
+        return switch (typeName) {
+            case "java.lang.String" -> 1;
+            case "java.lang.Integer", "int" -> 2;
+            case "java.lang.Long", "long" -> 3;
+            case "java.lang.Float", "float" -> 4;
+            case "java.lang.Double", "double" -> 5;
+            case "java.lang.Boolean", "boolean" -> 6;
+            case "java.lang.Byte", "byte" -> 7;
+            default -> 0;
+        };
+    }
+
     private void syncToDb(Dict dict, List<DictData> dictDataList) {
         CommonDictResp dictResp = dictService.getDictResp(dict.getKey());
 
@@ -88,7 +109,7 @@ public class DictSyncInit implements ApplicationRunner {
         } else {
             Dict dbDict = dictService.getById(dictResp.getId());
             try {
-                dictService.updateDict(dbDict, new DictUpdateReq(dict.getKey(), dict.getName(), null, null));
+                dictService.updateDict(dbDict, new DictUpdateReq(dict.getKey(), dict.getName(), dict.getDataType(), null, null));
             } catch (Exception ignore) {
                 // 这里可能会由于没有发生任何变化而抛出异常，忽略即可
             }

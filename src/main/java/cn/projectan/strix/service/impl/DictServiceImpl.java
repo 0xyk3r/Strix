@@ -71,6 +71,7 @@ public class DictServiceImpl extends ServiceImpl<DictMapper, Dict> implements Di
         return new CommonDictResp(
                 dict.getId(),
                 dict.getKey(),
+                dict.getDataType(),
                 dict.getVersion(),
                 new DictDataListResp(dictDataList, dictDataList.size()).getItems());
     }

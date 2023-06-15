@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serial;
 import java.util.List;
 
 /**
@@ -14,11 +15,16 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CommonDictResp {
+public class CommonDictResp implements java.io.Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 2L;
 
     private String id;
 
     private String key;
+
+    private Integer dataType;
 
     private Integer version;
 

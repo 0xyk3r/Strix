@@ -86,6 +86,7 @@ public class SystemDictController extends BaseSystemController {
                         dict.getId(),
                         dict.getKey(),
                         dict.getName(),
+                        dict.getDataType(),
                         dict.getStatus(),
                         dict.getRemark(),
                         dict.getVersion(),
@@ -103,6 +104,7 @@ public class SystemDictController extends BaseSystemController {
         Dict dict = new Dict(
                 req.getKey(),
                 req.getName(),
+                req.getDataType(),
                 req.getStatus(),
                 req.getRemark(),
                 0,
