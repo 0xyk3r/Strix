@@ -2,8 +2,8 @@ package cn.projectan.strix.utils.async;
 
 import cn.projectan.strix.model.db.SystemLog;
 import cn.projectan.strix.service.SystemLogService;
-import cn.projectan.strix.utils.Ip2RegionUtil;
 import cn.projectan.strix.utils.SpringUtil;
+import cn.projectan.strix.utils.ip.IpLocationUtil;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.TimerTask;
@@ -25,7 +25,7 @@ public class AsyncFactory {
         return new TimerTask() {
             @Override
             public void run() {
-                systemLog.setClientLocation(Ip2RegionUtil.convert(systemLog.getClientIp()));
+                systemLog.setClientLocation(IpLocationUtil.getLocation(systemLog.getClientIp()));
                 SpringUtil.getBean(SystemLogService.class).save(systemLog);
             }
         };

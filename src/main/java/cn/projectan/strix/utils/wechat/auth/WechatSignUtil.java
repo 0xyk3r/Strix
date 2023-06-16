@@ -1,4 +1,4 @@
-package cn.projectan.strix.utils;
+package cn.projectan.strix.utils.wechat.auth;
 
 import lombok.extern.slf4j.Slf4j;
 

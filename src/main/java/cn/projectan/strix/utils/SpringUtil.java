@@ -75,6 +75,7 @@ public class SpringUtil implements ApplicationContextAware {
      * @param <T>     调用者类型
      * @return 代理对象
      */
+    @SuppressWarnings("unchecked")
     public static <T> T getAopProxy(T invoker) {
         return (T) AopContext.currentProxy();
     }

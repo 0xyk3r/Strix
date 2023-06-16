@@ -3,6 +3,12 @@ spring:
     active: dev
   application:
     name: Strix
+  servlet:
+    multipart:
+      enabled: true
+      file-size-threshold: 0
+      max-file-size: 5MB
+      max-request-size: 20MB
   jackson:
     time-zone: GMT+8
     date-format: yyyy-MM-dd HH:mm:ss
@@ -18,13 +24,38 @@ spring:
       add-mappings: true
   messages:
     basename: i18n/strix
+# mybatis
+mybatis-plus:
+  mapper-locations: classpath*:/mapper/**Mapper.xml
+  # 实体扫描路径, 多个 package 使用,或;分隔
+  typeAliasesPackage: cn.projectan.**.model.db
+  global-config:
+    db-config:
+      # 逻辑删除配置
+      logic-delete-field: deleted_status
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+      # 主键类型
+      id-type: assign_id
+      # 字段验证策略
+      insert-strategy: not_empty
+      update-strategy: not_empty
+    banner: false
+  configuration:
+    # 开启自动驼峰命名规则映射
+    map-underscore-to-camel-case: true
+    cache-enabled: true
+    call-setters-on-nulls: true
+# strix
 strix:
+  # strix 模块开关
   module:
     sms: true
     oss: true
     auth: false
     push: false
     payment: false
+  # strix 验证码配置
   captcha:
     type: blockPuzzle
     cache-type: redis
@@ -35,6 +66,7 @@ strix:
     req-get-lock-limit: 5
     req-get-lock-seconds: 300
     req-get-minute-limit: 20
+  # strix 验证码计次器配置
   verifier-counter:
     sms:
       limit: 5
@@ -42,4 +74,5 @@ strix:
     email:
       limit: 5
       seconds: 300
+  # strix 默认语言
   default-locale: zh_CN

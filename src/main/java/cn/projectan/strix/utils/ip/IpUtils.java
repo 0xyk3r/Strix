@@ -1,4 +1,4 @@
-package cn.projectan.strix.utils;
+package cn.projectan.strix.utils.ip;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.util.StringUtils;
@@ -34,11 +34,9 @@ public class IpUtils {
         if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
             ip = request.getHeader("X-Real-IP");
         }
-
         if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
             ip = request.getRemoteAddr();
         }
-
         return "0:0:0:0:0:0:0:1".equals(ip) ? "127.0.0.1" : getMultistageReverseProxyIp(ip);
     }
 
@@ -220,4 +218,5 @@ public class IpUtils {
     public static boolean isUnknown(String checkString) {
         return !StringUtils.hasText(checkString) || "unknown".equalsIgnoreCase(checkString);
     }
+
 }

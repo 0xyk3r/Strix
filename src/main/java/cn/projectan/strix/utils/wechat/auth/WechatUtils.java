@@ -1,6 +1,7 @@
-package cn.projectan.strix.utils;
+package cn.projectan.strix.utils.wechat.auth;
 
 import cn.projectan.strix.model.wechat.Oauth2Token;
+import cn.projectan.strix.utils.OkHttpUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;

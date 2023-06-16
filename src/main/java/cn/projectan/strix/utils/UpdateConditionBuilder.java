@@ -8,7 +8,6 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -50,13 +49,12 @@ public class UpdateConditionBuilder {
             Class<?> reqClazz = req.getClass();
 
             // 先设置要修改的数据id
-            Method idGetter = ReflectUtil.getGetter(beanClazz, "id");
-            Object idGetterInvoke = idGetter.invoke(bean);
-            if (idGetterInvoke != null && StringUtils.hasText(idGetterInvoke.toString())) {
-                updateWrapper.eq("id", idGetterInvoke.toString());
-            } else {
+            String id = ReflectUtil.getString(bean, "id");
+            if (!StringUtils.hasText(id)) {
+                log.warn("UpdateConditionBuilder: 无法获取原数据id");
                 return null;
             }
+            updateWrapper.eq("id", id);
 
             // 设置修改用户
             if (StringUtils.hasText(updateBy)) {
@@ -69,23 +67,21 @@ public class UpdateConditionBuilder {
             for (Field field : fields) {
                 UpdateField annotation = field.getAnnotation(UpdateField.class);
                 if (annotation != null) {
-                    Method reqGetter = ReflectUtil.getGetter(reqClazz, field.getName());
-                    Object reqGetterInvoke = reqGetter.invoke(req);
-                    Method originalFieldGetter = ReflectUtil.getGetter(beanClazz, field.getName());
-                    Object originalFieldGetterInvoke = originalFieldGetter.invoke(bean);
-                    if (annotation.allowEmpty() || (reqGetterInvoke != null && StringUtils.hasText(reqGetterInvoke.toString()))) {
-                        String newValue = reqGetterInvoke == null ? null : reqGetterInvoke.toString();
+                    String newValue = ReflectUtil.getString(req, field.getName());
+                    String originalValue = ReflectUtil.getString(bean, field.getName());
+
+                    if (annotation.allowEmpty() || (StringUtils.hasText(newValue))) {
                         // 仅当数据发生变动才执行set语句
-                        if ((originalFieldGetterInvoke == null && newValue != null) || (originalFieldGetterInvoke != null && !originalFieldGetterInvoke.toString().equals(newValue))) {
+                        if ((originalValue == null && newValue != null) || (originalValue != null && !originalValue.equals(newValue))) {
                             updateWrapper = updateWrapper.set("`" + StrUtil.toUnderlineCase(field.getName()) + "`", newValue).or();
                             setCount.getAndIncrement();
-                            Method newFieldSetter = ReflectUtil.getSetter(beanClazz, field.getName());
-                            newFieldSetter.invoke(bean, reqGetterInvoke);
+                            // 回写数据
+                            ReflectUtil.set(bean, field.getName(), newValue);
                         }
                     }
                 }
             }
-            Assert.isTrue(setCount.get() > 0, "未修改任何数据");
+            Assert.isTrue(setCount.get() > 0, "UpdateConditionBuilder: 未修改任何数据");
         } catch (IllegalArgumentException e) {
             throw e;
         } catch (Exception e) {

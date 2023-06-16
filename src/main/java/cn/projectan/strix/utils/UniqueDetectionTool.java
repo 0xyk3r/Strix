@@ -10,7 +10,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -46,11 +45,8 @@ public class UniqueDetectionTool {
                 throw new StrixUniqueDetectionException("重复检查器配置异常");
             }
             // 有ID代表修改，根据ID排除自身
-            Method idGetter = ReflectUtil.getGetter(clazz, "id");
-            Object idObj = idGetter.invoke(obj);
-            if (idObj != null) {
-                id = idObj.toString();
-            }
+            // FIXME 这里由于 ReflectUtil 内部异常捕获机制，如果 ID 字段或 getId 方法不存在，会导致逻辑错误
+            id = ReflectUtil.getString(obj, "id");
             // 遍历需要重复检查的字段
             Map<String, Set<String>> groups = new HashMap<>();
             Map<String, String> names = new HashMap<>();
@@ -99,13 +95,9 @@ public class UniqueDetectionTool {
                     checkQueryWrapper.and(qw -> {
                         try {
                             for (String field : fieldSet) {
-                                Method getter = ReflectUtil.getGetter(clazz, field);
-                                Object invoke = getter.invoke(obj);
-                                if (invoke != null) {
-                                    String value = invoke.toString();
-                                    if (StringUtils.hasText(value)) {
-                                        qw.eq("`" + StrUtil.toUnderlineCase(field) + "`", value).or();
-                                    }
+                                String value = ReflectUtil.getString(obj, field);
+                                if (StringUtils.hasText(value)) {
+                                    qw.eq("`" + StrUtil.toUnderlineCase(field) + "`", value).or();
                                 }
                             }
                         } catch (Exception e) {
@@ -128,13 +120,9 @@ public class UniqueDetectionTool {
                     }
                     Set<String> fieldSet = group.getValue();
                     for (String field : fieldSet) {
-                        Method getter = ReflectUtil.getGetter(clazz, field);
-                        Object invoke = getter.invoke(obj);
-                        if (invoke != null) {
-                            String value = invoke.toString();
-                            if (StringUtils.hasText(value)) {
-                                checkQueryWrapper.eq('`' + StrUtil.toUnderlineCase(field) + '`', value);
-                            }
+                        String value = ReflectUtil.getString(obj, field);
+                        if (StringUtils.hasText(value)) {
+                            checkQueryWrapper.eq('`' + StrUtil.toUnderlineCase(field) + '`', value);
                         }
                     }
                     if (service.count(checkQueryWrapper) > 0) {

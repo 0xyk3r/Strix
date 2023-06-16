@@ -6,7 +6,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,15 +37,12 @@ public class CommonTreeDataResp {
     public <T> CommonTreeDataResp(List<T> data, String valueFieldName, String labelFieldName, String relationFieldName, String rootRelation) {
         try {
             for (T d : data) {
-                Class<?> clazz = d.getClass();
-                Method keyGetter = ReflectUtil.getGetter(clazz, valueFieldName);
-                Object keyGetterInvoke = keyGetter.invoke(d);
-                Method labelGetter = ReflectUtil.getGetter(clazz, labelFieldName);
-                Object labelGetterInvoke = labelGetter.invoke(d);
-                Method relationGetter = ReflectUtil.getGetter(clazz, relationFieldName);
-                Object relationGetterInvoke = relationGetter.invoke(d);
-                if (rootRelation.equals(relationGetterInvoke) && keyGetterInvoke != null && labelGetterInvoke != null) {
-                    tree.add(new TreeDataItem(keyGetterInvoke.toString(), labelGetterInvoke.toString(), findChildren(data, valueFieldName, labelFieldName, relationFieldName, keyGetterInvoke.toString())));
+                String value = ReflectUtil.getString(d, valueFieldName);
+                String label = ReflectUtil.getString(d, labelFieldName);
+                String relation = ReflectUtil.getString(d, relationFieldName);
+
+                if (rootRelation.equals(relation) && value != null && label != null) {
+                    tree.add(new TreeDataItem(value, label, findChildren(data, valueFieldName, labelFieldName, relationFieldName, value)));
                 }
             }
         } catch (Exception e) {
@@ -58,15 +54,12 @@ public class CommonTreeDataResp {
         List<TreeDataItem> result = new ArrayList<>();
         try {
             for (T d : data) {
-                Class<?> clazz = d.getClass();
-                Method keyGetter = ReflectUtil.getGetter(clazz, valueFieldName);
-                Object keyGetterInvoke = keyGetter.invoke(d);
-                Method labelGetter = ReflectUtil.getGetter(clazz, labelFieldName);
-                Object labelGetterInvoke = labelGetter.invoke(d);
-                Method relationGetter = ReflectUtil.getGetter(clazz, relationFieldName);
-                Object relationGetterInvoke = relationGetter.invoke(d);
-                if (parentValue.equals(relationGetterInvoke.toString()) && keyGetterInvoke != null && labelGetterInvoke != null) {
-                    result.add(new TreeDataItem(keyGetterInvoke.toString(), labelGetterInvoke.toString(), findChildren(data, valueFieldName, labelFieldName, relationFieldName, keyGetterInvoke.toString())));
+                String value = ReflectUtil.getString(d, valueFieldName);
+                String label = ReflectUtil.getString(d, labelFieldName);
+                String relation = ReflectUtil.getString(d, relationFieldName);
+
+                if (parentValue.equals(relation) && value != null && label != null) {
+                    result.add(new TreeDataItem(value, label, findChildren(data, valueFieldName, labelFieldName, relationFieldName, value)));
                 }
             }
         } catch (Exception e) {
