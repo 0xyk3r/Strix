@@ -23,7 +23,7 @@ import java.util.List;
  * @author 安炯奕
  * @date 2022-07-15
  */
-public class MysqlGeneratorNew {
+public class MysqlGenerator {
 
     private static final String DB_URL = "jdbc:mysql://huibochepolardb001.rwlb.rds.aliyuncs.com:3306/strix?useSSL=true&serverTimezone=Asia/Shanghai&autoReconnect=true";
 
