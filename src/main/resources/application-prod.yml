@@ -1,25 +1,35 @@
 server:
   port: 9889
 spring:
-  servlet:
-    multipart:
-      enabled: true
-      file-size-threshold: 0
-      max-file-size: 5MB
-      max-request-size: 20MB
   datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://pc-2zep03l26l5u8374h.rwlb.rds.aliyuncs.com:3306/strix?useSSL=true&serverTimezone=Asia/Shanghai&autoReconnect=true
-    username: strix
-    password: Str1XP8Pr0j3cTAAAm
-    type: com.zaxxer.hikari.HikariDataSource
-    hikari:
-      connection-timeout: 30000
-      maximum-pool-size: 20
-      auto-commit: true
-      idle-timeout: 600000
-      pool-name: CoreHikariCP
-      max-lifetime: 120000
+    dynamic:
+      primary: master
+      strict: false
+      datasource:
+        master:
+          driver-class-name: com.mysql.cj.jdbc.Driver
+          url: jdbc:mysql://pc-2zep03l26l5u8374h.rwlb.rds.aliyuncs.com:3306/strix?useSSL=true&serverTimezone=Asia/Shanghai&autoReconnect=true
+          username: strix
+          password: Str1XP8Pr0j3cTAAAm
+          type: com.zaxxer.hikari.HikariDataSource
+          hikari:
+            is-auto-commit: true
+            connection-timeout: 30000
+            idle-timeout: 600000
+            max-lifetime: 120000
+            maximum-pool-size: 10
+        clickhouse:
+          driver-class-name: com.clickhouse.jdbc.ClickHouseDriver
+          url: jdbc:clickhouse://192.168.31.188:8123/strix?socket_timeout=300000
+          username: root
+          password: S1V/holh
+          type: com.zaxxer.hikari.HikariDataSource
+          hikari:
+            is-auto-commit: true
+            connection-timeout: 30000
+            idle-timeout: 600000
+            max-lifetime: 120000
+            maximum-pool-size: 10
   data:
     redis:
       database: 6
@@ -32,25 +42,3 @@ spring:
           max-active: 1
           max-idle: 1
           min-idle: 1
-#mybatis
-mybatis-plus:
-  mapper-locations: classpath*:/mapper/**Mapper.xml
-  #实体扫描，多个package用逗号或者分号分隔
-  typeAliasesPackage: cn.projectan.**.model.db
-  global-config:
-    db-config:
-      #逻辑删除配置（下面3个配置）
-      logic-delete-field: deleted_status
-      logic-delete-value: 1
-      logic-not-delete-value: 0
-      #主键类型  ID_WORKER_STR
-      id-type: assign_id
-      #字段验证策略
-      insert-strategy: not_empty
-      update-strategy: not_empty
-    banner: false
-  configuration:
-    #是否开启自动驼峰命名规则映射
-    map-underscore-to-camel-case: true
-    cache-enabled: true
-    call-setters-on-nulls: true

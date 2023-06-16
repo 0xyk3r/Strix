@@ -2,7 +2,7 @@ package cn.projectan.strix.config;
 
 import cn.projectan.strix.model.db.WechatConfig;
 import cn.projectan.strix.model.wechat.WechatConfigBean;
-import cn.projectan.strix.utils.WechatUtils;
+import cn.projectan.strix.utils.wechat.auth.WechatUtils;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

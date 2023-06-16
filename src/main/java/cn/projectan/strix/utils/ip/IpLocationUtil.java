@@ -1,4 +1,4 @@
-package cn.projectan.strix.utils;
+package cn.projectan.strix.utils.ip;
 
 import cn.hutool.core.io.file.FileWriter;
 import lombok.extern.slf4j.Slf4j;
@@ -16,7 +16,7 @@ import java.nio.file.Files;
  * @date 2022/10/1 18:07
  */
 @Slf4j
-public class Ip2RegionUtil {
+public class IpLocationUtil {
 
     private static Searcher searcher;
 
@@ -42,7 +42,7 @@ public class Ip2RegionUtil {
         }
     }
 
-    public static String convert(String ip) {
+    public static String getLocation(String ip) {
         if (!StringUtils.hasText(ip)) {
             return "empty";
         }

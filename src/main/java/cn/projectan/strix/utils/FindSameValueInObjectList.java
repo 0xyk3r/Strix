@@ -2,7 +2,6 @@ package cn.projectan.strix.utils;
 
 import lombok.extern.slf4j.Slf4j;
 
-import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -11,32 +10,13 @@ import java.util.stream.Collectors;
 
 /**
  * 在两个对象集合中查找两个字段相同的对象集合
+ * 备注：如果性能要求较高，建议参照本工具类自行实现，因为本工具类使用了Java反射，性能较差
  *
  * @author 安炯奕
  * @date 2022/10/27 17:48
  */
 @Slf4j
 public class FindSameValueInObjectList {
-
-    /**
-     * 利用Java反射获取对象的属性值
-     * TODO 可以考虑封装到单独的类中
-     *
-     * @param bean      对象
-     * @param fieldName 字段名称
-     * @param <T>       对象类型
-     * @return 对象对应字段的值
-     */
-    private static <T> String getField(T bean, String fieldName) {
-        try {
-            Class<?> clazz = bean.getClass();
-            Method getter = ReflectUtil.getGetter(clazz, fieldName);
-            return getter.invoke(bean).toString();
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            return null;
-        }
-    }
 
     /**
      * 在两个对象集合中查找两个字段相同的对象集合
@@ -59,8 +39,8 @@ public class FindSameValueInObjectList {
         Set<A> result = new HashSet<>();
 
         try {
-            Map<String, List<A>> aMap = aList.stream().collect(Collectors.groupingBy(A -> getField(A, aFieldName)));
-            Set<String> bSet = bList.stream().map(B -> getField(B, bFieldName)).collect(Collectors.toSet());
+            Map<String, List<A>> aMap = aList.stream().collect(Collectors.groupingBy(A -> ReflectUtil.getString(A, aFieldName)));
+            Set<String> bSet = bList.stream().map(B -> ReflectUtil.getString(B, bFieldName)).collect(Collectors.toSet());
 
             aMap.forEach((k, v) -> {
                 if (bSet.contains(k)) {

@@ -1,7 +1,7 @@
 package cn.projectan.strix.model.other.monitor.server;
 
 import cn.projectan.strix.utils.Arithmetic;
-import cn.projectan.strix.utils.IpUtils;
+import cn.projectan.strix.utils.ip.IpUtils;
 import oshi.SystemInfo;
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.CentralProcessor.TickType;
