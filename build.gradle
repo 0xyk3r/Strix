@@ -60,12 +60,15 @@ dependencies {
     // lombok
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
-    // mysql
+    // database
     runtimeOnly 'com.mysql:mysql-connector-j:8.0.33'
+    implementation 'com.clickhouse:clickhouse-jdbc:0.4.6'
     implementation 'com.baomidou:mybatis-plus-boot-starter:3.5.3.1'
     implementation 'com.baomidou:mybatis-plus-generator:3.5.3.1'
+    implementation 'com.baomidou:dynamic-datasource-spring-boot-starter:3.6.1'
     implementation 'org.apache.velocity:velocity-engine-core:2.3'
-    implementation 'p6spy:p6spy:3.9.1'
+    runtimeOnly 'p6spy:p6spy:3.9.1'
+    runtimeOnly 'org.lz4:lz4-java:1.8.0'
     // strix-module
     implementation files('libs/strix-captcha-1.2.0.jar')
     // other

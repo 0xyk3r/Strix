@@ -4,6 +4,7 @@ import cn.hutool.core.io.file.FileWriter;
 import lombok.extern.slf4j.Slf4j;
 import org.lionsoul.ip2region.xdb.Searcher;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.util.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -42,12 +43,14 @@ public class Ip2RegionUtil {
     }
 
     public static String convert(String ip) {
+        if (!StringUtils.hasText(ip)) {
+            return "empty";
+        }
         if (searcher == null) {
             throw new IllegalArgumentException("Strix IP-Region: 功能未初始化");
         }
         try {
-            String result = searcher.search(ip);
-            return result.replaceAll("\\|", " ").replaceAll("0", "").replaceAll(" +", " ");
+            return searcher.search(ip).replaceAll("\\|", " ").replaceAll("0", "").replaceAll(" +", " ");
         } catch (Exception e) {
             log.error("Strix IP-Region: 获取IP-Region失败", e);
             return "unknown";
