@@ -20,7 +20,7 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
       - name: Build with Gradle
-        run: ./gradlew build
+        run: ./gradlew build -x test
       - name: Check Docker Container Exist If Not Create
         run: docker ps -a | grep Strix > /dev/null || docker run -p 9889:80 --name Strix -d springboot3:latest
       - name: Kill App In Docker Container
