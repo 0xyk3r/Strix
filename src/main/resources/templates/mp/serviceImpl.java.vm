@@ -2,9 +2,9 @@ package ${package.ServiceImpl};
 
 import ${package.Entity}.${entity};
 import ${package.Mapper}.${table.mapperName};
-    #if(${table.serviceInterface})
-    import ${package.Service}.${table.serviceName};
-    #end
+#if(${table.serviceInterface})
+import ${package.Service}.${table.serviceName};
+#end
 import ${superServiceImplClassPackage};
 import org.springframework.stereotype.Service;
 
@@ -20,9 +20,9 @@ import org.springframework.stereotype.Service;
 #if(${kotlin})
 open class ${table.serviceImplName} : ${superServiceImplClass}<${table.mapperName}, ${entity}>()#if(${table.serviceInterface}), ${table.serviceName}#end {
 
-        }
+}
 #else
-        public class ${table.serviceImplName} extends ${superServiceImplClass}<${table.mapperName}, ${entity}>#if(${table.serviceInterface}) implements ${table.serviceName}#end {
+public class ${table.serviceImplName} extends ${superServiceImplClass}<${table.mapperName}, ${entity}>#if(${table.serviceInterface}) implements ${table.serviceName}#end {
 
-        }
+}
 #end
