@@ -6,6 +6,8 @@ import cn.projectan.strix.core.ramcache.SystemPermissionCache;
 import cn.projectan.strix.core.ret.RetMarker;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.core.validation.ValidationGroup;
+import cn.projectan.strix.model.annotation.SysLog;
+import cn.projectan.strix.model.constant.SysLogOperType;
 import cn.projectan.strix.model.db.*;
 import cn.projectan.strix.model.request.common.SingleFieldModifyReq;
 import cn.projectan.strix.model.request.system.role.SystemRoleUpdateReq;
@@ -60,6 +62,7 @@ public class SystemRoleController extends BaseSystemController {
 
     @GetMapping("")
     @PreAuthorize("@ss.hasRead('System_Role')")
+    @SysLog(operationGroup = "系统角色", operationName = "查询角色列表")
     public RetResult<SystemRoleListResp> getSystemRoleList() {
         QueryWrapper<SystemRole> systemRoleQueryWrapper = new QueryWrapper<>();
         systemRoleQueryWrapper.orderByAsc("create_time");
@@ -70,6 +73,7 @@ public class SystemRoleController extends BaseSystemController {
 
     @GetMapping("{roleId}")
     @PreAuthorize("@ss.hasRead('System_Role')")
+    @SysLog(operationGroup = "系统角色", operationName = "查询角色信息")
     public RetResult<SystemRoleResp> getSystemRole(@PathVariable String roleId) {
         Assert.notNull(roleId, "参数错误");
         SystemRole systemRole = systemRoleService.getById(roleId);
@@ -84,19 +88,20 @@ public class SystemRoleController extends BaseSystemController {
 
     @PostMapping("modify/{roleId}")
     @PreAuthorize("@ss.hasWrite('System_Role')")
-    public RetResult<Object> modifyField(@PathVariable String roleId, @RequestBody SingleFieldModifyReq singleFieldModifyReq) {
+    @SysLog(operationGroup = "系统角色", operationName = "更改角色信息", operationType = SysLogOperType.UPDATE)
+    public RetResult<Object> modifyField(@PathVariable String roleId, @RequestBody SingleFieldModifyReq req) {
         SystemRole systemRole = systemRoleService.getById(roleId);
         Assert.notNull(systemRole, "系统角色信息不存在");
-        Assert.hasText(singleFieldModifyReq.getField(), "参数错误");
+        Assert.hasText(req.getField(), "参数错误");
 
         UpdateWrapper<SystemRole> systemRoleUpdateWrapper = new UpdateWrapper<>();
         systemRoleUpdateWrapper.eq("id", roleId);
 
         AtomicBoolean needReturnNewData = new AtomicBoolean(false);
 
-        switch (singleFieldModifyReq.getField()) {
+        switch (req.getField()) {
             case "name" -> {
-                systemRoleUpdateWrapper.set("name", singleFieldModifyReq.getValue());
+                systemRoleUpdateWrapper.set("name", req.getValue());
                 Assert.isTrue(systemRoleService.update(systemRoleUpdateWrapper), "修改失败");
             }
             case "menus" -> {
@@ -105,7 +110,7 @@ public class SystemRoleController extends BaseSystemController {
                 systemRoleMenuQueryWrapper.select("system_menu_id");
                 systemRoleMenuQueryWrapper.eq("system_role_id", roleId);
                 List<String> systemRoleMenuIds = systemRoleMenuService.listObjs(systemRoleMenuQueryWrapper, Object::toString);
-                KeysDiffHandler.handle(systemRoleMenuIds, Arrays.asList(singleFieldModifyReq.getValue().split(",")), ((removeKeys, addKeys) -> {
+                KeysDiffHandler.handle(systemRoleMenuIds, Arrays.asList(req.getValue().split(",")), ((removeKeys, addKeys) -> {
                     if (removeKeys.size() > 0) {
                         QueryWrapper<SystemRoleMenu> removeQueryWrapper = new QueryWrapper<>();
                         removeQueryWrapper.eq("system_role_id", roleId);
@@ -135,7 +140,7 @@ public class SystemRoleController extends BaseSystemController {
                 systemRolePermissionQueryWrapper.select("system_permission_id");
                 systemRolePermissionQueryWrapper.eq("system_role_id", roleId);
                 List<String> systemRolePermissionIds = systemRolePermissionService.listObjs(systemRolePermissionQueryWrapper, Object::toString);
-                KeysDiffHandler.handle(systemRolePermissionIds, Arrays.asList(singleFieldModifyReq.getValue().split(",")), ((removeKeys, addKeys) -> {
+                KeysDiffHandler.handle(systemRolePermissionIds, Arrays.asList(req.getValue().split(",")), ((removeKeys, addKeys) -> {
                     if (removeKeys.size() > 0) {
                         QueryWrapper<SystemRolePermission> removeQueryWrapper = new QueryWrapper<>();
                         removeQueryWrapper.eq("system_role_id", roleId);
@@ -176,11 +181,12 @@ public class SystemRoleController extends BaseSystemController {
 
     @PostMapping("update")
     @PreAuthorize("@ss.hasWrite('System_Role')")
-    public RetResult<Object> update(@RequestBody @Validated(ValidationGroup.Insert.class) SystemRoleUpdateReq systemRoleUpdateReq) {
-        Assert.notNull(systemRoleUpdateReq, "参数错误");
+    @SysLog(operationGroup = "系统角色", operationName = "新增角色", operationType = SysLogOperType.ADD)
+    public RetResult<Object> update(@RequestBody @Validated(ValidationGroup.Insert.class) SystemRoleUpdateReq req) {
+        Assert.notNull(req, "参数错误");
 
         SystemRole systemRole = new SystemRole(
-                systemRoleUpdateReq.getName()
+                req.getName()
         );
         systemRole.setCreateBy(getLoginManagerId());
         systemRole.setUpdateBy(getLoginManagerId());
@@ -194,13 +200,14 @@ public class SystemRoleController extends BaseSystemController {
 
     @PostMapping("update/{roleId}")
     @PreAuthorize("@ss.hasWrite('System_Role')")
-    public RetResult<Object> update(@PathVariable String roleId, @RequestBody @Validated(ValidationGroup.Update.class) SystemRoleUpdateReq systemRoleUpdateReq) {
+    @SysLog(operationGroup = "系统角色", operationName = "修改角色", operationType = SysLogOperType.UPDATE)
+    public RetResult<Object> update(@PathVariable String roleId, @RequestBody @Validated(ValidationGroup.Update.class) SystemRoleUpdateReq req) {
         Assert.hasText(roleId, "参数错误");
-        Assert.notNull(systemRoleUpdateReq, "参数错误");
+        Assert.notNull(req, "参数错误");
         SystemRole systemRole = systemRoleService.getById(roleId);
         Assert.notNull(systemRole, "系统角色信息不存在");
 
-        UpdateWrapper<SystemRole> updateWrapper = UpdateConditionBuilder.build(systemRole, systemRoleUpdateReq, getLoginManagerId());
+        UpdateWrapper<SystemRole> updateWrapper = UpdateConditionBuilder.build(systemRole, req, getLoginManagerId());
         UniqueDetectionTool.check(systemRole);
         Assert.isTrue(systemRoleService.update(updateWrapper), "保存失败");
 
@@ -209,6 +216,7 @@ public class SystemRoleController extends BaseSystemController {
 
     @PostMapping("remove/{roleId}")
     @PreAuthorize("@ss.hasWrite('System_Role')")
+    @SysLog(operationGroup = "系统角色", operationName = "删除角色", operationType = SysLogOperType.DELETE)
     public RetResult<Object> remove(@PathVariable String roleId) {
         Assert.hasText(roleId, "参数错误");
         // TODO 改为lock字段
@@ -242,6 +250,7 @@ public class SystemRoleController extends BaseSystemController {
      */
     @PostMapping("remove/{roleId}/menu/{menuId}")
     @PreAuthorize("@ss.hasWrite('System_Role')")
+    @SysLog(operationGroup = "系统角色", operationName = "移除角色的菜单权限", operationType = SysLogOperType.UPDATE)
     public RetResult<SystemRoleResp> removeRoleMenu(@PathVariable String roleId, @PathVariable String menuId) {
         Assert.hasText(roleId, "参数错误");
         Assert.hasText(menuId, "参数错误");
@@ -275,6 +284,7 @@ public class SystemRoleController extends BaseSystemController {
      */
     @PostMapping("remove/{roleId}/permission/{permissionId}")
     @PreAuthorize("@ss.hasWrite('System_Role')")
+    @SysLog(operationGroup = "系统角色", operationName = "移除角色的系统权限", operationType = SysLogOperType.UPDATE)
     public RetResult<SystemRoleResp> removeRolePermission(@PathVariable String roleId, @PathVariable String permissionId) {
         Assert.hasText(roleId, "参数错误");
         Assert.hasText(permissionId, "参数错误");

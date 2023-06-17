@@ -5,6 +5,8 @@ import cn.projectan.strix.core.ramcache.SystemMenuCache;
 import cn.projectan.strix.core.ret.RetMarker;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.core.validation.ValidationGroup;
+import cn.projectan.strix.model.annotation.SysLog;
+import cn.projectan.strix.model.constant.SysLogOperType;
 import cn.projectan.strix.model.db.SystemMenu;
 import cn.projectan.strix.model.db.SystemRoleMenu;
 import cn.projectan.strix.model.request.common.SingleFieldModifyReq;
@@ -48,6 +50,7 @@ public class SystemMenuController extends BaseSystemController {
 
     @GetMapping("")
     @PreAuthorize("@ss.hasRead('System_Menu')")
+    @SysLog(operationGroup = "系统菜单", operationName = "查询菜单列表")
     public RetResult<SystemMenuListResp> getSystemMenuList() {
         List<SystemMenu> systemMenuList = systemMenuService.list();
 
@@ -56,6 +59,7 @@ public class SystemMenuController extends BaseSystemController {
 
     @GetMapping("{menuId}")
     @PreAuthorize("@ss.hasRead('System_Menu')")
+    @SysLog(operationGroup = "系统菜单", operationName = "查询菜单信息")
     public RetResult<SystemMenuResp> getSystemMenu(@PathVariable String menuId) {
         Assert.notNull(menuId, "参数错误");
         SystemMenu sm = systemMenuService.getById(menuId);
@@ -66,16 +70,17 @@ public class SystemMenuController extends BaseSystemController {
 
     @PostMapping("modify/{menuId}")
     @PreAuthorize("@ss.hasWrite('System_Menu')")
-    public RetResult<Object> modifyField(@PathVariable String menuId, @RequestBody SingleFieldModifyReq singleFieldModifyReq) {
+    @SysLog(operationGroup = "系统菜单", operationName = "更改菜单信息", operationType = SysLogOperType.UPDATE)
+    public RetResult<Object> modifyField(@PathVariable String menuId, @RequestBody SingleFieldModifyReq req) {
         SystemMenu systemMenu = systemMenuService.getById(menuId);
         Assert.notNull(systemMenu, "系统人员信息不存在");
-        Assert.hasText(singleFieldModifyReq.getField(), "参数错误");
+        Assert.hasText(req.getField(), "参数错误");
 
         UpdateWrapper<SystemMenu> systemMenuUpdateWrapper = new UpdateWrapper<>();
         systemMenuUpdateWrapper.eq("id", menuId);
 
-        if (singleFieldModifyReq.getField().equals("icon")) {
-            systemMenuUpdateWrapper.set("icon", singleFieldModifyReq.getValue());
+        if (req.getField().equals("icon")) {
+            systemMenuUpdateWrapper.set("icon", req.getValue());
         } else {
             return RetMarker.makeErrRsp("参数错误");
         }
@@ -88,15 +93,16 @@ public class SystemMenuController extends BaseSystemController {
 
     @PostMapping("update")
     @PreAuthorize("@ss.hasWrite('System_Menu')")
-    public RetResult<Object> update(@RequestBody @Validated(ValidationGroup.Insert.class) SystemMenuUpdateReq systemMenuUpdateReq) {
-        Assert.notNull(systemMenuUpdateReq, "参数错误");
+    @SysLog(operationGroup = "系统菜单", operationName = "新增菜单", operationType = SysLogOperType.ADD)
+    public RetResult<Object> update(@RequestBody @Validated(ValidationGroup.Insert.class) SystemMenuUpdateReq req) {
+        Assert.notNull(req, "参数错误");
 
         SystemMenu systemMenu = new SystemMenu(
-                systemMenuUpdateReq.getName(),
-                systemMenuUpdateReq.getUrl(),
-                systemMenuUpdateReq.getIcon(),
-                systemMenuUpdateReq.getParentId(),
-                systemMenuUpdateReq.getSortValue()
+                req.getName(),
+                req.getUrl(),
+                req.getIcon(),
+                req.getParentId(),
+                req.getSortValue()
         );
         systemMenu.setCreateBy(getLoginManagerId());
         systemMenu.setUpdateBy(getLoginManagerId());
@@ -112,13 +118,14 @@ public class SystemMenuController extends BaseSystemController {
 
     @PostMapping("update/{menuId}")
     @PreAuthorize("@ss.hasWrite('System_Menu')")
-    public RetResult<Object> update(@PathVariable String menuId, @RequestBody @Validated(ValidationGroup.Update.class) SystemMenuUpdateReq systemMenuUpdateReq) {
+    @SysLog(operationGroup = "系统菜单", operationName = "修改菜单", operationType = SysLogOperType.UPDATE)
+    public RetResult<Object> update(@PathVariable String menuId, @RequestBody @Validated(ValidationGroup.Update.class) SystemMenuUpdateReq req) {
         Assert.hasText(menuId, "参数错误");
-        Assert.notNull(systemMenuUpdateReq, "参数错误");
+        Assert.notNull(req, "参数错误");
         SystemMenu systemMenu = systemMenuService.getById(menuId);
         Assert.notNull(systemMenu, "系统菜单信息不存在");
 
-        UpdateWrapper<SystemMenu> updateWrapper = UpdateConditionBuilder.build(systemMenu, systemMenuUpdateReq, getLoginManagerId());
+        UpdateWrapper<SystemMenu> updateWrapper = UpdateConditionBuilder.build(systemMenu, req, getLoginManagerId());
         UniqueDetectionTool.check(systemMenu);
         Assert.isTrue(systemMenuService.update(updateWrapper), "保存失败");
         // 更新缓存
@@ -129,6 +136,7 @@ public class SystemMenuController extends BaseSystemController {
 
     @PostMapping("remove/{menuId}")
     @PreAuthorize("@ss.hasWrite('System_Menu')")
+    @SysLog(operationGroup = "系统菜单", operationName = "删除菜单", operationType = SysLogOperType.DELETE)
     public RetResult<Object> remove(@PathVariable String menuId) {
         Assert.hasText(menuId, "参数错误");
         SystemMenu systemMenu = systemMenuService.getById(menuId);

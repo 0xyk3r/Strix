@@ -7,6 +7,8 @@ import cn.projectan.strix.core.ramcache.SystemRegionCache;
 import cn.projectan.strix.core.ret.RetMarker;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.core.validation.ValidationGroup;
+import cn.projectan.strix.model.annotation.SysLog;
+import cn.projectan.strix.model.constant.SysLogOperType;
 import cn.projectan.strix.model.constant.SystemManagerStatus;
 import cn.projectan.strix.model.constant.SystemManagerType;
 import cn.projectan.strix.model.db.SystemManager;
@@ -61,26 +63,27 @@ public class SystemManagerController extends BaseSystemController {
 
     @GetMapping("")
     @PreAuthorize("@ss.hasRead('System_Manager')")
-    public RetResult<SystemManagerListResp> getSystemManagerList(SystemManagerListReq systemManagerListQueryReq) {
+    @SysLog(operationGroup = "系统人员", operationName = "查询人员列表")
+    public RetResult<SystemManagerListResp> getSystemManagerList(SystemManagerListReq req) {
         QueryWrapper<SystemManager> systemManagerQueryWrapper = new QueryWrapper<>();
         if (!isSuperManager()) {
             // 非超级管理员用户 根据地区权限查询
             systemManagerQueryWrapper.eq("manager_type", SystemManagerType.PLATFORM_ACCOUNT);
             systemManagerQueryWrapper.in("region_id", getLoginManagerRegionIdList());
         }
-        if (StringUtils.hasText(systemManagerListQueryReq.getKeyword())) {
-            systemManagerQueryWrapper.like("nickname", systemManagerListQueryReq.getKeyword())
-                    .or(q -> q.like("login_name", systemManagerListQueryReq.getKeyword()));
+        if (StringUtils.hasText(req.getKeyword())) {
+            systemManagerQueryWrapper.like("nickname", req.getKeyword())
+                    .or(q -> q.like("login_name", req.getKeyword()));
         }
-        if (NumUtils.isNonnegativeNumber(systemManagerListQueryReq.getManagerStatus())) {
-            systemManagerQueryWrapper.eq("manager_status", systemManagerListQueryReq.getManagerStatus());
+        if (NumUtils.isNonnegativeNumber(req.getManagerStatus())) {
+            systemManagerQueryWrapper.eq("manager_status", req.getManagerStatus());
         }
-        if (NumUtils.isPositiveNumber(systemManagerListQueryReq.getManagerType())) {
-            systemManagerQueryWrapper.eq("manager_type", systemManagerListQueryReq.getManagerType());
+        if (NumUtils.isPositiveNumber(req.getManagerType())) {
+            systemManagerQueryWrapper.eq("manager_type", req.getManagerType());
         }
         systemManagerQueryWrapper.orderByAsc("create_time");
 
-        Page<SystemManager> page = systemManagerService.page(systemManagerListQueryReq.getPage(), systemManagerQueryWrapper);
+        Page<SystemManager> page = systemManagerService.page(req.getPage(), systemManagerQueryWrapper);
 
         SystemManagerListResp resp = new SystemManagerListResp(page.getRecords(), page.getTotal());
 
@@ -89,6 +92,7 @@ public class SystemManagerController extends BaseSystemController {
 
     @GetMapping("{managerId}")
     @PreAuthorize("@ss.hasRead('System_Manager')")
+    @SysLog(operationGroup = "系统人员", operationName = "查询人员信息")
     public RetResult<SystemManagerResp> getSystemManager(@PathVariable String managerId) {
         Assert.notNull(managerId, "参数错误");
         SystemManager systemManager = systemManagerService.getById(managerId);
@@ -104,9 +108,10 @@ public class SystemManagerController extends BaseSystemController {
 
     @PostMapping("modify/{managerId}")
     @PreAuthorize("@ss.hasWrite('System_Manager')")
-    public RetResult<Object> modifyField(@PathVariable String managerId, @RequestBody SingleFieldModifyReq singleFieldModifyReq) {
-        Assert.hasText(singleFieldModifyReq.getField(), "参数错误");
-        if (!"region".equals(singleFieldModifyReq.getField())) {
+    @SysLog(operationGroup = "系统人员", operationName = "更改人员信息", operationType = SysLogOperType.UPDATE)
+    public RetResult<Object> modifyField(@PathVariable String managerId, @RequestBody SingleFieldModifyReq req) {
+        Assert.hasText(req.getField(), "参数错误");
+        if (!"region".equals(req.getField())) {
             Assert.isTrue(!"anjiongyi".equals(managerId), "该用户不允许编辑或删除");
         }
         SystemManager systemManager = systemManagerService.getById(managerId);
@@ -117,15 +122,15 @@ public class SystemManagerController extends BaseSystemController {
 
         AtomicBoolean needReturnNewData = new AtomicBoolean(false);
 
-        switch (singleFieldModifyReq.getField()) {
+        switch (req.getField()) {
             case "managerStatus" -> {
-                Assert.isTrue(SystemManagerStatus.valid(Integer.valueOf(singleFieldModifyReq.getValue())), "参数错误");
-                systemManagerUpdateWrapper.set("manager_status", singleFieldModifyReq.getValue());
+                Assert.isTrue(SystemManagerStatus.valid(Integer.valueOf(req.getValue())), "参数错误");
+                systemManagerUpdateWrapper.set("manager_status", req.getValue());
                 Assert.isTrue(systemManagerService.update(systemManagerUpdateWrapper), "修改失败");
             }
             case "managerType" -> {
-                Assert.isTrue(SystemManagerType.valid(Integer.parseInt(singleFieldModifyReq.getValue())), "参数错误");
-                systemManagerUpdateWrapper.set("manager_type", singleFieldModifyReq.getValue());
+                Assert.isTrue(SystemManagerType.valid(Integer.parseInt(req.getValue())), "参数错误");
+                systemManagerUpdateWrapper.set("manager_type", req.getValue());
                 Assert.isTrue(systemManagerService.update(systemManagerUpdateWrapper), "修改失败");
             }
             case "role" -> {
@@ -134,7 +139,7 @@ public class SystemManagerController extends BaseSystemController {
                 systemManagerRoleQueryWrapper.select("system_manager_role_id");
                 systemManagerRoleQueryWrapper.eq("system_manager_id", managerId);
                 List<String> systemManagerRoleIds = systemManagerRoleService.listObjs(systemManagerRoleQueryWrapper, Object::toString);
-                KeysDiffHandler.handle(systemManagerRoleIds, Arrays.asList(singleFieldModifyReq.getValue().split(",")), (removeKeys, addKeys) -> {
+                KeysDiffHandler.handle(systemManagerRoleIds, Arrays.asList(req.getValue().split(",")), (removeKeys, addKeys) -> {
                     if (removeKeys.size() > 0) {
                         QueryWrapper<SystemManagerRole> removeQueryWrapper = new QueryWrapper<>();
                         removeQueryWrapper.eq("system_manager_id", managerId);
@@ -178,18 +183,19 @@ public class SystemManagerController extends BaseSystemController {
 
     @PostMapping("update")
     @PreAuthorize("@ss.hasWrite('System_Manager')")
-    public RetResult<Object> update(@RequestBody @Validated(ValidationGroup.Insert.class) SystemManagerUpdateReq systemManagerUpdateReq) {
-        Assert.notNull(systemManagerUpdateReq, "参数错误");
-        Assert.isTrue(SystemManagerStatus.valid(systemManagerUpdateReq.getManagerStatus()), "参数错误");
-        Assert.isTrue(SystemManagerType.valid(systemManagerUpdateReq.getManagerType()), "参数错误");
+    @SysLog(operationGroup = "系统人员", operationName = "新增人员", operationType = SysLogOperType.ADD)
+    public RetResult<Object> update(@RequestBody @Validated(ValidationGroup.Insert.class) SystemManagerUpdateReq req) {
+        Assert.notNull(req, "参数错误");
+        Assert.isTrue(SystemManagerStatus.valid(req.getManagerStatus()), "参数错误");
+        Assert.isTrue(SystemManagerType.valid(req.getManagerType()), "参数错误");
 
         SystemManager systemManager = new SystemManager(
-                systemManagerUpdateReq.getNickname(),
-                systemManagerUpdateReq.getLoginName(),
-                systemManagerUpdateReq.getLoginPassword(),
-                systemManagerUpdateReq.getManagerStatus(),
-                systemManagerUpdateReq.getManagerType(),
-                systemManagerUpdateReq.getRegionId()
+                req.getNickname(),
+                req.getLoginName(),
+                req.getLoginPassword(),
+                req.getManagerStatus(),
+                req.getManagerType(),
+                req.getRegionId()
         );
         systemManager.setCreateBy(getLoginManagerId());
         systemManager.setUpdateBy(getLoginManagerId());
@@ -203,16 +209,17 @@ public class SystemManagerController extends BaseSystemController {
 
     @PostMapping("update/{managerId}")
     @PreAuthorize("@ss.hasWrite('System_Manager')")
-    public RetResult<Object> update(@PathVariable String managerId, @RequestBody @Validated(ValidationGroup.Update.class) SystemManagerUpdateReq systemManagerUpdateReq) {
+    @SysLog(operationGroup = "系统人员", operationName = "修改人员", operationType = SysLogOperType.UPDATE)
+    public RetResult<Object> update(@PathVariable String managerId, @RequestBody @Validated(ValidationGroup.Update.class) SystemManagerUpdateReq req) {
         Assert.hasText(managerId, "参数错误");
         Assert.isTrue(!"anjiongyi".equals(managerId), "该用户不允许编辑或删除");
-        Assert.notNull(systemManagerUpdateReq, "参数错误");
-        Assert.isTrue(SystemManagerStatus.valid(systemManagerUpdateReq.getManagerStatus()), "参数错误");
-        Assert.isTrue(SystemManagerType.valid(systemManagerUpdateReq.getManagerType()), "参数错误");
+        Assert.notNull(req, "参数错误");
+        Assert.isTrue(SystemManagerStatus.valid(req.getManagerStatus()), "参数错误");
+        Assert.isTrue(SystemManagerType.valid(req.getManagerType()), "参数错误");
         SystemManager systemManager = systemManagerService.getById(managerId);
         Assert.notNull(systemManager, "系统人员信息不存在");
 
-        UpdateWrapper<SystemManager> updateWrapper = UpdateConditionBuilder.build(systemManager, systemManagerUpdateReq, getLoginManagerId());
+        UpdateWrapper<SystemManager> updateWrapper = UpdateConditionBuilder.build(systemManager, req, getLoginManagerId());
         UniqueDetectionTool.check(systemManager);
         Assert.isTrue(systemManagerService.update(updateWrapper), "保存失败");
 
@@ -221,6 +228,7 @@ public class SystemManagerController extends BaseSystemController {
 
     @PostMapping("remove/{managerId}")
     @PreAuthorize("@ss.hasWrite('System_Manager')")
+    @SysLog(operationGroup = "系统人员", operationName = "删除人员", operationType = SysLogOperType.DELETE)
     public RetResult<Object> remove(@PathVariable String managerId) {
         Assert.hasText(managerId, "参数错误");
         Assert.isTrue(!"anjiongyi".equals(managerId), "该用户不允许编辑或删除");

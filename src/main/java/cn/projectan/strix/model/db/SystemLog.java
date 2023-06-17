@@ -61,7 +61,7 @@ public class SystemLog implements Serializable {
     /**
      * 使用时间
      */
-    private Integer operationSpend;
+    private Long operationSpend;
 
     /**
      * 操作方法
@@ -104,6 +104,11 @@ public class SystemLog implements Serializable {
     private String clientUser;
 
     /**
+     * 操作用户名称
+     */
+    private String clientUsername;
+
+    /**
      * 响应状态码
      */
     private Integer responseCode;
@@ -112,5 +117,10 @@ public class SystemLog implements Serializable {
      * 响应消息
      */
     private String responseMsg;
+
+    /**
+     * 响应数据
+     */
+    private String responseData;
 
 }

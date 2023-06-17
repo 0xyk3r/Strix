@@ -92,7 +92,7 @@ public class SecurityUtils {
         try {
             return getLoginSystemManager().getSystemManager();
         } catch (Exception e) {
-            throw new StrixException("获取登录用户信息异常");
+            return null;
         }
     }
 

@@ -4,6 +4,8 @@ import cn.projectan.strix.controller.system.base.BaseSystemController;
 import cn.projectan.strix.core.ret.RetMarker;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.core.validation.ValidationGroup;
+import cn.projectan.strix.model.annotation.SysLog;
+import cn.projectan.strix.model.constant.SysLogOperType;
 import cn.projectan.strix.model.constant.SystemUserStatus;
 import cn.projectan.strix.model.db.SystemUser;
 import cn.projectan.strix.model.db.SystemUserRelation;
@@ -44,18 +46,19 @@ public class SystemUserController extends BaseSystemController {
 
     @GetMapping("")
     @PreAuthorize("@ss.hasRead('System_User')")
-    public RetResult<SystemUserListResp> getSystemUserList(SystemUserListReq systemUserListQueryReq) {
+    @SysLog(operationGroup = "系统用户", operationName = "查询用户列表")
+    public RetResult<SystemUserListResp> getSystemUserList(SystemUserListReq req) {
         QueryWrapper<SystemUser> systemUserQueryWrapper = new QueryWrapper<>();
-        if (StringUtils.hasText(systemUserListQueryReq.getKeyword())) {
-            systemUserQueryWrapper.like("nickname", systemUserListQueryReq.getKeyword())
-                    .or(q -> q.like("phone_number", systemUserListQueryReq.getKeyword()));
+        if (StringUtils.hasText(req.getKeyword())) {
+            systemUserQueryWrapper.like("nickname", req.getKeyword())
+                    .or(q -> q.like("phone_number", req.getKeyword()));
         }
-        if (NumUtils.isNonnegativeNumber(systemUserListQueryReq.getStatus())) {
-            systemUserQueryWrapper.eq("status", systemUserListQueryReq.getStatus());
+        if (NumUtils.isNonnegativeNumber(req.getStatus())) {
+            systemUserQueryWrapper.eq("status", req.getStatus());
         }
         systemUserQueryWrapper.orderByAsc("create_time");
 
-        Page<SystemUser> page = systemUserService.page(systemUserListQueryReq.getPage(), systemUserQueryWrapper);
+        Page<SystemUser> page = systemUserService.page(req.getPage(), systemUserQueryWrapper);
         SystemUserListResp resp = new SystemUserListResp(page.getRecords(), page.getTotal());
 
         return RetMarker.makeSuccessRsp(resp);
@@ -63,6 +66,7 @@ public class SystemUserController extends BaseSystemController {
 
     @GetMapping("{userId}")
     @PreAuthorize("@ss.hasRead('System_User')")
+    @SysLog(operationGroup = "系统用户", operationName = "查询用户信息")
     public RetResult<SystemUserResp> getSystemUser(@PathVariable String userId) {
         Assert.notNull(userId, "参数错误");
         SystemUser systemUser = systemUserService.getById(userId);
@@ -73,21 +77,22 @@ public class SystemUserController extends BaseSystemController {
 
     @PostMapping("modify/{userId}")
     @PreAuthorize("@ss.hasWrite('System_User')")
-    public RetResult<Object> modifyField(@PathVariable String userId, @RequestBody SingleFieldModifyReq singleFieldModifyReq) {
+    @SysLog(operationGroup = "系统用户", operationName = "更改用户信息", operationType = SysLogOperType.UPDATE)
+    public RetResult<Object> modifyField(@PathVariable String userId, @RequestBody SingleFieldModifyReq req) {
         SystemUser systemUser = systemUserService.getById(userId);
         Assert.notNull(systemUser, "系统用户信息不存在");
-        Assert.hasText(singleFieldModifyReq.getField(), "参数错误");
+        Assert.hasText(req.getField(), "参数错误");
 
         UpdateWrapper<SystemUser> systemUserUpdateWrapper = new UpdateWrapper<>();
         systemUserUpdateWrapper.eq("id", userId);
 
-        switch (singleFieldModifyReq.getField()) {
-            case "nickname" -> systemUserUpdateWrapper.set("nickname", singleFieldModifyReq.getValue());
+        switch (req.getField()) {
+            case "nickname" -> systemUserUpdateWrapper.set("nickname", req.getValue());
             case "status" -> {
-                Assert.isTrue(SystemUserStatus.valid(Integer.parseInt(singleFieldModifyReq.getValue())), "参数错误");
-                systemUserUpdateWrapper.set("status", singleFieldModifyReq.getValue());
+                Assert.isTrue(SystemUserStatus.valid(Integer.parseInt(req.getValue())), "参数错误");
+                systemUserUpdateWrapper.set("status", req.getValue());
             }
-            case "phoneNumber" -> systemUserUpdateWrapper.set("phone_number", singleFieldModifyReq.getValue());
+            case "phoneNumber" -> systemUserUpdateWrapper.set("phone_number", req.getValue());
             default -> {
                 return RetMarker.makeErrRsp("参数错误");
             }
@@ -100,13 +105,14 @@ public class SystemUserController extends BaseSystemController {
 
     @PostMapping("update")
     @PreAuthorize("@ss.hasWrite('System_User')")
-    public RetResult<Object> update(@RequestBody @Validated(ValidationGroup.Insert.class) SystemUserUpdateReq systemUserUpdateReq) {
-        Assert.notNull(systemUserUpdateReq, "参数错误");
+    @SysLog(operationGroup = "系统用户", operationName = "新增用户", operationType = SysLogOperType.ADD)
+    public RetResult<Object> update(@RequestBody @Validated(ValidationGroup.Insert.class) SystemUserUpdateReq req) {
+        Assert.notNull(req, "参数错误");
 
         SystemUser systemUser = new SystemUser(
-                systemUserUpdateReq.getNickname(),
-                systemUserUpdateReq.getStatus(),
-                systemUserUpdateReq.getPhoneNumber(),
+                req.getNickname(),
+                req.getStatus(),
+                req.getPhoneNumber(),
                 null,
                 null
         );
@@ -122,13 +128,14 @@ public class SystemUserController extends BaseSystemController {
 
     @PostMapping("update/{userId}")
     @PreAuthorize("@ss.hasWrite('System_User')")
-    public RetResult<Object> update(@PathVariable String userId, @RequestBody @Validated(ValidationGroup.Update.class) SystemUserUpdateReq systemUserUpdateReq) {
+    @SysLog(operationGroup = "系统用户", operationName = "修改用户", operationType = SysLogOperType.UPDATE)
+    public RetResult<Object> update(@PathVariable String userId, @RequestBody @Validated(ValidationGroup.Update.class) SystemUserUpdateReq req) {
         Assert.hasText(userId, "参数错误");
-        Assert.notNull(systemUserUpdateReq, "参数错误");
+        Assert.notNull(req, "参数错误");
         SystemUser systemUser = systemUserService.getById(userId);
         Assert.notNull(systemUser, "系统用户信息不存在");
 
-        UpdateWrapper<SystemUser> updateWrapper = UpdateConditionBuilder.build(systemUser, systemUserUpdateReq, getLoginManagerId());
+        UpdateWrapper<SystemUser> updateWrapper = UpdateConditionBuilder.build(systemUser, req, getLoginManagerId());
         UniqueDetectionTool.check(systemUser);
         Assert.isTrue(systemUserService.update(updateWrapper), "保存失败");
 
@@ -137,6 +144,7 @@ public class SystemUserController extends BaseSystemController {
 
     @PostMapping("remove/{userId}")
     @PreAuthorize("@ss.hasWrite('System_User')")
+    @SysLog(operationGroup = "系统用户", operationName = "删除用户", operationType = SysLogOperType.DELETE)
     public RetResult<Object> remove(@PathVariable String userId) {
         Assert.hasText(userId, "参数错误");
         Assert.isTrue(!"1".equalsIgnoreCase(userId), "该用户不支持删除");
