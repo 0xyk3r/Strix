@@ -1,5 +1,6 @@
 package cn.projectan.strix.model.request.system;
 
+import cn.projectan.strix.core.datamask.DataMask;
 import lombok.Data;
 
 /**
@@ -11,6 +12,7 @@ public class SystemLoginReq {
 
     private String loginName;
 
+    @DataMask
     private String loginPassword;
 
     private String captchaVerification;
