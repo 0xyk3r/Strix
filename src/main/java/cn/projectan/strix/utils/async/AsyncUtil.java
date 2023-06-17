@@ -21,7 +21,7 @@ public class AsyncUtil {
     /**
      * 异步任务调度线程池
      */
-    private final ScheduledExecutorService executor = SpringUtil.getBean("scheduledExecutorService");
+    private final ScheduledExecutorService executor = SpringUtil.getBean("strixScheduledExecutor");
 
     private AsyncUtil() {
     }

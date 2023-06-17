@@ -7,6 +7,8 @@ import cn.projectan.strix.core.ramcache.SystemRegionCache;
 import cn.projectan.strix.core.ret.RetMarker;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.core.validation.ValidationGroup;
+import cn.projectan.strix.model.annotation.SysLog;
+import cn.projectan.strix.model.constant.SysLogOperType;
 import cn.projectan.strix.model.db.SystemRegion;
 import cn.projectan.strix.model.request.common.SingleFieldModifyReq;
 import cn.projectan.strix.model.request.system.region.SystemRegionListReq;
@@ -53,6 +55,7 @@ public class SystemRegionController extends BaseSystemController {
 
     @GetMapping("")
     @PreAuthorize("@ss.hasRead('System_Region')")
+    @SysLog(operationGroup = "系统地区", operationName = "查询地区列表")
     public RetResult<SystemRegionListResp> getSystemRegionList(SystemRegionListReq req) {
         QueryWrapper<SystemRegion> systemRegionQueryWrapper = new QueryWrapper<>();
         if (StringUtils.hasText(req.getKeyword())) {
@@ -88,6 +91,7 @@ public class SystemRegionController extends BaseSystemController {
 
     @GetMapping("{id}")
     @PreAuthorize("@ss.hasRead('System_Region')")
+    @SysLog(operationGroup = "系统地区", operationName = "查询地区信息")
     public RetResult<SystemRegionResp> getSystemRegion(@PathVariable String id) {
         Assert.notNull(id, "参数错误");
         SystemRegion systemRegion = systemRegionService.getById(id);
@@ -121,6 +125,7 @@ public class SystemRegionController extends BaseSystemController {
 
     @PostMapping("modify/{id}")
     @PreAuthorize("@ss.hasWrite('System_Region')")
+    @SysLog(operationGroup = "系统地区", operationName = "更改地区信息", operationType = SysLogOperType.UPDATE)
     public RetResult<Object> modifyField(@PathVariable String id, @RequestBody SingleFieldModifyReq singleFieldModifyReq) {
         SystemRegion systemRegion = systemRegionService.getById(id);
         Assert.notNull(systemRegion, "系统地区信息不存在");
@@ -151,6 +156,7 @@ public class SystemRegionController extends BaseSystemController {
 
     @PostMapping("update")
     @PreAuthorize("@ss.hasWrite('System_Region')")
+    @SysLog(operationGroup = "系统地区", operationName = "新增地区", operationType = SysLogOperType.ADD)
     public RetResult<Object> update(@RequestBody @Validated(ValidationGroup.Insert.class) SystemRegionUpdateReq req) {
         Assert.notNull(req, "参数错误");
         if (!StringUtils.hasText(req.getParentId())) {
@@ -190,6 +196,7 @@ public class SystemRegionController extends BaseSystemController {
 
     @PostMapping("update/{id}")
     @PreAuthorize("@ss.hasWrite('System_Region')")
+    @SysLog(operationGroup = "系统地区", operationName = "修改地区", operationType = SysLogOperType.UPDATE)
     public RetResult<Object> update(@PathVariable String id, @RequestBody @Validated(ValidationGroup.Update.class) SystemRegionUpdateReq req) {
         Assert.hasText(id, "参数错误");
         Assert.notNull(req, "参数错误");
@@ -234,6 +241,7 @@ public class SystemRegionController extends BaseSystemController {
 
     @PostMapping("remove/{id}")
     @PreAuthorize("@ss.hasWrite('System_Region')")
+    @SysLog(operationGroup = "系统地区", operationName = "删除地区", operationType = SysLogOperType.DELETE)
     public RetResult<Object> remove(@PathVariable String id) {
         Assert.hasText(id, "参数错误");
 

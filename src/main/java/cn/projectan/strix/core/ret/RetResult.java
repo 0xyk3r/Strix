@@ -14,11 +14,7 @@ public class RetResult<T> implements java.io.Serializable {
     private String msg;
     private T data;
 
-    /**
-     * 不知道为什么 删除默认构造方法 其他模块无法使用其作为返回值 所以加上
-     */
     public RetResult() {
-
     }
 
     public RetResult(int code, String msg, T data) {

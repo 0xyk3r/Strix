@@ -5,7 +5,7 @@ import cn.projectan.strix.core.ret.RetMarker;
 import cn.projectan.strix.model.annotation.IgnoreDataEncryption;
 import cn.projectan.strix.utils.ApiSignUtil;
 import cn.projectan.strix.utils.I18nUtil;
-import cn.projectan.strix.utils.RequestUtils;
+import cn.projectan.strix.utils.ServletUtils;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -97,7 +97,7 @@ public class ApiSecurityCheckAspect {
         if ("GET".equalsIgnoreCase(request.getMethod())) {
             // 处理 GET 请求
             // 将 QueryString 中的参数放入 paramsMap
-            paramsMap.putAll(RequestUtils.getRequestParams(request));
+            paramsMap.putAll(ServletUtils.getRequestParams(request));
         } else {
             // 处理 POST 请求
             // 将 RequestBody 中的参数放入 paramsMap

@@ -1,7 +1,11 @@
 package cn.projectan.strix.utils;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.util.StringUtils;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -12,9 +16,29 @@ import java.util.stream.Collectors;
 
 /**
  * @author 安炯奕
- * @date 2023/5/23 14:16
+ * @date 2023/6/17 14:36
  */
-public class RequestUtils {
+public class ServletUtils {
+
+    public static ServletRequestAttributes getRequestAttributes() {
+        RequestAttributes attributes = RequestContextHolder.getRequestAttributes();
+        return (ServletRequestAttributes) attributes;
+    }
+
+    /**
+     * 获取 request
+     */
+    public static HttpServletRequest getRequest() {
+        return getRequestAttributes().getRequest();
+    }
+
+    /**
+     * 获取 response
+     */
+    public static HttpServletResponse getResponse() {
+        return getRequestAttributes().getResponse();
+    }
+
 
     /**
      * 将 QueryString 转换为 Map

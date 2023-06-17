@@ -28,7 +28,7 @@ class SystemLogServiceTest {
                 "test",
                 "test",
                 "test",
-                0,
+                0L,
                 "",
                 "",
                 "",
@@ -37,7 +37,9 @@ class SystemLogServiceTest {
                 "",
                 "",
                 "",
+                "",
                 0,
+                "",
                 ""
         ));
 

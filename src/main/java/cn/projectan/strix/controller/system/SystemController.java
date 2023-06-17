@@ -10,6 +10,8 @@ import cn.projectan.strix.core.ret.RetMarker;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.core.ss.details.LoginSystemManager;
 import cn.projectan.strix.model.annotation.Anonymous;
+import cn.projectan.strix.model.annotation.SysLog;
+import cn.projectan.strix.model.constant.SysLogOperType;
 import cn.projectan.strix.model.constant.SystemManagerStatus;
 import cn.projectan.strix.model.db.SystemManager;
 import cn.projectan.strix.model.db.SystemMenu;
@@ -49,22 +51,23 @@ public class SystemController extends BaseSystemController {
 
     @Anonymous
     @PostMapping("login")
-    public RetResult<Object> login(@RequestBody SystemLoginReq systemLoginReq) {
+    @SysLog(operationGroup = "系统登录", operationName = "系统登录", operationType = SysLogOperType.LOGIN)
+    public RetResult<Object> login(@RequestBody SystemLoginReq req) {
         // 验证码校验
-        Assert.hasText(systemLoginReq.getCaptchaVerification(), "行为验证不通过，请重新验证");
+        Assert.hasText(req.getCaptchaVerification(), "行为验证不通过，请重新验证");
         CaptchaVO captchaVO = new CaptchaVO();
-        captchaVO.setCaptchaVerification(systemLoginReq.getCaptchaVerification());
+        captchaVO.setCaptchaVerification(req.getCaptchaVerification());
         ResponseModel response = captchaService.verification(captchaVO);
         if (!response.isSuccess()) {
             return RetMarker.makeErrRsp("行为验证不通过，请重新验证");
         }
 
         QueryWrapper<SystemManager> loginQueryWrapper = new QueryWrapper<>();
-        loginQueryWrapper.eq("login_name", systemLoginReq.getLoginName());
+        loginQueryWrapper.eq("login_name", req.getLoginName());
         SystemManager systemManager = systemManagerService.getOne(loginQueryWrapper);
         Assert.notNull(systemManager, "账号或密码错误");
         Assert.isTrue(systemManager.getManagerStatus() == SystemManagerStatus.NORMAL, "该管理用户已被禁止使用");
-        Assert.isTrue(systemManager.getLoginPassword().equals(systemLoginReq.getLoginPassword()), "账号或密码错误");
+        Assert.isTrue(systemManager.getLoginPassword().equals(req.getLoginPassword()), "账号或密码错误");
 
         if ("0".equals(systemConfigCache.get("SYSTEM_MANAGER_SUPPORT_MULTIPLE_LOGIN"))) {
             // 检查该账号上次登录是否还没有超时
