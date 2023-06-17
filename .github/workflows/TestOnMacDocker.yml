@@ -28,4 +28,4 @@ jobs:
       - name: Copy Jar File To Docker Container
         run: docker cp ./build/libs/Strix.jar Strix:/mnt/app.jar
       - name: Run Jar With Java In Docker Container
-        run: docker exec -i Strix sh -c "nohup java -jar -server -Xms1024m -Xmx1024m /mnt/app.jar --spring.profiles.active=test -Duser.timezone=Asia/Shanghai > /mnt/app.log 2>&1 &"
+        run: docker exec -i Strix sh -c "nohup java -jar -server -Xms1024m -Xmx1024m -Duser.timezone=GMT+08 /mnt/app.jar --spring.profiles.active=test > /mnt/app.log 2>&1 &"
