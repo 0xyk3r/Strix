@@ -6,6 +6,7 @@ import cn.projectan.strix.model.constant.DictProvided;
 import cn.projectan.strix.model.constant.DictStatus;
 import cn.projectan.strix.model.db.Dict;
 import cn.projectan.strix.model.db.DictData;
+import cn.projectan.strix.model.properties.StrixPackageScanProperties;
 import cn.projectan.strix.model.request.system.dict.DictDataUpdateReq;
 import cn.projectan.strix.model.request.system.dict.DictUpdateReq;
 import cn.projectan.strix.model.response.common.CommonDictResp;
@@ -17,12 +18,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -36,15 +39,27 @@ import java.util.Set;
 @Order(20)
 @Component
 @ConditionalOnBean(StrixOssConfig.class)
+@EnableConfigurationProperties(StrixPackageScanProperties.class)
 public class DictSyncInit implements ApplicationRunner {
+
+    private static final List<String> STRIX_CONSTANT_PACKAGE = new ArrayList<>();
+
+    @Autowired
+    private StrixPackageScanProperties strixPackageScanProperties;
 
     @Autowired
     private DictService dictService;
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-        Reflections reflections = new Reflections("cn.projectan.strix.model.constant");
-        Set<Class<?>> dictClassSet = reflections.getTypesAnnotatedWith(cn.projectan.strix.model.annotation.Dict.class);
+        STRIX_CONSTANT_PACKAGE.add("cn.projectan.strix.model.constant");
+        STRIX_CONSTANT_PACKAGE.addAll(List.of(strixPackageScanProperties.getConstant()));
+
+        Set<Class<?>> dictClassSet = new HashSet<>();
+        STRIX_CONSTANT_PACKAGE.forEach(pkg -> {
+            Reflections reflections = new Reflections(pkg);
+            dictClassSet.addAll(reflections.getTypesAnnotatedWith(cn.projectan.strix.model.annotation.Dict.class));
+        });
 
         dictClassSet.forEach(clazz -> {
             cn.projectan.strix.model.annotation.Dict annotationDict = clazz.getAnnotation(cn.projectan.strix.model.annotation.Dict.class);

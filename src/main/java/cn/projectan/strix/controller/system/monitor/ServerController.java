@@ -3,6 +3,7 @@ package cn.projectan.strix.controller.system.monitor;
 import cn.projectan.strix.controller.system.base.BaseSystemController;
 import cn.projectan.strix.core.ret.RetMarker;
 import cn.projectan.strix.core.ret.RetResult;
+import cn.projectan.strix.model.annotation.SysLog;
 import cn.projectan.strix.model.other.monitor.server.Server;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -23,6 +24,7 @@ public class ServerController extends BaseSystemController {
 
     @GetMapping()
     @PreAuthorize("@ss.hasRead('System_Monitor_Server')")
+    @SysLog(operationGroup = "系统运行信息", operationName = "查询系统运行信息")
     public RetResult<Object> getServerInfo() {
         Server server = new Server();
         server.loadAll();
