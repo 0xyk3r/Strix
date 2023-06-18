@@ -76,3 +76,6 @@ strix:
       seconds: 300
   # strix 默认语言
   default-locale: zh_CN
+  # 包扫描路径
+  package-scan:
+    constant:
