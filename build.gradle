@@ -75,7 +75,7 @@ dependencies {
     implementation 'com.squareup.okhttp3:okhttp:4.11.0'
     implementation 'com.aliyun:aliyun-java-sdk-dysmsapi:2.2.1'
     implementation 'com.aliyun.oss:aliyun-sdk-oss:3.16.3'
-    implementation 'cn.hutool:hutool-all:5.8.19'
+    implementation 'cn.hutool:hutool-all:5.8.20'
     implementation 'org.bouncycastle:bcprov-jdk18on:1.74'
     implementation 'com.github.javen205:IJPay-WxPay:2.9.7-17'
     implementation 'commons-io:commons-io:2.13.0'
