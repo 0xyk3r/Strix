@@ -13,6 +13,19 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "strix.package-scan")
 public class StrixPackageScanProperties {
 
+    /**
+     * 数据库实体类的包名, 多个包名用逗号分隔
+     */
+    private String[] entity;
+
+    /**
+     * 服务接口类的包名, 多个包名用逗号分隔
+     */
+    private String[] service;
+
+    /**
+     * 常量类的包名, 多个包名用逗号分隔
+     */
     private String[] constant;
 
 }
