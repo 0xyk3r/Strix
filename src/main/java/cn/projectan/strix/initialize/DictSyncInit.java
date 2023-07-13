@@ -42,7 +42,7 @@ import java.util.Set;
 @EnableConfigurationProperties(StrixPackageScanProperties.class)
 public class DictSyncInit implements ApplicationRunner {
 
-    private static final List<String> STRIX_CONSTANT_PACKAGE = new ArrayList<>();
+    private final List<String> STRIX_CONSTANT_PACKAGE = new ArrayList<>();
 
     @Autowired
     private StrixPackageScanProperties strixPackageScanProperties;

@@ -51,7 +51,7 @@ public class UpdateConditionBuilder {
             // 先设置要修改的数据id
             String id = ReflectUtil.getString(bean, "id");
             if (!StringUtils.hasText(id)) {
-                log.warn("UpdateConditionBuilder: 无法获取原数据id");
+                log.warn("无法获取原数据 ID");
                 return null;
             }
             updateWrapper.eq("id", id);
@@ -81,7 +81,7 @@ public class UpdateConditionBuilder {
                     }
                 }
             }
-            Assert.isTrue(setCount.get() > 0, "UpdateConditionBuilder: 未修改任何数据");
+            Assert.isTrue(setCount.get() > 0, "未修改任何数据");
         } catch (IllegalArgumentException e) {
             throw e;
         } catch (Exception e) {
