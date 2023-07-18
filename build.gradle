@@ -61,7 +61,7 @@ dependencies {
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
     // database
-    runtimeOnly 'com.mysql:mysql-connector-j:8.0.33'
+    runtimeOnly 'com.mysql:mysql-connector-j:8.1.0'
     implementation 'com.clickhouse:clickhouse-jdbc:0.4.6'
     implementation 'com.baomidou:mybatis-plus-boot-starter:3.5.3.1'
     implementation 'com.baomidou:mybatis-plus-generator:3.5.3.1'
