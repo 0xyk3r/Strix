@@ -2,8 +2,8 @@ package cn.projectan.strix.controller.system;
 
 import cn.hutool.core.util.ObjectUtil;
 import cn.projectan.strix.controller.system.base.BaseSystemController;
+import cn.projectan.strix.core.cache.SystemRegionCache;
 import cn.projectan.strix.core.listener.StrixCommonListener;
-import cn.projectan.strix.core.ramcache.SystemRegionCache;
 import cn.projectan.strix.core.ret.RetMarker;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.core.validation.ValidationGroup;
@@ -54,7 +54,7 @@ public class SystemRegionController extends BaseSystemController {
     private StrixCommonListener strixCommonListener;
 
     @GetMapping("")
-    @PreAuthorize("@ss.hasRead('System_Region')")
+    @PreAuthorize("@ss.hasPermission('system:region')")
     @SysLog(operationGroup = "系统地区", operationName = "查询地区列表")
     public RetResult<SystemRegionListResp> getSystemRegionList(SystemRegionListReq req) {
         QueryWrapper<SystemRegion> systemRegionQueryWrapper = new QueryWrapper<>();
@@ -90,7 +90,7 @@ public class SystemRegionController extends BaseSystemController {
     }
 
     @GetMapping("{id}")
-    @PreAuthorize("@ss.hasRead('System_Region')")
+    @PreAuthorize("@ss.hasPermission('system:region')")
     @SysLog(operationGroup = "系统地区", operationName = "查询地区信息")
     public RetResult<SystemRegionResp> getSystemRegion(@PathVariable String id) {
         Assert.notNull(id, "参数错误");
@@ -101,7 +101,7 @@ public class SystemRegionController extends BaseSystemController {
     }
 
     @GetMapping("{id}/children")
-    @PreAuthorize("@ss.hasRead('System_Region')")
+    @PreAuthorize("@ss.hasPermission('system:region')")
     public RetResult<SystemRegionChildrenListResp> getSystemRegionChildren(@PathVariable String id) {
         Assert.notNull(id, "参数错误");
         SystemRegion systemRegion = systemRegionService.getById(id);
@@ -124,7 +124,7 @@ public class SystemRegionController extends BaseSystemController {
     }
 
     @PostMapping("modify/{id}")
-    @PreAuthorize("@ss.hasWrite('System_Region')")
+    @PreAuthorize("@ss.hasPermission('system:region:update')")
     @SysLog(operationGroup = "系统地区", operationName = "更改地区信息", operationType = SysLogOperType.UPDATE)
     public RetResult<Object> modifyField(@PathVariable String id, @RequestBody SingleFieldModifyReq singleFieldModifyReq) {
         SystemRegion systemRegion = systemRegionService.getById(id);
@@ -155,7 +155,7 @@ public class SystemRegionController extends BaseSystemController {
     }
 
     @PostMapping("update")
-    @PreAuthorize("@ss.hasWrite('System_Region')")
+    @PreAuthorize("@ss.hasPermission('system:region:add')")
     @SysLog(operationGroup = "系统地区", operationName = "新增地区", operationType = SysLogOperType.ADD)
     public RetResult<Object> update(@RequestBody @Validated(ValidationGroup.Insert.class) SystemRegionUpdateReq req) {
         Assert.notNull(req, "参数错误");
@@ -195,7 +195,7 @@ public class SystemRegionController extends BaseSystemController {
     }
 
     @PostMapping("update/{id}")
-    @PreAuthorize("@ss.hasWrite('System_Region')")
+    @PreAuthorize("@ss.hasPermission('system:region:update')")
     @SysLog(operationGroup = "系统地区", operationName = "修改地区", operationType = SysLogOperType.UPDATE)
     public RetResult<Object> update(@PathVariable String id, @RequestBody @Validated(ValidationGroup.Update.class) SystemRegionUpdateReq req) {
         Assert.hasText(id, "参数错误");
@@ -220,27 +220,11 @@ public class SystemRegionController extends BaseSystemController {
             Assert.isTrue(systemRegionService.update(updateWrapper), "保存失败");
         }
 
-//        Assert.isTrue(systemRegionService.update(updateWrapper), "保存失败");
-//
-//        systemRegionCache.refreshRedisCacheById(systemRegion.getId());
-//        systemRegionCache.refreshRedisCacheById(systemRegion.getParentId());
-//        List<String> childrenIdList = systemRegionService.getChildrenIdList(systemRegion.getId());
-//        childrenIdList.forEach(cid -> {
-//            Map<String, String> fullInfo = systemRegionService.getFullInfo(cid);
-//            UpdateWrapper<SystemRegion> systemRegionUpdateWrapper = new UpdateWrapper<>();
-//            systemRegionUpdateWrapper.eq("id", cid);
-//            systemRegionUpdateWrapper.set("full_name", fullInfo.get("name"));
-//            systemRegionUpdateWrapper.set("full_path", fullInfo.get("path"));
-//            systemRegionUpdateWrapper.set("level", fullInfo.get("level"));
-//            Assert.isTrue(systemRegionService.update(systemRegionUpdateWrapper), "处理信息失败");
-//            systemRegionCache.refreshRedisCacheById(id);
-//        });
-
         return RetMarker.makeSuccessRsp();
     }
 
     @PostMapping("remove/{id}")
-    @PreAuthorize("@ss.hasWrite('System_Region')")
+    @PreAuthorize("@ss.hasPermission('system:region:remove')")
     @SysLog(operationGroup = "系统地区", operationName = "删除地区", operationType = SysLogOperType.DELETE)
     public RetResult<Object> remove(@PathVariable String id) {
         Assert.hasText(id, "参数错误");

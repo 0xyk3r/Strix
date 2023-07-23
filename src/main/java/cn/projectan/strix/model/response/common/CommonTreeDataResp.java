@@ -79,6 +79,17 @@ public class CommonTreeDataResp {
 
         private List<TreeDataItem> children;
 
+        private Boolean isLeaf;
+
+        public Boolean getIsLeaf() {
+            return children == null || children.size() == 0;
+        }
+
+        public TreeDataItem(String value, String label, List<TreeDataItem> children) {
+            this.value = value;
+            this.label = label;
+            this.children = children;
+        }
     }
 
 }

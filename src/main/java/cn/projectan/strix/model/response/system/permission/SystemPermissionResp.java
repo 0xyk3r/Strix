@@ -17,9 +17,9 @@ public class SystemPermissionResp {
 
     private String name;
 
-    private String permissionKey;
+    private String key;
 
-    private Integer permissionType;
+    private String menuId;
 
     private String description;
 

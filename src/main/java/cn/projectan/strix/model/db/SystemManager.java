@@ -26,7 +26,7 @@ import java.io.Serial;
 public class SystemManager extends BaseModel {
 
     @Serial
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
 
     /**
      * 显示昵称
@@ -48,12 +48,12 @@ public class SystemManager extends BaseModel {
     /**
      * 管理人员状态 1正常 2禁止登录
      */
-    private Integer managerStatus;
+    private Integer status;
 
     /**
      * 管理人员类型 1超级账户 2平台账户
      */
-    private Integer managerType;
+    private Integer type;
 
     /**
      * 平台账户拥有的地区权限

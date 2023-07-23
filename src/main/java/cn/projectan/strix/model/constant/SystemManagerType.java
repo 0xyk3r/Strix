@@ -15,11 +15,11 @@ public interface SystemManagerType {
     @DictData(label = "超级账号", sort = 1, style = DictDataStyle.SUCCESS)
     int SUPER_ACCOUNT = 1;
 
-    @DictData(label = "平台账号", sort = 2, style = DictDataStyle.PRIMARY)
-    int PLATFORM_ACCOUNT = 2;
+    @DictData(label = "普通账号", sort = 2, style = DictDataStyle.PRIMARY)
+    int NORMAL_ACCOUNT = 2;
 
     static boolean valid(int type) {
-        return type == SUPER_ACCOUNT || type == PLATFORM_ACCOUNT;
+        return type == SUPER_ACCOUNT || type == NORMAL_ACCOUNT;
     }
 
 }

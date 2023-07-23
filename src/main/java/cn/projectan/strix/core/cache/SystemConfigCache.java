@@ -1,4 +1,4 @@
-package cn.projectan.strix.core.ramcache;
+package cn.projectan.strix.core.cache;
 
 import cn.projectan.strix.model.db.SystemConfig;
 import cn.projectan.strix.service.SystemConfigService;

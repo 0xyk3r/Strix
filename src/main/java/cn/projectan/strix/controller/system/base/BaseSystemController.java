@@ -1,13 +1,9 @@
 package cn.projectan.strix.controller.system.base;
 
 import cn.projectan.strix.core.ss.details.LoginSystemManager;
-import cn.projectan.strix.model.constant.SystemManagerType;
 import cn.projectan.strix.model.db.SystemManager;
 import cn.projectan.strix.utils.SecurityUtils;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.util.CollectionUtils;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.util.List;
 
@@ -17,7 +13,7 @@ import java.util.List;
  */
 public class BaseSystemController {
 
-    private static final List<String> NO_REGION_PERMISSION = List.of("NullData");
+    private static final List<String> EMPTY_FILL_LIST = List.of("NullData");
 
     protected LoginSystemManager getLoginSystemManager() {
         return SecurityUtils.getLoginSystemManager();
@@ -27,25 +23,8 @@ public class BaseSystemController {
         return SecurityUtils.getSystemManager();
     }
 
-    protected HttpServletRequest getRequest() {
-        ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-        if (servletRequestAttributes != null) {
-            return servletRequestAttributes.getRequest();
-        } else {
-            return null;
-        }
-    }
-
     protected String getLoginManagerId() {
         return getSystemManager().getId();
-    }
-
-    protected Integer getLoginManagerStatus() {
-        return getSystemManager().getManagerStatus();
-    }
-
-    protected Integer getLoginManagerType() {
-        return getSystemManager().getManagerType();
     }
 
     protected String getLoginManagerRegionId() {
@@ -53,13 +32,13 @@ public class BaseSystemController {
     }
 
     protected boolean isSuperManager() {
-        return getSystemManager().getManagerType() == SystemManagerType.SUPER_ACCOUNT;
+        return SecurityUtils.isSuperAdmin();
     }
 
     protected List<String> getLoginManagerRegionIdList() {
         List<String> loginSystemManagerRegionIdList = getLoginSystemManager().getRegionIds();
         if (CollectionUtils.isEmpty(loginSystemManagerRegionIdList)) {
-            return NO_REGION_PERMISSION;
+            return EMPTY_FILL_LIST;
         }
         return loginSystemManagerRegionIdList;
     }
@@ -67,7 +46,7 @@ public class BaseSystemController {
     protected List<String> getLoginManagerRegionIdListExcludeCurrent() {
         List<String> loginSystemManagerRegionIdList = getLoginSystemManager().getRegionIds();
         if (CollectionUtils.isEmpty(loginSystemManagerRegionIdList)) {
-            return NO_REGION_PERMISSION;
+            return EMPTY_FILL_LIST;
         }
         loginSystemManagerRegionIdList.remove(getLoginManagerRegionId());
         return loginSystemManagerRegionIdList;

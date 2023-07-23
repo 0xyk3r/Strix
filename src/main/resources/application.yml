@@ -19,6 +19,8 @@ spring:
     format:
       date: yyyy-MM-dd
       date-time: yyyy-MM-dd HH:mm:ss
+    servlet:
+      load-on-startup: 1
   web:
     resources:
       add-mappings: true
@@ -55,6 +57,9 @@ strix:
     auth: false
     push: false
     payment: false
+  # log 持久化配置
+  log:
+    enable: true
   # strix 验证码配置
   captcha:
     type: blockPuzzle

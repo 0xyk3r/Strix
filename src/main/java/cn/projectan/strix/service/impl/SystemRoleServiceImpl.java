@@ -93,7 +93,6 @@ public class SystemRoleServiceImpl extends ServiceImpl<SystemRoleMapper, SystemR
         }
         QueryWrapper<SystemPermission> systemPermissionQueryWrapper = new QueryWrapper<>();
         systemPermissionQueryWrapper.in("id", systemPermissionIdList);
-        systemPermissionQueryWrapper.orderByDesc("permission_type");
         return systemPermissionService.list(systemPermissionQueryWrapper);
     }
 

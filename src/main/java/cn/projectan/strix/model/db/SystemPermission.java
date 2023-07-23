@@ -2,6 +2,7 @@ package cn.projectan.strix.model.db;
 
 import cn.projectan.strix.model.annotation.UniqueDetection;
 import cn.projectan.strix.model.db.base.BaseModel;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -26,26 +27,25 @@ import java.io.Serial;
 public class SystemPermission extends BaseModel {
 
     @Serial
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 4L;
 
     /**
      * 权限名称
      */
-    @UniqueDetection(value = "权限名称", group = 1)
+    @UniqueDetection(value = "权限名称")
     private String name;
 
     /**
      * 权限标识
      */
-    @UniqueDetection(value = "权限标识", group = 2)
-    private String permissionKey;
+    @UniqueDetection(value = "权限标识")
+    @TableField("`key`")
+    private String key;
 
     /**
-     * 1只读权限 2读写权限
+     * 所属菜单 ID
      */
-    @UniqueDetection(value = "权限类型", group = 1)
-    @UniqueDetection(value = "权限类型", group = 2)
-    private Integer permissionType;
+    private String menuId;
 
     /**
      * 权限介绍

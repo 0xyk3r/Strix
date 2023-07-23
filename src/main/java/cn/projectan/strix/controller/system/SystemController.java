@@ -5,7 +5,7 @@ import cn.projectan.captcha.model.common.ResponseModel;
 import cn.projectan.captcha.model.vo.CaptchaVO;
 import cn.projectan.captcha.service.CaptchaService;
 import cn.projectan.strix.controller.system.base.BaseSystemController;
-import cn.projectan.strix.core.ramcache.SystemConfigCache;
+import cn.projectan.strix.core.cache.SystemConfigCache;
 import cn.projectan.strix.core.ret.RetMarker;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.core.ss.details.LoginSystemManager;
@@ -20,6 +20,7 @@ import cn.projectan.strix.model.response.system.SystemLoginResp;
 import cn.projectan.strix.model.response.system.SystemMenuResp;
 import cn.projectan.strix.service.SystemManagerService;
 import cn.projectan.strix.utils.RedisUtil;
+import cn.projectan.strix.utils.SecurityUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,7 +67,7 @@ public class SystemController extends BaseSystemController {
         loginQueryWrapper.eq("login_name", req.getLoginName());
         SystemManager systemManager = systemManagerService.getOne(loginQueryWrapper);
         Assert.notNull(systemManager, "账号或密码错误");
-        Assert.isTrue(systemManager.getManagerStatus() == SystemManagerStatus.NORMAL, "该管理用户已被禁止使用");
+        Assert.isTrue(systemManager.getStatus() == SystemManagerStatus.NORMAL, "该管理用户已被禁止使用");
         Assert.isTrue(systemManager.getLoginPassword().equals(req.getLoginPassword()), "账号或密码错误");
 
         if ("0".equals(systemConfigCache.get("SYSTEM_MANAGER_SUPPORT_MULTIPLE_LOGIN"))) {
@@ -92,7 +93,7 @@ public class SystemController extends BaseSystemController {
         redisUtil.set("strix:system:manager:login_token:token:" + token, loginSystemManager, effectiveTime, TimeUnit.MINUTES);
 
         return RetMarker.makeSuccessRsp(new SystemLoginResp(
-                new SystemLoginResp.LoginManagerInfo(systemManager.getId(), systemManager.getNickname(), systemManager.getManagerType()),
+                new SystemLoginResp.LoginManagerInfo(systemManager.getId(), systemManager.getNickname(), systemManager.getType()),
                 token, LocalDateTime.now().plusMinutes(effectiveTime)));
     }
 
@@ -102,7 +103,7 @@ public class SystemController extends BaseSystemController {
         LocalDateTime tokenExpire = redisUtil.getExpireDateTime("strix:system:manager:login_token:login:id_" + systemManager.getId());
 
         return RetMarker.makeSuccessRsp(new SystemLoginResp(
-                new SystemLoginResp.LoginManagerInfo(systemManager.getId(), systemManager.getNickname(), systemManager.getManagerType()),
+                new SystemLoginResp.LoginManagerInfo(systemManager.getId(), systemManager.getNickname(), systemManager.getType()),
                 "original token", tokenExpire));
     }
 
@@ -121,16 +122,15 @@ public class SystemController extends BaseSystemController {
         redisUtil.setExpire("strix:system:manager:login_token:token:" + oldTokenObj, effectiveTime, TimeUnit.MINUTES);
 
         return RetMarker.makeSuccessRsp(new SystemLoginResp(
-                new SystemLoginResp.LoginManagerInfo(systemManager.getId(), systemManager.getNickname(), systemManager.getManagerType()),
+                new SystemLoginResp.LoginManagerInfo(systemManager.getId(), systemManager.getNickname(), systemManager.getType()),
                 oldTokenObj.toString(), LocalDateTime.now().plusMinutes(effectiveTime)));
     }
 
     @GetMapping("menus")
     public RetResult<SystemMenuResp> getMenuList() {
-        List<SystemMenu> systemMenuList = systemManagerService.getAllSystemMenuByManager(getLoginManagerId());
-        Assert.notEmpty(systemMenuList, "当前账号无菜单权限");
-        SystemMenuResp resp = new SystemMenuResp(systemMenuList);
-        return RetMarker.makeSuccessRsp(resp);
+        List<SystemMenu> systemMenus = SecurityUtils.getSystemMenus();
+        Assert.notEmpty(systemMenus, "当前账号无菜单权限");
+        return RetMarker.makeSuccessRsp(new SystemMenuResp(systemMenus));
     }
 
 }

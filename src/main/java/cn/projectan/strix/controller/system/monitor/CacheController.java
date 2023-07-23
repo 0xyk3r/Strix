@@ -42,7 +42,7 @@ public class CacheController extends BaseSystemController {
     }
 
     @GetMapping()
-    @PreAuthorize("@ss.hasRead('System_Monitor_Cache')")
+    @PreAuthorize("@ss.hasPermission('system:monitor:cache')")
     @SysLog(operationGroup = "系统缓存信息", operationName = "查询系统缓存信息")
     public RetResult<Object> getCacheInfo() {
         Properties info = (Properties) redisTemplate.execute((RedisCallback<Object>) RedisServerCommands::info);
@@ -66,20 +66,20 @@ public class CacheController extends BaseSystemController {
     }
 
     @GetMapping("names")
-    @PreAuthorize("@ss.hasWrite('System_Monitor_Cache')")
+    @PreAuthorize("@ss.hasPermission('system:monitor:cache')")
     public RetResult<Object> getCacheNames() {
         return RetMarker.makeSuccessRsp(Collections.singletonMap("names", caches));
     }
 
     @GetMapping("keys/{cacheName}")
-    @PreAuthorize("@ss.hasWrite('System_Monitor_Cache')")
+    @PreAuthorize("@ss.hasPermission('system:monitor:cache')")
     public RetResult<Object> getCacheKeys(@PathVariable String cacheName) {
         Set<String> cacheKeys = redisTemplate.keys(cacheName + "*");
         return RetMarker.makeSuccessRsp(Collections.singletonMap("cacheKeys", cacheKeys));
     }
 
     @GetMapping("value/{cacheName}/{cacheKey}")
-    @PreAuthorize("@ss.hasWrite('System_Monitor_Cache')")
+    @PreAuthorize("@ss.hasPermission('system:monitor:cache')")
     public RetResult<Object> getCacheValue(@PathVariable String cacheName, @PathVariable String cacheKey) {
         String cacheValue = (String) redisTemplate.opsForValue().get(cacheKey);
         SystemCache cache = new SystemCache(cacheName, cacheKey, cacheValue);
@@ -87,7 +87,7 @@ public class CacheController extends BaseSystemController {
     }
 
     @DeleteMapping("clear/{cacheName}")
-    @PreAuthorize("@ss.hasWrite('System_Monitor_Cache')")
+    @PreAuthorize("@ss.hasPermission('system:monitor:cache')")
     public RetResult<Object> clearCacheKeys(@PathVariable String cacheName) {
         Collection<String> cacheKeys = redisTemplate.keys(cacheName + "*");
         if (cacheKeys != null && cacheKeys.size() > 0) {
@@ -97,14 +97,14 @@ public class CacheController extends BaseSystemController {
     }
 
     @DeleteMapping("remove/{cacheKey}")
-    @PreAuthorize("@ss.hasWrite('System_Monitor_Cache')")
+    @PreAuthorize("@ss.hasPermission('system:monitor:cache')")
     public RetResult<Object> clearCacheKey(@PathVariable String cacheKey) {
         redisTemplate.delete(cacheKey);
         return RetMarker.makeSuccessRsp();
     }
 
     @DeleteMapping("clear")
-    @PreAuthorize("@ss.hasWrite('System_Monitor_Cache')")
+    @PreAuthorize("@ss.hasPermission('system:monitor:cache')")
     public RetResult<Object> clearCacheAll() {
         Collection<String> cacheKeys = redisTemplate.keys("*");
         if (cacheKeys != null && cacheKeys.size() > 0) {

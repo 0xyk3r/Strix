@@ -13,6 +13,14 @@ import lombok.Data;
 public class SystemMenuUpdateReq {
 
     /**
+     * 菜单 Key
+     */
+    @NotEmpty(groups = {ValidationGroup.Insert.class, ValidationGroup.Update.class}, message = "菜单Key不可为空")
+    @Size(groups = {ValidationGroup.Insert.class, ValidationGroup.Update.class}, min = 2, max = 32, message = "菜单Key长度不符合要求")
+    @UpdateField
+    private String key;
+
+    /**
      * 菜单名称
      */
     @NotEmpty(groups = {ValidationGroup.Insert.class, ValidationGroup.Update.class}, message = "菜单名称不可为空")
@@ -24,7 +32,7 @@ public class SystemMenuUpdateReq {
      * 访问地址
      */
     @NotEmpty(groups = {ValidationGroup.Insert.class, ValidationGroup.Update.class}, message = "菜单路由不可为空")
-    @Size(groups = {ValidationGroup.Insert.class, ValidationGroup.Update.class}, min = 1, max = 48, message = "菜单路由长度不符合要求")
+    @Size(groups = {ValidationGroup.Insert.class, ValidationGroup.Update.class}, min = 1, max = 128, message = "菜单路由长度不符合要求")
     @UpdateField
     private String url;
 
@@ -37,7 +45,7 @@ public class SystemMenuUpdateReq {
     /**
      * 父菜单ID
      */
-    @UpdateField
+    @UpdateField(allowEmpty = true, defaultValue = "0")
     private String parentId;
 
     /**

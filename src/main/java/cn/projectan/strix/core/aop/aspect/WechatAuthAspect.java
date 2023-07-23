@@ -7,6 +7,7 @@ import cn.projectan.strix.model.annotation.NeedWechatAuth;
 import cn.projectan.strix.model.db.WechatUser;
 import cn.projectan.strix.service.WechatUserService;
 import cn.projectan.strix.utils.RedisUtil;
+import cn.projectan.strix.utils.ServletUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -14,7 +15,6 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.util.StringUtils;
-import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.servlet.HandlerMapping;
 
@@ -43,7 +43,7 @@ public class WechatAuthAspect {
 
     @Around("controller()")
     public Object handle(ProceedingJoinPoint pjp) throws Throwable {
-        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        ServletRequestAttributes attributes = ServletUtils.getRequestAttributes();
         if (attributes == null) {
             return pjp.proceed();
         }

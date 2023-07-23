@@ -19,14 +19,14 @@ import java.util.List;
 public interface SystemManagerService extends IService<SystemManager> {
 
     /**
-     * 获取管理用户的所有系统权限
-     */
-    List<SystemPermission> getAllSystemPermissionByManager(String systemManagerId);
-
-    /**
      * 获取管理用户的所有菜单权限
      */
     List<SystemMenu> getAllSystemMenuByManager(String systemManagerId);
+
+    /**
+     * 获取管理用户的所有系统权限
+     */
+    List<SystemPermission> getAllSystemPermissionByManager(String systemManagerId);
 
     /**
      * 登陆时获取用户完整权限信息
@@ -35,5 +35,10 @@ public interface SystemManagerService extends IService<SystemManager> {
      * @return LoginSystemManager
      */
     LoginSystemManager getLoginInfo(String systemManagerId);
+
+    /**
+     * 刷新 redis 中的用户权限信息
+     */
+    void refreshLoginInfo(List<String> systemManagerIdList);
 
 }

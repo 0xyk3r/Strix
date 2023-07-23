@@ -20,7 +20,6 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.lang.reflect.Parameter;
@@ -52,7 +51,7 @@ public class ApiSecurityCheckAspect {
 
     @Around("controller()")
     public Object handle(ProceedingJoinPoint pjp) throws Throwable {
-        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        ServletRequestAttributes attributes = ServletUtils.getRequestAttributes();
         if (attributes == null) return pjp.proceed();
         HttpServletRequest request = attributes.getRequest();
         MethodSignature signature = (MethodSignature) pjp.getSignature();

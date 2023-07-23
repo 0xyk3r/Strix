@@ -39,7 +39,7 @@ public class OssFileGroupController extends BaseSystemController {
     private OssFileGroupService ossFileGroupService;
 
     @GetMapping("")
-    @PreAuthorize("@ss.hasRead('System_Oss')")
+    @PreAuthorize("@ss.hasPermission('system:module:oss:filegroup')")
     @SysLog(operationGroup = "系统存储分组", operationName = "查询存储分组列表")
     public RetResult<OssFileGroupListResp> getOssFileGroupList(OssFileGroupListReq req) {
         QueryWrapper<OssFileGroup> queryWrapper = new QueryWrapper<>();
@@ -57,7 +57,7 @@ public class OssFileGroupController extends BaseSystemController {
     }
 
     @GetMapping("{id}")
-    @PreAuthorize("@ss.hasRead('System_Oss')")
+    @PreAuthorize("@ss.hasPermission('system:module:oss:filegroup')")
     @SysLog(operationGroup = "系统存储分组", operationName = "查询存储分组信息")
     public RetResult<OssFileGroupResp> getOssFileGroupInfo(@PathVariable String id) {
         OssFileGroup ossFileGroup = ossFileGroupService.getById(id);
@@ -80,7 +80,7 @@ public class OssFileGroupController extends BaseSystemController {
     }
 
     @PostMapping("update")
-    @PreAuthorize("@ss.hasWrite('System_Oss')")
+    @PreAuthorize("@ss.hasPermission('system:module:oss:filegroup:add')")
     @SysLog(operationGroup = "系统存储分组", operationName = "新增存储分组", operationType = SysLogOperType.ADD)
     public RetResult<Object> update(@RequestBody @Validated(ValidationGroup.Insert.class) OssFileGroupUpdateReq req) {
         OssFileGroup ossFileGroup = new OssFileGroup(
@@ -106,7 +106,7 @@ public class OssFileGroupController extends BaseSystemController {
     }
 
     @PostMapping("update/{id}")
-    @PreAuthorize("@ss.hasWrite('System_Oss')")
+    @PreAuthorize("@ss.hasPermission('system:module:oss:filegroup:update')")
     @SysLog(operationGroup = "系统存储分组", operationName = "修改存储分组", operationType = SysLogOperType.UPDATE)
     public RetResult<Object> update(@PathVariable String id, @RequestBody @Validated(ValidationGroup.Update.class) OssFileGroupUpdateReq req) {
         OssFileGroup ossFileGroup = ossFileGroupService.getById(id);
@@ -120,7 +120,7 @@ public class OssFileGroupController extends BaseSystemController {
     }
 
     @PostMapping("remove/{id}")
-    @PreAuthorize("@ss.hasWrite('System_Oss')")
+    @PreAuthorize("@ss.hasPermission('system:module:oss:filegroup:remove')")
     @SysLog(operationGroup = "系统存储分组", operationName = "删除存储分组", operationType = SysLogOperType.DELETE)
     public RetResult<Object> remove(@PathVariable String id) {
         Assert.hasText(id, "参数错误");

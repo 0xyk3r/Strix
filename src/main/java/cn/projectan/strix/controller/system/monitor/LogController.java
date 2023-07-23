@@ -32,7 +32,7 @@ public class LogController extends BaseSystemController {
     private SystemLogService systemLogService;
 
     @GetMapping()
-    @PreAuthorize("@ss.hasRead('System_Monitor_Log')")
+    @PreAuthorize("@ss.hasPermission('system:monitor:log')")
     @SysLog(operationGroup = "系统操作日志", operationName = "查询系统操作日志")
     public RetResult<Object> list(SystemLogListReq req) {
         LambdaQueryWrapper<SystemLog> queryWrapper = new LambdaQueryWrapper<>();

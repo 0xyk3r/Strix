@@ -1,23 +1,26 @@
 package cn.projectan.strix.controller.system;
 
 import cn.projectan.strix.controller.system.base.BaseSystemController;
-import cn.projectan.strix.core.ramcache.SystemMenuCache;
+import cn.projectan.strix.core.cache.SystemMenuCache;
 import cn.projectan.strix.core.ret.RetMarker;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.core.validation.ValidationGroup;
 import cn.projectan.strix.model.annotation.SysLog;
 import cn.projectan.strix.model.constant.SysLogOperType;
 import cn.projectan.strix.model.db.SystemMenu;
+import cn.projectan.strix.model.db.SystemPermission;
 import cn.projectan.strix.model.db.SystemRoleMenu;
 import cn.projectan.strix.model.request.common.SingleFieldModifyReq;
 import cn.projectan.strix.model.request.system.menu.SystemMenuUpdateReq;
+import cn.projectan.strix.model.response.common.CommonTreeDataResp;
 import cn.projectan.strix.model.response.system.menu.SystemMenuListResp;
 import cn.projectan.strix.model.response.system.menu.SystemMenuResp;
 import cn.projectan.strix.service.SystemMenuService;
+import cn.projectan.strix.service.SystemPermissionService;
 import cn.projectan.strix.service.SystemRoleMenuService;
 import cn.projectan.strix.utils.UniqueDetectionTool;
 import cn.projectan.strix.utils.UpdateConditionBuilder;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,32 +47,35 @@ public class SystemMenuController extends BaseSystemController {
     private SystemMenuService systemMenuService;
     @Autowired
     private SystemRoleMenuService systemRoleMenuService;
+    @Autowired
+    private SystemPermissionService systemPermissionService;
 
     @Autowired
     private SystemMenuCache systemMenuCache;
 
     @GetMapping("")
-    @PreAuthorize("@ss.hasRead('System_Menu')")
+    @PreAuthorize("@ss.hasPermission('system:menu')")
     @SysLog(operationGroup = "系统菜单", operationName = "查询菜单列表")
     public RetResult<SystemMenuListResp> getSystemMenuList() {
         List<SystemMenu> systemMenuList = systemMenuService.list();
+        List<SystemPermission> systemPermissionList = systemPermissionService.list();
 
-        return RetMarker.makeSuccessRsp(new SystemMenuListResp(systemMenuList));
+        return RetMarker.makeSuccessRsp(new SystemMenuListResp(systemMenuList, systemPermissionList));
     }
 
     @GetMapping("{menuId}")
-    @PreAuthorize("@ss.hasRead('System_Menu')")
+    @PreAuthorize("@ss.hasPermission('system:menu')")
     @SysLog(operationGroup = "系统菜单", operationName = "查询菜单信息")
     public RetResult<SystemMenuResp> getSystemMenu(@PathVariable String menuId) {
         Assert.notNull(menuId, "参数错误");
         SystemMenu sm = systemMenuService.getById(menuId);
         Assert.notNull(sm, "系统菜单信息不存在");
 
-        return RetMarker.makeSuccessRsp(new SystemMenuResp(sm.getId(), sm.getName(), sm.getUrl(), sm.getIcon(), sm.getParentId(), sm.getSortValue()));
+        return RetMarker.makeSuccessRsp(new SystemMenuResp(sm.getId(), sm.getKey(), sm.getName(), sm.getUrl(), sm.getIcon(), sm.getParentId(), sm.getSortValue()));
     }
 
     @PostMapping("modify/{menuId}")
-    @PreAuthorize("@ss.hasWrite('System_Menu')")
+    @PreAuthorize("@ss.hasPermission('system:menu:update')")
     @SysLog(operationGroup = "系统菜单", operationName = "更改菜单信息", operationType = SysLogOperType.UPDATE)
     public RetResult<Object> modifyField(@PathVariable String menuId, @RequestBody SingleFieldModifyReq req) {
         SystemMenu systemMenu = systemMenuService.getById(menuId);
@@ -92,12 +98,13 @@ public class SystemMenuController extends BaseSystemController {
     }
 
     @PostMapping("update")
-    @PreAuthorize("@ss.hasWrite('System_Menu')")
+    @PreAuthorize("@ss.hasPermission('system:menu:add')")
     @SysLog(operationGroup = "系统菜单", operationName = "新增菜单", operationType = SysLogOperType.ADD)
     public RetResult<Object> update(@RequestBody @Validated(ValidationGroup.Insert.class) SystemMenuUpdateReq req) {
         Assert.notNull(req, "参数错误");
 
         SystemMenu systemMenu = new SystemMenu(
+                req.getKey(),
                 req.getName(),
                 req.getUrl(),
                 req.getIcon(),
@@ -117,7 +124,7 @@ public class SystemMenuController extends BaseSystemController {
     }
 
     @PostMapping("update/{menuId}")
-    @PreAuthorize("@ss.hasWrite('System_Menu')")
+    @PreAuthorize("@ss.hasPermission('system:menu:update')")
     @SysLog(operationGroup = "系统菜单", operationName = "修改菜单", operationType = SysLogOperType.UPDATE)
     public RetResult<Object> update(@PathVariable String menuId, @RequestBody @Validated(ValidationGroup.Update.class) SystemMenuUpdateReq req) {
         Assert.hasText(menuId, "参数错误");
@@ -135,7 +142,7 @@ public class SystemMenuController extends BaseSystemController {
     }
 
     @PostMapping("remove/{menuId}")
-    @PreAuthorize("@ss.hasWrite('System_Menu')")
+    @PreAuthorize("@ss.hasPermission('system:menu:remove')")
     @SysLog(operationGroup = "系统菜单", operationName = "删除菜单", operationType = SysLogOperType.DELETE)
     public RetResult<Object> remove(@PathVariable String menuId) {
         Assert.hasText(menuId, "参数错误");
@@ -149,14 +156,25 @@ public class SystemMenuController extends BaseSystemController {
         // 批量删除菜单
         systemMenuService.removeByIds(childrenMenusIdList);
         // 删除角色和菜单间关系
-        QueryWrapper<SystemRoleMenu> deleteRoleMenuRelationQueryWrapper = new QueryWrapper<>();
-        deleteRoleMenuRelationQueryWrapper.in("system_menu_id", childrenMenusIdList);
-        systemRoleMenuService.remove(deleteRoleMenuRelationQueryWrapper);
+        systemRoleMenuService.remove(
+                new LambdaQueryWrapper<SystemRoleMenu>()
+                        .in(SystemRoleMenu::getSystemMenuId, childrenMenusIdList)
+        );
+        // 删除菜单对应的权限
+        systemPermissionService.remove(
+                new LambdaQueryWrapper<SystemPermission>()
+                        .in(SystemPermission::getMenuId, childrenMenusIdList)
+        );
 
         // 更新缓存
         systemMenuCache.updateRamAndRedis();
 
         return RetMarker.makeSuccessRsp();
+    }
+
+    @GetMapping("tree")
+    public RetResult<CommonTreeDataResp> getSystemMenuTree() {
+        return RetMarker.makeSuccessRsp(systemMenuService.getTreeData());
     }
 
     private Set<String> findSystemMenuChildrenIdList(List<SystemMenu> menus, String parentId) {
