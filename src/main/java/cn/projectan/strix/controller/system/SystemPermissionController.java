@@ -1,13 +1,12 @@
 package cn.projectan.strix.controller.system;
 
 import cn.projectan.strix.controller.system.base.BaseSystemController;
-import cn.projectan.strix.core.ramcache.SystemPermissionCache;
+import cn.projectan.strix.core.cache.SystemPermissionCache;
 import cn.projectan.strix.core.ret.RetMarker;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.core.validation.ValidationGroup;
 import cn.projectan.strix.model.annotation.SysLog;
 import cn.projectan.strix.model.constant.SysLogOperType;
-import cn.projectan.strix.model.constant.SystemPermissionType;
 import cn.projectan.strix.model.db.SystemPermission;
 import cn.projectan.strix.model.db.SystemRolePermission;
 import cn.projectan.strix.model.request.system.permission.SystemPermissionUpdateReq;
@@ -47,7 +46,7 @@ public class SystemPermissionController extends BaseSystemController {
     private SystemPermissionCache systemPermissionCache;
 
     @GetMapping("")
-    @PreAuthorize("@ss.hasRead('System_Permission')")
+    @PreAuthorize("@ss.hasPermission('system:menu')")
     @SysLog(operationGroup = "系统权限", operationName = "查询权限列表")
     public RetResult<SystemPermissionListResp> getSystemPermissionList() {
         QueryWrapper<SystemPermission> systemPermissionQueryWrapper = new QueryWrapper<>();
@@ -58,27 +57,26 @@ public class SystemPermissionController extends BaseSystemController {
     }
 
     @GetMapping("{permissionId}")
-    @PreAuthorize("@ss.hasRead('System_Permission')")
+    @PreAuthorize("@ss.hasPermission('system:menu')")
     @SysLog(operationGroup = "系统权限", operationName = "查询权限信息")
     public RetResult<SystemPermissionResp> getSystemPermission(@PathVariable String permissionId) {
         Assert.notNull(permissionId, "参数错误");
         SystemPermission systemPermission = systemPermissionService.getById(permissionId);
         Assert.notNull(systemPermission, "系统权限信息不存在");
 
-        return RetMarker.makeSuccessRsp(new SystemPermissionResp(systemPermission.getId(), systemPermission.getName(), systemPermission.getPermissionKey(), systemPermission.getPermissionType(), systemPermission.getDescription()));
+        return RetMarker.makeSuccessRsp(new SystemPermissionResp(systemPermission.getId(), systemPermission.getName(), systemPermission.getKey(), systemPermission.getMenuId(), systemPermission.getDescription()));
     }
 
     @PostMapping("update")
-    @PreAuthorize("@ss.hasWrite('System_Permission')")
+    @PreAuthorize("@ss.anyPermission('system:menu:add', 'system:menu:update')")
     @SysLog(operationGroup = "系统权限", operationName = "新增权限", operationType = SysLogOperType.ADD)
     public RetResult<Object> update(@RequestBody @Validated(ValidationGroup.Insert.class) SystemPermissionUpdateReq req) {
         Assert.notNull(req, "参数错误");
-        Assert.isTrue(SystemPermissionType.valid(req.getPermissionType()), "参数错误");
 
         SystemPermission systemPermission = new SystemPermission(
                 req.getName(),
-                req.getPermissionKey(),
-                req.getPermissionType(),
+                req.getKey(),
+                req.getMenuId(),
                 req.getDescription()
         );
         systemPermission.setCreateBy(getLoginManagerId());
@@ -92,7 +90,7 @@ public class SystemPermissionController extends BaseSystemController {
     }
 
     @PostMapping("update/{permissionId}")
-    @PreAuthorize("@ss.hasWrite('System_Permission')")
+    @PreAuthorize("@ss.anyPermission('system:menu:add', 'system:menu:update')")
     @SysLog(operationGroup = "系统权限", operationName = "修改权限", operationType = SysLogOperType.UPDATE)
     public RetResult<Object> update(@PathVariable String permissionId, @RequestBody @Validated(ValidationGroup.Update.class) SystemPermissionUpdateReq req) {
         Assert.hasText(permissionId, "参数错误");
@@ -109,7 +107,7 @@ public class SystemPermissionController extends BaseSystemController {
     }
 
     @PostMapping("remove/{permissionId}")
-    @PreAuthorize("@ss.hasWrite('System_Permission')")
+    @PreAuthorize("@ss.hasPermission('system:menu:remove')")
     @SysLog(operationGroup = "系统权限", operationName = "删除权限", operationType = SysLogOperType.DELETE)
     public RetResult<Object> remove(@PathVariable String permissionId) {
         Assert.hasText(permissionId, "参数错误");
@@ -129,10 +127,10 @@ public class SystemPermissionController extends BaseSystemController {
     @GetMapping("transfer")
     public RetResult<CommonTransferDataResp> getTransferData() {
         QueryWrapper<SystemPermission> systemPermissionQueryWrapper = new QueryWrapper<>();
-        systemPermissionQueryWrapper.select("id", "name", "permission_type");
+        systemPermissionQueryWrapper.select("id", "name");
         List<SystemPermission> systemPermissionList = systemPermissionService.list(systemPermissionQueryWrapper);
 
-        return RetMarker.makeSuccessRsp(new CommonTransferDataResp(systemPermissionList, "id", "name", "permissionType"));
+        return RetMarker.makeSuccessRsp(new CommonTransferDataResp(systemPermissionList, "id", "name", null));
     }
 
 }

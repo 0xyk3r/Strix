@@ -1,6 +1,6 @@
 package cn.projectan.strix.core.aop.aspect;
 
-import cn.projectan.strix.core.ramcache.SystemConfigCache;
+import cn.projectan.strix.core.cache.SystemConfigCache;
 import cn.projectan.strix.core.ret.RetCode;
 import cn.projectan.strix.core.ret.RetMarker;
 import cn.projectan.strix.model.annotation.NeedSystemPermission;
@@ -9,6 +9,7 @@ import cn.projectan.strix.model.db.SystemPermission;
 import cn.projectan.strix.service.SystemManagerService;
 import cn.projectan.strix.service.SystemRegionService;
 import cn.projectan.strix.utils.RedisUtil;
+import cn.projectan.strix.utils.ServletUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -16,7 +17,6 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.util.StringUtils;
-import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.util.ArrayList;
@@ -52,7 +52,7 @@ public class SystemPermissionAspect {
 
     @Around("controller()")
     public Object handle(ProceedingJoinPoint pjp) throws Throwable {
-        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        ServletRequestAttributes attributes = ServletUtils.getRequestAttributes();
         if (attributes == null) {
             return pjp.proceed();
         }
@@ -111,17 +111,17 @@ public class SystemPermissionAspect {
         // 查询用户权限
         List<SystemPermission> permissionList = systemManagerService.getAllSystemPermissionByManager(systemManager.getId());
         for (SystemPermission p : permissionList) {
-            if (p.getPermissionKey().equalsIgnoreCase(needSystemPermission.value())) {
-                if (p.getPermissionType() == 2) {
-                    // 有读写权 直接放行
-                    return pjp.proceed();
-                } else if (p.getPermissionType() == 1) {
-                    // 仅有只读权 判断此接口是否需要写入权限
-                    if (needSystemPermission.isEdit()) {
-                        return RetMarker.makeErrRsp(RetCode.NOT_PERMISSION, "您的账号仅拥有只读权限");
-                    }
-                    return pjp.proceed();
-                }
+            if (p.getKey().equalsIgnoreCase(needSystemPermission.value())) {
+//                if (p.getPermissionType() == 2) {
+//                    // 有读写权 直接放行
+//                    return pjp.proceed();
+//                } else if (p.getPermissionType() == 1) {
+//                    // 仅有只读权 判断此接口是否需要写入权限
+//                    if (needSystemPermission.isEdit()) {
+//                        return RetMarker.makeErrRsp(RetCode.NOT_PERMISSION, "您的账号仅拥有只读权限");
+//                    }
+//                    return pjp.proceed();
+//                }
             }
         }
 

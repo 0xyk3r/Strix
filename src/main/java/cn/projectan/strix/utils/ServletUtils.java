@@ -22,21 +22,32 @@ public class ServletUtils {
 
     public static ServletRequestAttributes getRequestAttributes() {
         RequestAttributes attributes = RequestContextHolder.getRequestAttributes();
-        return (ServletRequestAttributes) attributes;
+        if (attributes instanceof ServletRequestAttributes sra) {
+            return sra;
+        }
+        return null;
     }
 
     /**
      * 获取 request
      */
     public static HttpServletRequest getRequest() {
-        return getRequestAttributes().getRequest();
+        ServletRequestAttributes attributes = getRequestAttributes();
+        if (attributes == null) {
+            return null;
+        }
+        return attributes.getRequest();
     }
 
     /**
      * 获取 response
      */
     public static HttpServletResponse getResponse() {
-        return getRequestAttributes().getResponse();
+        ServletRequestAttributes attributes = getRequestAttributes();
+        if (attributes == null) {
+            return null;
+        }
+        return attributes.getResponse();
     }
 
 

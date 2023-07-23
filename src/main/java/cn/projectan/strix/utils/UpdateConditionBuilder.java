@@ -1,5 +1,6 @@
 package cn.projectan.strix.utils;
 
+import cn.hutool.core.convert.Convert;
 import cn.hutool.core.util.StrUtil;
 import cn.projectan.strix.model.annotation.UpdateField;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
@@ -71,12 +72,16 @@ public class UpdateConditionBuilder {
                     String originalValue = ReflectUtil.getString(bean, field.getName());
 
                     if (annotation.allowEmpty() || (StringUtils.hasText(newValue))) {
+                        if (annotation.allowEmpty() && !StringUtils.hasText(newValue)) {
+                            newValue = "null".equals(annotation.defaultValue()) ? null : annotation.defaultValue();
+                        }
                         // 仅当数据发生变动才执行set语句
                         if ((originalValue == null && newValue != null) || (originalValue != null && !originalValue.equals(newValue))) {
                             updateWrapper = updateWrapper.set("`" + StrUtil.toUnderlineCase(field.getName()) + "`", newValue).or();
                             setCount.getAndIncrement();
-                            // 回写数据
-                            ReflectUtil.set(bean, field.getName(), newValue);
+                            // 转换回原数据类型，并回写数据
+                            Object convertNewValue = Convert.convert(field.getType(), newValue);
+                            ReflectUtil.set(bean, field.getName(), convertNewValue);
                         }
                     }
                 }

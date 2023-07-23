@@ -30,7 +30,7 @@ public class SystemLoginResp {
 
         private String nickname;
 
-        private Integer managerType;
+        private Integer type;
 
     }
 

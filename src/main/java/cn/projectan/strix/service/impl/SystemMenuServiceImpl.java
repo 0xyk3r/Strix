@@ -1,14 +1,18 @@
 package cn.projectan.strix.service.impl;
 
-import cn.projectan.strix.model.db.SystemMenu;
 import cn.projectan.strix.mapper.SystemMenuMapper;
+import cn.projectan.strix.model.db.SystemMenu;
+import cn.projectan.strix.model.response.common.CommonTreeDataResp;
 import cn.projectan.strix.service.SystemMenuService;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 /**
  * <p>
- *  服务实现类
+ * 服务实现类
  * </p>
  *
  * @author 安炯奕
@@ -16,5 +20,14 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class SystemMenuServiceImpl extends ServiceImpl<SystemMenuMapper, SystemMenu> implements SystemMenuService {
+
+    @Override
+    public CommonTreeDataResp getTreeData() {
+        List<SystemMenu> systemMenuList = getBaseMapper().selectList(
+                new LambdaQueryWrapper<SystemMenu>()
+                        .orderByAsc(SystemMenu::getSortValue)
+        );
+        return new CommonTreeDataResp(systemMenuList, "id", "name", "parentId", "0");
+    }
 
 }

@@ -1,4 +1,4 @@
-package cn.projectan.strix.core.ramcache;
+package cn.projectan.strix.core.cache;
 
 import cn.projectan.strix.core.ss.details.LoginSystemManager;
 import cn.projectan.strix.model.db.SystemPermission;
@@ -61,7 +61,6 @@ public class SystemPermissionCache {
 
     public void updateRedisBySystemManageId(String managerId) {
         redisUtil.delLike("strix:system:manager:permission_by_smid::" + managerId);
-        redisUtil.delLike("strix:system:manager:is_super_manager_by_smid::" + managerId);
 
         // TODO 暂不确定写在这里是否合适
         Object existToken = redisUtil.get("strix:system:manager:login_token:login:id_" + managerId);

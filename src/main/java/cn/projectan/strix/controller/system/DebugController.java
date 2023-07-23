@@ -16,7 +16,6 @@ import cn.projectan.strix.utils.ip.IpLocationUtil;
 import cn.projectan.strix.utils.ip.IpUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -54,7 +53,7 @@ public class DebugController {
 
     @IgnoreDataEncryption
     @GetMapping("test/oss")
-    public RetResult<Object> oss(HttpServletResponse response) throws IOException {
+    public RetResult<Object> oss() throws IOException {
         List<StrixOssBucket> ossBuckets = strixOssConfig.getInstance("HuiBoChe").getBucketList();
 
         return RetMarker.makeSuccessRsp(ossBuckets);
@@ -62,7 +61,7 @@ public class DebugController {
 
     @IgnoreDataEncryption
     @GetMapping("test/sms")
-    public RetResult<Object> sms(HttpServletRequest request) {
+    public RetResult<Object> sms() {
         SmsLog sms = new SmsLog();
         sms.setConfigKey("HuiBoChe");
         sms.setPlatform(StrixSmsPlatform.ALIYUN);

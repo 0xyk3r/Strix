@@ -2,10 +2,7 @@ package cn.projectan.strix.controller.api.base;
 
 import cn.projectan.strix.model.db.SystemUser;
 import cn.projectan.strix.utils.SecurityUtils;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.util.Assert;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
 /**
  * @author 安炯奕
@@ -21,15 +18,6 @@ public class BaseApiController {
 
     protected String getLoginUserId() {
         return getLoginUser().getId();
-    }
-
-    protected HttpServletRequest getRequest() {
-        ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-        if (servletRequestAttributes != null) {
-            return servletRequestAttributes.getRequest();
-        } else {
-            return null;
-        }
     }
 
 }

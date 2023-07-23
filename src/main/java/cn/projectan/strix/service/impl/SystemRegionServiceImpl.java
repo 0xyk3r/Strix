@@ -1,6 +1,6 @@
 package cn.projectan.strix.service.impl;
 
-import cn.projectan.strix.core.ramcache.SystemRegionCache;
+import cn.projectan.strix.core.cache.SystemRegionCache;
 import cn.projectan.strix.mapper.SystemRegionMapper;
 import cn.projectan.strix.model.db.SystemRegion;
 import cn.projectan.strix.service.SystemRegionService;

@@ -13,9 +13,9 @@ public class SystemManagerListReq extends BasePageReq<SystemManager> {
 
     private String keyword;
 
-    private Integer managerStatus;
+    private Integer status;
 
-    private Integer managerType;
+    private Integer type;
 
     private String regionId;
 

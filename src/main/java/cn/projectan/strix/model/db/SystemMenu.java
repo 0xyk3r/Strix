@@ -2,6 +2,7 @@ package cn.projectan.strix.model.db;
 
 import cn.projectan.strix.model.annotation.UniqueDetection;
 import cn.projectan.strix.model.db.base.BaseModel;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -26,7 +27,14 @@ import java.io.Serial;
 public class SystemMenu extends BaseModel {
 
     @Serial
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
+
+    /**
+     * 菜单 Key
+     */
+    @UniqueDetection("菜单 Key")
+    @TableField("`key`")
+    private String key;
 
     /**
      * 菜单名称
@@ -40,12 +48,12 @@ public class SystemMenu extends BaseModel {
     private String url;
 
     /**
-     * 菜单ICON
+     * 菜单 ICON
      */
     private String icon;
 
     /**
-     * 父菜单ID
+     * 父菜单 ID
      */
     private String parentId;
 

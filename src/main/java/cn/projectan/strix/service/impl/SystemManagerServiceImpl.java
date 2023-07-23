@@ -2,15 +2,15 @@ package cn.projectan.strix.service.impl;
 
 import cn.projectan.strix.core.ss.details.LoginSystemManager;
 import cn.projectan.strix.mapper.SystemManagerMapper;
+import cn.projectan.strix.model.constant.SystemManagerType;
 import cn.projectan.strix.model.db.SystemManager;
 import cn.projectan.strix.model.db.SystemManagerRole;
 import cn.projectan.strix.model.db.SystemMenu;
 import cn.projectan.strix.model.db.SystemPermission;
-import cn.projectan.strix.service.SystemManagerRoleService;
-import cn.projectan.strix.service.SystemManagerService;
-import cn.projectan.strix.service.SystemRegionService;
-import cn.projectan.strix.service.SystemRoleService;
+import cn.projectan.strix.service.*;
+import cn.projectan.strix.utils.RedisUtil;
 import cn.projectan.strix.utils.SpringUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,25 +38,31 @@ public class SystemManagerServiceImpl extends ServiceImpl<SystemManagerMapper, S
     private SystemManagerRoleService systemManagerRoleService;
     @Autowired
     private SystemRegionService systemRegionService;
-
-    @Cacheable(value = "strix:system:manager:permission_by_smid", key = "#systemManagerId")
-    @Override
-    public List<SystemPermission> getAllSystemPermissionByManager(String systemManagerId) {
-        QueryWrapper<SystemManagerRole> systemManagerRoleQueryWrapper = new QueryWrapper<>();
-        systemManagerRoleQueryWrapper.select("system_manager_role_id");
-        systemManagerRoleQueryWrapper.eq("system_manager_id", systemManagerId);
-        List<String> systemManagerRoleIdList = systemManagerRoleService.listObjs(systemManagerRoleQueryWrapper, Object::toString);
-        return systemRoleService.getSystemPermissionByRoleId(new TreeSet<>(systemManagerRoleIdList));
-    }
+    @Autowired
+    private SystemMenuService systemMenuService;
+    @Autowired
+    private SystemPermissionService systemPermissionService;
+    @Autowired
+    private RedisUtil redisUtil;
 
     @Cacheable(value = "strix:system:manager:menu_by_smid", key = "#systemManagerId")
     @Override
     public List<SystemMenu> getAllSystemMenuByManager(String systemManagerId) {
         QueryWrapper<SystemManagerRole> systemManagerRoleQueryWrapper = new QueryWrapper<>();
-        systemManagerRoleQueryWrapper.select("system_manager_role_id");
+        systemManagerRoleQueryWrapper.select("system_role_id");
         systemManagerRoleQueryWrapper.eq("system_manager_id", systemManagerId);
         List<String> systemManagerRoleIdList = systemManagerRoleService.listObjs(systemManagerRoleQueryWrapper, Object::toString);
         return systemRoleService.getMenusByRoleId(new TreeSet<>(systemManagerRoleIdList));
+    }
+
+    @Cacheable(value = "strix:system:manager:permission_by_smid", key = "#systemManagerId")
+    @Override
+    public List<SystemPermission> getAllSystemPermissionByManager(String systemManagerId) {
+        QueryWrapper<SystemManagerRole> systemManagerRoleQueryWrapper = new QueryWrapper<>();
+        systemManagerRoleQueryWrapper.select("system_role_id");
+        systemManagerRoleQueryWrapper.eq("system_manager_id", systemManagerId);
+        List<String> systemManagerRoleIdList = systemManagerRoleService.listObjs(systemManagerRoleQueryWrapper, Object::toString);
+        return systemRoleService.getSystemPermissionByRoleId(new TreeSet<>(systemManagerRoleIdList));
     }
 
     @Override
@@ -65,12 +71,33 @@ public class SystemManagerServiceImpl extends ServiceImpl<SystemManagerMapper, S
 
         SystemManager systemManager = proxy.getById(systemManagerId);
 
-        List<SystemPermission> permissions = proxy.getAllSystemPermissionByManager(systemManager.getId());
+        List<SystemMenu> menus;
+        List<SystemPermission> permissions;
         List<String> regionIds = null;
-        if (StringUtils.hasText(systemManager.getRegionId())) {
-            regionIds = systemRegionService.getChildrenIdList(systemManager.getRegionId());
+        if (systemManager.getType() == SystemManagerType.SUPER_ACCOUNT) {
+            // 超级账号默认拥有所有权限
+            menus = systemMenuService.list(new LambdaQueryWrapper<SystemMenu>().orderByAsc(SystemMenu::getSortValue));
+            permissions = systemPermissionService.list();
+        } else {
+            // 普通账号
+            menus = proxy.getAllSystemMenuByManager(systemManager.getId());
+            permissions = proxy.getAllSystemPermissionByManager(systemManager.getId());
+            if (StringUtils.hasText(systemManager.getRegionId())) {
+                regionIds = systemRegionService.getChildrenIdList(systemManager.getRegionId());
+            }
         }
-        return new LoginSystemManager(systemManager, permissions, regionIds);
+        return new LoginSystemManager(systemManager, menus, permissions, regionIds);
+    }
+
+    @Override
+    public void refreshLoginInfo(List<String> systemManagerIdList) {
+        systemManagerIdList.forEach(managerId -> {
+            Object existToken = redisUtil.get("strix:system:manager:login_token:login:id_" + managerId);
+            if (existToken != null) {
+                LoginSystemManager loginSystemManager = this.getLoginInfo(managerId);
+                redisUtil.set("strix:system:manager:login_token:token:" + existToken, loginSystemManager);
+            }
+        });
     }
 
 }

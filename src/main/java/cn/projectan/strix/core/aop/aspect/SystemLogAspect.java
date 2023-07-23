@@ -8,6 +8,7 @@ import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.model.annotation.SysLog;
 import cn.projectan.strix.model.db.SystemLog;
 import cn.projectan.strix.model.db.SystemManager;
+import cn.projectan.strix.model.properties.StrixLogProperties;
 import cn.projectan.strix.utils.SecurityUtils;
 import cn.projectan.strix.utils.ServletUtils;
 import cn.projectan.strix.utils.async.AsyncFactory;
@@ -23,6 +24,8 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.core.NamedThreadLocal;
 import org.springframework.stereotype.Component;
 
@@ -33,6 +36,8 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Aspect
 @Component
+@EnableConfigurationProperties(StrixLogProperties.class)
+@ConditionalOnProperty(prefix = "strix.log", name = "enable", havingValue = "true")
 public class SystemLogAspect {
 
     private static final ThreadLocal<Long> TIME_THREADLOCAL = new NamedThreadLocal<Long>("Spend Time");

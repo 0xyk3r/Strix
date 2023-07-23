@@ -21,7 +21,7 @@ public class SystemPermissionListResp {
 
     public SystemPermissionListResp(List<SystemPermission> permissions) {
         for (SystemPermission sp : permissions) {
-            SystemPermissionListResp.SystemPermissionItem item = new SystemPermissionListResp.SystemPermissionItem(sp.getId(), sp.getName(), sp.getPermissionKey(), sp.getPermissionType(), sp.getDescription());
+            SystemPermissionListResp.SystemPermissionItem item = new SystemPermissionListResp.SystemPermissionItem(sp.getId(), sp.getName(), sp.getKey(), sp.getMenuId(), sp.getDescription());
             systemPermissionList.add(item);
         }
     }
@@ -35,9 +35,9 @@ public class SystemPermissionListResp {
 
         private String name;
 
-        private String permissionKey;
+        private String key;
 
-        private Integer permissionType;
+        private String menuId;
 
         private String description;
 

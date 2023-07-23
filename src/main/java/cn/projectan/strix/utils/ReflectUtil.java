@@ -74,11 +74,11 @@ public class ReflectUtil {
         try {
             Class<?> clazz = obj.getClass();
             Method setter = ReflectUtil.setter(clazz, field);
-            if (setter != null) {
+            if (setter != null && value != null) {
                 setter.invoke(obj, value);
             }
         } catch (Exception e) {
-            log.warn("ReflectUtil: 反射调用setter失败", e);
+            log.warn("ReflectUtil: 反射调用setter'" + field + "'失败", e);
         }
     }
 

@@ -45,7 +45,7 @@ public class SystemUserController extends BaseSystemController {
     private SystemUserRelationService systemUserRelationService;
 
     @GetMapping("")
-    @PreAuthorize("@ss.hasRead('System_User')")
+    @PreAuthorize("@ss.hasPermission('system:user')")
     @SysLog(operationGroup = "系统用户", operationName = "查询用户列表")
     public RetResult<SystemUserListResp> getSystemUserList(SystemUserListReq req) {
         QueryWrapper<SystemUser> systemUserQueryWrapper = new QueryWrapper<>();
@@ -65,7 +65,7 @@ public class SystemUserController extends BaseSystemController {
     }
 
     @GetMapping("{userId}")
-    @PreAuthorize("@ss.hasRead('System_User')")
+    @PreAuthorize("@ss.hasPermission('system:user')")
     @SysLog(operationGroup = "系统用户", operationName = "查询用户信息")
     public RetResult<SystemUserResp> getSystemUser(@PathVariable String userId) {
         Assert.notNull(userId, "参数错误");
@@ -76,7 +76,7 @@ public class SystemUserController extends BaseSystemController {
     }
 
     @PostMapping("modify/{userId}")
-    @PreAuthorize("@ss.hasWrite('System_User')")
+    @PreAuthorize("@ss.hasPermission('system:user:update')")
     @SysLog(operationGroup = "系统用户", operationName = "更改用户信息", operationType = SysLogOperType.UPDATE)
     public RetResult<Object> modifyField(@PathVariable String userId, @RequestBody SingleFieldModifyReq req) {
         SystemUser systemUser = systemUserService.getById(userId);
@@ -104,7 +104,7 @@ public class SystemUserController extends BaseSystemController {
     }
 
     @PostMapping("update")
-    @PreAuthorize("@ss.hasWrite('System_User')")
+    @PreAuthorize("@ss.hasPermission('system:user:add')")
     @SysLog(operationGroup = "系统用户", operationName = "新增用户", operationType = SysLogOperType.ADD)
     public RetResult<Object> update(@RequestBody @Validated(ValidationGroup.Insert.class) SystemUserUpdateReq req) {
         Assert.notNull(req, "参数错误");
@@ -127,7 +127,7 @@ public class SystemUserController extends BaseSystemController {
     }
 
     @PostMapping("update/{userId}")
-    @PreAuthorize("@ss.hasWrite('System_User')")
+    @PreAuthorize("@ss.hasPermission('system:user:update')")
     @SysLog(operationGroup = "系统用户", operationName = "修改用户", operationType = SysLogOperType.UPDATE)
     public RetResult<Object> update(@PathVariable String userId, @RequestBody @Validated(ValidationGroup.Update.class) SystemUserUpdateReq req) {
         Assert.hasText(userId, "参数错误");
@@ -143,7 +143,7 @@ public class SystemUserController extends BaseSystemController {
     }
 
     @PostMapping("remove/{userId}")
-    @PreAuthorize("@ss.hasWrite('System_User')")
+    @PreAuthorize("@ss.hasPermission('system:user:remove')")
     @SysLog(operationGroup = "系统用户", operationName = "删除用户", operationType = SysLogOperType.DELETE)
     public RetResult<Object> remove(@PathVariable String userId) {
         Assert.hasText(userId, "参数错误");

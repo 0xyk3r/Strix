@@ -43,14 +43,14 @@ public class SystemManagerUpdateReq {
      */
     @NotNull(groups = {ValidationGroup.Insert.class}, message = "管理人员状态未选择")
     @UpdateField
-    private Integer managerStatus;
+    private Integer status;
 
     /**
      * 管理人员类型 1超级账户 2子系统账户
      */
     @NotNull(groups = {ValidationGroup.Insert.class}, message = "管理人员类型未选择")
     @UpdateField
-    private Integer managerType;
+    private Integer type;
 
     /**
      * 平台账户拥有的地区权限

@@ -21,9 +21,9 @@ public class SystemManagerResp {
 
     private String loginName;
 
-    private Integer managerStatus;
+    private Integer status;
 
-    private Integer managerType;
+    private Integer type;
 
     private String regionId;
 

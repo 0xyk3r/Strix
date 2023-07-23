@@ -1,8 +1,6 @@
 package cn.projectan.strix.core.ss;
 
-import cn.projectan.strix.model.constant.SystemPermissionType;
-import cn.projectan.strix.model.db.SystemPermission;
-import cn.projectan.strix.utils.ListDiffUtil;
+import cn.projectan.strix.model.db.SystemMenu;
 import cn.projectan.strix.utils.SecurityUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -10,7 +8,7 @@ import org.springframework.util.StringUtils;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Set;
 
 /**
  * @author 安炯奕
@@ -19,87 +17,98 @@ import java.util.stream.Collectors;
 @Service("ss")
 public class SystemManagerSecurityService {
 
-    public static final String RW_SUFFIX = "/RW";
-
-    public static final String R_SUFFIX = "/R";
-
     /**
      * 验证用户是否具备某权限
      *
      * @param permission 权限字符串
      * @return 用户是否具备某权限
      */
-    public boolean hasWrite(final String permission) {
+    public boolean hasPermission(String permission) {
         if (!StringUtils.hasText(permission)) return false;
         if (SecurityUtils.isSuperAdmin()) return true;
 
-        List<SystemPermission> hasPermissions = SecurityUtils.getSystemPermission();
-        if (CollectionUtils.isEmpty(hasPermissions)) return false;
+        Set<String> hasPermissionSet = SecurityUtils.getHasPermissionSet();
+        if (CollectionUtils.isEmpty(hasPermissionSet)) return false;
 
-        return hasPermissions.stream()
-                .anyMatch(p -> p.getPermissionType().equals(SystemPermissionType.READ_WRITE) && p.getPermissionKey().equals(permission));
+        return hasPermissionSet.contains(permission);
     }
 
     /**
-     * 验证用户是否具备某权限
+     * 验证用户是否具有以下所有权限
      *
-     * @param permission 权限字符串
-     * @return 用户是否具备某权限
+     * @param permissions 权限字符串数组
+     * @return 用户是否具有以下所有权限
      */
-    public boolean hasRead(final String permission) {
-        if (!StringUtils.hasText(permission)) return false;
+    public boolean allPermission(String... permissions) {
+        if (permissions == null || permissions.length == 0) return false;
         if (SecurityUtils.isSuperAdmin()) return true;
 
-        List<SystemPermission> hasPermissions = SecurityUtils.getSystemPermission();
-        if (CollectionUtils.isEmpty(hasPermissions)) return false;
+        List<String> permissionList = Arrays.asList(permissions);
 
-        return hasPermissions.stream()
-                .anyMatch(p -> p.getPermissionKey().equals(permission));
+        Set<String> hasPermissionSet = SecurityUtils.getHasPermissionSet();
+        if (CollectionUtils.isEmpty(hasPermissionSet)) return false;
+
+        return hasPermissionSet.containsAll(permissionList);
     }
 
     /**
      * 验证用户是否具有以下任意一个权限
      *
-     * @param permissions 权限字符串
+     * @param permissions 权限字符串数组
      * @return 用户是否具有以下任意一个权限
      */
-    public boolean anyWrite(String... permissions) {
+    public boolean anyPermission(String... permissions) {
         if (permissions == null || permissions.length == 0) return false;
         if (SecurityUtils.isSuperAdmin()) return true;
 
-        List<SystemPermission> hasPermissions = SecurityUtils.getSystemPermission();
-        if (CollectionUtils.isEmpty(hasPermissions)) return false;
-
         List<String> permissionList = Arrays.asList(permissions);
-        List<String> hasPermissionList = hasPermissions.stream()
-                .filter(p -> p.getPermissionType().equals(SystemPermissionType.READ_WRITE))
-                .map(SystemPermission::getPermissionKey)
-                .collect(Collectors.toList());
 
-        List<String> diffList = ListDiffUtil.subList(permissionList, hasPermissionList);
-        return diffList.size() == 0;
+        Set<String> hasPermissionSet = SecurityUtils.getHasPermissionSet();
+        if (CollectionUtils.isEmpty(hasPermissionSet)) return false;
+
+        return hasPermissionSet.stream().anyMatch(permissionList::contains);
     }
 
     /**
-     * 验证用户是否具有以下任意一个权限
+     * 验证用户是否具备某菜单权限
      *
-     * @param permissions 权限字符串
-     * @return 用户是否具有以下任意一个权限
+     * @param menu 菜单权限字符串
+     * @return 用户是否具备某菜单权限
+     * @deprecated 请使用 {@link #hasPermission(String)}
      */
-    public boolean anyRead(String... permissions) {
-        if (permissions == null || permissions.length == 0) return false;
+    @Deprecated
+    public boolean hasMenu(String menu) {
+        if (!StringUtils.hasText(menu)) return false;
         if (SecurityUtils.isSuperAdmin()) return true;
 
-        List<SystemPermission> hasPermissions = SecurityUtils.getSystemPermission();
-        if (CollectionUtils.isEmpty(hasPermissions)) return false;
+        List<SystemMenu> hasMenus = SecurityUtils.getSystemMenus();
+        if (CollectionUtils.isEmpty(hasMenus)) return false;
 
-        List<String> permissionList = Arrays.asList(permissions);
-        List<String> hasPermissionList = hasPermissions.stream()
-                .map(SystemPermission::getPermissionKey)
-                .collect(Collectors.toList());
+        return hasMenus.stream()
+                .anyMatch(p -> p.getKey().equals(menu));
+    }
 
-        List<String> diffList = ListDiffUtil.subList(permissionList, hasPermissionList);
-        return diffList.size() == 0;
+    /**
+     * 验证用户是否具有以下任意一个菜单权限
+     *
+     * @param menus 菜单权限字符串数组
+     * @return 用户是否具有以下任意一个菜单权限
+     * @deprecated 请使用 {@link #anyPermission(String...)}
+     */
+    @Deprecated
+    public boolean anyMenu(String... menus) {
+        if (menus == null || menus.length == 0) return false;
+        if (SecurityUtils.isSuperAdmin()) return true;
+
+        List<SystemMenu> hasMenus = SecurityUtils.getSystemMenus();
+        if (CollectionUtils.isEmpty(hasMenus)) return false;
+
+        List<String> menuList = Arrays.asList(menus);
+        List<String> hasMenuList = hasMenus.stream()
+                .map(SystemMenu::getKey)
+                .toList();
+
+        return hasMenuList.stream().anyMatch(menuList::contains);
     }
 
 }

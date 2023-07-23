@@ -21,7 +21,7 @@ import java.io.Serial;
 public class SystemManagerRole extends BaseModel {
 
     @Serial
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
 
     /**
      * 系统管理员ID
@@ -31,7 +31,7 @@ public class SystemManagerRole extends BaseModel {
     /**
      * 系统管理员角色ID
      */
-    private String systemManagerRoleId;
+    private String systemRoleId;
 
 
 }

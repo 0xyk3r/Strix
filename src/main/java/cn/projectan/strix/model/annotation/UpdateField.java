@@ -20,4 +20,9 @@ public @interface UpdateField {
      */
     boolean allowEmpty() default false;
 
+    /**
+     * 内容为 null 时，默认填充的值
+     */
+    String defaultValue() default "null";
+
 }

@@ -3,6 +3,7 @@ package cn.projectan.strix.core.ss.details;
 import cn.projectan.strix.model.constant.SystemManagerStatus;
 import cn.projectan.strix.model.constant.SystemManagerType;
 import cn.projectan.strix.model.db.SystemManager;
+import cn.projectan.strix.model.db.SystemMenu;
 import cn.projectan.strix.model.db.SystemPermission;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
@@ -28,26 +29,29 @@ public class LoginSystemManager implements UserDetails {
 
     private SystemManager systemManager;
 
+    private List<SystemMenu> menus;
+
     private List<SystemPermission> permissions;
 
     private List<String> regionIds;
 
-    public LoginSystemManager(SystemManager systemManager, List<SystemPermission> permissions, List<String> regionIds) {
+    @JsonIgnore
+    private List<GrantedAuthority> authorities;
+
+    public LoginSystemManager(SystemManager systemManager, List<SystemMenu> menus, List<SystemPermission> permissions, List<String> regionIds) {
         this.systemManager = systemManager;
+        this.menus = menus;
         this.permissions = permissions;
         this.regionIds = regionIds;
     }
-
-    @JsonIgnore
-    private List<GrantedAuthority> authorities;
 
     @Override
     @JsonIgnore
     public Collection<? extends GrantedAuthority> getAuthorities() {
         if (this.authorities == null) {
-            this.authorities = this.permissions.stream().map(p -> new SimpleGrantedAuthority(p.getPermissionKey())).collect(Collectors.toList());
+            this.authorities = this.permissions.stream().map(p -> new SimpleGrantedAuthority(p.getKey())).collect(Collectors.toList());
             this.authorities.add(new SimpleGrantedAuthority("ROLE_SYSTEM_MANAGER"));
-            if (systemManager.getManagerType() == SystemManagerType.SUPER_ACCOUNT) {
+            if (systemManager.getType() == SystemManagerType.SUPER_ACCOUNT) {
                 this.authorities.add(new SimpleGrantedAuthority("ROLE_SUPER_SYSTEM_MANAGER"));
             }
         }
@@ -87,7 +91,7 @@ public class LoginSystemManager implements UserDetails {
     @Override
     @JsonIgnore
     public boolean isEnabled() {
-        return Objects.equals(systemManager.getManagerStatus(), SystemManagerStatus.NORMAL);
+        return Objects.equals(systemManager.getStatus(), SystemManagerStatus.NORMAL);
     }
 
 }

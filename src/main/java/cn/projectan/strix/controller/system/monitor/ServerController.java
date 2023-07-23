@@ -23,7 +23,7 @@ import java.util.Collections;
 public class ServerController extends BaseSystemController {
 
     @GetMapping()
-    @PreAuthorize("@ss.hasRead('System_Monitor_Server')")
+    @PreAuthorize("@ss.hasPermission('system:monitor:server')")
     @SysLog(operationGroup = "系统运行信息", operationName = "查询系统运行信息")
     public RetResult<Object> getServerInfo() {
         Server server = new Server();

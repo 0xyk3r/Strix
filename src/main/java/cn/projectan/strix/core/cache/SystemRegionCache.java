@@ -1,4 +1,4 @@
-package cn.projectan.strix.core.ramcache;
+package cn.projectan.strix.core.cache;
 
 import cn.projectan.strix.utils.RedisUtil;
 import lombok.extern.slf4j.Slf4j;
