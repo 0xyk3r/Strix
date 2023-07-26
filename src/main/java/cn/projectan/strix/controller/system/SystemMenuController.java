@@ -22,8 +22,8 @@ import cn.projectan.strix.utils.UniqueDetectionTool;
 import cn.projectan.strix.utils.UpdateConditionBuilder;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
@@ -41,17 +41,13 @@ import java.util.Set;
 @Slf4j
 @RestController
 @RequestMapping("system/menu")
+@RequiredArgsConstructor
 public class SystemMenuController extends BaseSystemController {
 
-    @Autowired
-    private SystemMenuService systemMenuService;
-    @Autowired
-    private SystemRoleMenuService systemRoleMenuService;
-    @Autowired
-    private SystemPermissionService systemPermissionService;
-
-    @Autowired
-    private SystemMenuCache systemMenuCache;
+    private final SystemMenuService systemMenuService;
+    private final SystemRoleMenuService systemRoleMenuService;
+    private final SystemPermissionService systemPermissionService;
+    private final SystemMenuCache systemMenuCache;
 
     @GetMapping("")
     @PreAuthorize("@ss.hasPermission('system:menu')")
@@ -85,7 +81,7 @@ public class SystemMenuController extends BaseSystemController {
         UpdateWrapper<SystemMenu> systemMenuUpdateWrapper = new UpdateWrapper<>();
         systemMenuUpdateWrapper.eq("id", menuId);
 
-        if (req.getField().equals("icon")) {
+        if ("icon".equals(req.getField())) {
             systemMenuUpdateWrapper.set("icon", req.getValue());
         } else {
             return RetMarker.makeErrRsp("参数错误");
@@ -182,7 +178,9 @@ public class SystemMenuController extends BaseSystemController {
         menuIds.add(parentId);
 
         SystemMenu parentSystemMenu = menus.stream().filter(m -> m.getId().equals(parentId)).findFirst().orElse(null);
-        if (parentSystemMenu == null) return null;
+        if (parentSystemMenu == null) {
+            return null;
+        }
 
         List<String> subMenuIds = menus.stream().filter(m -> m.getParentId().equals(parentId)).map(SystemMenu::getId).toList();
         for (String subMenuId : subMenuIds) {

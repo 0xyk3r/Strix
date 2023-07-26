@@ -13,7 +13,7 @@ import java.util.concurrent.locks.ReentrantLock;
 @Component
 public class SynchronizedUtil {
 
-    Map<String, ReentrantLock> mutexCache = new ConcurrentHashMap<>();
+    private final Map<String, ReentrantLock> mutexCache = new ConcurrentHashMap<>();
 
     public void exec(String key, Runnable runnable) {
         ReentrantLock mutex = null;

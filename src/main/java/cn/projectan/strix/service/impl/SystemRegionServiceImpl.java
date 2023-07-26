@@ -8,7 +8,7 @@ import cn.projectan.strix.utils.SpringUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,10 +26,10 @@ import java.util.*;
  * @since 2021-09-29
  */
 @Service
+@RequiredArgsConstructor
 public class SystemRegionServiceImpl extends ServiceImpl<SystemRegionMapper, SystemRegion> implements SystemRegionService {
 
-    @Autowired
-    private SystemRegionCache systemRegionCache;
+    private final SystemRegionCache systemRegionCache;
 
     @Cacheable(value = "strix:system:region:queryRegionById", key = "#id")
     @Override
@@ -98,10 +98,10 @@ public class SystemRegionServiceImpl extends ServiceImpl<SystemRegionMapper, Sys
         // 找出子节点信息集合中的自身节点（利用条件level最小查找）
         SystemRegion currRegion = relevantRegions.stream().min(Comparator.comparing(SystemRegion::getLevel)).orElse(null);
         Assert.notNull(currRegion, "原系统地区信息不存在");
-        // 构建新节点fullpath、fullname
+        // 构建新节点 fullPath、fullName
         String newCurrRegionPath = newParentRegion.getFullPath() + systemRegion.getId() + ",";
         String newCurrRegionName = newParentRegion.getFullName() + "-" + systemRegion.getName();
-        // 新节点level字段偏移量
+        // 新节点 level 字段偏移量
         Integer newLevelOffset = newParentRegion.getLevel() - systemRegion.getLevel() + 1;
         // 遍历修改子节点（包括当前）
         relevantRegions.forEach(r -> {
@@ -113,11 +113,11 @@ public class SystemRegionServiceImpl extends ServiceImpl<SystemRegionMapper, Sys
         Assert.isTrue(systemRegionService.updateBatchById(relevantRegions), "保存系统地区相关信息失败");
         // 保存被修改的节点数据（必须在下面，否则会被覆盖）
         Assert.isTrue(systemRegionService.update(updateWrapper), "保存系统地区失败");
-        // 取原父节点的fullpath遍历刷新缓存
+        // 取原父节点的 fullPath 遍历刷新缓存
         for (String rid : systemRegion.getFullPath().split(",")) {
             systemRegionCache.refreshRedisCacheById(rid);
         }
-        // 获取相关节点中的最下级节点的fullpath并刷新缓存
+        // 获取相关节点中的最下级节点的 fullPath 并刷新缓存
         relevantRegions.stream().max(Comparator.comparing(SystemRegion::getLevel)).map(SystemRegion::getFullPath).ifPresent(rfp -> {
             for (String rid : rfp.split(",")) {
                 systemRegionCache.refreshRedisCacheById(rid);

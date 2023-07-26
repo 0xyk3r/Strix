@@ -6,8 +6,8 @@ import cn.projectan.strix.service.SystemManagerService;
 import cn.projectan.strix.service.SystemPermissionService;
 import cn.projectan.strix.utils.RedisUtil;
 import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -21,14 +21,12 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class SystemPermissionCache {
 
-    @Autowired
-    private SystemManagerService systemManagerService;
-    @Autowired
-    private SystemPermissionService systemPermissionService;
-    @Autowired
-    private RedisUtil redisUtil;
+    private final SystemManagerService systemManagerService;
+    private final SystemPermissionService systemPermissionService;
+    private final RedisUtil redisUtil;
 
     private List<SystemPermission> instance = new ArrayList<>();
 

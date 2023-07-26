@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 public class SystemMenuResp {
 
-    private List<SystemMenuItem> menuList = new ArrayList<>();
+    private final List<SystemMenuItem> menuList = new ArrayList<>();
 
     public SystemMenuResp(List<SystemMenu> menus) {
         for (SystemMenu sm : menus) {

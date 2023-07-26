@@ -12,9 +12,9 @@ import cn.projectan.strix.model.request.system.dict.DictUpdateReq;
 import cn.projectan.strix.model.response.common.CommonDictResp;
 import cn.projectan.strix.model.response.system.dict.DictDataListResp;
 import cn.projectan.strix.service.DictService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.reflections.Reflections;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -39,19 +39,17 @@ import java.util.Set;
 @Order(20)
 @Component
 @ConditionalOnBean(StrixOssConfig.class)
+@RequiredArgsConstructor
 @EnableConfigurationProperties(StrixPackageScanProperties.class)
 public class DictSyncInit implements ApplicationRunner {
 
     private final List<String> STRIX_CONSTANT_PACKAGE = new ArrayList<>();
 
-    @Autowired
-    private StrixPackageScanProperties strixPackageScanProperties;
-
-    @Autowired
-    private DictService dictService;
+    private final StrixPackageScanProperties strixPackageScanProperties;
+    private final DictService dictService;
 
     @Override
-    public void run(ApplicationArguments args) throws Exception {
+    public void run(ApplicationArguments args) {
         STRIX_CONSTANT_PACKAGE.add("cn.projectan.strix.model.constant");
         STRIX_CONSTANT_PACKAGE.addAll(List.of(strixPackageScanProperties.getConstant()));
 
@@ -120,7 +118,7 @@ public class DictSyncInit implements ApplicationRunner {
 
         if (dictResp == null) {
             dictService.saveDict(dict);
-            dictDataList.forEach(dictData -> dictService.saveDictData(dictData));
+            dictDataList.forEach(dictService::saveDictData);
         } else {
             Dict dbDict = dictService.getById(dictResp.getId());
             try {

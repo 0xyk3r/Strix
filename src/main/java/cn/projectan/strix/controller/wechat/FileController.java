@@ -8,8 +8,8 @@ import cn.projectan.strix.model.annotation.IgnoreDataEncryption;
 import cn.projectan.strix.model.db.OssFile;
 import cn.projectan.strix.service.OssFileService;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,10 +22,10 @@ import java.util.Map;
 @Slf4j
 @RestController
 @RequestMapping(value = {"wechat/file", "wechat/{wechatConfigId}/file"})
+@RequiredArgsConstructor
 public class FileController extends BaseWechatController {
 
-    @Autowired
-    private OssFileService ossFileService;
+    private final OssFileService ossFileService;
 
     @IgnoreDataEncryption
     @PostMapping("upload")

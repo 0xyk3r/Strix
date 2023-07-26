@@ -29,8 +29,8 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -46,16 +46,13 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequestMapping("system/oss")
+@RequiredArgsConstructor
 public class OssController extends BaseSystemController {
 
-    @Autowired
-    private OssConfigService ossConfigService;
-    @Autowired
-    private OssBucketService ossBucketService;
-    @Autowired
-    private OssFileService ossFileService;
-    @Autowired
-    private OssFileGroupService ossFileGroupService;
+    private final OssConfigService ossConfigService;
+    private final OssBucketService ossBucketService;
+    private final OssFileService ossFileService;
+    private final OssFileGroupService ossFileGroupService;
 
     @GetMapping("")
     @PreAuthorize("@ss.hasPermission('system:module:oss:config')")

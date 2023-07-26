@@ -36,8 +36,6 @@ public class UniqueDetectionTool {
      */
     public static <T> void check(T obj) {
         try {
-            String id = null;
-
             Class<?> clazz = obj.getClass();
             Field[] fields = clazz.getDeclaredFields();
             if (fields.length == 0) {
@@ -46,7 +44,7 @@ public class UniqueDetectionTool {
             }
             // 有ID代表修改，根据ID排除自身
             // FIXME 这里由于 ReflectUtil 内部异常捕获机制，如果 ID 字段或 getId 方法不存在，会导致逻辑错误
-            id = ReflectUtil.getString(obj, "id");
+            String id = ReflectUtil.getString(obj, "id");
             // 遍历需要重复检查的字段
             Map<String, Set<String>> groups = new HashMap<>();
             Map<String, String> names = new HashMap<>();

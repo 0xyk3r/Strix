@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
+import java.io.Serial;
 import java.time.LocalDateTime;
 
 /**
@@ -27,6 +28,7 @@ import java.time.LocalDateTime;
 @TableName("sys_sms_sign")
 public class SmsSign extends BaseModel {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /**

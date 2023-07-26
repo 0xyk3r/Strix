@@ -43,7 +43,7 @@ public interface OssFileService extends IService<OssFile> {
      * @param downloaderType 下载者类型 见{@link cn.projectan.strix.model.constant.StrixOssFileGroupSecretType StrixOssFileGroupSecretType}
      * @param downloaderId   下载者ID
      * @param defaultUrl     默认URL
-     * @return
+     * @return 文件访问URL
      */
     String getUrl(String fileId, Integer downloaderType, String downloaderId, String defaultUrl);
 

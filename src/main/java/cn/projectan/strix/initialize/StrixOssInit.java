@@ -3,8 +3,8 @@ package cn.projectan.strix.initialize;
 import cn.projectan.strix.config.StrixOssConfig;
 import cn.projectan.strix.model.db.OssConfig;
 import cn.projectan.strix.service.OssConfigService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -21,10 +21,10 @@ import java.util.List;
 @Order(10)
 @Component
 @ConditionalOnBean(StrixOssConfig.class)
+@RequiredArgsConstructor
 public class StrixOssInit implements ApplicationRunner {
 
-    @Autowired
-    private OssConfigService ossConfigService;
+    private final OssConfigService ossConfigService;
 
     @Override
     public void run(ApplicationArguments args) {

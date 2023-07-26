@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -34,28 +33,24 @@ public class SmsSignServiceImpl extends ServiceImpl<SmsSignMapper, SmsSign> impl
         List<String> dbSignNameList = dbSignList.stream().map(SmsSign::getName).toList();
         List<String> signNameList = signList.stream().map(StrixSmsSign::getName).toList();
 
-        KeysDiffHandler.handle(dbSignNameList, signNameList, ((removeKeys, addKeys) -> {
-            if (removeKeys.size() > 0) {
-                QueryWrapper<SmsSign> removeQueryWrapper = new QueryWrapper<>();
-                removeQueryWrapper.eq("config_key", configKey);
-                removeQueryWrapper.in("name", removeKeys);
-                Assert.isTrue(remove(removeQueryWrapper), "Strix SMS: 同步删除签名失败.");
-            }
-            if (addKeys.size() > 0) {
-                List<SmsSign> smsSignList = new ArrayList<>();
-                addKeys.forEach(k -> {
-                    StrixSmsSign strixSmsSign = signList.stream().filter(s -> s.getName().equals(k)).findFirst().get();
-                    SmsSign smsSign = new SmsSign();
-                    smsSign.setConfigKey(configKey);
-                    smsSign.setName(k);
-                    smsSign.setStatus(strixSmsSign.getStatus());
-                    smsSign.setCreateTime(strixSmsSign.getCreateTime());
-                    smsSign.setCreateBy("System");
-                    smsSign.setUpdateBy("System");
-                    smsSignList.add(smsSign);
-                });
-                Assert.isTrue(saveBatch(smsSignList), "Strix SMS: 同步增加签名失败.");
-            }
-        }));
+        KeysDiffHandler.handle(dbSignNameList, signNameList,
+                (removeKeys) -> {
+                    QueryWrapper<SmsSign> removeQueryWrapper = new QueryWrapper<>();
+                    removeQueryWrapper.eq("config_key", configKey);
+                    removeQueryWrapper.in("name", removeKeys);
+                    Assert.isTrue(remove(removeQueryWrapper), "Strix SMS: 同步删除签名失败.");
+                },
+                (addKeys) -> {
+                    List<SmsSign> smsSignList = signList.stream()
+                            .filter(s -> addKeys.contains(s.getName()))
+                            .map(s -> new SmsSign(s.getCreateTime(), "System", null, "System")
+                                    .setConfigKey(configKey)
+                                    .setName(s.getName())
+                                    .setStatus(s.getStatus())
+                            )
+                            .toList();
+                    Assert.isTrue(saveBatch(smsSignList), "Strix SMS: 同步增加签名失败.");
+                }
+        );
     }
 }

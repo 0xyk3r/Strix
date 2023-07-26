@@ -17,8 +17,8 @@ import cn.projectan.strix.utils.UpdateConditionBuilder;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -32,12 +32,11 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 @RestController
 @RequestMapping("system/oss/bucket")
+@RequiredArgsConstructor
 public class OssBucketController extends BaseSystemController {
 
-    @Autowired
-    private OssBucketService ossBucketService;
-    @Autowired
-    private StrixOssTask strixOssTask;
+    private final OssBucketService ossBucketService;
+    private final StrixOssTask strixOssTask;
 
     @GetMapping("")
     @PreAuthorize("@ss.hasPermission('system:module:oss:bucket')")

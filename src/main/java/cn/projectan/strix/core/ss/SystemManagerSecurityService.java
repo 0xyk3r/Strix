@@ -24,11 +24,17 @@ public class SystemManagerSecurityService {
      * @return 用户是否具备某权限
      */
     public boolean hasPermission(String permission) {
-        if (!StringUtils.hasText(permission)) return false;
-        if (SecurityUtils.isSuperAdmin()) return true;
+        if (!StringUtils.hasText(permission)) {
+            return false;
+        }
+        if (SecurityUtils.isSuperAdmin()) {
+            return true;
+        }
 
         Set<String> hasPermissionSet = SecurityUtils.getHasPermissionSet();
-        if (CollectionUtils.isEmpty(hasPermissionSet)) return false;
+        if (CollectionUtils.isEmpty(hasPermissionSet)) {
+            return false;
+        }
 
         return hasPermissionSet.contains(permission);
     }
@@ -40,13 +46,19 @@ public class SystemManagerSecurityService {
      * @return 用户是否具有以下所有权限
      */
     public boolean allPermission(String... permissions) {
-        if (permissions == null || permissions.length == 0) return false;
-        if (SecurityUtils.isSuperAdmin()) return true;
+        if (permissions == null || permissions.length == 0) {
+            return false;
+        }
+        if (SecurityUtils.isSuperAdmin()) {
+            return true;
+        }
 
         List<String> permissionList = Arrays.asList(permissions);
 
         Set<String> hasPermissionSet = SecurityUtils.getHasPermissionSet();
-        if (CollectionUtils.isEmpty(hasPermissionSet)) return false;
+        if (CollectionUtils.isEmpty(hasPermissionSet)) {
+            return false;
+        }
 
         return hasPermissionSet.containsAll(permissionList);
     }
@@ -58,13 +70,19 @@ public class SystemManagerSecurityService {
      * @return 用户是否具有以下任意一个权限
      */
     public boolean anyPermission(String... permissions) {
-        if (permissions == null || permissions.length == 0) return false;
-        if (SecurityUtils.isSuperAdmin()) return true;
+        if (permissions == null || permissions.length == 0) {
+            return false;
+        }
+        if (SecurityUtils.isSuperAdmin()) {
+            return true;
+        }
 
         List<String> permissionList = Arrays.asList(permissions);
 
         Set<String> hasPermissionSet = SecurityUtils.getHasPermissionSet();
-        if (CollectionUtils.isEmpty(hasPermissionSet)) return false;
+        if (CollectionUtils.isEmpty(hasPermissionSet)) {
+            return false;
+        }
 
         return hasPermissionSet.stream().anyMatch(permissionList::contains);
     }
@@ -78,11 +96,17 @@ public class SystemManagerSecurityService {
      */
     @Deprecated
     public boolean hasMenu(String menu) {
-        if (!StringUtils.hasText(menu)) return false;
-        if (SecurityUtils.isSuperAdmin()) return true;
+        if (!StringUtils.hasText(menu)) {
+            return false;
+        }
+        if (SecurityUtils.isSuperAdmin()) {
+            return true;
+        }
 
         List<SystemMenu> hasMenus = SecurityUtils.getSystemMenus();
-        if (CollectionUtils.isEmpty(hasMenus)) return false;
+        if (CollectionUtils.isEmpty(hasMenus)) {
+            return false;
+        }
 
         return hasMenus.stream()
                 .anyMatch(p -> p.getKey().equals(menu));
@@ -97,11 +121,17 @@ public class SystemManagerSecurityService {
      */
     @Deprecated
     public boolean anyMenu(String... menus) {
-        if (menus == null || menus.length == 0) return false;
-        if (SecurityUtils.isSuperAdmin()) return true;
+        if (menus == null || menus.length == 0) {
+            return false;
+        }
+        if (SecurityUtils.isSuperAdmin()) {
+            return true;
+        }
 
         List<SystemMenu> hasMenus = SecurityUtils.getSystemMenus();
-        if (CollectionUtils.isEmpty(hasMenus)) return false;
+        if (CollectionUtils.isEmpty(hasMenus)) {
+            return false;
+        }
 
         List<String> menuList = Arrays.asList(menus);
         List<String> hasMenuList = hasMenus.stream()

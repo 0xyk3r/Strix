@@ -21,8 +21,8 @@ import com.ijpay.wxpay.enums.v3.BasePayApiEnum;
 import com.ijpay.wxpay.model.v3.Amount;
 import com.ijpay.wxpay.model.v3.Payer;
 import com.ijpay.wxpay.model.v3.UnifiedOrderModel;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
@@ -41,12 +41,11 @@ import java.util.Map;
  */
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class PaymentOrderServiceImpl extends ServiceImpl<PaymentOrderMapper, PaymentOrder> implements PaymentOrderService {
 
-    @Autowired
-    private GlobalPaymentConfig globalPaymentConfig;
-    @Autowired
-    private ObjectMapper objectMapper;
+    private final GlobalPaymentConfig globalPaymentConfig;
+    private final ObjectMapper objectMapper;
 
     /**
      * 生成支付订单

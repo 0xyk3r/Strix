@@ -7,7 +7,7 @@ package cn.projectan.strix.utils;
 public class NumUtils {
 
     /**
-     * 判断Integer是否非空且大于0
+     * 判断 Integer 是否非空且大于0
      *
      * @param i 需要判断的值
      * @return 是否非空且大于0
@@ -16,7 +16,13 @@ public class NumUtils {
         return i != null && i > 0;
     }
 
-    public static boolean isNonnegativeNumber(Integer i) {
+    /**
+     * 判断 Integer 是否非空且大于等于0
+     *
+     * @param i 需要判断的值
+     * @return 是否非空且大于等于0
+     */
+    public static boolean isNonNegativeNumber(Integer i) {
         return i != null && i >= 0;
     }
 

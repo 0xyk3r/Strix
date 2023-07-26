@@ -18,8 +18,8 @@ import cn.projectan.strix.utils.wechat.auth.WechatUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.Assert;
@@ -45,23 +45,17 @@ import java.util.Map;
 @Slf4j
 @Controller
 @RequestMapping("wechat/{wechatConfigId}")
+@RequiredArgsConstructor
 public class WechatController {
 
     @Value("${spring.profiles.active}")
     private String env;
 
-    @Autowired
-    private SystemUserService systemUserService;
-
-    @Autowired
-    private WechatUserService wechatUserService;
-
-    @Autowired
-    private RedisUtil redisUtil;
-    @Autowired
-    private WechatUtils wechatUtils;
-    @Autowired
-    private GlobalWechatConfig globalWechatConfig;
+    private final SystemUserService systemUserService;
+    private final WechatUserService wechatUserService;
+    private final RedisUtil redisUtil;
+    private final WechatUtils wechatUtils;
+    private final GlobalWechatConfig globalWechatConfig;
 
     /**
      * 统一跳转入口

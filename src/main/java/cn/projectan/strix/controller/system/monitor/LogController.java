@@ -11,8 +11,8 @@ import cn.projectan.strix.service.SystemLogService;
 import cn.projectan.strix.utils.NumUtils;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,10 +26,10 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @RestController
 @RequestMapping("system/monitor/log")
+@RequiredArgsConstructor
 public class LogController extends BaseSystemController {
 
-    @Autowired
-    private SystemLogService systemLogService;
+    private final SystemLogService systemLogService;
 
     @GetMapping()
     @PreAuthorize("@ss.hasPermission('system:monitor:log')")

@@ -23,14 +23,13 @@ public interface SystemUserService extends IService<SystemUser> {
     SystemUser createSystemUser(String nickname, String phoneNumber);
 
     /**
-     * 绑定第三方凭条账号
+     * 绑定第三方平台账号
      *
      * @param systemUserId 本系统用户id
      * @param relationType 都三方平台类型
      * @param relationId   第三方平台用户id
-     * @return 绑定成功状态
      */
-    boolean bindThirdUser(String systemUserId, Integer relationType, String relationId);
+    void bindThirdUser(String systemUserId, Integer relationType, String relationId);
 
     /**
      * 获取关联的SystemUser对象 带缓存

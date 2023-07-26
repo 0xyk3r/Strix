@@ -10,7 +10,7 @@ import cn.projectan.strix.model.annotation.DictData;
 @Dict(key = "DictDataType", value = "系统字典-数据类型")
 public interface DictDataType {
 
-    @DictData(label = "字符串", sort = 1, style = DictDataStyle.DEFALUT)
+    @DictData(label = "字符串", sort = 1, style = DictDataStyle.DEFAULT)
     int STRING = 1;
 
     @DictData(label = "整数", sort = 2, style = DictDataStyle.INFO)

@@ -6,9 +6,9 @@ import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.model.annotation.SysLog;
 import cn.projectan.strix.model.constant.monitor.CacheConstants;
 import cn.projectan.strix.model.other.monitor.cache.SystemCache;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.connection.RedisServerCommands;
 import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -24,10 +24,10 @@ import java.util.*;
 @Slf4j
 @RestController
 @RequestMapping("system/monitor/cache")
+@RequiredArgsConstructor
 public class CacheController extends BaseSystemController {
 
-    @Autowired
-    private RedisTemplate<String, Object> redisTemplate;
+    private final RedisTemplate<String, Object> redisTemplate;
 
     private final static List<SystemCache> caches = new ArrayList<>();
 

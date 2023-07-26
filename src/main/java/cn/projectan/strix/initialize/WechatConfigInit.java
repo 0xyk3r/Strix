@@ -3,8 +3,8 @@ package cn.projectan.strix.initialize;
 import cn.projectan.strix.config.GlobalWechatConfig;
 import cn.projectan.strix.model.db.WechatConfig;
 import cn.projectan.strix.service.WechatConfigService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -21,12 +21,11 @@ import java.util.List;
 @Order(value = 10)
 @Component
 @ConditionalOnProperty(prefix = "strix.module", name = "auth", havingValue = "true")
+@RequiredArgsConstructor
 public class WechatConfigInit implements ApplicationRunner {
 
-    @Autowired
-    private WechatConfigService wechatConfigService;
-    @Autowired
-    private GlobalWechatConfig globalWechatConfig;
+    private final WechatConfigService wechatConfigService;
+    private final GlobalWechatConfig globalWechatConfig;
 
     @Override
     public void run(ApplicationArguments args) {

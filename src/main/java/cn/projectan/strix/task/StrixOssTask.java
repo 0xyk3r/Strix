@@ -7,8 +7,8 @@ import cn.projectan.strix.model.system.StrixOssBucket;
 import cn.projectan.strix.service.OssBucketService;
 import cn.projectan.strix.service.OssConfigService;
 import cn.projectan.strix.utils.KeysDiffHandler;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -26,14 +26,12 @@ import java.util.Set;
 @Component
 @EnableScheduling
 @ConditionalOnBean(StrixOssConfig.class)
+@RequiredArgsConstructor
 public class StrixOssTask {
 
-    @Autowired
-    private StrixOssConfig strixOssConfig;
-    @Autowired
-    private OssConfigService ossConfigService;
-    @Autowired
-    private OssBucketService ossBucketService;
+    private final StrixOssConfig strixOssConfig;
+    private final OssConfigService ossConfigService;
+    private final OssBucketService ossBucketService;
 
     @Scheduled(cron = "0 0/5 * * * ?")
     public void refreshConfig() {
@@ -42,12 +40,11 @@ public class StrixOssTask {
         Set<String> instanceKeySet = strixOssConfig.getInstanceKeySet();
 
         KeysDiffHandler.handle(instanceKeySet, ossConfigKeyList,
-                (removeKeys) -> {
-                    removeKeys.forEach(key -> {
-                        Optional.ofNullable(strixOssConfig.getInstance(key)).ifPresent(StrixOssClient::close);
-                        strixOssConfig.removeInstance(key);
-                    });
-                }, (addKeys) -> {
+                (removeKeys) -> removeKeys.forEach(key -> {
+                    Optional.ofNullable(strixOssConfig.getInstance(key)).ifPresent(StrixOssClient::close);
+                    strixOssConfig.removeInstance(key);
+                }),
+                (addKeys) -> {
                     List<OssConfig> addSmsConfigList = ossConfigList.stream().filter(ossConfig -> addKeys.contains(ossConfig.getKey())).toList();
                     ossConfigService.createInstance(addSmsConfigList);
                 });

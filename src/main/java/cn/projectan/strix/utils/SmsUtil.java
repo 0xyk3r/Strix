@@ -6,8 +6,8 @@ import cn.projectan.strix.model.db.SmsLog;
 import cn.projectan.strix.model.system.StrixSmsSign;
 import cn.projectan.strix.model.system.StrixSmsTemplate;
 import cn.projectan.strix.service.SmsLogService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
@@ -23,12 +23,11 @@ import java.util.List;
 @Slf4j
 @Component
 @ConditionalOnBean(StrixSmsConfig.class)
+@RequiredArgsConstructor
 public class SmsUtil {
 
-    @Autowired
-    private SmsLogService smsLogService;
-    @Autowired
-    private StrixSmsConfig strixSmsConfig;
+    private final SmsLogService smsLogService;
+    private final StrixSmsConfig strixSmsConfig;
 
     public void send(SmsLog sms) {
         StrixSmsClient client = strixSmsConfig.getInstance(sms.getConfigKey());

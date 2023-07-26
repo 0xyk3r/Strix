@@ -1,8 +1,8 @@
 package cn.projectan.strix.task;
 
 import cn.projectan.strix.utils.RedisUtil;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -17,10 +17,10 @@ import org.springframework.stereotype.Component;
 @Component
 @EnableScheduling
 @ConditionalOnBean(RedisTemplate.class)
+@RequiredArgsConstructor
 public class RedisKeepaliveTask {
 
-    @Autowired
-    private RedisUtil redisUtil;
+    private final RedisUtil redisUtil;
 
     @Scheduled(cron = "0/50 * * * * ?")
     public void keepalive() {

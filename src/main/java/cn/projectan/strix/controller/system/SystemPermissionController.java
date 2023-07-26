@@ -19,8 +19,8 @@ import cn.projectan.strix.utils.UniqueDetectionTool;
 import cn.projectan.strix.utils.UpdateConditionBuilder;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
@@ -35,15 +35,12 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequestMapping("system/permission")
+@RequiredArgsConstructor
 public class SystemPermissionController extends BaseSystemController {
 
-    @Autowired
-    private SystemPermissionService systemPermissionService;
-    @Autowired
-    private SystemRolePermissionService systemRolePermissionService;
-
-    @Autowired
-    private SystemPermissionCache systemPermissionCache;
+    private final SystemPermissionService systemPermissionService;
+    private final SystemRolePermissionService systemRolePermissionService;
+    private final SystemPermissionCache systemPermissionCache;
 
     @GetMapping("")
     @PreAuthorize("@ss.hasPermission('system:menu')")

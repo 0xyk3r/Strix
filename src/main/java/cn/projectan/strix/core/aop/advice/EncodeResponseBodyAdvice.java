@@ -6,9 +6,10 @@ import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.core.security.ApiSecurity;
 import cn.projectan.strix.model.annotation.IgnoreDataEncryption;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
@@ -25,12 +26,11 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
  */
 @Slf4j
 @RestControllerAdvice
+@RequiredArgsConstructor
 public class EncodeResponseBodyAdvice implements ResponseBodyAdvice<Object> {
 
-    @Autowired
-    private ApiSecurity apiSecurity;
-    @Autowired
-    private ObjectMapper objectMapper;
+    private final ApiSecurity apiSecurity;
+    private final ObjectMapper objectMapper;
 
     @Value("${spring.profiles.active}")
     private String profiles;
@@ -39,17 +39,17 @@ public class EncodeResponseBodyAdvice implements ResponseBodyAdvice<Object> {
 
     @SneakyThrows
     @Override
-    public boolean supports(MethodParameter methodParameter, Class aClass) {
+    public boolean supports(MethodParameter methodParameter, @NotNull Class aClass) {
         String className = methodParameter.getContainingClass().getName();
-        boolean apiSecurityCheckAspect = className.equals("cn.projectan.strix.core.aop.aspect.ApiSecurityCheckAspect");
-        boolean ignoreDataEncryptionByException = className.equals("cn.projectan.strix.core.aop.advice.GlobalExceptionHandler");
+        boolean apiSecurityCheckAspect = "cn.projectan.strix.core.aop.aspect.ApiSecurityCheckAspect".equals(className);
+        boolean ignoreDataEncryptionByException = "cn.projectan.strix.core.aop.advice.GlobalExceptionHandler".equals(className);
         boolean ignoreDataEncryptionByClass = methodParameter.getContainingClass().isAnnotationPresent(IgnoreDataEncryption.class);
         IgnoreDataEncryption methodAnnotation = methodParameter.getMethodAnnotation(IgnoreDataEncryption.class);
         return !apiSecurityCheckAspect && !ignoreDataEncryptionByException && !ignoreDataEncryptionByClass && methodAnnotation == null;
     }
 
     @Override
-    public Object beforeBodyWrite(Object body, MethodParameter methodParameter, MediaType mediaType, Class aClass, ServerHttpRequest serverHttpRequest, ServerHttpResponse serverHttpResponse) {
+    public Object beforeBodyWrite(Object body, @NotNull MethodParameter methodParameter, @NotNull MediaType mediaType, @NotNull Class aClass, @NotNull ServerHttpRequest serverHttpRequest, @NotNull ServerHttpResponse serverHttpResponse) {
         try {
             if ("dev".equals(profiles) && showResponse) {
                 log.info("\n===============================================================\n" +

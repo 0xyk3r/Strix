@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * 加载需要制定权限的URL
+ * 加载需要指定权限/角色的 URL
  *
  * @author 安炯奕
  * @date 2023/5/26 17:38
@@ -21,9 +21,9 @@ import java.util.stream.Collectors;
 @Component
 public class RoleUrlInit {
 
-    private Map<String, String> urlRoleMap;
+    private final Map<String, String> urlRoleMap;
 
-    private Map<String, String> urlAnyRoleMap;
+    private final Map<String, String> urlAnyRoleMap;
 
     public RoleUrlInit(SecurityUrlService securityUrlService) {
         urlRoleMap = securityUrlService.list(
