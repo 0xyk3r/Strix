@@ -9,7 +9,7 @@ import cn.projectan.strix.service.SystemUserService;
 import cn.projectan.strix.utils.RedisUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
@@ -24,12 +24,11 @@ import org.springframework.util.StringUtils;
  * @since 2021-08-26
  */
 @Service
+@RequiredArgsConstructor
 public class SystemUserServiceImpl extends ServiceImpl<SystemUserMapper, SystemUser> implements SystemUserService {
 
-    @Autowired
-    private SystemUserRelationService systemUserRelationService;
-    @Autowired
-    private RedisUtil redisUtil;
+    private final SystemUserRelationService systemUserRelationService;
+    private final RedisUtil redisUtil;
 
     @Override
     public SystemUser createSystemUser(String nickname, String phoneNumber) {
@@ -51,7 +50,7 @@ public class SystemUserServiceImpl extends ServiceImpl<SystemUserMapper, SystemU
     }
 
     @Override
-    public boolean bindThirdUser(String systemUserId, Integer relationType, String relationId) {
+    public void bindThirdUser(String systemUserId, Integer relationType, String relationId) {
         QueryWrapper<SystemUserRelation> checkOneQueryWrapper = new QueryWrapper<>();
         checkOneQueryWrapper.eq("relation_type", relationType);
         checkOneQueryWrapper.eq("system_user_id", systemUserId);
@@ -70,7 +69,7 @@ public class SystemUserServiceImpl extends ServiceImpl<SystemUserMapper, SystemU
 
         redisUtil.del("strix:system:user:userRelation::" + relationType + "-" + relationId);
 
-        return systemUserRelationService.save(systemUserRelation);
+        systemUserRelationService.save(systemUserRelation);
     }
 
     @Cacheable(value = "strix:system:user:userRelation", key = "#relationType+'-'+#relationId")

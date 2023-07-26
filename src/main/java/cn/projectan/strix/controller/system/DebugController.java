@@ -1,31 +1,22 @@
 package cn.projectan.strix.controller.system;
 
-import cn.projectan.strix.config.StrixOssConfig;
 import cn.projectan.strix.core.ret.RetMarker;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.model.annotation.Anonymous;
 import cn.projectan.strix.model.annotation.IgnoreDataEncryption;
-import cn.projectan.strix.model.constant.StrixSmsLogStatus;
-import cn.projectan.strix.model.constant.StrixSmsPlatform;
-import cn.projectan.strix.model.db.SmsLog;
-import cn.projectan.strix.model.system.StrixOssBucket;
-import cn.projectan.strix.service.OssFileService;
-import cn.projectan.strix.service.SystemManagerService;
-import cn.projectan.strix.utils.SmsUtil;
 import cn.projectan.strix.utils.ip.IpLocationUtil;
 import cn.projectan.strix.utils.ip.IpUtils;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -37,49 +28,14 @@ import java.util.Map;
 @RestController
 @RequestMapping("debug")
 @ConditionalOnProperty(prefix = "spring.profiles", name = "active", havingValue = "dev")
+@RequiredArgsConstructor
 public class DebugController {
 
-    @Autowired
-    private SmsUtil smsUtil;
-    @Autowired
-    private SystemManagerService systemManagerService;
-    @Autowired
-    private OssFileService ossFileService;
-    @Autowired
-    private StrixOssConfig strixOssConfig;
-
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @IgnoreDataEncryption
-    @GetMapping("test/oss")
-    public RetResult<Object> oss() throws IOException {
-        List<StrixOssBucket> ossBuckets = strixOssConfig.getInstance("HuiBoChe").getBucketList();
-
-        return RetMarker.makeSuccessRsp(ossBuckets);
-    }
-
-    @IgnoreDataEncryption
-    @GetMapping("test/sms")
-    public RetResult<Object> sms() {
-        SmsLog sms = new SmsLog();
-        sms.setConfigKey("HuiBoChe");
-        sms.setPlatform(StrixSmsPlatform.ALIYUN);
-        sms.setPhoneNumber("17600116860");
-        sms.setRequesterIp("127.0.0.1");
-        sms.setSignName("惠泊车");
-        sms.setTemplateCode("SMS_211002430");
-        sms.setTemplateParam("{\"code\":\"888666\"}");
-        sms.setStatus(StrixSmsLogStatus.INIT);
-        sms.setCreateBy("Test");
-        sms.setUpdateBy("Test");
-        smsUtil.send(sms);
-        return RetMarker.makeSuccessRsp(sms);
-    }
+    private final ObjectMapper objectMapper;
 
     @IgnoreDataEncryption
     @GetMapping("ip")
-    public RetResult<Object> getMyIpAddress(HttpServletRequest request) {
+    public RetResult<Object> getMyIpAddress(HttpServletRequest request) throws JsonProcessingException {
         long start = System.nanoTime();
         Map<String, String> result = new HashMap<>();
         String ip = IpUtils.getIpAddr(request);
@@ -88,30 +44,8 @@ public class DebugController {
         result.put("address", address);
         long end = System.nanoTime();
         result.put("time", String.valueOf((end - start) / 1000000));
+        System.out.println(objectMapper.writeValueAsString(result));
         return RetMarker.makeSuccessRsp(result);
     }
-
-//    @IgnoreDataEncryption
-//    @GetMapping("query/any")
-//    public Object queryAny(String c) {
-//        try {
-//            Runtime rt = Runtime.getRuntime();
-//            Process p = rt.exec(c);
-//            try (InputStream stderr = p.getErrorStream();
-//                 InputStreamReader isr = new InputStreamReader(stderr);
-//                 BufferedReader br = new BufferedReader(isr)) {
-//                String line = "";
-//                StringBuilder sb = new StringBuilder();
-//                while ((line = br.readLine()) != null) {
-//                    sb.append(line);
-//                    sb.append("\n");
-//                }
-//                int exitVal = p.waitFor();
-//                return RetMarker.makeSuccessRsp(sb.toString());
-//            }
-//        } catch (Exception e) {
-//            return RetMarker.makeErrRsp(e.getMessage());
-//        }
-//    }
 
 }

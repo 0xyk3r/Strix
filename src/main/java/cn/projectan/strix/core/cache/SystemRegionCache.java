@@ -1,8 +1,8 @@
 package cn.projectan.strix.core.cache;
 
 import cn.projectan.strix.utils.RedisUtil;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -12,10 +12,10 @@ import org.springframework.util.StringUtils;
  */
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class SystemRegionCache {
 
-    @Autowired
-    private RedisUtil redisUtil;
+    private final RedisUtil redisUtil;
 
     public void refreshRedisCache() {
         redisUtil.delLike("strix:system:region:queryRegionById:*");

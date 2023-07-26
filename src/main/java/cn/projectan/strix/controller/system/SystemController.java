@@ -22,8 +22,8 @@ import cn.projectan.strix.service.SystemManagerService;
 import cn.projectan.strix.utils.RedisUtil;
 import cn.projectan.strix.utils.SecurityUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -39,16 +39,13 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 @RestController
 @RequestMapping("system")
+@RequiredArgsConstructor
 public class SystemController extends BaseSystemController {
 
-    @Autowired
-    private SystemManagerService systemManagerService;
-    @Autowired
-    private CaptchaService captchaService;
-    @Autowired
-    private SystemConfigCache systemConfigCache;
-    @Autowired
-    private RedisUtil redisUtil;
+    private final SystemManagerService systemManagerService;
+    private final CaptchaService captchaService;
+    private final SystemConfigCache systemConfigCache;
+    private final RedisUtil redisUtil;
 
     @Anonymous
     @PostMapping("login")

@@ -27,8 +27,8 @@ import cn.projectan.strix.utils.UpdateConditionBuilder;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -47,19 +47,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @Slf4j
 @RestController
 @RequestMapping("system/manager")
+@RequiredArgsConstructor
 public class SystemManagerController extends BaseSystemController {
 
-    @Autowired
-    private SystemManagerService systemManagerService;
-    @Autowired
-    private SystemManagerRoleService systemManagerRoleService;
-
-    @Autowired
-    private SystemMenuCache systemMenuCache;
-    @Autowired
-    private SystemPermissionCache systemPermissionCache;
-    @Autowired
-    private SystemRegionCache systemRegionCache;
+    private final SystemManagerService systemManagerService;
+    private final SystemManagerRoleService systemManagerRoleService;
+    private final SystemMenuCache systemMenuCache;
+    private final SystemPermissionCache systemPermissionCache;
+    private final SystemRegionCache systemRegionCache;
 
     @GetMapping("")
     @PreAuthorize("@ss.hasPermission('system:manager')")
@@ -75,7 +70,7 @@ public class SystemManagerController extends BaseSystemController {
             systemManagerQueryWrapper.like("nickname", req.getKeyword())
                     .or(q -> q.like("login_name", req.getKeyword()));
         }
-        if (NumUtils.isNonnegativeNumber(req.getStatus())) {
+        if (NumUtils.isNonNegativeNumber(req.getStatus())) {
             systemManagerQueryWrapper.eq("status", req.getStatus());
         }
         if (NumUtils.isPositiveNumber(req.getType())) {

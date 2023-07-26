@@ -6,8 +6,8 @@ import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.model.response.common.CommonDictResp;
 import cn.projectan.strix.model.response.common.CommonDictVersionResp;
 import cn.projectan.strix.service.DictService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,10 +21,10 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @RestController("SystemCommonDictController")
 @RequestMapping("system/common/dict")
+@RequiredArgsConstructor
 public class DictController extends BaseSystemController {
 
-    @Autowired
-    private DictService dictService;
+    private final DictService dictService;
 
     @GetMapping("_version")
     public RetResult<CommonDictVersionResp> getVersionList() {

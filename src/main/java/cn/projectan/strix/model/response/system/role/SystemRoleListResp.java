@@ -17,7 +17,7 @@ import java.util.List;
 @NoArgsConstructor
 public class SystemRoleListResp {
 
-    private List<SystemRoleItem> systemRoleList = new ArrayList<>();
+    private final List<SystemRoleItem> systemRoleList = new ArrayList<>();
 
     public SystemRoleListResp(List<SystemRole> roles) {
         for (SystemRole sr : roles) {

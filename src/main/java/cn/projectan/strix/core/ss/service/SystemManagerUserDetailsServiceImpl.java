@@ -5,7 +5,7 @@ import cn.projectan.strix.service.SystemManagerService;
 import cn.projectan.strix.service.SystemRegionService;
 import cn.projectan.strix.utils.I18nUtil;
 import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -16,13 +16,11 @@ import org.springframework.stereotype.Service;
  * @date 2023/2/25 14:23
  */
 @Service
+@RequiredArgsConstructor
 public class SystemManagerUserDetailsServiceImpl implements UserDetailsService {
 
-    @Autowired
-    private SystemManagerService systemManagerService;
-
-    @Autowired
-    private SystemRegionService systemRegionService;
+    private final SystemManagerService systemManagerService;
+    private final SystemRegionService systemRegionService;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {

@@ -13,7 +13,7 @@ import cn.projectan.strix.utils.SpringUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -30,20 +30,15 @@ import java.util.TreeSet;
  * @since 2021-05-12
  */
 @Service
+@RequiredArgsConstructor
 public class SystemManagerServiceImpl extends ServiceImpl<SystemManagerMapper, SystemManager> implements SystemManagerService {
 
-    @Autowired
-    private SystemRoleService systemRoleService;
-    @Autowired
-    private SystemManagerRoleService systemManagerRoleService;
-    @Autowired
-    private SystemRegionService systemRegionService;
-    @Autowired
-    private SystemMenuService systemMenuService;
-    @Autowired
-    private SystemPermissionService systemPermissionService;
-    @Autowired
-    private RedisUtil redisUtil;
+    private final SystemRoleService systemRoleService;
+    private final SystemManagerRoleService systemManagerRoleService;
+    private final SystemRegionService systemRegionService;
+    private final SystemMenuService systemMenuService;
+    private final SystemPermissionService systemPermissionService;
+    private final RedisUtil redisUtil;
 
     @Cacheable(value = "strix:system:manager:menu_by_smid", key = "#systemManagerId")
     @Override

@@ -17,7 +17,7 @@ import java.util.List;
 @NoArgsConstructor
 public class SystemPermissionListResp {
 
-    private List<SystemPermissionListResp.SystemPermissionItem> systemPermissionList = new ArrayList<>();
+    private final List<SystemPermissionListResp.SystemPermissionItem> systemPermissionList = new ArrayList<>();
 
     public SystemPermissionListResp(List<SystemPermission> permissions) {
         for (SystemPermission sp : permissions) {

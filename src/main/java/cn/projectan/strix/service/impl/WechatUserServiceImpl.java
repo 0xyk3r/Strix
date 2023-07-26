@@ -8,7 +8,7 @@ import cn.projectan.strix.service.SystemUserService;
 import cn.projectan.strix.service.WechatUserService;
 import cn.projectan.strix.utils.SpringUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,11 +21,12 @@ import org.springframework.transaction.annotation.Transactional;
  * @since 2021-08-25
  */
 @Service
+@RequiredArgsConstructor
 public class WechatUserServiceImpl extends ServiceImpl<WechatUserMapper, WechatUser> implements WechatUserService {
 
-    @Autowired
-    private SystemUserService systemUserService;
+    private final SystemUserService systemUserService;
 
+    @Override
     @Transactional(rollbackFor = Exception.class)
     public WechatUser createWechatUser(String openId, WechatConfigBean wechatConfig) {
         WechatUser wechatUser = new WechatUser();

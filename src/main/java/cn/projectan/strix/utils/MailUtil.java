@@ -25,8 +25,12 @@ import java.io.File;
 @ConditionalOnProperty(prefix = "spring.mail", name = "username")
 public class MailUtil {
 
-    @Autowired
-    private JavaMailSender mailSender;
+    private final JavaMailSender mailSender;
+
+    @Autowired(required = false)
+    public MailUtil(final JavaMailSender mailSender) {
+        this.mailSender = mailSender;
+    }
 
     @Value("${spring.mail.username}")
     private String from;
@@ -39,17 +43,19 @@ public class MailUtil {
      * @param content 内容
      */
     public void sendSimpleMail(String to, String subject, String content) {
-        //创建SimpleMailMessage对象
+        if (mailSender == null) {
+            return;
+        }
         SimpleMailMessage message = new SimpleMailMessage();
-        //邮件发送人
+        // 邮件发送人
         message.setFrom(from);
-        //邮件接收人
+        // 邮件接收人
         message.setTo(to);
-        //邮件主题
+        // 邮件主题
         message.setSubject(subject);
-        //邮件内容
+        // 邮件内容
         message.setText(content);
-        //发送邮件
+        // 发送邮件
         mailSender.send(message);
     }
 
@@ -61,22 +67,23 @@ public class MailUtil {
      * @param content 内容
      */
     public void sendHtmlMail(String to, String subject, String content) {
-        //获取MimeMessage对象
+        if (mailSender == null) {
+            return;
+        }
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper messageHelper;
         try {
             messageHelper = new MimeMessageHelper(message, true);
-            //邮件发送人
+            // 邮件发送人
             messageHelper.setFrom(from);
-            //邮件接收人,设置多个收件人地址
+            // 邮件接收人,设置多个收件人地址
             InternetAddress[] internetAddressTo = InternetAddress.parse(to);
             messageHelper.setTo(internetAddressTo);
-            //messageHelper.setTo(to);
-            //邮件主题
+            // 邮件主题
             message.setSubject(subject);
-            //邮件内容，html格式
+            // 邮件内容，html格式
             messageHelper.setText(content, true);
-            //发送
+            // 发送
             mailSender.send(message);
         } catch (Exception e) {
             log.error("发送邮件时发生异常！", e);
@@ -92,6 +99,9 @@ public class MailUtil {
      * @param filePath 附件
      */
     public void sendAttachmentsMail(String to, String subject, String content, String filePath) {
+        if (mailSender == null) {
+            return;
+        }
         MimeMessage message = mailSender.createMimeMessage();
         try {
             MimeMessageHelper helper = new MimeMessageHelper(message, true);

@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -34,32 +33,28 @@ public class SmsTemplateServiceImpl extends ServiceImpl<SmsTemplateMapper, SmsTe
         List<String> dbTemplateCodeList = dbTemplateList.stream().map(SmsTemplate::getCode).toList();
         List<String> templateCodeList = templateList.stream().map(StrixSmsTemplate::getCode).toList();
 
-        KeysDiffHandler.handle(dbTemplateCodeList, templateCodeList, ((removeKeys, addKeys) -> {
-            if (removeKeys.size() > 0) {
-                QueryWrapper<SmsTemplate> removeQueryWrapper = new QueryWrapper<>();
-                removeQueryWrapper.eq("config_key", configKey);
-                removeQueryWrapper.in("code", removeKeys);
-                Assert.isTrue(remove(removeQueryWrapper), "Strix SMS: 同步删除模板失败.");
-            }
-            if (addKeys.size() > 0) {
-                List<SmsTemplate> smsTemplateList = new ArrayList<>();
-                addKeys.forEach(k -> {
-                    StrixSmsTemplate strixSmsTemplate = templateList.stream().filter(s -> s.getCode().equals(k)).findFirst().get();
-                    SmsTemplate smsTemplate = new SmsTemplate();
-                    smsTemplate.setConfigKey(configKey);
-                    smsTemplate.setCode(k);
-                    smsTemplate.setName(strixSmsTemplate.getName());
-                    smsTemplate.setType(strixSmsTemplate.getType());
-                    smsTemplate.setStatus(strixSmsTemplate.getStatus());
-                    smsTemplate.setContent(strixSmsTemplate.getContent());
-                    smsTemplate.setCreateTime(strixSmsTemplate.getCreateTime());
-                    smsTemplate.setCreateBy("System");
-                    smsTemplate.setUpdateBy("System");
-                    smsTemplateList.add(smsTemplate);
-                });
-                Assert.isTrue(saveBatch(smsTemplateList), "Strix SMS: 同步增加模板失败.");
-            }
-        }));
+        KeysDiffHandler.handle(dbTemplateCodeList, templateCodeList,
+                (removeKeys) -> {
+                    QueryWrapper<SmsTemplate> removeQueryWrapper = new QueryWrapper<>();
+                    removeQueryWrapper.eq("config_key", configKey);
+                    removeQueryWrapper.in("code", removeKeys);
+                    Assert.isTrue(remove(removeQueryWrapper), "Strix SMS: 同步删除模板失败.");
+                },
+                (addKeys) -> {
+                    List<SmsTemplate> smsTemplateList = templateList.stream()
+                            .filter(t -> addKeys.contains(t.getCode()))
+                            .map(t -> new SmsTemplate(t.getCreateTime(), "System", null, "System")
+                                    .setConfigKey(configKey)
+                                    .setCode(t.getCode())
+                                    .setName(t.getName())
+                                    .setType(t.getType())
+                                    .setStatus(t.getStatus())
+                                    .setContent(t.getContent())
+                            )
+                            .toList();
+                    Assert.isTrue(saveBatch(smsTemplateList), "Strix SMS: 同步增加模板失败.");
+                }
+        );
     }
 
 }

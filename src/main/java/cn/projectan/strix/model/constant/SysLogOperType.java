@@ -22,16 +22,16 @@ public interface SysLogOperType {
     @DictData(label = "删除", sort = 4, style = DictDataStyle.ERROR)
     String DELETE = "delete";
 
-    @DictData(label = "导入", sort = 5, style = DictDataStyle.DEFALUT)
+    @DictData(label = "导入", sort = 5, style = DictDataStyle.DEFAULT)
     String IMPORT = "import";
 
-    @DictData(label = "导出", sort = 6, style = DictDataStyle.DEFALUT)
+    @DictData(label = "导出", sort = 6, style = DictDataStyle.DEFAULT)
     String EXPORT = "export";
 
-    @DictData(label = "其他", sort = 7, style = DictDataStyle.DEFALUT)
+    @DictData(label = "其他", sort = 7, style = DictDataStyle.DEFAULT)
     String OTHER = "other";
 
-    @DictData(label = "登录", sort = 8, style = DictDataStyle.DEFALUT)
+    @DictData(label = "登录", sort = 8, style = DictDataStyle.DEFAULT)
     String LOGIN = "login";
 
 }

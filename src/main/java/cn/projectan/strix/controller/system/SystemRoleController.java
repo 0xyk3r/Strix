@@ -24,8 +24,8 @@ import cn.projectan.strix.utils.UpdateConditionBuilder;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
@@ -42,21 +42,15 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequestMapping("system/role")
+@RequiredArgsConstructor
 public class SystemRoleController extends BaseSystemController {
 
-    @Autowired
-    private SystemRoleService systemRoleService;
-    @Autowired
-    private SystemRoleMenuService systemRoleMenuService;
-    @Autowired
-    private SystemManagerRoleService systemManagerRoleService;
-    @Autowired
-    private SystemRolePermissionService systemRolePermissionService;
-
-    @Autowired
-    private SystemMenuCache systemMenuCache;
-    @Autowired
-    private SystemPermissionCache systemPermissionCache;
+    private final SystemRoleService systemRoleService;
+    private final SystemRoleMenuService systemRoleMenuService;
+    private final SystemManagerRoleService systemManagerRoleService;
+    private final SystemRolePermissionService systemRolePermissionService;
+    private final SystemMenuCache systemMenuCache;
+    private final SystemPermissionCache systemPermissionCache;
 
     @GetMapping("")
     @PreAuthorize("@ss.hasPermission('system:role')")

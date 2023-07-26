@@ -17,7 +17,7 @@ import cn.projectan.strix.utils.UpdateConditionBuilder;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
@@ -37,10 +37,10 @@ import java.util.List;
  * @since 2021-08-31
  */
 @Service
+@RequiredArgsConstructor
 public class DictServiceImpl extends ServiceImpl<DictMapper, Dict> implements DictService {
 
-    @Autowired
-    private DictDataService dictDataService;
+    private final DictDataService dictDataService;
 
     @Override
     @Cacheable(value = "strix:dict:versionMap")

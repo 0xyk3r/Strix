@@ -43,7 +43,7 @@ public class CommonSelectDataResp {
                 String attach = StringUtils.hasText(attachFieldName) ? ReflectUtil.getString(d, attachFieldName) : null;
 
                 if (value != null && label != null) {
-                    options.add(new SelectDataItem(value, label, attach == null ? null : attach));
+                    options.add(new SelectDataItem(value, label, attach));
                 }
             }
         } catch (Exception e) {

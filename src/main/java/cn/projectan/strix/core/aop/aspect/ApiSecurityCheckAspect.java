@@ -52,7 +52,9 @@ public class ApiSecurityCheckAspect {
     @Around("controller()")
     public Object handle(ProceedingJoinPoint pjp) throws Throwable {
         ServletRequestAttributes attributes = ServletUtils.getRequestAttributes();
-        if (attributes == null) return pjp.proceed();
+        if (attributes == null) {
+            return pjp.proceed();
+        }
         HttpServletRequest request = attributes.getRequest();
         MethodSignature signature = (MethodSignature) pjp.getSignature();
 

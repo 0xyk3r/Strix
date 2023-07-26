@@ -5,6 +5,7 @@ import cn.projectan.strix.model.db.SecurityUrl;
 import cn.projectan.strix.service.SecurityUrlService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.apache.commons.lang3.RegExUtils;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
@@ -64,7 +65,7 @@ public class AnonymousUrlInit implements InitializingBean, ApplicationContextAwa
     }
 
     @Override
-    public void setApplicationContext(ApplicationContext context) throws BeansException {
+    public void setApplicationContext(@NotNull ApplicationContext context) throws BeansException {
         this.applicationContext = context;
     }
 

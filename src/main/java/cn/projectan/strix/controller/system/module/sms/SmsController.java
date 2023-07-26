@@ -28,8 +28,8 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -45,16 +45,13 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequestMapping("system/sms")
+@RequiredArgsConstructor
 public class SmsController extends BaseSystemController {
 
-    @Autowired
-    private SmsConfigService smsConfigService;
-    @Autowired
-    private SmsSignService smsSignService;
-    @Autowired
-    private SmsTemplateService smsTemplateService;
-    @Autowired
-    private SmsLogService smsLogService;
+    private final SmsConfigService smsConfigService;
+    private final SmsSignService smsSignService;
+    private final SmsTemplateService smsTemplateService;
+    private final SmsLogService smsLogService;
 
     @GetMapping("")
     @PreAuthorize("@ss.hasPermission('system:module:sms:config')")

@@ -17,9 +17,9 @@ import com.ijpay.core.kit.WxPayKit;
 import com.ijpay.wxpay.WxPayApi;
 import com.ijpay.wxpay.enums.WxDomainEnum;
 import com.ijpay.wxpay.enums.v3.OtherApiEnum;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
@@ -38,10 +38,10 @@ import java.util.Map;
  */
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class WxPayTools {
 
-    @Autowired
-    private GlobalPaymentConfig globalPaymentConfig;
+    private final GlobalPaymentConfig globalPaymentConfig;
 
     /**
      * 获取商户证书序列号
@@ -113,6 +113,7 @@ public class WxPayTools {
             Assert.hasText(mediaId, "上传图片至微信支付平台时失败");
 
             if (deleteAfterHandle) {
+                //noinspection ResultOfMethodCallIgnored
                 file.delete();
             }
 

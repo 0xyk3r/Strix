@@ -10,8 +10,8 @@ import cn.projectan.strix.service.SmsSignService;
 import cn.projectan.strix.service.SmsTemplateService;
 import cn.projectan.strix.utils.KeysDiffHandler;
 import cn.projectan.strix.utils.SmsUtil;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -29,18 +29,14 @@ import java.util.Set;
 @Component
 @EnableScheduling
 @ConditionalOnBean(StrixSmsConfig.class)
+@RequiredArgsConstructor
 public class StrixSmsTask {
 
-    @Autowired
-    private SmsUtil smsUtil;
-    @Autowired
-    private StrixSmsConfig strixSmsConfig;
-    @Autowired
-    private SmsConfigService smsConfigService;
-    @Autowired
-    private SmsSignService smsSignService;
-    @Autowired
-    private SmsTemplateService smsTemplateService;
+    private final SmsUtil smsUtil;
+    private final StrixSmsConfig strixSmsConfig;
+    private final SmsConfigService smsConfigService;
+    private final SmsSignService smsSignService;
+    private final SmsTemplateService smsTemplateService;
 
     @Scheduled(cron = "0 0/5 * * * ?")
     public void refreshConfig() {

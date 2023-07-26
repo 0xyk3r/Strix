@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -37,32 +36,28 @@ public class OssBucketServiceImpl extends ServiceImpl<OssBucketMapper, OssBucket
         List<String> dbBucketNameList = dbBucketList.stream().map(OssBucket::getName).toList();
         List<String> bucketNameList = bucketList.stream().map(StrixOssBucket::getName).toList();
 
-        KeysDiffHandler.handle(dbBucketNameList, bucketNameList, ((removeKeys, addKeys) -> {
-            if (removeKeys.size() > 0) {
-                QueryWrapper<OssBucket> removeQueryWrapper = new QueryWrapper<>();
-                removeQueryWrapper.eq("config_key", configKey);
-                removeQueryWrapper.in("name", removeKeys);
-                Assert.isTrue(remove(removeQueryWrapper), "Strix OSS: 同步删除存储空间失败.");
-            }
-            if (addKeys.size() > 0) {
-                List<OssBucket> ossBucketList = new ArrayList<>();
-                addKeys.forEach(k -> {
-                    StrixOssBucket strixOssBucket = bucketList.stream().filter(s -> s.getName().equals(k)).findFirst().get();
-                    OssBucket ossBucket = new OssBucket();
-                    ossBucket.setConfigKey(configKey);
-                    ossBucket.setName(strixOssBucket.getName());
-                    ossBucket.setPublicEndpoint(strixOssBucket.getPublicEndpoint());
-                    ossBucket.setPrivateEndpoint(strixOssBucket.getPrivateEndpoint());
-                    ossBucket.setRegion(strixOssBucket.getRegion());
-                    ossBucket.setStorageClass(strixOssBucket.getStorageClass());
-                    ossBucket.setCreateTime(strixOssBucket.getCreateTime());
-                    ossBucket.setCreateBy("System");
-                    ossBucket.setUpdateBy("System");
-                    ossBucketList.add(ossBucket);
-                });
-                Assert.isTrue(saveBatch(ossBucketList), "Strix OSS: 同步增加存储空间失败.");
-            }
-        }));
+        KeysDiffHandler.handle(dbBucketNameList, bucketNameList,
+                (removeKeys) -> removeKeys.forEach(key -> {
+                    QueryWrapper<OssBucket> removeQueryWrapper = new QueryWrapper<>();
+                    removeQueryWrapper.eq("config_key", configKey);
+                    removeQueryWrapper.in("name", removeKeys);
+                    Assert.isTrue(remove(removeQueryWrapper), "Strix OSS: 同步删除存储空间失败.");
+                }),
+                (addKeys) -> {
+                    List<OssBucket> ossBucketList = bucketList.stream()
+                            .filter(b -> addKeys.contains(b.getName()))
+                            .map(b -> new OssBucket(b.getCreateTime(), "System", null, "System")
+                                    .setConfigKey(configKey)
+                                    .setName(b.getName())
+                                    .setPublicEndpoint(b.getPublicEndpoint())
+                                    .setPrivateEndpoint(b.getPrivateEndpoint())
+                                    .setRegion(b.getRegion())
+                                    .setStorageClass(b.getStorageClass())
+                            )
+                            .toList();
+                    Assert.isTrue(saveBatch(ossBucketList), "Strix OSS: 同步增加存储空间失败.");
+                }
+        );
     }
 
     @Override

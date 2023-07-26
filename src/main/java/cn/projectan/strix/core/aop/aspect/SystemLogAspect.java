@@ -16,13 +16,13 @@ import cn.projectan.strix.utils.async.AsyncUtil;
 import cn.projectan.strix.utils.ip.IpUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.AfterThrowing;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -36,18 +36,17 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Aspect
 @Component
-@EnableConfigurationProperties(StrixLogProperties.class)
 @ConditionalOnProperty(prefix = "strix.log", name = "enable", havingValue = "true")
+@RequiredArgsConstructor
+@EnableConfigurationProperties(StrixLogProperties.class)
 public class SystemLogAspect {
 
-    private static final ThreadLocal<Long> TIME_THREADLOCAL = new NamedThreadLocal<Long>("Spend Time");
+    private static final ThreadLocal<Long> TIME_THREADLOCAL = new NamedThreadLocal<>("Spend Time");
 
     @Value("${spring.application.name}")
     private String applicationName;
 
-    @Autowired
-    private ObjectMapper objectMapper;
-
+    private final ObjectMapper objectMapper;
 
     /**
      * 请求前执行
@@ -95,7 +94,7 @@ public class SystemLogAspect {
             systemLog.setOperationName(sysLog.operationName());
             // 请求参数
             if (sysLog.saveRequestParam()) {
-                if (request.getMethod().equals("GET")) {
+                if ("GET".equals(request.getMethod())) {
                     systemLog.setOperationParam(objectMapper.writeValueAsString(ServletUtils.getRequestParams(request)));
                 } else {
                     systemLog.setOperationParam(objectMapper.writeValueAsString(joinPoint.getArgs()));

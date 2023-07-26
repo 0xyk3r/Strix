@@ -7,9 +7,10 @@ import cn.projectan.strix.model.annotation.IgnoreDataEncryption;
 import cn.projectan.strix.utils.ServletUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpHeaders;
@@ -32,28 +33,28 @@ import java.nio.charset.StandardCharsets;
  */
 @Slf4j
 @RestControllerAdvice
+@RequiredArgsConstructor
 public class DecodeRequestBodyAdvice implements RequestBodyAdvice {
 
-    @Autowired
-    private ApiSecurity apiSecurity;
-    @Autowired
-    private ObjectMapper objectMapper;
+    private final ApiSecurity apiSecurity;
+    private final ObjectMapper objectMapper;
 
     @Value("${spring.profiles.active}")
     private String profiles;
 
     @Override
-    public boolean supports(MethodParameter methodParameter, Type type, Class<? extends HttpMessageConverter<?>> aClass) {
+    public boolean supports(MethodParameter methodParameter, @NotNull Type type, @NotNull Class<? extends HttpMessageConverter<?>> aClass) {
         String className = methodParameter.getContainingClass().getName();
-        boolean apiSecurityCheckAspect = className.equals("cn.projectan.strix.core.aop.aspect.ApiSecurityCheckAspect");
-        boolean ignoreDataEncryptionByException = className.equals("cn.projectan.strix.core.aop.advice.GlobalExceptionHandler");
+        boolean apiSecurityCheckAspect = "cn.projectan.strix.core.aop.aspect.ApiSecurityCheckAspect".equals(className);
+        boolean ignoreDataEncryptionByException = "cn.projectan.strix.core.aop.advice.GlobalExceptionHandler".equals(className);
         boolean ignoreDataEncryptionByClass = methodParameter.getContainingClass().isAnnotationPresent(IgnoreDataEncryption.class);
         IgnoreDataEncryption methodAnnotation = methodParameter.getMethodAnnotation(IgnoreDataEncryption.class);
         return !apiSecurityCheckAspect && !ignoreDataEncryptionByException && !ignoreDataEncryptionByClass && methodAnnotation == null;
     }
 
+    @NotNull
     @Override
-    public HttpInputMessage beforeBodyRead(HttpInputMessage inputMessage, MethodParameter methodParameter, Type type, Class<? extends HttpMessageConverter<?>> aClass) {
+    public HttpInputMessage beforeBodyRead(@NotNull HttpInputMessage inputMessage, @NotNull MethodParameter methodParameter, @NotNull Type type, @NotNull Class<? extends HttpMessageConverter<?>> aClass) {
         try {
             return new HttpInputMessageHandler(inputMessage);
         } catch (Exception e) {
@@ -67,13 +68,14 @@ public class DecodeRequestBodyAdvice implements RequestBodyAdvice {
         }
     }
 
+    @NotNull
     @Override
-    public Object afterBodyRead(Object body, HttpInputMessage httpInputMessage, MethodParameter methodParameter, Type type, Class<? extends HttpMessageConverter<?>> aClass) {
+    public Object afterBodyRead(@NotNull Object body, @NotNull HttpInputMessage httpInputMessage, @NotNull MethodParameter methodParameter, @NotNull Type type, @NotNull Class<? extends HttpMessageConverter<?>> aClass) {
         return body;
     }
 
     @Override
-    public Object handleEmptyBody(Object body, HttpInputMessage httpInputMessage, MethodParameter methodParameter, Type type, Class<? extends HttpMessageConverter<?>> aClass) {
+    public Object handleEmptyBody(Object body, @NotNull HttpInputMessage httpInputMessage, @NotNull MethodParameter methodParameter, @NotNull Type type, @NotNull Class<? extends HttpMessageConverter<?>> aClass) {
         return body;
     }
 
@@ -98,11 +100,13 @@ public class DecodeRequestBodyAdvice implements RequestBodyAdvice {
             }
         }
 
+        @NotNull
         @Override
         public InputStream getBody() {
             return this.body;
         }
 
+        @NotNull
         @Override
         public HttpHeaders getHeaders() {
             return this.headers;

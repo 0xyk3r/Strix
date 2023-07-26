@@ -3,9 +3,9 @@ package cn.projectan.strix.config;
 import cn.projectan.strix.model.db.WechatConfig;
 import cn.projectan.strix.model.wechat.WechatConfigBean;
 import cn.projectan.strix.utils.wechat.auth.WechatUtils;
+import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
@@ -17,10 +17,10 @@ import java.util.Map;
  */
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class GlobalWechatConfig {
 
-    @Autowired
-    private WechatUtils wechatUtils;
+    private final WechatUtils wechatUtils;
 
     private final Map<String, WechatConfigBean> wechatConfigInstanceMap = new HashMap<>();
 

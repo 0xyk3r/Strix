@@ -10,8 +10,8 @@ import cn.projectan.strix.model.annotation.DictData;
 @Dict(key = "DictDataStyle", value = "系统字典-数据-样式")
 public interface DictDataStyle {
 
-    @DictData(label = "默认", sort = 1, style = DictDataStyle.DEFALUT)
-    String DEFALUT = "default";
+    @DictData(label = "默认", sort = 1, style = DictDataStyle.DEFAULT)
+    String DEFAULT = "default";
 
     @DictData(label = "主要", sort = 2, style = DictDataStyle.PRIMARY)
     String PRIMARY = "primary";
@@ -29,7 +29,7 @@ public interface DictDataStyle {
     String INFO = "info";
 
     static boolean valid(String value) {
-        return value.equals(DEFALUT) || value.equals(PRIMARY) || value.equals(SUCCESS) || value.equals(WARNING) || value.equals(ERROR) || value.equals(INFO);
+        return value.equals(DEFAULT) || value.equals(PRIMARY) || value.equals(SUCCESS) || value.equals(WARNING) || value.equals(ERROR) || value.equals(INFO);
     }
 
 }

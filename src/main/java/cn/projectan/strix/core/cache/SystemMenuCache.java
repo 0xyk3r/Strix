@@ -5,8 +5,8 @@ import cn.projectan.strix.service.SystemMenuService;
 import cn.projectan.strix.utils.RedisUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -18,12 +18,11 @@ import java.util.List;
  */
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class SystemMenuCache {
 
-    @Autowired
-    private SystemMenuService systemMenuService;
-    @Autowired
-    private RedisUtil redisUtil;
+    private final SystemMenuService systemMenuService;
+    private final RedisUtil redisUtil;
 
     private List<SystemMenu> instance = new ArrayList<>();
 

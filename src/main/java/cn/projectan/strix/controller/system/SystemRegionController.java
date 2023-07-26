@@ -45,13 +45,16 @@ import java.util.stream.Collectors;
 @RequestMapping("system/region")
 public class SystemRegionController extends BaseSystemController {
 
-    @Autowired
-    private SystemRegionService systemRegionService;
-    @Autowired
-    private SystemRegionCache systemRegionCache;
+    private final SystemRegionService systemRegionService;
+    private final SystemRegionCache systemRegionCache;
+    private final StrixCommonListener strixCommonListener;
 
-    @Autowired(required = false)
-    private StrixCommonListener strixCommonListener;
+    @Autowired
+    public SystemRegionController(SystemRegionService systemRegionService, SystemRegionCache systemRegionCache, @Autowired(required = false) StrixCommonListener strixCommonListener) {
+        this.systemRegionService = systemRegionService;
+        this.systemRegionCache = systemRegionCache;
+        this.strixCommonListener = strixCommonListener;
+    }
 
     @GetMapping("")
     @PreAuthorize("@ss.hasPermission('system:region')")
@@ -138,7 +141,7 @@ public class SystemRegionController extends BaseSystemController {
         UpdateWrapper<SystemRegion> systemRegionUpdateWrapper = new UpdateWrapper<>();
         systemRegionUpdateWrapper.eq("id", id);
 
-        if (singleFieldModifyReq.getField().equals("parentId")) {
+        if ("parentId".equals(singleFieldModifyReq.getField())) {
             systemRegionUpdateWrapper.set("parent_id", id);
             Map<String, String> fullInfo = systemRegionService.getFullInfo(id);
             systemRegionUpdateWrapper.set("full_name", fullInfo.get("name"));

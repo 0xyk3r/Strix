@@ -7,7 +7,7 @@ import cn.projectan.strix.service.*;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -25,16 +25,13 @@ import java.util.TreeSet;
  * @since 2021-05-12
  */
 @Service
+@RequiredArgsConstructor
 public class SystemRoleServiceImpl extends ServiceImpl<SystemRoleMapper, SystemRole> implements SystemRoleService {
 
-    @Autowired
-    private SystemMenuService systemMenuService;
-    @Autowired
-    private SystemRoleMenuService systemRoleMenuService;
-    @Autowired
-    private SystemPermissionService systemPermissionService;
-    @Autowired
-    private SystemRolePermissionService systemRolePermissionService;
+    private final SystemMenuService systemMenuService;
+    private final SystemRoleMenuService systemRoleMenuService;
+    private final SystemPermissionService systemPermissionService;
+    private final SystemRolePermissionService systemRolePermissionService;
 
     @Cacheable(value = "strix:system:role:select_data")
     @Override

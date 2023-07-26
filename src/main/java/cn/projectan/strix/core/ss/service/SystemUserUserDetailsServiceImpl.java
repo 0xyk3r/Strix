@@ -4,7 +4,7 @@ import cn.projectan.strix.core.ss.details.LoginSystemUser;
 import cn.projectan.strix.model.db.SystemUser;
 import cn.projectan.strix.service.SystemUserService;
 import cn.projectan.strix.utils.I18nUtil;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -15,10 +15,10 @@ import org.springframework.stereotype.Service;
  * @date 2023/2/25 14:30
  */
 @Service
+@RequiredArgsConstructor
 public class SystemUserUserDetailsServiceImpl implements UserDetailsService {
 
-    @Autowired
-    private SystemUserService systemUserService;
+    private final SystemUserService systemUserService;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {

@@ -3,9 +3,9 @@ package cn.projectan.strix.initialize;
 import cn.projectan.strix.model.properties.StrixPackageScanProperties;
 import cn.projectan.strix.utils.SpringUtil;
 import com.baomidou.mybatisplus.extension.service.IService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.reflections.Reflections;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -25,18 +25,17 @@ import java.util.*;
 @Slf4j
 @Order(50)
 @Component
+@RequiredArgsConstructor
 @EnableConfigurationProperties(StrixPackageScanProperties.class)
 public class ServiceMapInit implements ApplicationRunner {
 
     private final Map<Class<?>, Class<? extends IService>> SERVICE_MAP = new HashMap<>();
-
     private final List<String> STRIX_SERVICE_PACKAGE = new ArrayList<>();
 
-    @Autowired
-    private StrixPackageScanProperties strixPackageScanProperties;
+    private final StrixPackageScanProperties strixPackageScanProperties;
 
     @Override
-    public void run(ApplicationArguments args) throws Exception {
+    public void run(ApplicationArguments args) {
         STRIX_SERVICE_PACKAGE.add("cn.projectan.strix.service");
         STRIX_SERVICE_PACKAGE.addAll(List.of(strixPackageScanProperties.getService()));
 
@@ -62,8 +61,7 @@ public class ServiceMapInit implements ApplicationRunner {
     public <T> IService<T> findServiceByEntity(Class<T> entityClass) {
         Class<? extends IService> aClass = SERVICE_MAP.get(entityClass);
         if (aClass != null) {
-            Object bean = SpringUtil.getBean(aClass);
-            return (IService<T>) bean;
+            return SpringUtil.getBean(aClass);
         }
         return null;
     }

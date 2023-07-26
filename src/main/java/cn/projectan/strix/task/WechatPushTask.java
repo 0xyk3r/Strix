@@ -9,10 +9,10 @@ import cn.projectan.strix.utils.OkHttpUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -30,15 +30,12 @@ import java.util.Map;
 @Component
 @EnableScheduling
 @ConditionalOnProperty(prefix = "strix.module", name = "push", havingValue = "true")
+@RequiredArgsConstructor
 public class WechatPushTask {
 
-    @Autowired
-    private WechatPushService wechatPushService;
-    @Autowired
-    private GlobalWechatConfig globalWechatConfig;
-
-    @Autowired
-    private ObjectMapper objectMapper;
+    private final WechatPushService wechatPushService;
+    private final GlobalWechatConfig globalWechatConfig;
+    private final ObjectMapper objectMapper;
 
     @Scheduled(cron = "0/10 * * * * ?")
     public void sendWxPush() {

@@ -3,8 +3,8 @@ package cn.projectan.strix.core.cache;
 import cn.projectan.strix.model.db.SystemConfig;
 import cn.projectan.strix.service.SystemConfigService;
 import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
@@ -19,10 +19,10 @@ import java.util.Map;
  */
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class SystemConfigCache {
 
-    @Autowired
-    private SystemConfigService systemConfigService;
+    private final SystemConfigService systemConfigService;
 
     private final Map<String, String> instance = new HashMap<>();
 

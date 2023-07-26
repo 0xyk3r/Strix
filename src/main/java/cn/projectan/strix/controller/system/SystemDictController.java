@@ -24,8 +24,8 @@ import cn.projectan.strix.service.DictService;
 import cn.projectan.strix.utils.NumUtils;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -41,13 +41,11 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequestMapping("system/dict")
+@RequiredArgsConstructor
 public class SystemDictController extends BaseSystemController {
 
-    @Autowired
-    private DictService dictService;
-    @Autowired
-    private DictDataService dictDataService;
-
+    private final DictService dictService;
+    private final DictDataService dictDataService;
 
     @GetMapping("")
     @PreAuthorize("@ss.hasPermission('system:dict')")

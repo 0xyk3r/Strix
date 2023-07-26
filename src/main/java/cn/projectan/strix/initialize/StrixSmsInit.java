@@ -3,8 +3,8 @@ package cn.projectan.strix.initialize;
 import cn.projectan.strix.config.StrixSmsConfig;
 import cn.projectan.strix.model.db.SmsConfig;
 import cn.projectan.strix.service.SmsConfigService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -21,10 +21,10 @@ import java.util.List;
 @Order(10)
 @Component
 @ConditionalOnBean(StrixSmsConfig.class)
+@RequiredArgsConstructor
 public class StrixSmsInit implements ApplicationRunner {
 
-    @Autowired
-    private SmsConfigService smsConfigService;
+    private final SmsConfigService smsConfigService;
 
     @Override
     public void run(ApplicationArguments args) {
