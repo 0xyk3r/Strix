@@ -1,7 +1,7 @@
 package cn.projectan.strix.controller.system.common;
 
 import cn.projectan.strix.controller.system.base.BaseSystemController;
-import cn.projectan.strix.model.constant.StrixOssFileGroupSecretType;
+import cn.projectan.strix.model.dict.StrixOssFileGroupSecretType;
 import cn.projectan.strix.service.OssFileService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;

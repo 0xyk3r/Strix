@@ -1,10 +1,10 @@
 package cn.projectan.strix.core.module.sms;
 
-import cn.projectan.strix.model.constant.StrixSmsLogStatus;
-import cn.projectan.strix.model.constant.StrixSmsSignStatus;
-import cn.projectan.strix.model.constant.StrixSmsTemplateStatus;
-import cn.projectan.strix.model.constant.StrixSmsTemplateType;
 import cn.projectan.strix.model.db.SmsLog;
+import cn.projectan.strix.model.dict.StrixSmsLogStatus;
+import cn.projectan.strix.model.dict.StrixSmsSignStatus;
+import cn.projectan.strix.model.dict.StrixSmsTemplateStatus;
+import cn.projectan.strix.model.dict.StrixSmsTemplateType;
 import cn.projectan.strix.model.system.StrixSmsSign;
 import cn.projectan.strix.model.system.StrixSmsTemplate;
 import com.aliyuncs.IAcsClient;

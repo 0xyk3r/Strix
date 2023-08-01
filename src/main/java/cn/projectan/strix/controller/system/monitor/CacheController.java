@@ -3,8 +3,8 @@ package cn.projectan.strix.controller.system.monitor;
 import cn.projectan.strix.controller.system.base.BaseSystemController;
 import cn.projectan.strix.core.ret.RetMarker;
 import cn.projectan.strix.core.ret.RetResult;
-import cn.projectan.strix.model.annotation.SysLog;
-import cn.projectan.strix.model.constant.monitor.CacheConstants;
+import cn.projectan.strix.model.annotation.StrixLog;
+import cn.projectan.strix.model.dict.monitor.CacheConstants;
 import cn.projectan.strix.model.other.monitor.cache.SystemCache;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,7 +43,7 @@ public class CacheController extends BaseSystemController {
 
     @GetMapping()
     @PreAuthorize("@ss.hasPermission('system:monitor:cache')")
-    @SysLog(operationGroup = "系统缓存信息", operationName = "查询系统缓存信息")
+    @StrixLog(operationGroup = "系统缓存信息", operationName = "查询系统缓存信息")
     public RetResult<Object> getCacheInfo() {
         Properties info = (Properties) redisTemplate.execute((RedisCallback<Object>) RedisServerCommands::info);
         Properties commandStats = (Properties) redisTemplate.execute((RedisCallback<Object>) connection -> connection.serverCommands().info("commandstats"));

@@ -5,16 +5,18 @@ import cn.projectan.strix.core.cache.SystemPermissionCache;
 import cn.projectan.strix.core.ret.RetMarker;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.core.validation.ValidationGroup;
-import cn.projectan.strix.model.annotation.SysLog;
-import cn.projectan.strix.model.constant.SysLogOperType;
+import cn.projectan.strix.model.annotation.StrixLog;
 import cn.projectan.strix.model.db.SystemPermission;
 import cn.projectan.strix.model.db.SystemRolePermission;
+import cn.projectan.strix.model.dict.SysLogOperType;
 import cn.projectan.strix.model.request.system.permission.SystemPermissionUpdateReq;
 import cn.projectan.strix.model.response.common.CommonTransferDataResp;
 import cn.projectan.strix.model.response.system.permission.SystemPermissionListResp;
 import cn.projectan.strix.model.response.system.permission.SystemPermissionResp;
+import cn.projectan.strix.service.SystemManagerService;
 import cn.projectan.strix.service.SystemPermissionService;
 import cn.projectan.strix.service.SystemRolePermissionService;
+import cn.projectan.strix.utils.SpringUtil;
 import cn.projectan.strix.utils.UniqueDetectionTool;
 import cn.projectan.strix.utils.UpdateConditionBuilder;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -44,7 +46,7 @@ public class SystemPermissionController extends BaseSystemController {
 
     @GetMapping("")
     @PreAuthorize("@ss.hasPermission('system:menu')")
-    @SysLog(operationGroup = "系统权限", operationName = "查询权限列表")
+    @StrixLog(operationGroup = "系统权限", operationName = "查询权限列表")
     public RetResult<SystemPermissionListResp> getSystemPermissionList() {
         QueryWrapper<SystemPermission> systemPermissionQueryWrapper = new QueryWrapper<>();
         systemPermissionQueryWrapper.orderByAsc("create_time");
@@ -55,7 +57,7 @@ public class SystemPermissionController extends BaseSystemController {
 
     @GetMapping("{permissionId}")
     @PreAuthorize("@ss.hasPermission('system:menu')")
-    @SysLog(operationGroup = "系统权限", operationName = "查询权限信息")
+    @StrixLog(operationGroup = "系统权限", operationName = "查询权限信息")
     public RetResult<SystemPermissionResp> getSystemPermission(@PathVariable String permissionId) {
         Assert.notNull(permissionId, "参数错误");
         SystemPermission systemPermission = systemPermissionService.getById(permissionId);
@@ -66,7 +68,7 @@ public class SystemPermissionController extends BaseSystemController {
 
     @PostMapping("update")
     @PreAuthorize("@ss.anyPermission('system:menu:add', 'system:menu:update')")
-    @SysLog(operationGroup = "系统权限", operationName = "新增权限", operationType = SysLogOperType.ADD)
+    @StrixLog(operationGroup = "系统权限", operationName = "新增权限", operationType = SysLogOperType.ADD)
     public RetResult<Object> update(@RequestBody @Validated(ValidationGroup.Insert.class) SystemPermissionUpdateReq req) {
         Assert.notNull(req, "参数错误");
 
@@ -88,7 +90,7 @@ public class SystemPermissionController extends BaseSystemController {
 
     @PostMapping("update/{permissionId}")
     @PreAuthorize("@ss.anyPermission('system:menu:add', 'system:menu:update')")
-    @SysLog(operationGroup = "系统权限", operationName = "修改权限", operationType = SysLogOperType.UPDATE)
+    @StrixLog(operationGroup = "系统权限", operationName = "修改权限", operationType = SysLogOperType.UPDATE)
     public RetResult<Object> update(@PathVariable String permissionId, @RequestBody @Validated(ValidationGroup.Update.class) SystemPermissionUpdateReq req) {
         Assert.hasText(permissionId, "参数错误");
         Assert.notNull(req, "参数错误");
@@ -98,14 +100,18 @@ public class SystemPermissionController extends BaseSystemController {
         UpdateWrapper<SystemPermission> updateWrapper = UpdateConditionBuilder.build(systemPermission, req, getLoginManagerId());
         UniqueDetectionTool.check(systemPermission);
         Assert.isTrue(systemPermissionService.update(updateWrapper), "保存失败");
+        // 更新缓存
         systemPermissionCache.updateRamAndRedis();
+        // 刷新 redis 中的登录用户信息
+        SystemManagerService systemManagerService = SpringUtil.getBean(SystemManagerService.class);
+        systemManagerService.refreshLoginInfoByPermission(permissionId);
 
         return RetMarker.makeSuccessRsp();
     }
 
     @PostMapping("remove/{permissionId}")
     @PreAuthorize("@ss.hasPermission('system:menu:remove')")
-    @SysLog(operationGroup = "系统权限", operationName = "删除权限", operationType = SysLogOperType.DELETE)
+    @StrixLog(operationGroup = "系统权限", operationName = "删除权限", operationType = SysLogOperType.DELETE)
     public RetResult<Object> remove(@PathVariable String permissionId) {
         Assert.hasText(permissionId, "参数错误");
         SystemPermission systemPermission = systemPermissionService.getById(permissionId);

@@ -4,9 +4,9 @@ import cn.projectan.strix.controller.system.base.BaseSystemController;
 import cn.projectan.strix.core.ret.RetMarker;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.core.validation.ValidationGroup;
-import cn.projectan.strix.model.annotation.SysLog;
-import cn.projectan.strix.model.constant.SysLogOperType;
+import cn.projectan.strix.model.annotation.StrixLog;
 import cn.projectan.strix.model.db.OssFileGroup;
+import cn.projectan.strix.model.dict.SysLogOperType;
 import cn.projectan.strix.model.request.module.oss.OssFileGroupListReq;
 import cn.projectan.strix.model.request.module.oss.OssFileGroupUpdateReq;
 import cn.projectan.strix.model.response.common.CommonSelectDataResp;
@@ -40,7 +40,7 @@ public class OssFileGroupController extends BaseSystemController {
 
     @GetMapping("")
     @PreAuthorize("@ss.hasPermission('system:module:oss:filegroup')")
-    @SysLog(operationGroup = "系统存储分组", operationName = "查询存储分组列表")
+    @StrixLog(operationGroup = "系统存储分组", operationName = "查询存储分组列表")
     public RetResult<OssFileGroupListResp> getOssFileGroupList(OssFileGroupListReq req) {
         QueryWrapper<OssFileGroup> queryWrapper = new QueryWrapper<>();
 
@@ -58,7 +58,7 @@ public class OssFileGroupController extends BaseSystemController {
 
     @GetMapping("{id}")
     @PreAuthorize("@ss.hasPermission('system:module:oss:filegroup')")
-    @SysLog(operationGroup = "系统存储分组", operationName = "查询存储分组信息")
+    @StrixLog(operationGroup = "系统存储分组", operationName = "查询存储分组信息")
     public RetResult<OssFileGroupResp> getOssFileGroupInfo(@PathVariable String id) {
         OssFileGroup ossFileGroup = ossFileGroupService.getById(id);
         Assert.notNull(ossFileGroup, "记录不存在");
@@ -81,7 +81,7 @@ public class OssFileGroupController extends BaseSystemController {
 
     @PostMapping("update")
     @PreAuthorize("@ss.hasPermission('system:module:oss:filegroup:add')")
-    @SysLog(operationGroup = "系统存储分组", operationName = "新增存储分组", operationType = SysLogOperType.ADD)
+    @StrixLog(operationGroup = "系统存储分组", operationName = "新增存储分组", operationType = SysLogOperType.ADD)
     public RetResult<Object> update(@RequestBody @Validated(ValidationGroup.Insert.class) OssFileGroupUpdateReq req) {
         OssFileGroup ossFileGroup = new OssFileGroup(
                 req.getKey(),
@@ -107,7 +107,7 @@ public class OssFileGroupController extends BaseSystemController {
 
     @PostMapping("update/{id}")
     @PreAuthorize("@ss.hasPermission('system:module:oss:filegroup:update')")
-    @SysLog(operationGroup = "系统存储分组", operationName = "修改存储分组", operationType = SysLogOperType.UPDATE)
+    @StrixLog(operationGroup = "系统存储分组", operationName = "修改存储分组", operationType = SysLogOperType.UPDATE)
     public RetResult<Object> update(@PathVariable String id, @RequestBody @Validated(ValidationGroup.Update.class) OssFileGroupUpdateReq req) {
         OssFileGroup ossFileGroup = ossFileGroupService.getById(id);
         Assert.notNull(ossFileGroup, "原记录不存在");
@@ -121,7 +121,7 @@ public class OssFileGroupController extends BaseSystemController {
 
     @PostMapping("remove/{id}")
     @PreAuthorize("@ss.hasPermission('system:module:oss:filegroup:remove')")
-    @SysLog(operationGroup = "系统存储分组", operationName = "删除存储分组", operationType = SysLogOperType.DELETE)
+    @StrixLog(operationGroup = "系统存储分组", operationName = "删除存储分组", operationType = SysLogOperType.DELETE)
     public RetResult<Object> remove(@PathVariable String id) {
         Assert.hasText(id, "参数错误");
 

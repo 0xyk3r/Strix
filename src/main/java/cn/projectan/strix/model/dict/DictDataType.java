@@ -1,4 +1,4 @@
-package cn.projectan.strix.model.constant;
+package cn.projectan.strix.model.dict;
 
 import cn.projectan.strix.model.annotation.Dict;
 import cn.projectan.strix.model.annotation.DictData;

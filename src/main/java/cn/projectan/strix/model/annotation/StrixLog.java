@@ -1,6 +1,6 @@
 package cn.projectan.strix.model.annotation;
 
-import cn.projectan.strix.model.constant.SysLogOperType;
+import cn.projectan.strix.model.dict.SysLogOperType;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -13,7 +13,7 @@ import java.lang.annotation.Target;
  */
 @Target({ElementType.PARAMETER, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface SysLog {
+public @interface StrixLog {
 
     String operationGroup() default "";
 

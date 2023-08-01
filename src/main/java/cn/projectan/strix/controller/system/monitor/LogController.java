@@ -3,7 +3,7 @@ package cn.projectan.strix.controller.system.monitor;
 import cn.projectan.strix.controller.system.base.BaseSystemController;
 import cn.projectan.strix.core.ret.RetMarker;
 import cn.projectan.strix.core.ret.RetResult;
-import cn.projectan.strix.model.annotation.SysLog;
+import cn.projectan.strix.model.annotation.StrixLog;
 import cn.projectan.strix.model.db.SystemLog;
 import cn.projectan.strix.model.request.system.monitor.log.SystemLogListReq;
 import cn.projectan.strix.model.response.system.monitor.log.SystemLogListResp;
@@ -33,7 +33,7 @@ public class LogController extends BaseSystemController {
 
     @GetMapping()
     @PreAuthorize("@ss.hasPermission('system:monitor:log')")
-    @SysLog(operationGroup = "系统操作日志", operationName = "查询系统操作日志")
+    @StrixLog(operationGroup = "系统操作日志", operationName = "查询系统操作日志")
     public RetResult<Object> list(SystemLogListReq req) {
         LambdaQueryWrapper<SystemLog> queryWrapper = new LambdaQueryWrapper<>();
 

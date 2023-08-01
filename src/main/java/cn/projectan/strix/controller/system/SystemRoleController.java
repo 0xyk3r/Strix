@@ -6,9 +6,9 @@ import cn.projectan.strix.core.cache.SystemPermissionCache;
 import cn.projectan.strix.core.ret.RetMarker;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.core.validation.ValidationGroup;
-import cn.projectan.strix.model.annotation.SysLog;
-import cn.projectan.strix.model.constant.SysLogOperType;
+import cn.projectan.strix.model.annotation.StrixLog;
 import cn.projectan.strix.model.db.*;
+import cn.projectan.strix.model.dict.SysLogOperType;
 import cn.projectan.strix.model.request.system.role.SystemRoleUpdateMenuReq;
 import cn.projectan.strix.model.request.system.role.SystemRoleUpdateReq;
 import cn.projectan.strix.model.response.common.CommonSelectDataResp;
@@ -21,7 +21,6 @@ import cn.projectan.strix.utils.KeysDiffHandler;
 import cn.projectan.strix.utils.SpringUtil;
 import cn.projectan.strix.utils.UniqueDetectionTool;
 import cn.projectan.strix.utils.UpdateConditionBuilder;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import lombok.RequiredArgsConstructor;
@@ -54,7 +53,7 @@ public class SystemRoleController extends BaseSystemController {
 
     @GetMapping("")
     @PreAuthorize("@ss.hasPermission('system:role')")
-    @SysLog(operationGroup = "系统角色", operationName = "查询角色列表")
+    @StrixLog(operationGroup = "系统角色", operationName = "查询角色列表")
     public RetResult<SystemRoleListResp> getSystemRoleList() {
         QueryWrapper<SystemRole> systemRoleQueryWrapper = new QueryWrapper<>();
         systemRoleQueryWrapper.orderByAsc("create_time");
@@ -65,7 +64,7 @@ public class SystemRoleController extends BaseSystemController {
 
     @GetMapping("{roleId}")
     @PreAuthorize("@ss.hasPermission('system:role')")
-    @SysLog(operationGroup = "系统角色", operationName = "查询角色信息")
+    @StrixLog(operationGroup = "系统角色", operationName = "查询角色信息")
     public RetResult<SystemRoleResp> getSystemRole(@PathVariable String roleId) {
         Assert.notNull(roleId, "参数错误");
         SystemRole systemRole = systemRoleService.getById(roleId);
@@ -80,7 +79,7 @@ public class SystemRoleController extends BaseSystemController {
 
     @PostMapping("update")
     @PreAuthorize("@ss.hasPermission('system:role:add')")
-    @SysLog(operationGroup = "系统角色", operationName = "新增角色", operationType = SysLogOperType.ADD)
+    @StrixLog(operationGroup = "系统角色", operationName = "新增角色", operationType = SysLogOperType.ADD)
     public RetResult<Object> update(@RequestBody @Validated(ValidationGroup.Insert.class) SystemRoleUpdateReq req) {
         Assert.notNull(req, "参数错误");
 
@@ -99,7 +98,7 @@ public class SystemRoleController extends BaseSystemController {
 
     @PostMapping("update/{roleId}")
     @PreAuthorize("@ss.hasPermission('system:role:update')")
-    @SysLog(operationGroup = "系统角色", operationName = "修改角色", operationType = SysLogOperType.UPDATE)
+    @StrixLog(operationGroup = "系统角色", operationName = "修改角色", operationType = SysLogOperType.UPDATE)
     public RetResult<Object> update(@PathVariable String roleId, @RequestBody @Validated(ValidationGroup.Update.class) SystemRoleUpdateReq req) {
         Assert.hasText(roleId, "参数错误");
         Assert.notNull(req, "参数错误");
@@ -115,7 +114,7 @@ public class SystemRoleController extends BaseSystemController {
 
     @PostMapping("update/{roleId}/menu")
     @PreAuthorize("@ss.hasPermission('system:role:update')")
-    @SysLog(operationGroup = "系统角色", operationName = "修改角色菜单权限", operationType = SysLogOperType.UPDATE)
+    @StrixLog(operationGroup = "系统角色", operationName = "修改角色菜单权限", operationType = SysLogOperType.UPDATE)
     public RetResult<Object> updateMenu(@PathVariable String roleId, @RequestBody @Validated(ValidationGroup.Update.class) SystemRoleUpdateMenuReq req) {
         SystemRole systemRole = systemRoleService.getById(roleId);
         Assert.notNull(systemRole, "系统角色信息不存在");
@@ -174,15 +173,11 @@ public class SystemRoleController extends BaseSystemController {
             // 刷新 redis 缓存
             systemPermissionCache.updateRedisBySystemRoleId(roleId);
         }));
+
         // 刷新 redis 中的登录用户信息
         SystemManagerService systemManagerService = SpringUtil.getBean(SystemManagerService.class);
-        systemManagerService.refreshLoginInfo(
-                systemManagerRoleService.listObjs(
-                        new LambdaQueryWrapper<SystemManagerRole>()
-                                .select(SystemManagerRole::getSystemManagerId)
-                                .eq(SystemManagerRole::getSystemRoleId, roleId)
-                ).stream().map(Object::toString).toList()
-        );
+        systemManagerService.refreshLoginInfoByRole(roleId);
+
         // 获取最新的权限信息
         List<SystemMenu> menusByRoleId = systemRoleService.getMenusByRoleId(systemRole.getId());
         List<SystemPermission> systemPermissionByRoleId = systemRoleService.getSystemPermissionByRoleId(roleId);
@@ -193,7 +188,7 @@ public class SystemRoleController extends BaseSystemController {
 
     @PostMapping("remove/{roleId}")
     @PreAuthorize("@ss.hasPermission('system:role:remove')")
-    @SysLog(operationGroup = "系统角色", operationName = "删除角色", operationType = SysLogOperType.DELETE)
+    @StrixLog(operationGroup = "系统角色", operationName = "删除角色", operationType = SysLogOperType.DELETE)
     public RetResult<Object> remove(@PathVariable String roleId) {
         Assert.hasText(roleId, "参数错误");
         // TODO 改为lock字段
@@ -227,7 +222,7 @@ public class SystemRoleController extends BaseSystemController {
      */
     @PostMapping("remove/{roleId}/menu/{menuId}")
     @PreAuthorize("@ss.hasPermission('system:role:modifyPermission')")
-    @SysLog(operationGroup = "系统角色", operationName = "移除角色的菜单权限", operationType = SysLogOperType.UPDATE)
+    @StrixLog(operationGroup = "系统角色", operationName = "移除角色的菜单权限", operationType = SysLogOperType.UPDATE)
     public RetResult<SystemRoleResp> removeRoleMenu(@PathVariable String roleId, @PathVariable String menuId) {
         Assert.hasText(roleId, "参数错误");
         Assert.hasText(menuId, "参数错误");
@@ -244,6 +239,9 @@ public class SystemRoleController extends BaseSystemController {
         systemRoleMenuService.remove(systemRoleMenuQueryWrapper);
         // 刷新redis缓存
         systemMenuCache.updateRedisBySystemRoleId(roleId);
+        // 刷新 redis 中的登录用户信息
+        SystemManagerService systemManagerService = SpringUtil.getBean(SystemManagerService.class);
+        systemManagerService.refreshLoginInfoByRole(roleId);
 
         // 返回移除后的最新关系信息
         List<SystemMenu> menusByRoleId = systemRoleService.getMenusByRoleId(systemRole.getId());
@@ -262,7 +260,7 @@ public class SystemRoleController extends BaseSystemController {
      */
     @PostMapping("remove/{roleId}/permission/{permissionId}")
     @PreAuthorize("@ss.hasPermission('system:role:modifyPermission')")
-    @SysLog(operationGroup = "系统角色", operationName = "移除角色的系统权限", operationType = SysLogOperType.UPDATE)
+    @StrixLog(operationGroup = "系统角色", operationName = "移除角色的系统权限", operationType = SysLogOperType.UPDATE)
     public RetResult<SystemRoleResp> removeRolePermission(@PathVariable String roleId, @PathVariable String permissionId) {
         Assert.hasText(roleId, "参数错误");
         Assert.hasText(permissionId, "参数错误");
@@ -276,6 +274,9 @@ public class SystemRoleController extends BaseSystemController {
         systemRolePermissionService.remove(systemRolePermissionQueryWrapper);
         // 刷新redis缓存
         systemPermissionCache.updateRedisBySystemRoleId(roleId);
+        // 刷新 redis 中的登录用户信息
+        SystemManagerService systemManagerService = SpringUtil.getBean(SystemManagerService.class);
+        systemManagerService.refreshLoginInfoByRole(roleId);
 
         // 返回移除后的最新关系信息
         List<SystemMenu> menusByRoleId = systemRoleService.getMenusByRoleId(systemRole.getId());

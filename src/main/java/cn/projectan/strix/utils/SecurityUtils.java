@@ -2,10 +2,10 @@ package cn.projectan.strix.utils;
 
 import cn.projectan.strix.core.exception.StrixException;
 import cn.projectan.strix.core.ss.details.LoginSystemManager;
-import cn.projectan.strix.model.constant.SystemManagerType;
 import cn.projectan.strix.model.db.SystemManager;
 import cn.projectan.strix.model.db.SystemMenu;
 import cn.projectan.strix.model.db.SystemPermission;
+import cn.projectan.strix.model.dict.SystemManagerType;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;

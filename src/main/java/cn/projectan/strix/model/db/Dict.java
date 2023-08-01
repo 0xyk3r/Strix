@@ -51,7 +51,7 @@ public class Dict extends BaseModel {
     /**
      * 字典状态
      *
-     * @see cn.projectan.strix.model.constant.DictStatus
+     * @see cn.projectan.strix.model.dict.DictStatus
      */
     private Integer status;
 
@@ -68,7 +68,7 @@ public class Dict extends BaseModel {
     /**
      * 数据删除状态 0正常 1删除
      *
-     * @see cn.projectan.strix.model.constant.DictProvided
+     * @see cn.projectan.strix.model.dict.DictProvided
      */
     private Integer provided;
 

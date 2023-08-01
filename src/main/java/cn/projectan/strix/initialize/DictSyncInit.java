@@ -1,11 +1,11 @@
 package cn.projectan.strix.initialize;
 
 import cn.projectan.strix.config.StrixOssConfig;
-import cn.projectan.strix.model.constant.DictDataStatus;
-import cn.projectan.strix.model.constant.DictProvided;
-import cn.projectan.strix.model.constant.DictStatus;
 import cn.projectan.strix.model.db.Dict;
 import cn.projectan.strix.model.db.DictData;
+import cn.projectan.strix.model.dict.DictDataStatus;
+import cn.projectan.strix.model.dict.DictProvided;
+import cn.projectan.strix.model.dict.DictStatus;
 import cn.projectan.strix.model.properties.StrixPackageScanProperties;
 import cn.projectan.strix.model.request.system.dict.DictDataUpdateReq;
 import cn.projectan.strix.model.request.system.dict.DictUpdateReq;
@@ -43,18 +43,18 @@ import java.util.Set;
 @EnableConfigurationProperties(StrixPackageScanProperties.class)
 public class DictSyncInit implements ApplicationRunner {
 
-    private final List<String> STRIX_CONSTANT_PACKAGE = new ArrayList<>();
+    private final List<String> STRIX_DICT_PACKAGE = new ArrayList<>();
 
     private final StrixPackageScanProperties strixPackageScanProperties;
     private final DictService dictService;
 
     @Override
     public void run(ApplicationArguments args) {
-        STRIX_CONSTANT_PACKAGE.add("cn.projectan.strix.model.constant");
-        STRIX_CONSTANT_PACKAGE.addAll(List.of(strixPackageScanProperties.getConstant()));
+        STRIX_DICT_PACKAGE.add("cn.projectan.strix.model.dict");
+        STRIX_DICT_PACKAGE.addAll(List.of(strixPackageScanProperties.getDict()));
 
         Set<Class<?>> dictClassSet = new HashSet<>();
-        STRIX_CONSTANT_PACKAGE.forEach(pkg -> {
+        STRIX_DICT_PACKAGE.forEach(pkg -> {
             Reflections reflections = new Reflections(pkg);
             dictClassSet.addAll(reflections.getTypesAnnotatedWith(cn.projectan.strix.model.annotation.Dict.class));
         });

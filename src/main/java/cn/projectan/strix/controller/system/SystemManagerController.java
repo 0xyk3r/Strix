@@ -7,12 +7,12 @@ import cn.projectan.strix.core.cache.SystemRegionCache;
 import cn.projectan.strix.core.ret.RetMarker;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.core.validation.ValidationGroup;
-import cn.projectan.strix.model.annotation.SysLog;
-import cn.projectan.strix.model.constant.SysLogOperType;
-import cn.projectan.strix.model.constant.SystemManagerStatus;
-import cn.projectan.strix.model.constant.SystemManagerType;
+import cn.projectan.strix.model.annotation.StrixLog;
 import cn.projectan.strix.model.db.SystemManager;
 import cn.projectan.strix.model.db.SystemManagerRole;
+import cn.projectan.strix.model.dict.SysLogOperType;
+import cn.projectan.strix.model.dict.SystemManagerStatus;
+import cn.projectan.strix.model.dict.SystemManagerType;
 import cn.projectan.strix.model.request.common.SingleFieldModifyReq;
 import cn.projectan.strix.model.request.system.manager.SystemManagerListReq;
 import cn.projectan.strix.model.request.system.manager.SystemManagerUpdateReq;
@@ -58,7 +58,7 @@ public class SystemManagerController extends BaseSystemController {
 
     @GetMapping("")
     @PreAuthorize("@ss.hasPermission('system:manager')")
-    @SysLog(operationGroup = "系统人员", operationName = "查询人员列表")
+    @StrixLog(operationGroup = "系统人员", operationName = "查询人员列表")
     public RetResult<SystemManagerListResp> getSystemManagerList(SystemManagerListReq req) {
         QueryWrapper<SystemManager> systemManagerQueryWrapper = new QueryWrapper<>();
         if (!isSuperManager()) {
@@ -87,7 +87,7 @@ public class SystemManagerController extends BaseSystemController {
 
     @GetMapping("{managerId}")
     @PreAuthorize("@ss.hasPermission('system:manager')")
-    @SysLog(operationGroup = "系统人员", operationName = "查询人员信息")
+    @StrixLog(operationGroup = "系统人员", operationName = "查询人员信息")
     public RetResult<SystemManagerResp> getSystemManager(@PathVariable String managerId) {
         Assert.notNull(managerId, "参数错误");
         SystemManager systemManager = systemManagerService.getById(managerId);
@@ -103,7 +103,7 @@ public class SystemManagerController extends BaseSystemController {
 
     @PostMapping("modify/{managerId}")
     @PreAuthorize("@ss.hasPermission('system:manager:update')")
-    @SysLog(operationGroup = "系统人员", operationName = "更改人员信息", operationType = SysLogOperType.UPDATE)
+    @StrixLog(operationGroup = "系统人员", operationName = "更改人员信息", operationType = SysLogOperType.UPDATE)
     public RetResult<Object> modifyField(@PathVariable String managerId, @RequestBody SingleFieldModifyReq req) {
         Assert.hasText(req.getField(), "参数错误");
         if (!"region".equals(req.getField())) {
@@ -178,7 +178,7 @@ public class SystemManagerController extends BaseSystemController {
 
     @PostMapping("update")
     @PreAuthorize("@ss.hasPermission('system:manager:add')")
-    @SysLog(operationGroup = "系统人员", operationName = "新增人员", operationType = SysLogOperType.ADD)
+    @StrixLog(operationGroup = "系统人员", operationName = "新增人员", operationType = SysLogOperType.ADD)
     public RetResult<Object> update(@RequestBody @Validated(ValidationGroup.Insert.class) SystemManagerUpdateReq req) {
         Assert.notNull(req, "参数错误");
         Assert.isTrue(SystemManagerStatus.valid(req.getStatus()), "参数错误");
@@ -204,7 +204,7 @@ public class SystemManagerController extends BaseSystemController {
 
     @PostMapping("update/{managerId}")
     @PreAuthorize("@ss.hasPermission('system:manager:update')")
-    @SysLog(operationGroup = "系统人员", operationName = "修改人员", operationType = SysLogOperType.UPDATE)
+    @StrixLog(operationGroup = "系统人员", operationName = "修改人员", operationType = SysLogOperType.UPDATE)
     public RetResult<Object> update(@PathVariable String managerId, @RequestBody @Validated(ValidationGroup.Update.class) SystemManagerUpdateReq req) {
         Assert.hasText(managerId, "参数错误");
         Assert.isTrue(!"anjiongyi".equals(managerId), "该用户不允许编辑或删除");
@@ -223,7 +223,7 @@ public class SystemManagerController extends BaseSystemController {
 
     @PostMapping("remove/{managerId}")
     @PreAuthorize("@ss.hasPermission('system:manager:remove')")
-    @SysLog(operationGroup = "系统人员", operationName = "删除人员", operationType = SysLogOperType.DELETE)
+    @StrixLog(operationGroup = "系统人员", operationName = "删除人员", operationType = SysLogOperType.DELETE)
     public RetResult<Object> remove(@PathVariable String managerId) {
         Assert.hasText(managerId, "参数错误");
         Assert.isTrue(!"anjiongyi".equals(managerId), "该用户不允许编辑或删除");
