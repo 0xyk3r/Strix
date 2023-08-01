@@ -2,7 +2,7 @@ package cn.projectan.strix.model.request.module.sms;
 
 import cn.projectan.strix.core.validation.ValidationGroup;
 import cn.projectan.strix.model.annotation.UpdateField;
-import cn.projectan.strix.model.constant.StrixSmsPlatform;
+import cn.projectan.strix.model.dict.StrixSmsPlatform;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;

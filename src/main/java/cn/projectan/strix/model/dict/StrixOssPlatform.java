@@ -1,14 +1,14 @@
-package cn.projectan.strix.model.constant;
+package cn.projectan.strix.model.dict;
 
 import cn.projectan.strix.model.annotation.Dict;
 import cn.projectan.strix.model.annotation.DictData;
 
 /**
  * @author 安炯奕
- * @date 2023/5/20 15:15
+ * @date 2023/5/22 15:50
  */
-@Dict(key = "StrixSmsPlatform", value = "短信服务-平台")
-public interface StrixSmsPlatform {
+@Dict(key = "StrixOssPlatform", value = "存储服务-平台")
+public interface StrixOssPlatform {
 
     @DictData(label = "阿里云", sort = 1, style = DictDataStyle.WARNING)
     int ALIYUN = 1;

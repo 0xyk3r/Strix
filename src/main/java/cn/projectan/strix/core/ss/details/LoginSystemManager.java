@@ -1,10 +1,10 @@
 package cn.projectan.strix.core.ss.details;
 
-import cn.projectan.strix.model.constant.SystemManagerStatus;
-import cn.projectan.strix.model.constant.SystemManagerType;
 import cn.projectan.strix.model.db.SystemManager;
 import cn.projectan.strix.model.db.SystemMenu;
 import cn.projectan.strix.model.db.SystemPermission;
+import cn.projectan.strix.model.dict.SystemManagerStatus;
+import cn.projectan.strix.model.dict.SystemManagerType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;

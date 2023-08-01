@@ -83,6 +83,6 @@ strix:
   default-locale: zh_CN
   # 包扫描路径
   package-scan:
+    dict:
     entity:
     service:
-    constant:

@@ -2,11 +2,8 @@ package cn.projectan.strix.service.impl;
 
 import cn.projectan.strix.core.ss.details.LoginSystemManager;
 import cn.projectan.strix.mapper.SystemManagerMapper;
-import cn.projectan.strix.model.constant.SystemManagerType;
-import cn.projectan.strix.model.db.SystemManager;
-import cn.projectan.strix.model.db.SystemManagerRole;
-import cn.projectan.strix.model.db.SystemMenu;
-import cn.projectan.strix.model.db.SystemPermission;
+import cn.projectan.strix.model.db.*;
+import cn.projectan.strix.model.dict.SystemManagerType;
 import cn.projectan.strix.service.*;
 import cn.projectan.strix.utils.RedisUtil;
 import cn.projectan.strix.utils.SpringUtil;
@@ -34,10 +31,12 @@ import java.util.TreeSet;
 public class SystemManagerServiceImpl extends ServiceImpl<SystemManagerMapper, SystemManager> implements SystemManagerService {
 
     private final SystemRoleService systemRoleService;
-    private final SystemManagerRoleService systemManagerRoleService;
-    private final SystemRegionService systemRegionService;
     private final SystemMenuService systemMenuService;
+    private final SystemRegionService systemRegionService;
+    private final SystemRoleMenuService systemRoleMenuService;
     private final SystemPermissionService systemPermissionService;
+    private final SystemManagerRoleService systemManagerRoleService;
+    private final SystemRolePermissionService systemRolePermissionService;
     private final RedisUtil redisUtil;
 
     @Cacheable(value = "strix:system:manager:menu_by_smid", key = "#systemManagerId")
@@ -85,14 +84,60 @@ public class SystemManagerServiceImpl extends ServiceImpl<SystemManagerMapper, S
     }
 
     @Override
-    public void refreshLoginInfo(List<String> systemManagerIdList) {
-        systemManagerIdList.forEach(managerId -> {
-            Object existToken = redisUtil.get("strix:system:manager:login_token:login:id_" + managerId);
-            if (existToken != null) {
-                LoginSystemManager loginSystemManager = this.getLoginInfo(managerId);
-                redisUtil.set("strix:system:manager:login_token:token:" + existToken, loginSystemManager);
-            }
-        });
+    public void refreshLoginInfoByRole(String roleId) {
+        systemManagerRoleService.listObjs(
+                        new LambdaQueryWrapper<SystemManagerRole>()
+                                .select(SystemManagerRole::getSystemManagerId)
+                                .eq(SystemManagerRole::getSystemRoleId, roleId)
+                ).stream()
+                .map(Object::toString)
+                .forEach(managerId -> {
+                    Object existToken = redisUtil.get("strix:system:manager:login_token:login:id_" + managerId);
+                    if (existToken != null) {
+                        LoginSystemManager loginSystemManager = this.getLoginInfo(managerId);
+                        redisUtil.set("strix:system:manager:login_token:token:" + existToken, loginSystemManager);
+                    }
+                });
     }
 
+    @Override
+    public void refreshLoginInfoByRole(List<String> roleIdList) {
+        systemManagerRoleService.listObjs(
+                        new LambdaQueryWrapper<SystemManagerRole>()
+                                .select(SystemManagerRole::getSystemManagerId)
+                                .in(SystemManagerRole::getSystemRoleId, roleIdList)
+                ).stream()
+                .map(Object::toString)
+                .forEach(managerId -> {
+                    Object existToken = redisUtil.get("strix:system:manager:login_token:login:id_" + managerId);
+                    if (existToken != null) {
+                        LoginSystemManager loginSystemManager = this.getLoginInfo(managerId);
+                        redisUtil.set("strix:system:manager:login_token:token:" + existToken, loginSystemManager);
+                    }
+                });
+    }
+
+    @Override
+    public void refreshLoginInfoByMenu(String menuId) {
+        List<String> roleIdList = systemRoleMenuService.listObjs(
+                        new LambdaQueryWrapper<SystemRoleMenu>()
+                                .select(SystemRoleMenu::getSystemRoleId)
+                                .eq(SystemRoleMenu::getSystemMenuId, menuId)
+                ).stream()
+                .map(Object::toString).toList();
+
+        refreshLoginInfoByRole(roleIdList);
+    }
+
+    @Override
+    public void refreshLoginInfoByPermission(String permissionId) {
+        List<String> roleIdList = systemRolePermissionService.listObjs(
+                        new LambdaQueryWrapper<SystemRolePermission>()
+                                .select(SystemRolePermission::getSystemRoleId)
+                                .eq(SystemRolePermission::getSystemPermissionId, permissionId)
+                ).stream()
+                .map(Object::toString).toList();
+
+        refreshLoginInfoByRole(roleIdList);
+    }
 }

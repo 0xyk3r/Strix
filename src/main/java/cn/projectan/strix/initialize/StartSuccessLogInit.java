@@ -19,11 +19,16 @@ public class StartSuccessLogInit implements ApplicationRunner {
     public void run(ApplicationArguments args) {
         log.info("""
 
-                ##################################################
 
-                     ProjectAn Strix is started successfully!
+                                                   __         .__
+                                           _______/  |________|__|__  ___
+                                          /  ___/\\   __\\_  __ \\  \\  \\/  /
+                                          \\___ \\  |  |  |  | \\/  |>    <
+                                         /____  > |__|  |__|  |__/__/\\_ \\
+                                              \\/                       \\/
 
-                ##################################################
+                                       ProjectAn Strix is started successfully!
+
                 """);
     }
 

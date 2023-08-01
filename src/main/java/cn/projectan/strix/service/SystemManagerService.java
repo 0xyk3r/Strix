@@ -37,8 +37,23 @@ public interface SystemManagerService extends IService<SystemManager> {
     LoginSystemManager getLoginInfo(String systemManagerId);
 
     /**
-     * 刷新 redis 中的用户权限信息
+     * 根据角色 ID, 刷新 redis 中的用户权限信息
      */
-    void refreshLoginInfo(List<String> systemManagerIdList);
+    void refreshLoginInfoByRole(String roleId);
+
+    /**
+     * 根据角色 ID, 刷新 redis 中的用户权限信息
+     */
+    void refreshLoginInfoByRole(List<String> roleIdList);
+
+    /**
+     * 根据菜单 ID, 刷新 redis 中的用户权限信息
+     */
+    void refreshLoginInfoByMenu(String menuId);
+
+    /**
+     * 根据权限 ID, 刷新 redis 中的用户权限信息
+     */
+    void refreshLoginInfoByPermission(String permissionId);
 
 }

@@ -1,4 +1,4 @@
-package cn.projectan.strix.model.constant.monitor;
+package cn.projectan.strix.model.dict.monitor;
 
 /**
  * @author 安炯奕

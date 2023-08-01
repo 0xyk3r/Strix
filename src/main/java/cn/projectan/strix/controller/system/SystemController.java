@@ -10,11 +10,11 @@ import cn.projectan.strix.core.ret.RetMarker;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.core.ss.details.LoginSystemManager;
 import cn.projectan.strix.model.annotation.Anonymous;
-import cn.projectan.strix.model.annotation.SysLog;
-import cn.projectan.strix.model.constant.SysLogOperType;
-import cn.projectan.strix.model.constant.SystemManagerStatus;
+import cn.projectan.strix.model.annotation.StrixLog;
 import cn.projectan.strix.model.db.SystemManager;
 import cn.projectan.strix.model.db.SystemMenu;
+import cn.projectan.strix.model.dict.SysLogOperType;
+import cn.projectan.strix.model.dict.SystemManagerStatus;
 import cn.projectan.strix.model.request.system.SystemLoginReq;
 import cn.projectan.strix.model.response.system.SystemLoginResp;
 import cn.projectan.strix.model.response.system.SystemMenuResp;
@@ -49,7 +49,7 @@ public class SystemController extends BaseSystemController {
 
     @Anonymous
     @PostMapping("login")
-    @SysLog(operationGroup = "系统登录", operationName = "系统登录", operationType = SysLogOperType.LOGIN)
+    @StrixLog(operationGroup = "系统登录", operationName = "系统登录", operationType = SysLogOperType.LOGIN)
     public RetResult<Object> login(@RequestBody SystemLoginReq req) {
         // 验证码校验
         Assert.hasText(req.getCaptchaVerification(), "行为验证不通过，请重新验证");

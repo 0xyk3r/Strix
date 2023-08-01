@@ -5,19 +5,21 @@ import cn.projectan.strix.core.cache.SystemMenuCache;
 import cn.projectan.strix.core.ret.RetMarker;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.core.validation.ValidationGroup;
-import cn.projectan.strix.model.annotation.SysLog;
-import cn.projectan.strix.model.constant.SysLogOperType;
+import cn.projectan.strix.model.annotation.StrixLog;
 import cn.projectan.strix.model.db.SystemMenu;
 import cn.projectan.strix.model.db.SystemPermission;
 import cn.projectan.strix.model.db.SystemRoleMenu;
+import cn.projectan.strix.model.dict.SysLogOperType;
 import cn.projectan.strix.model.request.common.SingleFieldModifyReq;
 import cn.projectan.strix.model.request.system.menu.SystemMenuUpdateReq;
 import cn.projectan.strix.model.response.common.CommonTreeDataResp;
 import cn.projectan.strix.model.response.system.menu.SystemMenuListResp;
 import cn.projectan.strix.model.response.system.menu.SystemMenuResp;
+import cn.projectan.strix.service.SystemManagerService;
 import cn.projectan.strix.service.SystemMenuService;
 import cn.projectan.strix.service.SystemPermissionService;
 import cn.projectan.strix.service.SystemRoleMenuService;
+import cn.projectan.strix.utils.SpringUtil;
 import cn.projectan.strix.utils.UniqueDetectionTool;
 import cn.projectan.strix.utils.UpdateConditionBuilder;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -51,7 +53,7 @@ public class SystemMenuController extends BaseSystemController {
 
     @GetMapping("")
     @PreAuthorize("@ss.hasPermission('system:menu')")
-    @SysLog(operationGroup = "系统菜单", operationName = "查询菜单列表")
+    @StrixLog(operationGroup = "系统菜单", operationName = "查询菜单列表")
     public RetResult<SystemMenuListResp> getSystemMenuList() {
         List<SystemMenu> systemMenuList = systemMenuService.list();
         List<SystemPermission> systemPermissionList = systemPermissionService.list();
@@ -61,7 +63,7 @@ public class SystemMenuController extends BaseSystemController {
 
     @GetMapping("{menuId}")
     @PreAuthorize("@ss.hasPermission('system:menu')")
-    @SysLog(operationGroup = "系统菜单", operationName = "查询菜单信息")
+    @StrixLog(operationGroup = "系统菜单", operationName = "查询菜单信息")
     public RetResult<SystemMenuResp> getSystemMenu(@PathVariable String menuId) {
         Assert.notNull(menuId, "参数错误");
         SystemMenu sm = systemMenuService.getById(menuId);
@@ -72,7 +74,7 @@ public class SystemMenuController extends BaseSystemController {
 
     @PostMapping("modify/{menuId}")
     @PreAuthorize("@ss.hasPermission('system:menu:update')")
-    @SysLog(operationGroup = "系统菜单", operationName = "更改菜单信息", operationType = SysLogOperType.UPDATE)
+    @StrixLog(operationGroup = "系统菜单", operationName = "更改菜单信息", operationType = SysLogOperType.UPDATE)
     public RetResult<Object> modifyField(@PathVariable String menuId, @RequestBody SingleFieldModifyReq req) {
         SystemMenu systemMenu = systemMenuService.getById(menuId);
         Assert.notNull(systemMenu, "系统人员信息不存在");
@@ -95,7 +97,7 @@ public class SystemMenuController extends BaseSystemController {
 
     @PostMapping("update")
     @PreAuthorize("@ss.hasPermission('system:menu:add')")
-    @SysLog(operationGroup = "系统菜单", operationName = "新增菜单", operationType = SysLogOperType.ADD)
+    @StrixLog(operationGroup = "系统菜单", operationName = "新增菜单", operationType = SysLogOperType.ADD)
     public RetResult<Object> update(@RequestBody @Validated(ValidationGroup.Insert.class) SystemMenuUpdateReq req) {
         Assert.notNull(req, "参数错误");
 
@@ -121,7 +123,7 @@ public class SystemMenuController extends BaseSystemController {
 
     @PostMapping("update/{menuId}")
     @PreAuthorize("@ss.hasPermission('system:menu:update')")
-    @SysLog(operationGroup = "系统菜单", operationName = "修改菜单", operationType = SysLogOperType.UPDATE)
+    @StrixLog(operationGroup = "系统菜单", operationName = "修改菜单", operationType = SysLogOperType.UPDATE)
     public RetResult<Object> update(@PathVariable String menuId, @RequestBody @Validated(ValidationGroup.Update.class) SystemMenuUpdateReq req) {
         Assert.hasText(menuId, "参数错误");
         Assert.notNull(req, "参数错误");
@@ -133,13 +135,16 @@ public class SystemMenuController extends BaseSystemController {
         Assert.isTrue(systemMenuService.update(updateWrapper), "保存失败");
         // 更新缓存
         systemMenuCache.updateRamAndRedis();
+        // 刷新 redis 中的登录用户信息
+        SystemManagerService systemManagerService = SpringUtil.getBean(SystemManagerService.class);
+        systemManagerService.refreshLoginInfoByMenu(menuId);
 
         return RetMarker.makeSuccessRsp();
     }
 
     @PostMapping("remove/{menuId}")
     @PreAuthorize("@ss.hasPermission('system:menu:remove')")
-    @SysLog(operationGroup = "系统菜单", operationName = "删除菜单", operationType = SysLogOperType.DELETE)
+    @StrixLog(operationGroup = "系统菜单", operationName = "删除菜单", operationType = SysLogOperType.DELETE)
     public RetResult<Object> remove(@PathVariable String menuId) {
         Assert.hasText(menuId, "参数错误");
         SystemMenu systemMenu = systemMenuService.getById(menuId);

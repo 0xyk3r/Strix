@@ -1,9 +1,9 @@
 package cn.projectan.strix.service.impl;
 
 import cn.projectan.strix.mapper.SystemUserMapper;
-import cn.projectan.strix.model.constant.SystemUserStatus;
 import cn.projectan.strix.model.db.SystemUser;
 import cn.projectan.strix.model.db.SystemUserRelation;
+import cn.projectan.strix.model.dict.SystemUserStatus;
 import cn.projectan.strix.service.SystemUserRelationService;
 import cn.projectan.strix.service.SystemUserService;
 import cn.projectan.strix.utils.RedisUtil;

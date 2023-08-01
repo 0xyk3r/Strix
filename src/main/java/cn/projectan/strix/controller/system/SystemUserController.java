@@ -4,11 +4,11 @@ import cn.projectan.strix.controller.system.base.BaseSystemController;
 import cn.projectan.strix.core.ret.RetMarker;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.core.validation.ValidationGroup;
-import cn.projectan.strix.model.annotation.SysLog;
-import cn.projectan.strix.model.constant.SysLogOperType;
-import cn.projectan.strix.model.constant.SystemUserStatus;
+import cn.projectan.strix.model.annotation.StrixLog;
 import cn.projectan.strix.model.db.SystemUser;
 import cn.projectan.strix.model.db.SystemUserRelation;
+import cn.projectan.strix.model.dict.SysLogOperType;
+import cn.projectan.strix.model.dict.SystemUserStatus;
 import cn.projectan.strix.model.request.common.SingleFieldModifyReq;
 import cn.projectan.strix.model.request.system.user.SystemUserListReq;
 import cn.projectan.strix.model.request.system.user.SystemUserUpdateReq;
@@ -45,7 +45,7 @@ public class SystemUserController extends BaseSystemController {
 
     @GetMapping("")
     @PreAuthorize("@ss.hasPermission('system:user')")
-    @SysLog(operationGroup = "系统用户", operationName = "查询用户列表")
+    @StrixLog(operationGroup = "系统用户", operationName = "查询用户列表")
     public RetResult<SystemUserListResp> getSystemUserList(SystemUserListReq req) {
         QueryWrapper<SystemUser> systemUserQueryWrapper = new QueryWrapper<>();
         if (StringUtils.hasText(req.getKeyword())) {
@@ -65,7 +65,7 @@ public class SystemUserController extends BaseSystemController {
 
     @GetMapping("{userId}")
     @PreAuthorize("@ss.hasPermission('system:user')")
-    @SysLog(operationGroup = "系统用户", operationName = "查询用户信息")
+    @StrixLog(operationGroup = "系统用户", operationName = "查询用户信息")
     public RetResult<SystemUserResp> getSystemUser(@PathVariable String userId) {
         Assert.notNull(userId, "参数错误");
         SystemUser systemUser = systemUserService.getById(userId);
@@ -76,7 +76,7 @@ public class SystemUserController extends BaseSystemController {
 
     @PostMapping("modify/{userId}")
     @PreAuthorize("@ss.hasPermission('system:user:update')")
-    @SysLog(operationGroup = "系统用户", operationName = "更改用户信息", operationType = SysLogOperType.UPDATE)
+    @StrixLog(operationGroup = "系统用户", operationName = "更改用户信息", operationType = SysLogOperType.UPDATE)
     public RetResult<Object> modifyField(@PathVariable String userId, @RequestBody SingleFieldModifyReq req) {
         SystemUser systemUser = systemUserService.getById(userId);
         Assert.notNull(systemUser, "系统用户信息不存在");
@@ -104,7 +104,7 @@ public class SystemUserController extends BaseSystemController {
 
     @PostMapping("update")
     @PreAuthorize("@ss.hasPermission('system:user:add')")
-    @SysLog(operationGroup = "系统用户", operationName = "新增用户", operationType = SysLogOperType.ADD)
+    @StrixLog(operationGroup = "系统用户", operationName = "新增用户", operationType = SysLogOperType.ADD)
     public RetResult<Object> update(@RequestBody @Validated(ValidationGroup.Insert.class) SystemUserUpdateReq req) {
         Assert.notNull(req, "参数错误");
 
@@ -127,7 +127,7 @@ public class SystemUserController extends BaseSystemController {
 
     @PostMapping("update/{userId}")
     @PreAuthorize("@ss.hasPermission('system:user:update')")
-    @SysLog(operationGroup = "系统用户", operationName = "修改用户", operationType = SysLogOperType.UPDATE)
+    @StrixLog(operationGroup = "系统用户", operationName = "修改用户", operationType = SysLogOperType.UPDATE)
     public RetResult<Object> update(@PathVariable String userId, @RequestBody @Validated(ValidationGroup.Update.class) SystemUserUpdateReq req) {
         Assert.hasText(userId, "参数错误");
         Assert.notNull(req, "参数错误");
@@ -143,7 +143,7 @@ public class SystemUserController extends BaseSystemController {
 
     @PostMapping("remove/{userId}")
     @PreAuthorize("@ss.hasPermission('system:user:remove')")
-    @SysLog(operationGroup = "系统用户", operationName = "删除用户", operationType = SysLogOperType.DELETE)
+    @StrixLog(operationGroup = "系统用户", operationName = "删除用户", operationType = SysLogOperType.DELETE)
     public RetResult<Object> remove(@PathVariable String userId) {
         Assert.hasText(userId, "参数错误");
         Assert.isTrue(!"1".equalsIgnoreCase(userId), "该用户不支持删除");

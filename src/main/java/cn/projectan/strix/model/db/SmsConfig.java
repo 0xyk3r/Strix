@@ -1,8 +1,8 @@
 package cn.projectan.strix.model.db;
 
 import cn.projectan.strix.model.annotation.UniqueDetection;
-import cn.projectan.strix.model.constant.StrixSmsPlatform;
 import cn.projectan.strix.model.db.base.BaseModel;
+import cn.projectan.strix.model.dict.StrixSmsPlatform;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;

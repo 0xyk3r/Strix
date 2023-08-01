@@ -1,9 +1,9 @@
 package cn.projectan.strix.service.impl;
 
 import cn.projectan.strix.mapper.DictMapper;
-import cn.projectan.strix.model.constant.DictStatus;
 import cn.projectan.strix.model.db.Dict;
 import cn.projectan.strix.model.db.DictData;
+import cn.projectan.strix.model.dict.DictStatus;
 import cn.projectan.strix.model.request.system.dict.DictDataUpdateReq;
 import cn.projectan.strix.model.request.system.dict.DictUpdateReq;
 import cn.projectan.strix.model.response.common.CommonDictResp;

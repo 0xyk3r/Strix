@@ -1,14 +1,14 @@
-package cn.projectan.strix.model.constant;
+package cn.projectan.strix.model.dict;
 
 import cn.projectan.strix.model.annotation.Dict;
 import cn.projectan.strix.model.annotation.DictData;
 
 /**
  * @author 安炯奕
- * @date 2023/5/28 22:15
+ * @date 2023/8/1 14:39
  */
-@Dict(key = "DictStatus", value = "系统字典-状态")
-public interface DictStatus {
+@Dict(key = "CommonSwitch", value = "通用简易开关")
+public interface CommonSwitch {
 
     @DictData(label = "启用", sort = 1, style = DictDataStyle.SUCCESS)
     int ENABLE = 1;

@@ -5,7 +5,7 @@ import cn.hutool.http.useragent.UserAgent;
 import cn.hutool.http.useragent.UserAgentUtil;
 import cn.projectan.strix.core.ret.RetCode;
 import cn.projectan.strix.core.ret.RetResult;
-import cn.projectan.strix.model.annotation.SysLog;
+import cn.projectan.strix.model.annotation.StrixLog;
 import cn.projectan.strix.model.db.SystemLog;
 import cn.projectan.strix.model.db.SystemManager;
 import cn.projectan.strix.model.properties.StrixLogProperties;
@@ -51,8 +51,8 @@ public class SystemLogAspect {
     /**
      * 请求前执行
      */
-    @Before(value = "@annotation(sysLog)")
-    public void boBefore(JoinPoint joinPoint, SysLog sysLog) {
+    @Before(value = "@annotation(strixLog)")
+    public void boBefore(JoinPoint joinPoint, StrixLog strixLog) {
         TIME_THREADLOCAL.set(System.currentTimeMillis());
     }
 
@@ -61,9 +61,9 @@ public class SystemLogAspect {
      *
      * @param joinPoint 切点
      */
-    @AfterReturning(pointcut = "@annotation(sysLog)", returning = "retResult")
-    public void doAfterReturning(JoinPoint joinPoint, SysLog sysLog, Object retResult) {
-        handleLog(joinPoint, sysLog, null, retResult);
+    @AfterReturning(pointcut = "@annotation(strixLog)", returning = "retResult")
+    public void doAfterReturning(JoinPoint joinPoint, StrixLog strixLog, Object retResult) {
+        handleLog(joinPoint, strixLog, null, retResult);
     }
 
     /**
@@ -72,12 +72,12 @@ public class SystemLogAspect {
      * @param joinPoint 切点
      * @param e         异常
      */
-    @AfterThrowing(value = "@annotation(sysLog)", throwing = "e")
-    public void doAfterThrowing(JoinPoint joinPoint, SysLog sysLog, Exception e) {
-        handleLog(joinPoint, sysLog, e, null);
+    @AfterThrowing(value = "@annotation(strixLog)", throwing = "e")
+    public void doAfterThrowing(JoinPoint joinPoint, StrixLog strixLog, Exception e) {
+        handleLog(joinPoint, strixLog, e, null);
     }
 
-    protected void handleLog(final JoinPoint joinPoint, SysLog sysLog, final Exception e, Object retResult) {
+    protected void handleLog(final JoinPoint joinPoint, StrixLog strixLog, final Exception e, Object retResult) {
         try {
             SystemLog systemLog = new SystemLog();
             systemLog.setAppId(applicationName);
@@ -89,11 +89,11 @@ public class SystemLogAspect {
             systemLog.setOperationUrl(request.getRequestURI());
 
             // 注解上的信息
-            systemLog.setOperationType(sysLog.operationType());
-            systemLog.setOperationGroup(sysLog.operationGroup());
-            systemLog.setOperationName(sysLog.operationName());
+            systemLog.setOperationType(strixLog.operationType());
+            systemLog.setOperationGroup(strixLog.operationGroup());
+            systemLog.setOperationName(strixLog.operationName());
             // 请求参数
-            if (sysLog.saveRequestParam()) {
+            if (strixLog.saveRequestParam()) {
                 if ("GET".equals(request.getMethod())) {
                     systemLog.setOperationParam(objectMapper.writeValueAsString(ServletUtils.getRequestParams(request)));
                 } else {
@@ -103,7 +103,7 @@ public class SystemLogAspect {
             // 响应参数
             systemLog.setResponseCode(e == null ? RetCode.SUCCESS : RetCode.SERVER_ERROR);
             systemLog.setResponseMsg(e == null ? null : e.getMessage());
-            if (sysLog.saveResponseData()) {
+            if (strixLog.saveResponseData()) {
                 if (retResult instanceof RetResult<?> result) {
                     systemLog.setResponseCode(result.getCode());
                     systemLog.setResponseMsg(result.getMsg());
