@@ -1,6 +1,6 @@
 package cn.projectan.strix.initialize;
 
-import cn.projectan.strix.config.StrixOssConfig;
+import cn.projectan.strix.core.module.oss.StrixOssConfig;
 import cn.projectan.strix.model.db.Dict;
 import cn.projectan.strix.model.db.DictData;
 import cn.projectan.strix.model.dict.DictDataStatus;

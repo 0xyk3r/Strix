@@ -4,7 +4,7 @@ package cn.projectan.strix.core.exception;
  * @author 安炯奕
  * @date 2021/6/17 15:43
  */
-public class StrixUniqueDetectionException extends RuntimeException {
+public class StrixUniqueDetectionException extends StrixException {
 
     public StrixUniqueDetectionException() {
         super();
@@ -26,8 +26,4 @@ public class StrixUniqueDetectionException extends RuntimeException {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 
-    @Override
-    public Throwable fillInStackTrace() {
-        return this;
-    }
 }

@@ -1,7 +1,7 @@
 package cn.projectan.strix.controller.system.module.sms;
 
-import cn.projectan.strix.config.StrixSmsConfig;
 import cn.projectan.strix.controller.system.base.BaseSystemController;
+import cn.projectan.strix.core.module.sms.StrixSmsConfig;
 import cn.projectan.strix.core.ret.RetMarker;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.core.validation.ValidationGroup;

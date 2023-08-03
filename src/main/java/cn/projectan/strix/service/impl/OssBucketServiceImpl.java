@@ -1,7 +1,7 @@
 package cn.projectan.strix.service.impl;
 
-import cn.projectan.strix.config.StrixOssConfig;
 import cn.projectan.strix.core.module.oss.StrixOssClient;
+import cn.projectan.strix.core.module.oss.StrixOssConfig;
 import cn.projectan.strix.mapper.OssBucketMapper;
 import cn.projectan.strix.model.db.OssBucket;
 import cn.projectan.strix.model.system.StrixOssBucket;

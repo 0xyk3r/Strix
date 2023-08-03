@@ -1,8 +1,8 @@
 package cn.projectan.strix.service.impl;
 
-import cn.projectan.strix.config.StrixSmsConfig;
 import cn.projectan.strix.core.exception.StrixException;
 import cn.projectan.strix.core.module.sms.AliyunSmsClient;
+import cn.projectan.strix.core.module.sms.StrixSmsConfig;
 import cn.projectan.strix.mapper.SmsConfigMapper;
 import cn.projectan.strix.model.db.SmsConfig;
 import cn.projectan.strix.model.dict.StrixSmsPlatform;

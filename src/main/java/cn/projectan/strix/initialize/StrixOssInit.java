@@ -1,6 +1,6 @@
 package cn.projectan.strix.initialize;
 
-import cn.projectan.strix.config.StrixOssConfig;
+import cn.projectan.strix.core.module.oss.StrixOssConfig;
 import cn.projectan.strix.model.db.OssConfig;
 import cn.projectan.strix.service.OssConfigService;
 import lombok.RequiredArgsConstructor;

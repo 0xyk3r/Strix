@@ -1,8 +1,8 @@
 package cn.projectan.strix.service.impl;
 
-import cn.projectan.strix.config.StrixOssConfig;
 import cn.projectan.strix.core.exception.StrixException;
 import cn.projectan.strix.core.module.oss.AliyunOssClient;
+import cn.projectan.strix.core.module.oss.StrixOssConfig;
 import cn.projectan.strix.mapper.OssConfigMapper;
 import cn.projectan.strix.model.db.OssConfig;
 import cn.projectan.strix.model.dict.StrixOssPlatform;

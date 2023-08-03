@@ -1,6 +1,5 @@
-package cn.projectan.strix.config;
+package cn.projectan.strix.core.module.oss;
 
-import cn.projectan.strix.core.module.oss.StrixOssClient;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 

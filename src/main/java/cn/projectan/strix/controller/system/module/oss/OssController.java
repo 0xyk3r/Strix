@@ -1,7 +1,7 @@
 package cn.projectan.strix.controller.system.module.oss;
 
-import cn.projectan.strix.config.StrixOssConfig;
 import cn.projectan.strix.controller.system.base.BaseSystemController;
+import cn.projectan.strix.core.module.oss.StrixOssConfig;
 import cn.projectan.strix.core.ret.RetMarker;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.core.validation.ValidationGroup;
