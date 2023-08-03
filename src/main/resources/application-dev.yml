@@ -15,11 +15,9 @@ spring:
           password: Str1XP8Pr0j3cTAAAm
           type: com.zaxxer.hikari.HikariDataSource
           hikari:
-            is-auto-commit: true
-            connection-timeout: 30000
-            idle-timeout: 600000
+            keepalive-time: 60000
             max-lifetime: 120000
-            maximum-pool-size: 10
+            maximum-pool-size: 4
         clickhouse:
           driver-class-name: com.clickhouse.jdbc.ClickHouseDriver
           url: jdbc:clickhouse://192.168.31.188:8123/strix?socket_timeout=300000
@@ -27,11 +25,9 @@ spring:
           password: S1V/holh
           type: com.zaxxer.hikari.HikariDataSource
           hikari:
-            is-auto-commit: true
-            connection-timeout: 30000
-            idle-timeout: 600000
+            keepalive-time: 60000
             max-lifetime: 120000
-            maximum-pool-size: 10
+            maximum-pool-size: 4
   data:
     redis:
       database: 6
