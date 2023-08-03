@@ -51,4 +51,5 @@ public class GlobalTimeSerializerConfig {
                 .serializerByType(LocalDate.class, localDateSerializer())
                 .deserializerByType(LocalDate.class, localDateDeserializer());
     }
+
 }

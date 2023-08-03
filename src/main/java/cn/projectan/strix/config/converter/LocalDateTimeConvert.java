@@ -16,16 +16,16 @@ import java.time.format.DateTimeFormatter;
 @Configuration
 public class LocalDateTimeConvert implements Converter<String, LocalDateTime> {
 
+    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
     @Override
     public LocalDateTime convert(@NotNull String source) {
-        DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        LocalDateTime dateTime = null;
         try {
-            dateTime = LocalDateTime.parse(source, df);
+            return LocalDateTime.parse(source, formatter);
         } catch (Exception e) {
-            log.error("Strix - LocalDateTimeConvert: 捕获到时间转换异常：", e);
+            log.warn("Strix - LocalDateTimeConvert: 捕获到时间转换异常：", e);
         }
-        return dateTime;
+        return null;
     }
 
 }

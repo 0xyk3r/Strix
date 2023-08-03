@@ -9,7 +9,7 @@ import org.springframework.web.filter.CorsFilter;
 import java.util.Collections;
 
 /**
- * 跨域配置
+ * CORS 跨域配置
  *
  * @author 安炯奕
  * @date 2021/05/02 17:11
@@ -36,4 +36,5 @@ public class CorsConfig {
         source.registerCorsConfiguration("/**", buildConfig());
         return new CorsFilter(source);
     }
+
 }

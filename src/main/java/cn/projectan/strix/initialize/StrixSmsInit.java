@@ -1,6 +1,6 @@
 package cn.projectan.strix.initialize;
 
-import cn.projectan.strix.config.StrixSmsConfig;
+import cn.projectan.strix.core.module.sms.StrixSmsConfig;
 import cn.projectan.strix.model.db.SmsConfig;
 import cn.projectan.strix.service.SmsConfigService;
 import lombok.RequiredArgsConstructor;

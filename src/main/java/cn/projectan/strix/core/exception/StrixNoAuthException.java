@@ -4,7 +4,7 @@ package cn.projectan.strix.core.exception;
  * @author 安炯奕
  * @date 2023/2/25 1:57
  */
-public class StrixNoAuthException extends RuntimeException {
+public class StrixNoAuthException extends StrixException {
 
     public StrixNoAuthException() {
         super();
@@ -24,11 +24,6 @@ public class StrixNoAuthException extends RuntimeException {
 
     protected StrixNoAuthException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
-    }
-
-    @Override
-    public Throwable fillInStackTrace() {
-        return this;
     }
 
 }

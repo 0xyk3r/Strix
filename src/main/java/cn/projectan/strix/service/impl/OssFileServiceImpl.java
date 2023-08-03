@@ -1,8 +1,8 @@
 package cn.projectan.strix.service.impl;
 
-import cn.projectan.strix.config.StrixOssConfig;
 import cn.projectan.strix.core.exception.StrixException;
 import cn.projectan.strix.core.module.oss.StrixOssClient;
+import cn.projectan.strix.core.module.oss.StrixOssConfig;
 import cn.projectan.strix.mapper.OssFileMapper;
 import cn.projectan.strix.model.db.OssFile;
 import cn.projectan.strix.model.db.OssFileGroup;

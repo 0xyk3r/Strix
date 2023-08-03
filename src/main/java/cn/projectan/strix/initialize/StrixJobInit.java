@@ -1,6 +1,6 @@
 package cn.projectan.strix.initialize;
 
-import cn.projectan.strix.config.StrixOssConfig;
+import cn.projectan.strix.core.module.oss.StrixOssConfig;
 import cn.projectan.strix.model.db.Job;
 import cn.projectan.strix.service.JobService;
 import cn.projectan.strix.utils.job.ScheduleUtils;

@@ -13,10 +13,10 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * MyBatisPlus 代码生成器 新版本
+ * ClickHouse 代码生成器 新版本
  *
  * @author 安炯奕
- * @date 2022-07-15
+ * @date 2023-06-16
  */
 public class ClickHouseGenerator {
 

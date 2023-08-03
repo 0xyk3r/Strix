@@ -1,7 +1,7 @@
 package cn.projectan.strix.task;
 
-import cn.projectan.strix.config.StrixSmsConfig;
 import cn.projectan.strix.core.module.sms.StrixSmsClient;
+import cn.projectan.strix.core.module.sms.StrixSmsConfig;
 import cn.projectan.strix.model.db.SmsConfig;
 import cn.projectan.strix.model.system.StrixSmsSign;
 import cn.projectan.strix.model.system.StrixSmsTemplate;

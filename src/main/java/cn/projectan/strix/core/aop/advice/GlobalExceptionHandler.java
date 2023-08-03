@@ -1,7 +1,7 @@
 package cn.projectan.strix.core.aop.advice;
 
+import cn.projectan.strix.core.exception.StrixException;
 import cn.projectan.strix.core.exception.StrixNoAuthException;
-import cn.projectan.strix.core.exception.StrixUniqueDetectionException;
 import cn.projectan.strix.core.ret.RetCode;
 import cn.projectan.strix.core.ret.RetMarker;
 import cn.projectan.strix.utils.I18nUtil;
@@ -62,8 +62,8 @@ public class GlobalExceptionHandler {
         return RetMarker.makeErrRsp(e.getMessage());
     }
 
-    @ExceptionHandler(StrixUniqueDetectionException.class)
-    public Object handleStrixUniqueDetectionException(StrixUniqueDetectionException e) {
+    @ExceptionHandler(StrixException.class)
+    public Object handleStrixException(StrixException e) {
         return RetMarker.makeErrRsp(e.getMessage());
     }
 
