@@ -64,7 +64,7 @@ dependencies {
     runtimeOnly 'com.mysql:mysql-connector-j:8.0.33'
     implementation 'com.clickhouse:clickhouse-jdbc:0.4.6'
     implementation 'com.baomidou:mybatis-plus-boot-starter:3.5.3.1'
-    implementation 'com.baomidou:mybatis-plus-generator:3.5.3.1'
+    implementation 'com.baomidou:mybatis-plus-generator:3.5.3.2'
     implementation 'com.baomidou:dynamic-datasource-spring-boot3-starter:4.1.2'
     implementation 'org.apache.velocity:velocity-engine-core:2.3'
     runtimeOnly 'p6spy:p6spy:3.9.1'
