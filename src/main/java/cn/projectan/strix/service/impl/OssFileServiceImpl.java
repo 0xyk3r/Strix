@@ -15,8 +15,8 @@ import cn.projectan.strix.utils.FileExtUtil;
 import cn.projectan.strix.utils.RegexUtils;
 import cn.projectan.strix.utils.SnowflakeUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -39,13 +39,20 @@ import java.util.regex.Matcher;
  */
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class OssFileServiceImpl extends ServiceImpl<OssFileMapper, OssFile> implements OssFileService {
 
     private final StrixOssConfig strixOssConfig;
     private final OssConfigService ossConfigService;
     private final OssFileGroupService ossFileGroupService;
     private final DictService dictService;
+
+    @Autowired
+    public OssFileServiceImpl(@Autowired(required = false) StrixOssConfig strixOssConfig, OssConfigService ossConfigService, OssFileGroupService ossFileGroupService, DictService dictService) {
+        this.strixOssConfig = strixOssConfig;
+        this.ossConfigService = ossConfigService;
+        this.ossFileGroupService = ossFileGroupService;
+        this.dictService = dictService;
+    }
 
     @Override
     public String getUrl(String fileId, String defaultUrl) {

@@ -22,11 +22,10 @@ public class ApiSecurityClientTest {
         // 待签名数据
         Map<String, Object> map = new TreeMap<>();
         // api地址
-        map.put("_requestUrl", "/v1/login");
-        map.put("_timestamp", timestamp);
+        map.put("_requestUrl", "/v1/user/getVerifyCode/register");
+        map.put("_timestamp", "1692190035334");
         // 参数
-        map.put("loginName", "anjiongyi");
-        map.put("loginPass", "An1212");
+        map.put("loginName", "743730738@qq.com");
 
         // 请求头
         String sign = ApiSignUtil.getSign(map, objectMapper);
@@ -42,7 +41,7 @@ public class ApiSecurityClientTest {
 
         // 待解密数据 （服务端响应客户端）
         // String decrypt = "";
-        String decrypt = "{\"data\":\"241da837ef64118806e97b5c2ea885c1a243d6cb4b60aa467ba24a687321b2154db050dd90fa347557d749de1e9e8b06856b73486cf4075d3511ff3808c2eed3c0b2f0109ceb2f05641a4f03ac57ed3b9328bc0d4912eeb9a4a0776befe2d967001280a481039aca697867117ce30a8a\",\"sign\":\"fZay1xRM+0uMPoGuAJYnZMN93nRpfb7eqRL6Y26/59/d88oQkORCB41FR5BWNiNfNAg57qDPhs9IE4TbWGJ2Bx8j8dklxYcnodo5mEWqeUtSac9X0rpnyhzNlA0RO3oBnHhby/iETAHwxdZtTgeI+b6rRS42OveXPjvfZXNREQ0=\"}\n";
+        String decrypt = "{\"data\":\"85316af9ac2c1a9b4a3deaf26624b414cf55f65353b8a026012a17cec243d6ac\",\"sign\":\"gZNhGR9WasSHae58DcFJG0i1WqvptTYjiCoQYPaVWndvD9SCMXyw2jpWn/ixYrVoCn9yEp4x+ix3Zuz08u99a2bViGkhssD4+6hAjRWZPeG0u48U0t7ZsyIsCzqfKmwzYlGOwARyfdPqdqFeRzP6PBEUJSVPmTZO7qGUSein73w=\"}";
         decrypt = decrypt.replace("\n", "");
         decrypt = decrypt.replace(" ", "");
 

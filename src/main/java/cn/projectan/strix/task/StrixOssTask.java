@@ -7,8 +7,8 @@ import cn.projectan.strix.model.system.StrixOssBucket;
 import cn.projectan.strix.service.OssBucketService;
 import cn.projectan.strix.service.OssConfigService;
 import cn.projectan.strix.utils.KeysDiffHandler;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -26,12 +26,18 @@ import java.util.Set;
 @Component
 @EnableScheduling
 @ConditionalOnBean(StrixOssConfig.class)
-@RequiredArgsConstructor
 public class StrixOssTask {
 
     private final StrixOssConfig strixOssConfig;
     private final OssConfigService ossConfigService;
     private final OssBucketService ossBucketService;
+
+    @Autowired
+    public StrixOssTask(StrixOssConfig strixOssConfig, OssConfigService ossConfigService, OssBucketService ossBucketService) {
+        this.strixOssConfig = strixOssConfig;
+        this.ossConfigService = ossConfigService;
+        this.ossBucketService = ossBucketService;
+    }
 
     @Scheduled(cron = "0 0/5 * * * ?")
     public void refreshConfig() {
