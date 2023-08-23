@@ -10,12 +10,12 @@ import cn.projectan.strix.utils.job.CronUtil;
 import cn.projectan.strix.utils.job.JobInvokeUtil;
 import cn.projectan.strix.utils.job.ScheduleUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.quartz.JobDataMap;
 import org.quartz.JobKey;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -29,10 +29,14 @@ import org.springframework.util.Assert;
  * @since 2023-07-30
  */
 @Service
-@RequiredArgsConstructor
 public class JobServiceImpl extends ServiceImpl<JobMapper, Job> implements JobService {
 
     private final Scheduler scheduler;
+
+    @Autowired
+    public JobServiceImpl(@Autowired(required = false) Scheduler scheduler) {
+        this.scheduler = scheduler;
+    }
 
     @Override
     @Transactional(rollbackFor = Exception.class)

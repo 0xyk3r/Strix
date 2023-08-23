@@ -30,6 +30,7 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -45,6 +46,7 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequestMapping("system/sms")
+@ConditionalOnBean(StrixSmsConfig.class)
 @RequiredArgsConstructor
 public class SmsController extends BaseSystemController {
 

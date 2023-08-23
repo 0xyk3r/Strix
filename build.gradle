@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'cn.projectan'
-version = '1.0.0'
+version = '1.5.1.4'
 description = 'Strix'
 sourceCompatibility = '17'
 
@@ -24,11 +24,11 @@ jar {
     // 用于子项目引入的Jar文件
     // Maven导入语句：
     // mvn install:install-file -DgroupId=cn.projectan -DartifactId=Strix -Dversion=1.0.0 -Dpackaging=jar -Dfile=build/libs/Strix-plain.jar
-    archiveFileName = "Strix-plain.jar"
+//    archiveFileName = "Strix-plain.jar"
     exclude('application.yml')
     exclude('application-*.yml')
     from {
-        configurations.runtimeClasspath.filter { it.name.endsWith('strix-captcha-1.1.1.jar') }.collect {
+        configurations.runtimeClasspath.filter { it.name.endsWith('strix-captcha-1.2.0.jar') }.collect {
             zipTree(it).matching {
                 exclude 'META-INF/services/cn.projectan.captcha.service.CaptchaCacheService'
                 exclude 'META-INF/spring-configuration-metadata.json'
@@ -47,6 +47,9 @@ test {
 }
 
 dependencies {
+    // lombok
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
     // SpringBoot
     implementation 'org.springframework.boot:spring-boot-starter'
     implementation 'org.springframework.boot:spring-boot-starter-web'
@@ -57,9 +60,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    // lombok
-    compileOnly 'org.projectlombok:lombok'
-    annotationProcessor 'org.projectlombok:lombok'
+    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
     // database
     runtimeOnly 'com.mysql:mysql-connector-j:8.0.33'
     implementation 'com.clickhouse:clickhouse-jdbc:0.4.6'
@@ -89,7 +90,6 @@ dependencies {
     implementation 'org.apache.tika:tika-core:2.8.0'
     implementation 'org.reflections:reflections:0.10.2'
 
-    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
 }
 
 tasks.withType(JavaCompile).configureEach {

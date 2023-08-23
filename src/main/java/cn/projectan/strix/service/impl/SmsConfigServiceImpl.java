@@ -15,6 +15,7 @@ import com.aliyuncs.profile.DefaultProfile;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
@@ -30,6 +31,7 @@ import java.util.List;
  */
 @Slf4j
 @Service
+@ConditionalOnClass(DefaultAcsClient.class)
 public class SmsConfigServiceImpl extends ServiceImpl<SmsConfigMapper, SmsConfig> implements SmsConfigService {
 
     @Override

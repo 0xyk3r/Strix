@@ -56,7 +56,7 @@ public class ApiSecurityClient {
             byte[] encryptedByte = rsa.encrypt(aesKey, KeyType.PublicKey);
             String encrypted = cn.hutool.core.codec.Base64.encode(encryptedByte);
             // 使用AES秘钥对实际数据进行加密
-            AES aes = new AES("CBC", "PKCS7Padding", aesKey.getBytes(StandardCharsets.UTF_8), ApiSecurity.AES_IV.getBytes(StandardCharsets.UTF_8));
+            AES aes = new AES("CBC", "PKCS7Padding", aesKey.getBytes(StandardCharsets.UTF_8), ApiSecurityClient.AES_IV.getBytes(StandardCharsets.UTF_8));
             String data = aes.encryptHex(result);
             // 组装返回
             Map<String, String> map = new HashMap<>();
