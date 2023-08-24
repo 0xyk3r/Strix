@@ -22,10 +22,10 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew build -x test
       - name: Check Docker Container Exist If Not Create
-        run: docker ps -a | grep Strix > /dev/null || docker run -p 9889:80 --name Strix -d springboot3:latest
+        run: docker ps -a | grep StrixApp > /dev/null || docker run -p 9889:80 --name StrixApp -d springboot3:latest
       - name: Kill App In Docker Container
-        run: docker exec -i Strix sh -c "pkill -f /mnt/app.jar && echo 'Process killed.' || echo 'Process not found.'" || true
+        run: docker exec -i StrixApp sh -c "pkill -f /mnt/app.jar && echo 'Process killed.' || echo 'Process not found.'" || true
       - name: Copy Jar File To Docker Container
-        run: docker cp ./build/libs/Strix.jar Strix:/mnt/app.jar
+        run: docker cp ./build/libs/Strix.jar StrixApp:/mnt/app.jar
       - name: Run Jar With Java In Docker Container
-        run: docker exec -i Strix sh -c "nohup java -jar -server -Xms1024m -Xmx1024m -Duser.timezone=GMT+08 /mnt/app.jar --spring.profiles.active=test > /mnt/app.log 2>&1 &"
+        run: docker exec -i StrixApp sh -c "nohup java -jar -server -Xms1024m -Xmx1024m -Duser.timezone=GMT+08 /mnt/app.jar --spring.profiles.active=test > /mnt/app.log 2>&1 &"
