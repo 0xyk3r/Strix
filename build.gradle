@@ -5,9 +5,12 @@ plugins {
 }
 
 group = 'cn.projectan'
-version = '1.5.2'
+version = '1.5.2.1'
 description = 'Strix'
-sourceCompatibility = '17'
+
+java {
+    sourceCompatibility = '17'
+}
 
 configurations {
     compileOnly {
