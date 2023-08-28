@@ -111,7 +111,6 @@ public class OssFileServiceImpl extends ServiceImpl<OssFileMapper, OssFile> impl
 
     @Override
     public OssFile upload(String groupKey, File file, String uploaderId) {
-        // TODO base64上传文件存在大小限制，需要改为优先File上传
         try {
             byte[] fileContent = Files.readAllBytes(file.toPath());
             String encodedString = Base64.getEncoder().encodeToString(fileContent);
