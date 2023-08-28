@@ -16,6 +16,7 @@ import org.quartz.JobKey;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -29,6 +30,7 @@ import org.springframework.util.Assert;
  * @since 2023-07-30
  */
 @Service
+@ConditionalOnBean(Scheduler.class)
 public class JobServiceImpl extends ServiceImpl<JobMapper, Job> implements JobService {
 
     private final Scheduler scheduler;

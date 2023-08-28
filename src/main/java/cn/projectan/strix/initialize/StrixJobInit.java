@@ -1,6 +1,5 @@
 package cn.projectan.strix.initialize;
 
-import cn.projectan.strix.core.module.oss.StrixOssConfig;
 import cn.projectan.strix.model.db.Job;
 import cn.projectan.strix.service.JobService;
 import cn.projectan.strix.utils.job.ScheduleUtils;
@@ -22,7 +21,7 @@ import java.util.List;
 @Slf4j
 @Order(100)
 @Component
-@ConditionalOnBean(StrixOssConfig.class)
+@ConditionalOnBean(Scheduler.class)
 @RequiredArgsConstructor
 public class StrixJobInit implements ApplicationRunner {
 
