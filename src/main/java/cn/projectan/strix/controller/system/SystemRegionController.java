@@ -8,6 +8,7 @@ import cn.projectan.strix.core.ret.RetMarker;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.core.validation.ValidationGroup;
 import cn.projectan.strix.model.annotation.StrixLog;
+import cn.projectan.strix.model.db.SystemManager;
 import cn.projectan.strix.model.db.SystemRegion;
 import cn.projectan.strix.model.dict.SysLogOperType;
 import cn.projectan.strix.model.request.common.SingleFieldModifyReq;
@@ -18,6 +19,7 @@ import cn.projectan.strix.model.response.common.CommonTreeDataResp;
 import cn.projectan.strix.model.response.system.region.SystemRegionChildrenListResp;
 import cn.projectan.strix.model.response.system.region.SystemRegionListResp;
 import cn.projectan.strix.model.response.system.region.SystemRegionResp;
+import cn.projectan.strix.service.SystemManagerService;
 import cn.projectan.strix.service.SystemRegionService;
 import cn.projectan.strix.utils.StrixAssert;
 import cn.projectan.strix.utils.UniqueDetectionTool;
@@ -46,12 +48,14 @@ import java.util.stream.Collectors;
 public class SystemRegionController extends BaseSystemController {
 
     private final SystemRegionService systemRegionService;
+    private final SystemManagerService systemManagerService;
     private final SystemRegionCache systemRegionCache;
     private final StrixCommonListener strixCommonListener;
 
     @Autowired
-    public SystemRegionController(SystemRegionService systemRegionService, SystemRegionCache systemRegionCache, @Autowired(required = false) StrixCommonListener strixCommonListener) {
+    public SystemRegionController(SystemRegionService systemRegionService, SystemManagerService systemManagerService, SystemRegionCache systemRegionCache, @Autowired(required = false) StrixCommonListener strixCommonListener) {
         this.systemRegionService = systemRegionService;
+        this.systemManagerService = systemManagerService;
         this.systemRegionCache = systemRegionCache;
         this.strixCommonListener = strixCommonListener;
     }
@@ -246,15 +250,18 @@ public class SystemRegionController extends BaseSystemController {
 
         // 批量删除
         systemRegionService.removeByIds(removeIdList);
+        // 删除管理人员的地区权限关系
+        systemManagerService.update(
+                new UpdateWrapper<SystemManager>()
+                        .set("region_id", null)
+                        .in("region_id", removeIdList)
+        );
 
         systemRegionCache.refreshRedisCacheById(systemRegion.getParentId());
-
 
         // 循环处理后续工作
         for (String removeId : removeIdList) {
             systemRegionCache.refreshRedisCacheById(removeId);
-
-            // TODO 删除管理人员的地区权限关系
 
             if (strixCommonListener != null) {
                 strixCommonListener.deleteSystemRegionNotify(removeId);
