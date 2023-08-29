@@ -2,6 +2,7 @@ package cn.projectan.strix.controller.api.common;
 
 import cn.projectan.strix.controller.api.base.BaseApiController;
 import cn.projectan.strix.model.annotation.Anonymous;
+import cn.projectan.strix.model.annotation.IgnoreDataEncryption;
 import cn.projectan.strix.service.OssFileService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +26,9 @@ public class FileController extends BaseApiController {
 
     @Anonymous
     @GetMapping("{fileId}")
+    @IgnoreDataEncryption
     public void getImage(@PathVariable String fileId, HttpServletResponse response) throws Exception {
+        // TODO 权限验证
         response.setContentType("image/jpeg");
         response.sendRedirect(ossFileService.getUrl(fileId, "https://oss.huiboche.cn/System/404.png"));
     }
