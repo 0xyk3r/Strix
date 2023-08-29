@@ -22,8 +22,8 @@ public class ApiSignUtil {
      * @return 验证签名结果 为null则为异常
      */
     public static boolean verifySign(Map<String, Object> params, String sign) {
-        String trueSign = getSign(params);
-        return StringUtils.hasText(sign) && StringUtils.hasText(trueSign) && trueSign.equals(sign);
+        String correctSign = getSign(params);
+        return StringUtils.hasText(sign) && StringUtils.hasText(correctSign) && correctSign.equals(sign);
     }
 
     /**
