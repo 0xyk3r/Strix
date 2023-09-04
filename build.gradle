@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'cn.projectan'
-version = '1.5.3.1'
+version = '1.5.4.2'
 description = 'Strix'
 
 java {
@@ -87,7 +87,7 @@ dependencies {
     implementation 'com.github.oshi:oshi-core:6.4.5'
     implementation 'org.lionsoul:ip2region:2.7.0'
     implementation 'jakarta.mail:jakarta.mail-api:2.1.2'
-    implementation 'org.apache.tika:tika-core:2.8.0'
+    implementation 'org.apache.tika:tika-core:2.9.0'
     implementation 'org.reflections:reflections:0.10.2'
 
 }
