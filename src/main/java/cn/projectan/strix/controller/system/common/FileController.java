@@ -6,7 +6,9 @@ import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.model.annotation.IgnoreDataEncryption;
 import cn.projectan.strix.model.db.OssFile;
 import cn.projectan.strix.model.dict.StrixOssFileGroupSecretType;
+import cn.projectan.strix.service.OssFileGroupService;
 import cn.projectan.strix.service.OssFileService;
+import cn.projectan.strix.utils.FileExtUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,10 +31,14 @@ import java.util.Map;
 public class FileController extends BaseSystemController {
 
     private final OssFileService ossFileService;
+    private final OssFileGroupService ossFileGroupService;
 
     @GetMapping("{fileId}")
-    public void getImage(@PathVariable String fileId, HttpServletResponse response) throws Exception {
-        response.setContentType("image/jpeg");
+    public void getFile(@PathVariable String fileId, HttpServletResponse response) throws Exception {
+        OssFile ossFile = ossFileService.getById(fileId);
+        Assert.notNull(ossFile, "下载文件失败, 文件不存在.");
+
+        response.setContentType(FileExtUtil.ext2mime(ossFile.getExt()));
         response.sendRedirect(ossFileService.getUrl(fileId, StrixOssFileGroupSecretType.MANAGER, getLoginManagerId(), "https://oss.huiboche.cn/System/404.png"));
     }
 
