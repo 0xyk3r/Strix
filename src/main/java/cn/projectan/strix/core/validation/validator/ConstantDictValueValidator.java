@@ -1,6 +1,6 @@
 package cn.projectan.strix.core.validation.validator;
 
-import cn.projectan.strix.core.validation.annotation.StrixDictValue;
+import cn.projectan.strix.core.validation.annotation.ConstantDictValue;
 import cn.projectan.strix.model.annotation.Dict;
 import cn.projectan.strix.model.annotation.DictData;
 import jakarta.validation.ConstraintValidator;
@@ -12,19 +12,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * 常量字典值校验器 <br/>
+ * 注意：本校验器通过反射获取字典值，仅适用于字典值不可被后台修改的情况
+ *
  * @author 安炯奕
  * @date 2023/9/6 16:43
  */
 @Slf4j
-public class StrixDictValueValidator implements ConstraintValidator<StrixDictValue, Object> {
+public class ConstantDictValueValidator implements ConstraintValidator<ConstantDictValue, Object> {
 
     private final List<String> validValues = new ArrayList<>();
 
     @Override
-    public void initialize(StrixDictValue constraintAnnotation) {
+    public void initialize(ConstantDictValue constraintAnnotation) {
         Class<?> clazz = constraintAnnotation.dict();
         if (!clazz.isAnnotationPresent(Dict.class)) {
-            throw new RuntimeException("StrixDictValueValidator: 字典类必须使用 @Dict 注解");
+            throw new RuntimeException("ConstantDictValueValidator: 字典类必须使用 @Dict 注解");
         }
 
         try {
@@ -36,7 +39,7 @@ public class StrixDictValueValidator implements ConstraintValidator<StrixDictVal
                 validValues.add(field.get(null).toString());
             }
         } catch (Exception e) {
-            log.error("StrixDictValueValidator: 初始化字典值失败", e);
+            log.error("ConstantDictValueValidator: 初始化字典值失败", e);
         }
     }
 
