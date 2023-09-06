@@ -26,6 +26,7 @@ public class BaseModel implements java.io.Serializable {
      * 数据删除状态 0正常 1删除
      */
     @TableLogic
+    @TableField(fill = FieldFill.INSERT)
     private Integer deletedStatus;
 
     /**
@@ -37,6 +38,7 @@ public class BaseModel implements java.io.Serializable {
     /**
      * 数据创建人
      */
+    @TableField(fill = FieldFill.INSERT)
     private String createBy;
 
     /**
@@ -48,6 +50,7 @@ public class BaseModel implements java.io.Serializable {
     /**
      * 数据修改人
      */
+    @TableField(fill = FieldFill.INSERT_UPDATE)
     private String updateBy;
 
     public BaseModel(String createBy, String updateBy) {

@@ -2,6 +2,7 @@ package cn.projectan.strix.core.validation.annotation;
 
 import cn.projectan.strix.core.validation.validator.StrixDictValueValidator;
 import jakarta.validation.Constraint;
+import jakarta.validation.Payload;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -23,6 +24,8 @@ public @interface StrixDictValue {
     String message() default "{error.validation.dict}";
 
     Class<?>[] groups() default {};
+
+    Class<? extends Payload>[] payload() default {};
 
     Class<?> dict();
 
