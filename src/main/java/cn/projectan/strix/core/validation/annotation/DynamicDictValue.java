@@ -1,6 +1,6 @@
 package cn.projectan.strix.core.validation.annotation;
 
-import cn.projectan.strix.core.validation.validator.StrixDictValueValidator;
+import cn.projectan.strix.core.validation.validator.DynamicDictValueValidator;
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 
@@ -12,14 +12,16 @@ import static java.lang.annotation.ElementType.*;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
+ * 动态字典值校验器
+ *
  * @author 安炯奕
- * @date 2023/9/6 16:45
+ * @date 2023/9/6 21:51
  */
 @Documented
-@Constraint(validatedBy = {StrixDictValueValidator.class})
+@Constraint(validatedBy = {DynamicDictValueValidator.class})
 @Target({METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER, TYPE_USE})
 @Retention(RUNTIME)
-public @interface StrixDictValue {
+public @interface DynamicDictValue {
 
     String message() default "{error.validation.dict}";
 
@@ -27,6 +29,6 @@ public @interface StrixDictValue {
 
     Class<? extends Payload>[] payload() default {};
 
-    Class<?> dict();
+    String dictName();
 
 }
