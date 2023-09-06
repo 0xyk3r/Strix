@@ -79,8 +79,6 @@ public class JobController extends BaseSystemController {
     @PreAuthorize("@ss.hasPermission('system:module:job:add')")
     @StrixLog(operationGroup = "系统定时任务", operationName = "新增定时任务", operationType = SysLogOperType.ADD)
     public RetResult<Object> update(@RequestBody @Validated(InsertGroup.class) JobUpdateReq req) {
-//        Assert.isTrue(StrixOssPlatform.valid(req.getPlatform()), "请选择正确的服务平台");
-
         Job job = new Job(
                 req.getName(),
                 req.getGroup(),
@@ -108,8 +106,6 @@ public class JobController extends BaseSystemController {
     @PreAuthorize("@ss.hasPermission('system:module:job:update')")
     @StrixLog(operationGroup = "系统定时任务", operationName = "修改定时任务", operationType = SysLogOperType.UPDATE)
     public RetResult<Object> update(@PathVariable String id, @RequestBody @Validated(UpdateGroup.class) JobUpdateReq req) {
-//        Assert.isTrue(StrixOssPlatform.valid(req.getPlatform()), "请选择正确的服务平台");
-
         Job job = jobService.getById(id);
         Assert.notNull(job, "原记录不存在");
 

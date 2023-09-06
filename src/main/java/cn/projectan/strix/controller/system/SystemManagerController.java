@@ -182,8 +182,6 @@ public class SystemManagerController extends BaseSystemController {
     @StrixLog(operationGroup = "系统人员", operationName = "新增人员", operationType = SysLogOperType.ADD)
     public RetResult<Object> update(@RequestBody @Validated(InsertGroup.class) SystemManagerUpdateReq req) {
         Assert.notNull(req, "参数错误");
-        Assert.isTrue(SystemManagerStatus.valid(req.getStatus()), "参数错误");
-        Assert.isTrue(SystemManagerType.valid(req.getType()), "参数错误");
 
         SystemManager systemManager = new SystemManager(
                 req.getNickname(),
@@ -210,8 +208,6 @@ public class SystemManagerController extends BaseSystemController {
         Assert.hasText(managerId, "参数错误");
         Assert.isTrue(!"anjiongyi".equals(managerId), "该用户不允许编辑或删除");
         Assert.notNull(req, "参数错误");
-        Assert.isTrue(SystemManagerStatus.valid(req.getStatus()), "参数错误");
-        Assert.isTrue(SystemManagerType.valid(req.getType()), "参数错误");
         SystemManager systemManager = systemManagerService.getById(managerId);
         Assert.notNull(systemManager, "系统人员信息不存在");
 

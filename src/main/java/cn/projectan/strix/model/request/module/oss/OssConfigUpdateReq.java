@@ -1,9 +1,10 @@
 package cn.projectan.strix.model.request.module.oss;
 
+import cn.projectan.strix.core.validation.annotation.DynamicDictValue;
 import cn.projectan.strix.core.validation.group.InsertGroup;
 import cn.projectan.strix.core.validation.group.UpdateGroup;
 import cn.projectan.strix.model.annotation.UpdateField;
-import cn.projectan.strix.model.dict.StrixSmsPlatform;
+import cn.projectan.strix.model.dict.StrixOssPlatform;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -35,9 +36,10 @@ public class OssConfigUpdateReq {
     /**
      * 存储服务平台
      *
-     * @see StrixSmsPlatform
+     * @see StrixOssPlatform
      */
     @NotNull(groups = {InsertGroup.class, UpdateGroup.class}, message = "存储服务平台不可为空")
+    @DynamicDictValue(groups = {InsertGroup.class, UpdateGroup.class}, dictName = "StrixOssPlatform", message = "存储服务平台不合法")
     @UpdateField
     private Integer platform;
 
