@@ -26,7 +26,7 @@ public class SecurityUtils {
     /**
      * 用户ID
      **/
-    public static String getUserId() {
+    public static String getLoginManagerId() {
         try {
             return getSystemManager().getId();
         } catch (Exception e) {

@@ -105,7 +105,7 @@ public class DictServiceImpl extends ServiceImpl<DictMapper, Dict> implements Di
                     .update();
         }
 
-        UpdateWrapper<Dict> updateWrapper = UpdateConditionBuilder.build(dict, req, SecurityUtils.getUserId());
+        UpdateWrapper<Dict> updateWrapper = UpdateConditionBuilder.build(dict, req, SecurityUtils.getLoginManagerId());
         UniqueDetectionTool.check(dict);
         updateWrapper.set("version", dict.getVersion() + 1);
         Assert.isTrue(update(updateWrapper), "保存失败");
@@ -160,7 +160,7 @@ public class DictServiceImpl extends ServiceImpl<DictMapper, Dict> implements Di
     )
     @Transactional(rollbackFor = Exception.class)
     public void updateDictData(DictData dictData, DictDataUpdateReq req) {
-        UpdateWrapper<DictData> updateWrapper = UpdateConditionBuilder.build(dictData, req, SecurityUtils.getUserId());
+        UpdateWrapper<DictData> updateWrapper = UpdateConditionBuilder.build(dictData, req, SecurityUtils.getLoginManagerId());
         UniqueDetectionTool.check(dictData);
 
 
