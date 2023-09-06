@@ -58,10 +58,12 @@ public class FileController extends BaseSystemController {
             tempFile.delete();
 
             return RetMarker.makeSuccessRsp(Map.of("fileId", ossFile.getId()));
+        } catch (IllegalArgumentException e) {
+            return RetMarker.makeErrRsp("上传文件失败，" + e.getMessage());
         } catch (Exception e) {
             log.error("上传文件失败", e);
+            return RetMarker.makeErrRsp("上传文件失败");
         }
-        return RetMarker.makeErrRsp("上传文件失败");
     }
 
 }
