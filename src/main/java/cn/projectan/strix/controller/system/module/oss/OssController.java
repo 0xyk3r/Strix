@@ -11,7 +11,6 @@ import cn.projectan.strix.model.db.OssBucket;
 import cn.projectan.strix.model.db.OssConfig;
 import cn.projectan.strix.model.db.OssFile;
 import cn.projectan.strix.model.db.OssFileGroup;
-import cn.projectan.strix.model.dict.StrixOssPlatform;
 import cn.projectan.strix.model.dict.SysLogOperType;
 import cn.projectan.strix.model.request.module.oss.OssConfigListReq;
 import cn.projectan.strix.model.request.module.oss.OssConfigUpdateReq;
@@ -105,8 +104,6 @@ public class OssController extends BaseSystemController {
     @PreAuthorize("@ss.hasPermission('system:module:oss:config:add')")
     @StrixLog(operationGroup = "系统存储", operationName = "新增存储配置", operationType = SysLogOperType.ADD)
     public RetResult<Object> update(@RequestBody @Validated(InsertGroup.class) OssConfigUpdateReq req) {
-        Assert.isTrue(StrixOssPlatform.valid(req.getPlatform()), "请选择正确的服务平台");
-
         OssConfig ossConfig = new OssConfig(
                 req.getKey(),
                 req.getName(),
@@ -134,8 +131,6 @@ public class OssController extends BaseSystemController {
     @PreAuthorize("@ss.hasPermission('system:module:oss:config:update')")
     @StrixLog(operationGroup = "系统存储", operationName = "修改存储配置", operationType = SysLogOperType.UPDATE)
     public RetResult<Object> update(@PathVariable String id, @RequestBody @Validated(UpdateGroup.class) OssConfigUpdateReq req) {
-        Assert.isTrue(StrixOssPlatform.valid(req.getPlatform()), "请选择正确的服务平台");
-
         OssConfig ossConfig = ossConfigService.getById(id);
         Assert.notNull(ossConfig, "原记录不存在");
         String originKey = ossConfig.getKey();

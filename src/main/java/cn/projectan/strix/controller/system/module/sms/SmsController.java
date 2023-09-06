@@ -11,7 +11,6 @@ import cn.projectan.strix.model.db.SmsConfig;
 import cn.projectan.strix.model.db.SmsLog;
 import cn.projectan.strix.model.db.SmsSign;
 import cn.projectan.strix.model.db.SmsTemplate;
-import cn.projectan.strix.model.dict.StrixSmsPlatform;
 import cn.projectan.strix.model.dict.SysLogOperType;
 import cn.projectan.strix.model.request.module.sms.*;
 import cn.projectan.strix.model.response.common.CommonSelectDataResp;
@@ -107,8 +106,6 @@ public class SmsController extends BaseSystemController {
     @PreAuthorize("@ss.hasPermission('system:module:sms:config:add')")
     @StrixLog(operationGroup = "系统短信", operationName = "新增短信配置", operationType = SysLogOperType.ADD)
     public RetResult<Object> update(@RequestBody @Validated(InsertGroup.class) SmsConfigUpdateReq req) {
-        Assert.isTrue(StrixSmsPlatform.valid(req.getPlatform()), "请选择正确的服务平台");
-
         SmsConfig smsConfig = new SmsConfig(
                 req.getKey(),
                 req.getName(),
@@ -135,8 +132,6 @@ public class SmsController extends BaseSystemController {
     @PreAuthorize("@ss.hasPermission('system:module:sms:config:update')")
     @StrixLog(operationGroup = "系统短信", operationName = "修改短信配置", operationType = SysLogOperType.UPDATE)
     public RetResult<Object> update(@PathVariable String id, @RequestBody @Validated(UpdateGroup.class) SmsConfigUpdateReq req) {
-        Assert.isTrue(StrixSmsPlatform.valid(req.getPlatform()), "请选择正确的服务平台");
-
         SmsConfig smsConfig = smsConfigService.getById(id);
         Assert.notNull(smsConfig, "原记录不存在");
         String originKey = smsConfig.getKey();

@@ -1,5 +1,6 @@
 package cn.projectan.strix.model.request.system.dict;
 
+import cn.projectan.strix.core.validation.annotation.DynamicDictValue;
 import cn.projectan.strix.core.validation.group.InsertGroup;
 import cn.projectan.strix.core.validation.group.UpdateGroup;
 import cn.projectan.strix.model.annotation.UpdateField;
@@ -43,6 +44,7 @@ public class DictDataUpdateReq {
     private String style;
 
     @NotNull(groups = {InsertGroup.class, UpdateGroup.class}, message = "字典状态不可为空")
+    @DynamicDictValue(groups = {InsertGroup.class, UpdateGroup.class}, dictName = "DictDataStatus", message = "字典状态不合法")
     @UpdateField
     private Integer status;
 

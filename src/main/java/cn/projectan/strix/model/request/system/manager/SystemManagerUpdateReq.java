@@ -1,5 +1,6 @@
 package cn.projectan.strix.model.request.system.manager;
 
+import cn.projectan.strix.core.validation.annotation.DynamicDictValue;
 import cn.projectan.strix.core.validation.group.InsertGroup;
 import cn.projectan.strix.core.validation.group.UpdateGroup;
 import cn.projectan.strix.model.annotation.UpdateField;
@@ -40,16 +41,22 @@ public class SystemManagerUpdateReq {
     private String loginPassword;
 
     /**
-     * 管理人员状态 0禁止登录 1正常
+     * 管理人员状态
+     *
+     * @see cn.projectan.strix.model.dict.SystemManagerStatus
      */
     @NotNull(groups = {InsertGroup.class}, message = "管理人员状态未选择")
+    @DynamicDictValue(groups = {InsertGroup.class, UpdateGroup.class}, dictName = "SystemManagerStatus", message = "管理人员状态不合法")
     @UpdateField
     private Integer status;
 
     /**
-     * 管理人员类型 1超级账户 2子系统账户
+     * 管理人员类型
+     *
+     * @see cn.projectan.strix.model.dict.SystemManagerType
      */
     @NotNull(groups = {InsertGroup.class}, message = "管理人员类型未选择")
+    @DynamicDictValue(groups = {InsertGroup.class, UpdateGroup.class}, dictName = "SystemManagerType", message = "管理人员类型不合法")
     @UpdateField
     private Integer type;
 

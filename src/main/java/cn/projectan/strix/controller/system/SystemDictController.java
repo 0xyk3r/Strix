@@ -8,9 +8,7 @@ import cn.projectan.strix.core.validation.group.UpdateGroup;
 import cn.projectan.strix.model.annotation.StrixLog;
 import cn.projectan.strix.model.db.Dict;
 import cn.projectan.strix.model.db.DictData;
-import cn.projectan.strix.model.dict.DictDataStatus;
 import cn.projectan.strix.model.dict.DictProvided;
-import cn.projectan.strix.model.dict.DictStatus;
 import cn.projectan.strix.model.dict.SysLogOperType;
 import cn.projectan.strix.model.request.system.dict.DictDataListReq;
 import cn.projectan.strix.model.request.system.dict.DictDataUpdateReq;
@@ -103,8 +101,6 @@ public class SystemDictController extends BaseSystemController {
     @PreAuthorize("@ss.hasPermission('system:dict:add')")
     @StrixLog(operationGroup = "系统字典", operationName = "新增字典", operationType = SysLogOperType.ADD)
     public RetResult<Object> update(@RequestBody @Validated(InsertGroup.class) DictUpdateReq req) {
-        Assert.isTrue(DictStatus.valid(req.getStatus()), "请选择正确的字典状态");
-
         Dict dict = new Dict(
                 req.getKey(),
                 req.getName(),
@@ -126,8 +122,6 @@ public class SystemDictController extends BaseSystemController {
     @PreAuthorize("@ss.hasPermission('system:dict:update')")
     @StrixLog(operationGroup = "系统字典", operationName = "修改字典", operationType = SysLogOperType.UPDATE)
     public RetResult<Object> update(@PathVariable String id, @RequestBody @Validated(UpdateGroup.class) DictUpdateReq req) {
-        Assert.isTrue(DictStatus.valid(req.getStatus()), "请选择正确的字典状态");
-
         Dict dict = dictService.getById(id);
         Assert.notNull(dict, "原数据不存在");
 
@@ -199,8 +193,6 @@ public class SystemDictController extends BaseSystemController {
     @PreAuthorize("@ss.hasPermission('system:dict:data:add')")
     @StrixLog(operationGroup = "系统字典", operationName = "新增字典", operationType = SysLogOperType.ADD)
     public RetResult<Object> updateDictData(@RequestBody @Validated(InsertGroup.class) DictDataUpdateReq req) {
-        Assert.isTrue(DictDataStatus.valid(req.getStatus()), "请选择正确的字典状态");
-
         DictData dictData = new DictData(
                 req.getKey(),
                 req.getValue(),
@@ -222,8 +214,6 @@ public class SystemDictController extends BaseSystemController {
     @PreAuthorize("@ss.hasPermission('system:dict:data:update')")
     @StrixLog(operationGroup = "系统字典", operationName = "修改字典数据", operationType = SysLogOperType.UPDATE)
     public RetResult<Object> updateDictData(@PathVariable String id, @RequestBody @Validated(UpdateGroup.class) DictDataUpdateReq req) {
-        Assert.isTrue(DictDataStatus.valid(req.getStatus()), "请选择正确的字典状态");
-
         DictData dictData = dictDataService.getById(id);
         Assert.notNull(dictData, "原数据不存在");
 
