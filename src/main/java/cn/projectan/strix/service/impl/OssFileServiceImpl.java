@@ -117,6 +117,8 @@ public class OssFileServiceImpl extends ServiceImpl<OssFileMapper, OssFile> impl
             String fileBase64 = "data:" + Files.probeContentType(file.toPath()) + ";base64," + encodedString;
 
             return upload(groupKey, fileBase64, uploaderId);
+        } catch (IllegalArgumentException e) {
+            throw e;
         } catch (Exception e) {
             throw new StrixException("上传文件失败. 解析文件失败");
         }
