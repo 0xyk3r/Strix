@@ -4,7 +4,8 @@ import cn.projectan.strix.controller.system.base.BaseSystemController;
 import cn.projectan.strix.core.cache.SystemPermissionCache;
 import cn.projectan.strix.core.ret.RetMarker;
 import cn.projectan.strix.core.ret.RetResult;
-import cn.projectan.strix.core.validation.ValidationGroup;
+import cn.projectan.strix.core.validation.group.InsertGroup;
+import cn.projectan.strix.core.validation.group.UpdateGroup;
 import cn.projectan.strix.model.annotation.StrixLog;
 import cn.projectan.strix.model.db.SystemPermission;
 import cn.projectan.strix.model.db.SystemRolePermission;
@@ -69,7 +70,7 @@ public class SystemPermissionController extends BaseSystemController {
     @PostMapping("update")
     @PreAuthorize("@ss.anyPermission('system:menu:add', 'system:menu:update')")
     @StrixLog(operationGroup = "系统权限", operationName = "新增权限", operationType = SysLogOperType.ADD)
-    public RetResult<Object> update(@RequestBody @Validated(ValidationGroup.Insert.class) SystemPermissionUpdateReq req) {
+    public RetResult<Object> update(@RequestBody @Validated(InsertGroup.class) SystemPermissionUpdateReq req) {
         Assert.notNull(req, "参数错误");
 
         SystemPermission systemPermission = new SystemPermission(
@@ -91,7 +92,7 @@ public class SystemPermissionController extends BaseSystemController {
     @PostMapping("update/{permissionId}")
     @PreAuthorize("@ss.anyPermission('system:menu:add', 'system:menu:update')")
     @StrixLog(operationGroup = "系统权限", operationName = "修改权限", operationType = SysLogOperType.UPDATE)
-    public RetResult<Object> update(@PathVariable String permissionId, @RequestBody @Validated(ValidationGroup.Update.class) SystemPermissionUpdateReq req) {
+    public RetResult<Object> update(@PathVariable String permissionId, @RequestBody @Validated(UpdateGroup.class) SystemPermissionUpdateReq req) {
         Assert.hasText(permissionId, "参数错误");
         Assert.notNull(req, "参数错误");
         SystemPermission systemPermission = systemPermissionService.getById(permissionId);

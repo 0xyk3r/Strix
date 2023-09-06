@@ -6,7 +6,8 @@ import cn.projectan.strix.core.cache.SystemRegionCache;
 import cn.projectan.strix.core.listener.StrixCommonListener;
 import cn.projectan.strix.core.ret.RetMarker;
 import cn.projectan.strix.core.ret.RetResult;
-import cn.projectan.strix.core.validation.ValidationGroup;
+import cn.projectan.strix.core.validation.group.InsertGroup;
+import cn.projectan.strix.core.validation.group.UpdateGroup;
 import cn.projectan.strix.model.annotation.StrixLog;
 import cn.projectan.strix.model.db.SystemManager;
 import cn.projectan.strix.model.db.SystemRegion;
@@ -164,7 +165,7 @@ public class SystemRegionController extends BaseSystemController {
     @PostMapping("update")
     @PreAuthorize("@ss.hasPermission('system:region:add')")
     @StrixLog(operationGroup = "系统地区", operationName = "新增地区", operationType = SysLogOperType.ADD)
-    public RetResult<Object> update(@RequestBody @Validated(ValidationGroup.Insert.class) SystemRegionUpdateReq req) {
+    public RetResult<Object> update(@RequestBody @Validated(InsertGroup.class) SystemRegionUpdateReq req) {
         Assert.notNull(req, "参数错误");
         if (!StringUtils.hasText(req.getParentId())) {
             req.setParentId("0");
@@ -204,7 +205,7 @@ public class SystemRegionController extends BaseSystemController {
     @PostMapping("update/{id}")
     @PreAuthorize("@ss.hasPermission('system:region:update')")
     @StrixLog(operationGroup = "系统地区", operationName = "修改地区", operationType = SysLogOperType.UPDATE)
-    public RetResult<Object> update(@PathVariable String id, @RequestBody @Validated(ValidationGroup.Update.class) SystemRegionUpdateReq req) {
+    public RetResult<Object> update(@PathVariable String id, @RequestBody @Validated(UpdateGroup.class) SystemRegionUpdateReq req) {
         Assert.hasText(id, "参数错误");
         Assert.notNull(req, "参数错误");
         SystemRegion systemRegion = systemRegionService.getById(id);

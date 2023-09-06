@@ -4,7 +4,8 @@ import cn.projectan.strix.controller.system.base.BaseSystemController;
 import cn.projectan.strix.core.cache.SystemMenuCache;
 import cn.projectan.strix.core.ret.RetMarker;
 import cn.projectan.strix.core.ret.RetResult;
-import cn.projectan.strix.core.validation.ValidationGroup;
+import cn.projectan.strix.core.validation.group.InsertGroup;
+import cn.projectan.strix.core.validation.group.UpdateGroup;
 import cn.projectan.strix.model.annotation.StrixLog;
 import cn.projectan.strix.model.db.SystemMenu;
 import cn.projectan.strix.model.db.SystemPermission;
@@ -98,7 +99,7 @@ public class SystemMenuController extends BaseSystemController {
     @PostMapping("update")
     @PreAuthorize("@ss.hasPermission('system:menu:add')")
     @StrixLog(operationGroup = "系统菜单", operationName = "新增菜单", operationType = SysLogOperType.ADD)
-    public RetResult<Object> update(@RequestBody @Validated(ValidationGroup.Insert.class) SystemMenuUpdateReq req) {
+    public RetResult<Object> update(@RequestBody @Validated(InsertGroup.class) SystemMenuUpdateReq req) {
         Assert.notNull(req, "参数错误");
 
         SystemMenu systemMenu = new SystemMenu(
@@ -124,7 +125,7 @@ public class SystemMenuController extends BaseSystemController {
     @PostMapping("update/{menuId}")
     @PreAuthorize("@ss.hasPermission('system:menu:update')")
     @StrixLog(operationGroup = "系统菜单", operationName = "修改菜单", operationType = SysLogOperType.UPDATE)
-    public RetResult<Object> update(@PathVariable String menuId, @RequestBody @Validated(ValidationGroup.Update.class) SystemMenuUpdateReq req) {
+    public RetResult<Object> update(@PathVariable String menuId, @RequestBody @Validated(UpdateGroup.class) SystemMenuUpdateReq req) {
         Assert.hasText(menuId, "参数错误");
         Assert.notNull(req, "参数错误");
         SystemMenu systemMenu = systemMenuService.getById(menuId);

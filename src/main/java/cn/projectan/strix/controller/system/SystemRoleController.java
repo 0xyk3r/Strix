@@ -5,7 +5,8 @@ import cn.projectan.strix.core.cache.SystemMenuCache;
 import cn.projectan.strix.core.cache.SystemPermissionCache;
 import cn.projectan.strix.core.ret.RetMarker;
 import cn.projectan.strix.core.ret.RetResult;
-import cn.projectan.strix.core.validation.ValidationGroup;
+import cn.projectan.strix.core.validation.group.InsertGroup;
+import cn.projectan.strix.core.validation.group.UpdateGroup;
 import cn.projectan.strix.model.annotation.StrixLog;
 import cn.projectan.strix.model.db.*;
 import cn.projectan.strix.model.dict.SysLogOperType;
@@ -80,7 +81,7 @@ public class SystemRoleController extends BaseSystemController {
     @PostMapping("update")
     @PreAuthorize("@ss.hasPermission('system:role:add')")
     @StrixLog(operationGroup = "系统角色", operationName = "新增角色", operationType = SysLogOperType.ADD)
-    public RetResult<Object> update(@RequestBody @Validated(ValidationGroup.Insert.class) SystemRoleUpdateReq req) {
+    public RetResult<Object> update(@RequestBody @Validated(InsertGroup.class) SystemRoleUpdateReq req) {
         Assert.notNull(req, "参数错误");
 
         SystemRole systemRole = new SystemRole(
@@ -99,7 +100,7 @@ public class SystemRoleController extends BaseSystemController {
     @PostMapping("update/{roleId}")
     @PreAuthorize("@ss.hasPermission('system:role:update')")
     @StrixLog(operationGroup = "系统角色", operationName = "修改角色", operationType = SysLogOperType.UPDATE)
-    public RetResult<Object> update(@PathVariable String roleId, @RequestBody @Validated(ValidationGroup.Update.class) SystemRoleUpdateReq req) {
+    public RetResult<Object> update(@PathVariable String roleId, @RequestBody @Validated(UpdateGroup.class) SystemRoleUpdateReq req) {
         Assert.hasText(roleId, "参数错误");
         Assert.notNull(req, "参数错误");
         SystemRole systemRole = systemRoleService.getById(roleId);
@@ -115,7 +116,7 @@ public class SystemRoleController extends BaseSystemController {
     @PostMapping("update/{roleId}/menu")
     @PreAuthorize("@ss.hasPermission('system:role:update')")
     @StrixLog(operationGroup = "系统角色", operationName = "修改角色菜单权限", operationType = SysLogOperType.UPDATE)
-    public RetResult<Object> updateMenu(@PathVariable String roleId, @RequestBody @Validated(ValidationGroup.Update.class) SystemRoleUpdateMenuReq req) {
+    public RetResult<Object> updateMenu(@PathVariable String roleId, @RequestBody @Validated(UpdateGroup.class) SystemRoleUpdateMenuReq req) {
         SystemRole systemRole = systemRoleService.getById(roleId);
         Assert.notNull(systemRole, "系统角色信息不存在");
 

@@ -4,7 +4,8 @@ import cn.projectan.strix.controller.system.base.BaseSystemController;
 import cn.projectan.strix.core.module.sms.StrixSmsConfig;
 import cn.projectan.strix.core.ret.RetMarker;
 import cn.projectan.strix.core.ret.RetResult;
-import cn.projectan.strix.core.validation.ValidationGroup;
+import cn.projectan.strix.core.validation.group.InsertGroup;
+import cn.projectan.strix.core.validation.group.UpdateGroup;
 import cn.projectan.strix.model.annotation.StrixLog;
 import cn.projectan.strix.model.db.SmsConfig;
 import cn.projectan.strix.model.db.SmsLog;
@@ -105,7 +106,7 @@ public class SmsController extends BaseSystemController {
     @PostMapping("update")
     @PreAuthorize("@ss.hasPermission('system:module:sms:config:add')")
     @StrixLog(operationGroup = "系统短信", operationName = "新增短信配置", operationType = SysLogOperType.ADD)
-    public RetResult<Object> update(@RequestBody @Validated(ValidationGroup.Insert.class) SmsConfigUpdateReq req) {
+    public RetResult<Object> update(@RequestBody @Validated(InsertGroup.class) SmsConfigUpdateReq req) {
         Assert.isTrue(StrixSmsPlatform.valid(req.getPlatform()), "请选择正确的服务平台");
 
         SmsConfig smsConfig = new SmsConfig(
@@ -133,7 +134,7 @@ public class SmsController extends BaseSystemController {
     @PostMapping("update/{id}")
     @PreAuthorize("@ss.hasPermission('system:module:sms:config:update')")
     @StrixLog(operationGroup = "系统短信", operationName = "修改短信配置", operationType = SysLogOperType.UPDATE)
-    public RetResult<Object> update(@PathVariable String id, @RequestBody @Validated(ValidationGroup.Update.class) SmsConfigUpdateReq req) {
+    public RetResult<Object> update(@PathVariable String id, @RequestBody @Validated(UpdateGroup.class) SmsConfigUpdateReq req) {
         Assert.isTrue(StrixSmsPlatform.valid(req.getPlatform()), "请选择正确的服务平台");
 
         SmsConfig smsConfig = smsConfigService.getById(id);

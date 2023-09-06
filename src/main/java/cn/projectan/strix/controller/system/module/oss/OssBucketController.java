@@ -4,7 +4,8 @@ import cn.projectan.strix.controller.system.base.BaseSystemController;
 import cn.projectan.strix.core.module.oss.StrixOssConfig;
 import cn.projectan.strix.core.ret.RetMarker;
 import cn.projectan.strix.core.ret.RetResult;
-import cn.projectan.strix.core.validation.ValidationGroup;
+import cn.projectan.strix.core.validation.group.InsertGroup;
+import cn.projectan.strix.core.validation.group.UpdateGroup;
 import cn.projectan.strix.model.annotation.StrixLog;
 import cn.projectan.strix.model.db.OssBucket;
 import cn.projectan.strix.model.dict.SysLogOperType;
@@ -62,7 +63,7 @@ public class OssBucketController extends BaseSystemController {
     @PostMapping("update")
     @PreAuthorize("@ss.hasPermission('system:module:oss:bucket:add')")
     @StrixLog(operationGroup = "系统存储空间", operationName = "新增存储空间", operationType = SysLogOperType.ADD)
-    public RetResult<Object> update(@RequestBody @Validated(ValidationGroup.Insert.class) OssBucketUpdateReq req) {
+    public RetResult<Object> update(@RequestBody @Validated(InsertGroup.class) OssBucketUpdateReq req) {
         OssBucket ossBucket = new OssBucket(
                 req.getConfigKey(),
                 req.getName(),
@@ -88,7 +89,7 @@ public class OssBucketController extends BaseSystemController {
     @PostMapping("update/{id}")
     @PreAuthorize("@ss.hasPermission('system:module:oss:bucket:update')")
     @StrixLog(operationGroup = "系统存储空间", operationName = "修改存储空间", operationType = SysLogOperType.UPDATE)
-    public RetResult<Object> update(@PathVariable String id, @RequestBody @Validated(ValidationGroup.Update.class) OssBucketUpdateReq req) {
+    public RetResult<Object> update(@PathVariable String id, @RequestBody @Validated(UpdateGroup.class) OssBucketUpdateReq req) {
         OssBucket ossBucket = ossBucketService.getById(id);
         Assert.notNull(ossBucket, "原记录不存在");
 

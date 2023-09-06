@@ -1,6 +1,7 @@
 package cn.projectan.strix.model.request.system.role;
 
-import cn.projectan.strix.core.validation.ValidationGroup;
+import cn.projectan.strix.core.validation.group.InsertGroup;
+import cn.projectan.strix.core.validation.group.UpdateGroup;
 import cn.projectan.strix.model.annotation.UpdateField;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
@@ -16,8 +17,8 @@ public class SystemRoleUpdateReq {
     /**
      * 角色名称
      */
-    @NotEmpty(groups = {ValidationGroup.Insert.class, ValidationGroup.Update.class}, message = "角色名称不可为空")
-    @Size(groups = {ValidationGroup.Insert.class, ValidationGroup.Update.class}, min = 2, max = 12, message = "角色名称长度不符合要求")
+    @NotEmpty(groups = {InsertGroup.class, UpdateGroup.class}, message = "角色名称不可为空")
+    @Size(groups = {InsertGroup.class, UpdateGroup.class}, min = 2, max = 12, message = "角色名称长度不符合要求")
     @UpdateField
     private String name;
 
