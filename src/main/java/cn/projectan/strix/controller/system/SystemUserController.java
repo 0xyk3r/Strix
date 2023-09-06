@@ -3,7 +3,8 @@ package cn.projectan.strix.controller.system;
 import cn.projectan.strix.controller.system.base.BaseSystemController;
 import cn.projectan.strix.core.ret.RetMarker;
 import cn.projectan.strix.core.ret.RetResult;
-import cn.projectan.strix.core.validation.ValidationGroup;
+import cn.projectan.strix.core.validation.group.InsertGroup;
+import cn.projectan.strix.core.validation.group.UpdateGroup;
 import cn.projectan.strix.model.annotation.StrixLog;
 import cn.projectan.strix.model.db.SystemUser;
 import cn.projectan.strix.model.db.SystemUserRelation;
@@ -105,7 +106,7 @@ public class SystemUserController extends BaseSystemController {
     @PostMapping("update")
     @PreAuthorize("@ss.hasPermission('system:user:add')")
     @StrixLog(operationGroup = "系统用户", operationName = "新增用户", operationType = SysLogOperType.ADD)
-    public RetResult<Object> update(@RequestBody @Validated(ValidationGroup.Insert.class) SystemUserUpdateReq req) {
+    public RetResult<Object> update(@RequestBody @Validated(InsertGroup.class) SystemUserUpdateReq req) {
         Assert.notNull(req, "参数错误");
 
         SystemUser systemUser = new SystemUser(
@@ -128,7 +129,7 @@ public class SystemUserController extends BaseSystemController {
     @PostMapping("update/{userId}")
     @PreAuthorize("@ss.hasPermission('system:user:update')")
     @StrixLog(operationGroup = "系统用户", operationName = "修改用户", operationType = SysLogOperType.UPDATE)
-    public RetResult<Object> update(@PathVariable String userId, @RequestBody @Validated(ValidationGroup.Update.class) SystemUserUpdateReq req) {
+    public RetResult<Object> update(@PathVariable String userId, @RequestBody @Validated(UpdateGroup.class) SystemUserUpdateReq req) {
         Assert.hasText(userId, "参数错误");
         Assert.notNull(req, "参数错误");
         SystemUser systemUser = systemUserService.getById(userId);

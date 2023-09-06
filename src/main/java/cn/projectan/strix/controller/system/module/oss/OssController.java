@@ -4,7 +4,8 @@ import cn.projectan.strix.controller.system.base.BaseSystemController;
 import cn.projectan.strix.core.module.oss.StrixOssConfig;
 import cn.projectan.strix.core.ret.RetMarker;
 import cn.projectan.strix.core.ret.RetResult;
-import cn.projectan.strix.core.validation.ValidationGroup;
+import cn.projectan.strix.core.validation.group.InsertGroup;
+import cn.projectan.strix.core.validation.group.UpdateGroup;
 import cn.projectan.strix.model.annotation.StrixLog;
 import cn.projectan.strix.model.db.OssBucket;
 import cn.projectan.strix.model.db.OssConfig;
@@ -103,7 +104,7 @@ public class OssController extends BaseSystemController {
     @PostMapping("update")
     @PreAuthorize("@ss.hasPermission('system:module:oss:config:add')")
     @StrixLog(operationGroup = "系统存储", operationName = "新增存储配置", operationType = SysLogOperType.ADD)
-    public RetResult<Object> update(@RequestBody @Validated(ValidationGroup.Insert.class) OssConfigUpdateReq req) {
+    public RetResult<Object> update(@RequestBody @Validated(InsertGroup.class) OssConfigUpdateReq req) {
         Assert.isTrue(StrixOssPlatform.valid(req.getPlatform()), "请选择正确的服务平台");
 
         OssConfig ossConfig = new OssConfig(
@@ -132,7 +133,7 @@ public class OssController extends BaseSystemController {
     @PostMapping("update/{id}")
     @PreAuthorize("@ss.hasPermission('system:module:oss:config:update')")
     @StrixLog(operationGroup = "系统存储", operationName = "修改存储配置", operationType = SysLogOperType.UPDATE)
-    public RetResult<Object> update(@PathVariable String id, @RequestBody @Validated(ValidationGroup.Update.class) OssConfigUpdateReq req) {
+    public RetResult<Object> update(@PathVariable String id, @RequestBody @Validated(UpdateGroup.class) OssConfigUpdateReq req) {
         Assert.isTrue(StrixOssPlatform.valid(req.getPlatform()), "请选择正确的服务平台");
 
         OssConfig ossConfig = ossConfigService.getById(id);

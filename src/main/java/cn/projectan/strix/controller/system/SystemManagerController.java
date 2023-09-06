@@ -6,7 +6,8 @@ import cn.projectan.strix.core.cache.SystemPermissionCache;
 import cn.projectan.strix.core.cache.SystemRegionCache;
 import cn.projectan.strix.core.ret.RetMarker;
 import cn.projectan.strix.core.ret.RetResult;
-import cn.projectan.strix.core.validation.ValidationGroup;
+import cn.projectan.strix.core.validation.group.InsertGroup;
+import cn.projectan.strix.core.validation.group.UpdateGroup;
 import cn.projectan.strix.model.annotation.StrixLog;
 import cn.projectan.strix.model.db.SystemManager;
 import cn.projectan.strix.model.db.SystemManagerRole;
@@ -179,7 +180,7 @@ public class SystemManagerController extends BaseSystemController {
     @PostMapping("update")
     @PreAuthorize("@ss.hasPermission('system:manager:add')")
     @StrixLog(operationGroup = "系统人员", operationName = "新增人员", operationType = SysLogOperType.ADD)
-    public RetResult<Object> update(@RequestBody @Validated(ValidationGroup.Insert.class) SystemManagerUpdateReq req) {
+    public RetResult<Object> update(@RequestBody @Validated(InsertGroup.class) SystemManagerUpdateReq req) {
         Assert.notNull(req, "参数错误");
         Assert.isTrue(SystemManagerStatus.valid(req.getStatus()), "参数错误");
         Assert.isTrue(SystemManagerType.valid(req.getType()), "参数错误");
@@ -205,7 +206,7 @@ public class SystemManagerController extends BaseSystemController {
     @PostMapping("update/{managerId}")
     @PreAuthorize("@ss.hasPermission('system:manager:update')")
     @StrixLog(operationGroup = "系统人员", operationName = "修改人员", operationType = SysLogOperType.UPDATE)
-    public RetResult<Object> update(@PathVariable String managerId, @RequestBody @Validated(ValidationGroup.Update.class) SystemManagerUpdateReq req) {
+    public RetResult<Object> update(@PathVariable String managerId, @RequestBody @Validated(UpdateGroup.class) SystemManagerUpdateReq req) {
         Assert.hasText(managerId, "参数错误");
         Assert.isTrue(!"anjiongyi".equals(managerId), "该用户不允许编辑或删除");
         Assert.notNull(req, "参数错误");

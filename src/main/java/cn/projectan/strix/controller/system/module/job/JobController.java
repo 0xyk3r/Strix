@@ -3,7 +3,8 @@ package cn.projectan.strix.controller.system.module.job;
 import cn.projectan.strix.controller.system.base.BaseSystemController;
 import cn.projectan.strix.core.ret.RetMarker;
 import cn.projectan.strix.core.ret.RetResult;
-import cn.projectan.strix.core.validation.ValidationGroup;
+import cn.projectan.strix.core.validation.group.InsertGroup;
+import cn.projectan.strix.core.validation.group.UpdateGroup;
 import cn.projectan.strix.model.annotation.StrixLog;
 import cn.projectan.strix.model.db.Job;
 import cn.projectan.strix.model.dict.SysLogOperType;
@@ -77,7 +78,7 @@ public class JobController extends BaseSystemController {
     @PostMapping("update")
     @PreAuthorize("@ss.hasPermission('system:module:job:add')")
     @StrixLog(operationGroup = "系统定时任务", operationName = "新增定时任务", operationType = SysLogOperType.ADD)
-    public RetResult<Object> update(@RequestBody @Validated(ValidationGroup.Insert.class) JobUpdateReq req) {
+    public RetResult<Object> update(@RequestBody @Validated(InsertGroup.class) JobUpdateReq req) {
 //        Assert.isTrue(StrixOssPlatform.valid(req.getPlatform()), "请选择正确的服务平台");
 
         Job job = new Job(
@@ -106,7 +107,7 @@ public class JobController extends BaseSystemController {
     @PostMapping("update/{id}")
     @PreAuthorize("@ss.hasPermission('system:module:job:update')")
     @StrixLog(operationGroup = "系统定时任务", operationName = "修改定时任务", operationType = SysLogOperType.UPDATE)
-    public RetResult<Object> update(@PathVariable String id, @RequestBody @Validated(ValidationGroup.Update.class) JobUpdateReq req) {
+    public RetResult<Object> update(@PathVariable String id, @RequestBody @Validated(UpdateGroup.class) JobUpdateReq req) {
 //        Assert.isTrue(StrixOssPlatform.valid(req.getPlatform()), "请选择正确的服务平台");
 
         Job job = jobService.getById(id);
