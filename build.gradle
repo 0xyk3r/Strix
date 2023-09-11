@@ -82,7 +82,7 @@ dependencies {
     implementation 'com.aliyun.oss:aliyun-sdk-oss:3.17.1'
     implementation 'cn.hutool:hutool-all:5.8.21'
     implementation 'org.bouncycastle:bcprov-jdk18on:1.76'
-    implementation 'com.github.javen205:IJPay-WxPay:2.9.7-17'
+    implementation 'com.github.javen205:IJPay-WxPay:2.9.8-17'
     implementation 'commons-io:commons-io:2.13.0'
     implementation 'com.github.oshi:oshi-core:6.4.5'
     implementation 'org.lionsoul:ip2region:2.7.0'
