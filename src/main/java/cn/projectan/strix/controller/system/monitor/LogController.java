@@ -51,9 +51,13 @@ public class LogController extends BaseSystemController {
         }
 
         queryWrapper.orderByDesc(SystemLog::getOperationTime);
-        Page<SystemLog> page = systemLogService.page(req.getPage(), queryWrapper);
 
-        return RetMarker.makeSuccessRsp(new SystemLogListResp(page.getRecords(), page.getTotal()));
+        try {
+            Page<SystemLog> page = systemLogService.page(req.getPage(), queryWrapper);
+            return RetMarker.makeSuccessRsp(new SystemLogListResp(page.getRecords(), page.getTotal()));
+        } catch (Exception e) {
+            return RetMarker.makeErrRsp("Strix 日志服务未开启，无法查询日志");
+        }
     }
 
 }
