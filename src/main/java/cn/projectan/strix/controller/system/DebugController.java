@@ -4,8 +4,7 @@ import cn.projectan.strix.core.ret.RetMarker;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.model.annotation.Anonymous;
 import cn.projectan.strix.model.annotation.IgnoreDataEncryption;
-import cn.projectan.strix.utils.ip.IpLocationUtil;
-import cn.projectan.strix.utils.ip.IpUtils;
+import cn.projectan.strix.utils.PopularityUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,8 +15,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 /**
  * @author 安炯奕
@@ -32,20 +30,28 @@ import java.util.Map;
 public class DebugController {
 
     private final ObjectMapper objectMapper;
+    private final PopularityUtil popularityUtil;
 
     @IgnoreDataEncryption
-    @GetMapping("ip")
-    public RetResult<Object> getMyIpAddress(HttpServletRequest request) throws JsonProcessingException {
-        long start = System.nanoTime();
-        Map<String, String> result = new HashMap<>();
-        String ip = IpUtils.getIpAddr(request);
-        String address = IpLocationUtil.getLocation(ip);
-        result.put("ip", ip);
-        result.put("address", address);
-        long end = System.nanoTime();
-        result.put("time", String.valueOf((end - start) / 1000000));
-        System.out.println(objectMapper.writeValueAsString(result));
-        return RetMarker.makeSuccessRsp(result);
+    @GetMapping("test")
+    public RetResult<Object> test(HttpServletRequest request) throws JsonProcessingException {
+        popularityUtil.addPopularity("test", "1");
+        popularityUtil.addPopularity("test", "1");
+        popularityUtil.addPopularity("test", "2");
+        popularityUtil.addPopularity("test", "3");
+        popularityUtil.addPopularity("test", "1");
+        popularityUtil.addPopularity("test", "1");
+        popularityUtil.addPopularity("test", "2");
+        popularityUtil.addPopularity("test", "3");
+
+        List<String> list =
+                List.of(
+                        popularityUtil.getPopularity("test", "1"),
+                        popularityUtil.getPopularity("test", "2"),
+                        popularityUtil.getPopularity("test", "3")
+                );
+
+        return RetMarker.makeSuccessRsp(list);
     }
 
 }
