@@ -8,7 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.quartz.Scheduler;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -21,7 +21,7 @@ import java.util.List;
 @Slf4j
 @Order(100)
 @Component
-@ConditionalOnBean(Scheduler.class)
+@ConditionalOnProperty(prefix = "strix.module", name = "job", havingValue = "true")
 @RequiredArgsConstructor
 public class StrixJobInit implements ApplicationRunner {
 
