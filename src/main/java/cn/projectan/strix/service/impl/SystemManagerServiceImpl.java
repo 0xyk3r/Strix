@@ -126,7 +126,9 @@ public class SystemManagerServiceImpl extends ServiceImpl<SystemManagerMapper, S
                 ).stream()
                 .map(Object::toString).toList();
 
-        refreshLoginInfoByRole(roleIdList);
+        if (!roleIdList.isEmpty()) {
+            refreshLoginInfoByRole(roleIdList);
+        }
     }
 
     @Override
@@ -138,6 +140,8 @@ public class SystemManagerServiceImpl extends ServiceImpl<SystemManagerMapper, S
                 ).stream()
                 .map(Object::toString).toList();
 
-        refreshLoginInfoByRole(roleIdList);
+        if (!roleIdList.isEmpty()) {
+            refreshLoginInfoByRole(roleIdList);
+        }
     }
 }
