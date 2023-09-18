@@ -54,6 +54,7 @@ strix:
   module:
     sms: true
     oss: true
+    job: true
     auth: false
     push: false
     payment: false

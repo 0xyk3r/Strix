@@ -24,6 +24,11 @@ public class StrixModuleProperties {
     private Boolean oss = false;
 
     /**
+     * 是否启用 Job 定时任务服务
+     */
+    private Boolean job = false;
+
+    /**
      * 是否启用 Auth 服务
      */
     private Boolean auth = false;
