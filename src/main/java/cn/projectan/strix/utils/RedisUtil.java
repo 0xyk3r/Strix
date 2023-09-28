@@ -1,15 +1,15 @@
 package cn.projectan.strix.utils;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -39,11 +39,10 @@ public class RedisUtil {
     }
 
     public boolean setExpire(String key, long time, TimeUnit timeUnit) {
+        Assert.isTrue(time > 0, "缓存失效时间必须大于0");
         try {
-            if (time > 0) {
-                redisTemplate.expire(key, time, timeUnit);
-            }
-            return true;
+            Boolean result = redisTemplate.expire(key, time, timeUnit);
+            return result != null ? result : false;
         } catch (Exception e) {
             log.error("设置缓存失效时间失败", e);
             return false;
@@ -66,14 +65,19 @@ public class RedisUtil {
         }
     }
 
+    /**
+     * 获取缓存失效时间 LocalDateTime
+     *
+     * @param key 键
+     * @return 时间 返回null代表为永久有效
+     */
     public LocalDateTime getExpireDateTime(String key) {
         try {
-            Long expire = redisTemplate.getExpire(key, TimeUnit.MINUTES);
-            if (expire == null || expire <= 0) {
+            long expire = getExpire(key);
+            if (expire <= 0) {
                 return null;
             }
-            LocalDateTime now = LocalDateTime.now();
-            return now.plusMinutes(expire);
+            return LocalDateTime.now().plusSeconds(expire);
         } catch (Exception e) {
             log.error("获取缓存失效时间失败", e);
             return null;
@@ -112,19 +116,23 @@ public class RedisUtil {
     }
 
     /**
-     * 模糊查询
+     * 模糊查询 keys
+     * <p>
+     * 大数据量场景请使用 {@link #scan(String)}
      */
-    public Set<String> getKeyLikePre(String pre) {
+    public Set<String> keys(String pre) {
         return redisTemplate.keys(pre);
     }
 
     /**
      * 模糊删除
+     * <p>
+     * 基于 {@link #keys(String) } 实现，大数据量场景请使用scan
      *
-     * @param pre 需要删除的前缀 需要包含通配符*
+     * @param pattern 需要删除的前缀 需要包含通配符 *
      */
-    public void delLike(String pre) {
-        Set<String> keys = redisTemplate.keys(pre);
+    public void delKeys(String pattern) {
+        Set<String> keys = redisTemplate.keys(pattern);
         if (!CollectionUtils.isEmpty(keys)) {
             redisTemplate.delete(keys);
         }
@@ -191,10 +199,9 @@ public class RedisUtil {
      * @return 递增后的值
      */
     public long incr(String key, long delta) {
-        if (delta < 0) {
-            throw new RuntimeException("递增因子必须大于0");
-        }
-        return redisTemplate.opsForValue().increment(key, delta);
+        Assert.isTrue(delta > 0, "递增因子必须大于0");
+        Long result = redisTemplate.opsForValue().increment(key, delta);
+        return result != null ? result : 0;
     }
 
     /**
@@ -205,12 +212,10 @@ public class RedisUtil {
      * @return 递减后的值
      */
     public long decr(String key, long delta) {
-        if (delta < 0) {
-            throw new RuntimeException("递减因子必须大于0");
-        }
-        return redisTemplate.opsForValue().increment(key, -delta);
+        Assert.isTrue(delta > 0, "递减因子必须大于0");
+        Long result = redisTemplate.opsForValue().decrement(key, delta);
+        return result != null ? result : 0;
     }
-    // ================================Map=================================
 
     /**
      * HashGet
@@ -245,7 +250,7 @@ public class RedisUtil {
             redisTemplate.opsForHash().putAll(key, map);
             return true;
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("存入Hash至redis缓存失败", e);
             return false;
         }
     }
@@ -266,7 +271,7 @@ public class RedisUtil {
             }
             return true;
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("存入Hash至redis缓存失败", e);
             return false;
         }
     }
@@ -284,7 +289,7 @@ public class RedisUtil {
             redisTemplate.opsForHash().put(key, item, value);
             return true;
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("存入Hash至redis缓存失败", e);
             return false;
         }
     }
@@ -306,7 +311,7 @@ public class RedisUtil {
             }
             return true;
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("存入Hash至redis缓存失败", e);
             return false;
         }
     }
@@ -355,7 +360,6 @@ public class RedisUtil {
     public double hdecr(String key, String item, double by) {
         return redisTemplate.opsForHash().increment(key, item, -by);
     }
-    // ============================set=============================
 
     /**
      * 根据key获取Set中的所有值
@@ -367,7 +371,7 @@ public class RedisUtil {
         try {
             return redisTemplate.opsForSet().members(key);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("获取Set中的所有值失败", e);
             return null;
         }
     }
@@ -381,9 +385,10 @@ public class RedisUtil {
      */
     public boolean sHasKey(String key, Object value) {
         try {
-            return redisTemplate.opsForSet().isMember(key, value);
+            Boolean result = redisTemplate.opsForSet().isMember(key, value);
+            return result != null ? result : false;
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("查询Set中是否存在失败", e);
             return false;
         }
     }
@@ -397,9 +402,10 @@ public class RedisUtil {
      */
     public long sSet(String key, Object... values) {
         try {
-            return redisTemplate.opsForSet().add(key, values);
+            Long result = redisTemplate.opsForSet().add(key, values);
+            return result != null ? result : 0;
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("将数据放入Set缓存失败", e);
             return 0;
         }
     }
@@ -418,9 +424,9 @@ public class RedisUtil {
             if (time > 0) {
                 setExpire(key, time);
             }
-            return count;
+            return count != null ? count : 0;
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("将数据放入Set缓存失败", e);
             return 0;
         }
     }
@@ -433,9 +439,10 @@ public class RedisUtil {
      */
     public long sGetSetSize(String key) {
         try {
-            return redisTemplate.opsForSet().size(key);
+            Long result = redisTemplate.opsForSet().size(key);
+            return result != null ? result : 0;
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("获取Set缓存的长度失败", e);
             return 0;
         }
     }
@@ -449,13 +456,13 @@ public class RedisUtil {
      */
     public long setRemove(String key, Object... values) {
         try {
-            return redisTemplate.opsForSet().remove(key, values);
+            Long result = redisTemplate.opsForSet().remove(key, values);
+            return result != null ? result : 0;
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("移除Set缓存中的值失败", e);
             return 0;
         }
     }
-    // ===============================list=================================
 
     /**
      * 获取list缓存的内容
@@ -469,7 +476,7 @@ public class RedisUtil {
         try {
             return redisTemplate.opsForList().range(key, start, end);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("获取List缓存的内容失败", e);
             return null;
         }
     }
@@ -482,9 +489,10 @@ public class RedisUtil {
      */
     public long lGetListSize(String key) {
         try {
-            return redisTemplate.opsForList().size(key);
+            Long size = redisTemplate.opsForList().size(key);
+            return size != null ? size : 0;
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("获取List缓存的长度失败", e);
             return 0;
         }
     }
@@ -500,7 +508,7 @@ public class RedisUtil {
         try {
             return redisTemplate.opsForList().index(key, index);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("通过索引获取List中的值失败", e);
             return null;
         }
     }
@@ -517,7 +525,7 @@ public class RedisUtil {
             redisTemplate.opsForList().rightPush(key, value);
             return true;
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("将List放入缓存失败", e);
             return false;
         }
     }
@@ -538,7 +546,7 @@ public class RedisUtil {
             }
             return true;
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("将List放入缓存失败", e);
             return false;
         }
     }
@@ -555,7 +563,7 @@ public class RedisUtil {
             redisTemplate.opsForList().rightPushAll(key, value);
             return true;
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("将List放入缓存失败", e);
             return false;
         }
     }
@@ -576,7 +584,7 @@ public class RedisUtil {
             }
             return true;
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("将List放入缓存失败", e);
             return false;
         }
     }
@@ -594,7 +602,7 @@ public class RedisUtil {
             redisTemplate.opsForList().set(key, index, value);
             return true;
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("根据索引修改List中的某条数据失败", e);
             return false;
         }
     }
@@ -609,11 +617,32 @@ public class RedisUtil {
      */
     public long lRemove(String key, long count, Object value) {
         try {
-            return redisTemplate.opsForList().remove(key, count, value);
+            Long result = redisTemplate.opsForList().remove(key, count, value);
+            return result != null ? result : 0;
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("移除List中的某条数据失败", e);
             return 0;
         }
     }
+
+    public Set<String> scan(String pattern) {
+        return scan(pattern, 1000);
+    }
+
+    public Set<String> scan(String pattern, long count) {
+        Set<String> keys = new HashSet<>();
+        try (Cursor<String> scan = redisTemplate.scan(
+                ScanOptions.scanOptions()
+                        .match(pattern)
+                        .count(count)
+                        .build()
+        )) {
+            while (scan.hasNext()) {
+                keys.add(scan.next());
+            }
+        }
+        return keys;
+    }
+
 }
 

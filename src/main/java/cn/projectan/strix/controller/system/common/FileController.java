@@ -1,5 +1,7 @@
 package cn.projectan.strix.controller.system.common;
 
+import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.io.IoUtil;
 import cn.projectan.strix.controller.system.base.BaseSystemController;
 import cn.projectan.strix.core.ret.RetMarker;
 import cn.projectan.strix.core.ret.RetResult;
@@ -12,7 +14,6 @@ import cn.projectan.strix.utils.FileExtUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.FileUtils;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -50,7 +51,8 @@ public class FileController extends BaseSystemController {
 
         try {
             File tempFile = File.createTempFile("temp", file.getOriginalFilename());
-            FileUtils.copyInputStreamToFile(file.getInputStream(), tempFile);
+//            FileUtils.copyInputStreamToFile(file.getInputStream(), tempFile);
+            IoUtil.copy(file.getInputStream(), FileUtil.getOutputStream(tempFile));
 
             OssFile ossFile = ossFileService.upload(groupId, tempFile, getLoginManagerId());
 
