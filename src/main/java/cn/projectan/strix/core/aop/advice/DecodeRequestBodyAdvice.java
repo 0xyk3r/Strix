@@ -9,7 +9,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.IOUtils;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.MethodParameter;
@@ -96,7 +95,8 @@ public class DecodeRequestBodyAdvice implements RequestBodyAdvice {
                 this.body = InputStream.nullInputStream();
             } else {
                 request.setAttribute("Strix-Security", true);
-                this.body = IOUtils.toInputStream(handlingData, StandardCharsets.UTF_8);
+                // this.body = IOUtils.toInputStream(handlingData, StandardCharsets.UTF_8);
+                this.body = IoUtil.toStream(handlingData, StandardCharsets.UTF_8);
             }
         }
 

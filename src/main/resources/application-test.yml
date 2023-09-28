@@ -22,6 +22,7 @@ spring:
           username: root
           password: S1V/holh
           type: com.zaxxer.hikari.HikariDataSource
+          lazy: true
           hikari:
             keepalive-time: 60000
             max-lifetime: 120000

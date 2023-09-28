@@ -36,12 +36,12 @@ public class PopularityConfig extends BaseModel {
     private String dataType;
 
     /**
-     * 额外数值计算方式
+     * 初始的数值（参与乘算）
      */
-    private Byte extraValueType;
+    private Integer initialValue;
 
     /**
-     * 附加的额外数值
+     * 附加的额外数值（不参与乘算）
      */
     private Integer extraValue;
 

@@ -18,8 +18,8 @@ public class SystemRegionCache {
     private final RedisUtil redisUtil;
 
     public void refreshRedisCache() {
-        redisUtil.delLike("strix:system:region:queryRegionById:*");
-        redisUtil.delLike("strix:system:region:getChildrenIdList:*");
+        redisUtil.delKeys("strix:system:region:queryRegionById:*");
+        redisUtil.delKeys("strix:system:region:getChildrenIdList:*");
     }
 
     public void refreshRedisCacheById(String id) {

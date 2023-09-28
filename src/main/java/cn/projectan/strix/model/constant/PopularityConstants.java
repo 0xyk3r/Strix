@@ -6,6 +6,6 @@ package cn.projectan.strix.model.constant;
  */
 public class PopularityConstants {
 
-    public static final String POPULARITY_REDIS_KEY_PREFIX = "strix:popularity:";
+    public static final String POPULARITY_DATA_REDIS_KEY_PREFIX = "strix:popularity:data:";
 
 }

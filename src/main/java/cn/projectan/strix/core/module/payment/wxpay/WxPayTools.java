@@ -10,6 +10,7 @@ import cn.projectan.strix.model.wechat.payment.WxPayConfig;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ijpay.core.IJPayHttpResponse;
+import com.ijpay.core.enums.AuthTypeEnum;
 import com.ijpay.core.enums.RequestMethodEnum;
 import com.ijpay.core.kit.AesUtil;
 import com.ijpay.core.kit.PayKit;
@@ -71,7 +72,7 @@ public class WxPayTools {
     public static String decryptSensitiveString(String encryptStr, String keyPath) {
         String decrypt = null;
         try {
-            PrivateKey privateKey = PayKit.getPrivateKey(keyPath);
+            PrivateKey privateKey = PayKit.getPrivateKey(keyPath, AuthTypeEnum.SM2.getCode());
             decrypt = PayKit.rsaDecryptOAEP(encryptStr, privateKey);
         } catch (Exception e) {
             log.error("敏感消息加密时出错", e);

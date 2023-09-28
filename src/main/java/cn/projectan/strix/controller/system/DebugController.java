@@ -2,6 +2,7 @@ package cn.projectan.strix.controller.system;
 
 import cn.projectan.strix.core.ret.RetMarker;
 import cn.projectan.strix.core.ret.RetResult;
+import cn.projectan.strix.job.PopularityJob;
 import cn.projectan.strix.model.annotation.Anonymous;
 import cn.projectan.strix.model.annotation.IgnoreDataEncryption;
 import cn.projectan.strix.utils.PopularityUtil;
@@ -31,6 +32,7 @@ public class DebugController {
 
     private final ObjectMapper objectMapper;
     private final PopularityUtil popularityUtil;
+    private final PopularityJob popularityJob;
 
     @IgnoreDataEncryption
     @GetMapping("test")

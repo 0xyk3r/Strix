@@ -9,8 +9,6 @@ spring:
         master:
           driver-class-name: com.mysql.cj.jdbc.Driver
           url: jdbc:mysql://huibochepolardb001.rwlb.rds.aliyuncs.com:3306/strix?useSSL=true&serverTimezone=Asia/Shanghai&autoReconnect=true
-          #    driver-class-name: com.p6spy.engine.spy.P6SpyDriver
-          #    url: jdbc:p6spy:mysql://huibochepolardb001.rwlb.rds.aliyuncs.com:3306/strix?useSSL=true&serverTimezone=Asia/Shanghai&autoReconnect=true
           username: strix
           password: Str1XP8Pr0j3cTAAAm
           type: com.zaxxer.hikari.HikariDataSource
@@ -24,6 +22,7 @@ spring:
           username: root
           password: S1V/holh
           type: com.zaxxer.hikari.HikariDataSource
+          lazy: true
           hikari:
             keepalive-time: 60000
             max-lifetime: 120000
