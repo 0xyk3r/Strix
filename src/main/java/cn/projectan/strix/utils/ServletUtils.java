@@ -2,17 +2,12 @@ package cn.projectan.strix.utils;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.util.StringUtils;
+import org.springframework.util.Assert;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * @author 安炯奕
@@ -33,9 +28,7 @@ public class ServletUtils {
      */
     public static HttpServletRequest getRequest() {
         ServletRequestAttributes attributes = getRequestAttributes();
-        if (attributes == null) {
-            return null;
-        }
+        Assert.notNull(attributes, "request attributes is null");
         return attributes.getRequest();
     }
 
@@ -44,12 +37,9 @@ public class ServletUtils {
      */
     public static HttpServletResponse getResponse() {
         ServletRequestAttributes attributes = getRequestAttributes();
-        if (attributes == null) {
-            return null;
-        }
+        Assert.notNull(attributes, "request attributes is null");
         return attributes.getResponse();
     }
-
 
     /**
      * 将 QueryString 转换为 Map
@@ -59,15 +49,7 @@ public class ServletUtils {
      */
     public static Map<String, String> getRequestParams(HttpServletRequest request) {
         String queryString = request.getQueryString();
-        if (!StringUtils.hasText(queryString)) {
-            return Map.of();
-        }
-        return Arrays.stream(queryString.split("&"))
-                .map(param -> param.split("=", 2))
-                .filter(kv -> kv.length == 2)
-                .collect(Collectors.toMap(kv -> kv[0], kv -> URLDecoder.decode(kv[1], StandardCharsets.UTF_8),
-                        (v1, v2) -> v1, // 如果有重复的参数名，保留第一个值
-                        LinkedHashMap::new));
+        return OkHttpUtil.parseQueryParamToMap(queryString);
     }
 
 }

@@ -49,13 +49,9 @@ public class ListDiffUtil {
      */
     public static List<String> subListMiddle(Collection<String> list1, Collection<String> list2) {
         Set<String> set2 = new HashSet<>(list2);
-        List<String> resList = new ArrayList<>(list1.size());
-        for (String str : list1) {
-            if (!set2.contains(str)) {
-                resList.add(str);
-            }
-        }
-        return resList;
+        return list1.stream()
+                .filter(str -> !set2.contains(str))
+                .collect(Collectors.toList());
     }
 
     /**

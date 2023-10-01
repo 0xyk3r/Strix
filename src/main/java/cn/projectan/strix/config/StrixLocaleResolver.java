@@ -8,10 +8,10 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.LocaleResolver;
 
 import java.util.Locale;
+import java.util.Optional;
 
 /**
  * @author 安炯奕
@@ -40,11 +40,9 @@ public class StrixLocaleResolver implements LocaleResolver {
     public Locale resolveLocale(HttpServletRequest request) {
         // 获取请求中的语言参数
         String language = request.getHeader("lang");
-        Locale locale = I18nUtil.convertLocale(defaultLocale);
-        if (StringUtils.hasText(language)) {
-            locale = I18nUtil.convertLocale(language);
-        }
-        return locale;
+        return Optional.ofNullable(language)
+                .map(I18nUtil::convertLocale)
+                .orElse(I18nUtil.convertLocale(defaultLocale));
     }
 
     @Override

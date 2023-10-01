@@ -52,10 +52,7 @@ public class I18nUtil {
      * @return 国际化后内容信息
      */
     public static String getMessage(String code, String lang) {
-        Locale locale = convertLocale(defaultLocale);
-        if (StringUtils.hasText(lang)) {
-            locale = convertLocale(lang);
-        }
+        Locale locale = convertLocale(lang);
         return getMessage(code, null, code, locale);
     }
 
@@ -73,7 +70,6 @@ public class I18nUtil {
         }
         return content;
     }
-
 
     public static void setBasename(String basename) {
         I18nUtil.paths = StringUtils.commaDelimitedListToStringArray(StringUtils.trimAllWhitespace(basename));

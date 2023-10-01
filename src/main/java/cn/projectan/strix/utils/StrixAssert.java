@@ -1,9 +1,9 @@
 package cn.projectan.strix.utils;
 
-import org.springframework.util.StringUtils;
+import org.springframework.util.Assert;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 /**
  * 断言工具类
@@ -14,43 +14,27 @@ import java.util.List;
 public class StrixAssert {
 
     public static void in(String checkValue, String message, String... passValue) {
-        List<String> passList = Arrays.asList(passValue);
-        if (!StringUtils.hasText(checkValue) || !passList.contains(checkValue)) {
-            throw new IllegalArgumentException(message);
-        }
+        Stream.of(passValue)
+                .filter(pass -> pass.equals(checkValue))
+                .findAny()
+                .orElseThrow(() -> new IllegalArgumentException(message));
     }
 
     public static void in(String checkValue, String message, int... passValue) {
-        if (!StringUtils.hasText(checkValue)) {
-            throw new IllegalArgumentException(message);
-        }
+        Assert.hasText(checkValue, message);
         int cv = Integer.parseInt(checkValue);
-        boolean found = false;
-        for (int v : passValue) {
-            if (cv == v) {
-                found = true;
-                break;
-            }
-        }
-        if (!found) {
-            throw new IllegalArgumentException(message);
-        }
+        IntStream.of(passValue)
+                .filter(pass -> pass == cv)
+                .findAny()
+                .orElseThrow(() -> new IllegalArgumentException(message));
     }
 
     public static void in(Integer checkValue, String message, int... passValue) {
-        if (checkValue == null) {
-            throw new IllegalArgumentException(message);
-        }
-        boolean found = false;
-        for (int v : passValue) {
-            if (checkValue == v) {
-                found = true;
-                break;
-            }
-        }
-        if (!found) {
-            throw new IllegalArgumentException(message);
-        }
+        Assert.notNull(checkValue, message);
+        IntStream.of(passValue)
+                .filter(pass -> pass == checkValue)
+                .findAny()
+                .orElseThrow(() -> new IllegalArgumentException(message));
     }
 
 }

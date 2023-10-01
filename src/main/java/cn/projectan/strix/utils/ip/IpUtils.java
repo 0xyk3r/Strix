@@ -5,6 +5,7 @@ import org.springframework.util.StringUtils;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.stream.Stream;
 
 /**
  * IP 地址相关工具类
@@ -21,22 +22,13 @@ public class IpUtils {
         if (request == null) {
             return "unknown";
         }
-        String ip = request.getHeader("x-forwarded-for");
-        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
-            ip = request.getHeader("Proxy-Client-IP");
-        }
-        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
-            ip = request.getHeader("X-Forwarded-For");
-        }
-        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
-            ip = request.getHeader("WL-Proxy-Client-IP");
-        }
-        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
-            ip = request.getHeader("X-Real-IP");
-        }
-        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
-            ip = request.getRemoteAddr();
-        }
+        String[] headers = {"x-forwarded-for", "Proxy-Client-IP", "X-Forwarded-For", "WL-Proxy-Client-IP", "X-Real-IP"};
+        String ip = Stream.of(headers)
+                .map(request::getHeader)
+                .filter(StringUtils::hasText)
+                .filter(s -> !"unknown".equalsIgnoreCase(s))
+                .findFirst()
+                .orElse(request.getRemoteAddr());
         return "0:0:0:0:0:0:0:1".equals(ip) ? "127.0.0.1" : getMultistageReverseProxyIp(ip);
     }
 
@@ -95,7 +87,7 @@ public class IpUtils {
      * @return byte 字节
      */
     public static byte[] textToNumericFormatV4(String text) {
-        if (text.length() == 0) {
+        if (text == null || text.isEmpty()) {
             return null;
         }
 
@@ -196,15 +188,13 @@ public class IpUtils {
      * @return 第一个非unknown IP地址
      */
     public static String getMultistageReverseProxyIp(String ip) {
-        // 多级反向代理检测
-        if (ip != null && ip.indexOf(",") > 0) {
-            final String[] ips = ip.trim().split(",");
-            for (String subIp : ips) {
-                if (!isUnknown(subIp)) {
-                    ip = subIp;
-                    break;
-                }
-            }
+        if (ip != null && ip.contains(",")) {
+            String[] ips = ip.trim().split(",");
+            ip = Stream.of(ips)
+                    .map(String::trim)
+                    .filter(s -> !isUnknown(s))
+                    .findFirst()
+                    .orElse(ip);
         }
         return ip;
     }

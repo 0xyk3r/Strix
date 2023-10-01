@@ -1,5 +1,6 @@
 package cn.projectan.strix.utils;
 
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.aop.framework.AopContext;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class SpringUtil implements ApplicationContextAware {
 
+    @Getter
     private static ApplicationContext applicationContext;
 
     @Override
@@ -23,15 +25,6 @@ public class SpringUtil implements ApplicationContextAware {
         if (SpringUtil.applicationContext == null) {
             SpringUtil.applicationContext = applicationContext;
         }
-    }
-
-    /**
-     * 获取 ApplicationContext
-     *
-     * @return ApplicationContext
-     */
-    public static ApplicationContext getApplicationContext() {
-        return applicationContext;
     }
 
     /**

@@ -6,7 +6,7 @@ import cn.projectan.strix.job.PopularityJob;
 import cn.projectan.strix.model.annotation.Anonymous;
 import cn.projectan.strix.model.annotation.IgnoreDataEncryption;
 import cn.projectan.strix.utils.PopularityUtil;
-import cn.projectan.strix.utils.async.CompletableUtil;
+import cn.projectan.strix.utils.async.ParallelExecution;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
@@ -38,7 +38,7 @@ public class DebugController {
     @GetMapping("test/{key}")
     public RetResult<Object> test(@PathVariable String key, HttpServletRequest request) throws JsonProcessingException {
 
-        CompletableUtil.allOf(
+        ParallelExecution.allOf(
                 () -> {
                     log.info("test1");
                     try {
