@@ -38,7 +38,7 @@ public class WechatUtils {
     public String getAccessToken(String appId, String appSecret) {
         String url = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=" + appId + "&secret=" + appSecret;
         try {
-            String json = OkHttpUtil.httpGet(url);
+            String json = OkHttpUtil.get(url);
             log.info(json);
             Map<String, Object> resultData = objectMapper.readValue(json, new TypeReference<>() {
             });
@@ -57,7 +57,7 @@ public class WechatUtils {
     public String getJsApiTicket(String accessToken) {
         String url = "https://api.weixin.qq.com/cgi-bin/ticket/getticket?access_token=" + accessToken + "&type=jsapi";
         try {
-            String json = OkHttpUtil.httpGet(url);
+            String json = OkHttpUtil.get(url);
             log.info(json);
             Map<String, Object> data = objectMapper.readValue(json, new TypeReference<>() {
             });
@@ -95,7 +95,7 @@ public class WechatUtils {
         requestUrl = requestUrl.replace("SECRET", appSecret);
         requestUrl = requestUrl.replace("CODE", code);
         // 获取网页授权凭证
-        Map<String, Object> data = objectMapper.readValue(OkHttpUtil.httpGet(requestUrl), new TypeReference<>() {
+        Map<String, Object> data = objectMapper.readValue(OkHttpUtil.get(requestUrl), new TypeReference<>() {
         });
         if (null != data) {
             try {

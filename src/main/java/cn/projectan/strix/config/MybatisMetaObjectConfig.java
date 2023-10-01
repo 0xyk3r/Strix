@@ -4,9 +4,9 @@ import cn.projectan.strix.utils.SecurityUtils;
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
 import org.apache.ibatis.reflection.MetaObject;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 /**
  * MyBatisPlus 字段自动填充配置
@@ -23,26 +23,17 @@ public class MybatisMetaObjectConfig implements MetaObjectHandler {
         this.strictInsertFill(metaObject, "updateTime", LocalDateTime.class, LocalDateTime.now());
         this.strictInsertFill(metaObject, "deletedStatus", Integer.class, 0);
 
-        String loginManagerId = SecurityUtils.getLoginManagerId();
-        if (StringUtils.hasText(loginManagerId)) {
-            this.strictInsertFill(metaObject, "createBy", String.class, loginManagerId);
-            this.strictInsertFill(metaObject, "updateBy", String.class, loginManagerId);
-        } else {
-            this.strictInsertFill(metaObject, "createBy", String.class, "0");
-            this.strictInsertFill(metaObject, "updateBy", String.class, "0");
-        }
+        String loginManagerId = Optional.ofNullable(SecurityUtils.getLoginManagerId()).orElse("0");
+        this.strictInsertFill(metaObject, "createBy", String.class, loginManagerId);
+        this.strictInsertFill(metaObject, "updateBy", String.class, loginManagerId);
     }
 
     @Override
     public void updateFill(MetaObject metaObject) {
         this.strictUpdateFill(metaObject, "updateTime", LocalDateTime.class, LocalDateTime.now());
 
-        String loginManagerId = SecurityUtils.getLoginManagerId();
-        if (StringUtils.hasText(loginManagerId)) {
-            this.strictInsertFill(metaObject, "updateBy", String.class, loginManagerId);
-        } else {
-            this.strictInsertFill(metaObject, "updateBy", String.class, "0");
-        }
+        String loginManagerId = Optional.ofNullable(SecurityUtils.getLoginManagerId()).orElse("0");
+        this.strictInsertFill(metaObject, "updateBy", String.class, loginManagerId);
     }
 
 }

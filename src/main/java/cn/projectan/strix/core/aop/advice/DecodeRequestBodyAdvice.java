@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
+import java.util.Optional;
 
 /**
  * 请求体统一处理 用于请求体解密
@@ -113,10 +114,9 @@ public class DecodeRequestBodyAdvice implements RequestBodyAdvice {
         }
 
         public String handleSecurity(String requestData) {
-            if (StringUtils.hasText(requestData)) {
-                return apiSecurity.decrypt(requestData);
-            }
-            return null;
+            return Optional.ofNullable(requestData)
+                    .map(apiSecurity::decrypt)
+                    .orElse(null);
         }
     }
 }

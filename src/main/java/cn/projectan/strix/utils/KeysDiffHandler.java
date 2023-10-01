@@ -57,7 +57,7 @@ public class KeysDiffHandler {
             // 过滤内容为空的
             addKeys = addKeys.stream().filter(StringUtils::hasText).collect(Collectors.toList());
 
-            if (removeKeys.size() > 0 || addKeys.size() > 0) {
+            if (!removeKeys.isEmpty() || !addKeys.isEmpty()) {
                 func.apply(removeKeys, addKeys);
             }
         } catch (Exception e) {

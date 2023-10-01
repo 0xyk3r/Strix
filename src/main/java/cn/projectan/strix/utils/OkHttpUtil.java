@@ -1,13 +1,15 @@
 package cn.projectan.strix.utils;
 
-import cn.hutool.core.map.MapUtil;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
+import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * okhttp3 工具类
@@ -19,6 +21,8 @@ import java.util.concurrent.TimeUnit;
 public class OkHttpUtil {
     private static volatile OkHttpClient singleton;
 
+    private static final MediaType MEDIA_TYPE_JSON = MediaType.parse("application/json; charset=utf-8");
+
     private OkHttpUtil() {
     }
 
@@ -27,7 +31,7 @@ public class OkHttpUtil {
             synchronized (OkHttpUtil.class) {
                 if (singleton == null) {
                     singleton = new OkHttpClient().newBuilder()
-                            .connectTimeout(30, TimeUnit.SECONDS)
+                            .connectTimeout(10, TimeUnit.SECONDS)
                             .readTimeout(30, TimeUnit.SECONDS)
                             .writeTimeout(45, TimeUnit.SECONDS)
                             .build();
@@ -38,182 +42,135 @@ public class OkHttpUtil {
     }
 
     /**
-     * 发起get请求
+     * 发送 GET 请求（HTTP），不附带参数
+     *
+     * @param url 请求url
+     * @return 响应结果
      */
-    public static String httpGet(String url) {
-        Request request = new Request.Builder().url(url).build();
-        try {
-            Response response = getInstance().newCall(request).execute();
-            return response.body().string();
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            return null;
-        }
+    public static String get(String url) {
+        return get(url, null, null);
     }
 
     /**
-     * 发起带header，带params的get请求
+     * 发送 GET 请求（HTTP），附带请求参数
+     *
+     * @param url    请求url
+     * @param params 请求参数
+     * @return 响应结果
      */
-    public static String httpGet(String url, Map<String, String> headers, Map<String, String> params) {
-        HttpUrl.Builder httpBuilder = HttpUrl.parse(url).newBuilder();
+    public static String get(String url, Map<String, String> params) {
+        return get(url, null, params);
+    }
+
+    /**
+     * 发送 GET 请求（HTTP），附带请求头、请求参数
+     *
+     * @param url     请求url
+     * @param headers 请求头
+     * @param params  请求参数
+     * @return 响应结果
+     */
+    public static String get(String url, Map<String, String> headers, Map<String, String> params) {
+        HttpUrl.Builder httpBuilder = Objects.requireNonNull(HttpUrl.parse(url)).newBuilder();
         // 组装请求头
+        Request.Builder requestBuilder = new Request.Builder();
+        Optional.ofNullable(headers).ifPresent(header -> header.forEach(requestBuilder::header));
+        // 组装请求参数
+        Optional.ofNullable(params).ifPresent(param -> param.forEach(httpBuilder::addQueryParameter));
+        Request request = requestBuilder
+                .url(httpBuilder.build().url())
+                .build();
+        return execute(request);
+    }
+
+    /**
+     * 发送 POST 请求（HTTP），不附带参数
+     *
+     * @param url 请求url
+     * @return 响应结果
+     */
+    public static String post(String url) {
+        return post(url, null, null);
+    }
+
+    /**
+     * 发送 POST 请求（HTTP），附带请求参数（Form）
+     *
+     * @param url    请求url
+     * @param params 请求参数
+     * @return 响应结果
+     */
+    public static String post(String url, Map<String, String> params) {
+        return post(url, null, params);
+    }
+
+    /**
+     * 发送 POST 请求（HTTP），附带请求头、请求参数（Form）
+     *
+     * @param url     请求url
+     * @param headers 请求头
+     * @param params  请求参数
+     * @return 响应结果
+     */
+    public static String post(String url, Map<String, String> headers, Map<String, String> params) {
         Request.Builder requestBuilder = new Request.Builder().url(url);
-        if (headers != null) {
-            for (String key : headers.keySet()) {
-                requestBuilder.addHeader(key, headers.get(key));
-            }
-        }
-        // 组装请求体
-        if (params != null) {
-            for (Map.Entry<String, String> param : params.entrySet()) {
-                httpBuilder.addQueryParameter(param.getKey(), param.getValue());
-            }
-        }
-        Request request = requestBuilder.url(httpBuilder.build())
-                .get().build();
-        try {
-            Response response = getInstance().newCall(request).execute();
-            return response.body().string();
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            return null;
-        }
-    }
-
-    /**
-     * 发送post请求
-     */
-    public static String httpPost(String url) {
-        String result = null;
-
-        FormBody.Builder builder = new FormBody.Builder();
-        FormBody formBody = builder.build();
-
-        Request request = new Request.Builder().url(url).post(formBody).build();
-        try {
-            Response response = getInstance().newCall(request).execute();
-            result = response.body().string();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return result;
-    }
-
-    /**
-     * 发送带参数post请求
-     */
-    public static String httpPost(String url, Map<String, String> map) {
-        String result = null;
-
-        FormBody.Builder builder = new FormBody.Builder();
-        for (String key : map.keySet()) {
-            builder.add(key, map.get(key));
-        }
-        FormBody formBody = builder.build();
-
-        Request request = new Request.Builder().url(url).post(formBody).build();
-        try {
-            Response response = getInstance().newCall(request).execute();
-            result = response.body().string();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return result;
-    }
-
-    /**
-     * 发送带header，带params的post请求
-     */
-    public static String httpPost(String url, Map<String, String> headers, Map<String, String> params) {
-        String result = null;
-
         // 组装请求头
-        Request.Builder requestBuilder = new Request.Builder().url(url);
-        if (MapUtil.isNotEmpty(headers)) {
-            for (Map.Entry<String, String> header : headers.entrySet()) {
-                requestBuilder.addHeader(header.getKey(), header.getValue());
-            }
-        }
-
-        // 组装请求体
+        Optional.ofNullable(headers).ifPresent(header -> header.forEach(requestBuilder::header));
+        // 组装请求参数
         FormBody.Builder formBuilder = new FormBody.Builder();
-        if (MapUtil.isNotEmpty(params)) {
-            for (Map.Entry<String, String> param : params.entrySet()) {
-                formBuilder.add(param.getKey(), param.getValue());
-            }
-        }
-        FormBody formBody = formBuilder.build();
-        requestBuilder.post(formBody);
-
-        Request request = requestBuilder.build();
-        try {
-            Response response = getInstance().newCall(request).execute();
-            result = response.body().string();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return result;
+        Optional.ofNullable(params).ifPresent(param -> param.forEach(formBuilder::add));
+        Request request = requestBuilder
+                .post(formBuilder.build())
+                .build();
+        return execute(request);
     }
 
     /**
      * 发送请求体为json的post请求
      */
-    public static String httpPostWithJson(String url, String json) {
-        String result = null;
-
-        RequestBody requestBody = RequestBody.create(json, MediaType.parse("application/json; charset=utf-8"));
-
-        Request request = new Request.Builder().url(url).post(requestBody).build();
-        // 这里使用了try-with-resources，暂不清楚是否会出现问题
-        // 根据OKHttp说明，string()方法会自动关闭response
-        try (Response response = getInstance().newCall(request).execute()) {
-            result = response.body().string();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return result;
+    public static String postJson(String url, String json) {
+        return postJson(url, null, json);
     }
 
 
     /**
      * 发送请求体为json的post请求
      */
-    public static String httpPostWithJson(String url, Map<String, String> headers, String json) {
-        String result = null;
-
+    public static String postJson(String url, Map<String, String> headers, String json) {
+        Assert.hasText(json, "JSON can not be empty!");
         // 组装请求头
-        Request.Builder requestBuilder = new Request.Builder().url(url);
-        requestBuilder.addHeader("Content-Type", "application/json");
-        if (MapUtil.isNotEmpty(headers)) {
-            for (Map.Entry<String, String> header : headers.entrySet()) {
-                requestBuilder.addHeader(header.getKey(), header.getValue());
-            }
-        }
-
+        Request.Builder requestBuilder = new Request.Builder()
+                .url(url)
+                .header("Content-Type", "application/json");
+        Optional.ofNullable(headers).ifPresent(header -> header.forEach(requestBuilder::header));
+        // 组装请求参数
         RequestBody requestBody = RequestBody.create(json, MediaType.parse("application/json"));
-
-        requestBuilder.method("POST", requestBody);
-        Request request = requestBuilder.build();
-
-        try {
-            Response response = getInstance().newCall(request).execute();
-            result = response.body().string();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return result;
+        Request request = requestBuilder
+                .post(requestBody)
+                .build();
+        return execute(request);
     }
 
-    public static Map<String, String> paramSplit(String urlParam) {
-        Map<String, String> map = new HashMap<>();
-        String[] param = urlParam.split("&");
-        for (String keyValue : param) {
-            String[] pair = keyValue.split("=");
-            if (pair.length == 2) {
-                map.put(pair[0], pair[1]);
-            }
+    public static Map<String, String> parseQueryParamToMap(String queryParam) {
+        if (!StringUtils.hasText(queryParam)) {
+            return Collections.emptyMap();
         }
-        return map;
+        return Arrays.stream(queryParam.split("&"))
+                .map(param -> param.split("=", 2))
+                .filter(kv -> kv.length == 2)
+                .collect(Collectors.toMap(kv -> kv[0], kv -> URLDecoder.decode(kv[1], StandardCharsets.UTF_8),
+                        (v1, v2) -> v1, // 如果有重复的参数名，保留第一个值
+                        HashMap::new));
+    }
+
+    private static String execute(Request request) {
+        try (Response response = getInstance().newCall(request).execute()) {
+            ResponseBody body = response.body();
+            return body == null ? null : body.string();
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return null;
+        }
     }
 
 }

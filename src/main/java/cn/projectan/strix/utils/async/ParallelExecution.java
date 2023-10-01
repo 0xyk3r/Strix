@@ -7,13 +7,22 @@ import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
 
 /**
+ * 并行执行工具类
+ * <p>
+ * 用于并行执行多个任务
+ *
  * @author 安炯奕
  * @date 2023/9/29 18:07
  */
-public class CompletableUtil {
+public class ParallelExecution {
 
     private static final ThreadPoolTaskExecutor executor = CompletableThreadPool.getInstance();
 
+    /**
+     * 并行执行多个任务，等待所有任务执行完毕后再继续执行后续代码
+     *
+     * @param runnableArr 任务数组
+     */
     public static void allOf(Runnable... runnableArr) {
         CompletableFuture.allOf(
                 Arrays.stream(runnableArr)
@@ -22,6 +31,11 @@ public class CompletableUtil {
         ).join();
     }
 
+    /**
+     * 并行执行多个任务，只要有一个任务执行完毕就继续执行后续代码
+     *
+     * @param runnableArr 任务数组
+     */
     public static void anyOf(Runnable... runnableArr) {
         CompletableFuture.anyOf(
                 Arrays.stream(runnableArr)
