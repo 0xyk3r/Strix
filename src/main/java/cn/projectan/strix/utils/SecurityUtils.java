@@ -1,6 +1,5 @@
 package cn.projectan.strix.utils;
 
-import cn.projectan.strix.core.exception.StrixException;
 import cn.projectan.strix.core.ss.details.LoginSystemManager;
 import cn.projectan.strix.model.db.SystemManager;
 import cn.projectan.strix.model.db.SystemMenu;
@@ -11,10 +10,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author 安炯奕
@@ -24,116 +20,110 @@ import java.util.Set;
 public class SecurityUtils {
 
     /**
-     * 用户ID
-     **/
-    public static String getLoginManagerId() {
-        try {
-            return getSystemManager().getId();
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
-    /**
-     * 获取所属地区ID
-     **/
-    public static String getRegionId() {
-        try {
-            return getSystemManager().getRegionId();
-        } catch (Exception e) {
-            throw new StrixException("获取登录用户信息异常");
-        }
-    }
-
-    /**
-     * 获取用户名称
-     **/
-    public static String getUsername() {
-        try {
-            return getSystemManager().getNickname();
-        } catch (Exception e) {
-            throw new StrixException("获取登录用户信息异常");
-        }
-    }
-
-    public static List<String> gerRegionIds() {
-        try {
-            return getLoginSystemManager().getRegionIds();
-        } catch (Exception e) {
-            throw new StrixException("获取登录用户信息异常");
-        }
-    }
-
-    public static Collection<? extends GrantedAuthority> getAuthorities() {
-        try {
-            return getLoginSystemManager().getAuthorities();
-        } catch (Exception e) {
-            throw new StrixException("获取登录用户信息异常");
-        }
-    }
-
-    public static List<SystemMenu> getSystemMenus() {
-        try {
-            return getLoginSystemManager().getMenus();
-        } catch (Exception e) {
-            throw new StrixException("获取登录用户信息异常");
-        }
-    }
-
-    /**
-     * 获取用户权限列表 （合并了菜单权限和系统权限）
+     * 获取登录用户ID
      *
-     * @return 权限列表
+     * @return 登录用户ID
      */
-    public static Set<String> getHasPermissionSet() {
+    public static String getManagerId() {
+        return Optional.ofNullable(getSystemManager()).map(SystemManager::getId).orElse(null);
+    }
+
+    /**
+     * 获取登录用户所属区域ID
+     *
+     * @return 登录用户所属区域ID
+     */
+    public static String getManagerRegionId() {
+        return Optional.ofNullable(getSystemManager()).map(SystemManager::getRegionId).orElse(null);
+    }
+
+    /**
+     * 获取登录用户昵称
+     *
+     * @return 登录用户昵称
+     */
+    public static String getManagerName() {
+        return Optional.ofNullable(getSystemManager()).map(SystemManager::getNickname).orElse(null);
+    }
+
+    /**
+     * 获取登录用户具有的区域权限的ID列表
+     *
+     * @return 登录用户具有的区域权限的ID列表
+     */
+    public static List<String> getManagerRegionIdList() {
+        return Optional.ofNullable(getLoginInfo()).map(LoginSystemManager::getRegionIds).orElse(null);
+    }
+
+    /**
+     * 获取登录用户具有的菜单权限列表
+     *
+     * @return 登录用户具有的菜单权限列表
+     */
+    public static List<SystemMenu> getManagerMenuPermissions() {
+        return Optional.ofNullable(getLoginInfo()).map(LoginSystemManager::getMenus).orElse(null);
+    }
+
+    /**
+     * 获取登录用户权限列表 （合并了菜单权限和系统权限）
+     *
+     * @return 登录用户权限列表
+     */
+    public static Set<String> getManagerAllPermissions() {
         try {
             Set<String> permissionSet = new HashSet<>();
-            permissionSet.addAll(getLoginSystemManager().getMenus().stream().map(SystemMenu::getKey).toList());
-            permissionSet.addAll(getLoginSystemManager().getPermissions().stream().map(SystemPermission::getKey).toList());
+            permissionSet.addAll(getLoginInfo().getMenus().stream().map(SystemMenu::getKey).toList());
+            permissionSet.addAll(getLoginInfo().getPermissions().stream().map(SystemPermission::getKey).toList());
             return permissionSet;
-        } catch (Exception e) {
-            throw new StrixException("获取用户权限信息异常");
-        }
-    }
-
-    public static List<SystemPermission> getSystemPermissions() {
-        try {
-            return getLoginSystemManager().getPermissions();
-        } catch (Exception e) {
-            throw new StrixException("获取登录用户信息异常");
-        }
-    }
-
-    /**
-     * 获取用户
-     **/
-    public static LoginSystemManager getLoginSystemManager() {
-        try {
-            return (LoginSystemManager) getAuthentication().getPrincipal();
-        } catch (Exception e) {
-            throw new StrixException("获取登录用户信息异常");
-        }
-    }
-
-    public static SystemManager getSystemManager() {
-        try {
-            return getLoginSystemManager().getSystemManager();
         } catch (Exception e) {
             return null;
         }
     }
 
     /**
-     * 获取Authentication
+     * 获取登录用户信息
+     *
+     * @return 登录用户信息
+     */
+    public static SystemManager getSystemManager() {
+        return Optional.ofNullable(getLoginInfo()).map(LoginSystemManager::getSystemManager).orElse(null);
+    }
+
+    /**
+     * 获取登录用户信息
+     *
+     * @return 登录用户信息
+     */
+    public static LoginSystemManager getLoginInfo() {
+        return Optional.ofNullable(getAuthentication())
+                .map(Authentication::getPrincipal)
+                .filter(LoginSystemManager.class::isInstance)
+                .map(LoginSystemManager.class::cast)
+                .orElse(null);
+    }
+
+    /**
+     * 获取登录用户 Authorities
+     *
+     * @return 登录用户 Authorities
+     */
+    public static Collection<? extends GrantedAuthority> getAuthorities() {
+        return Optional.ofNullable(getLoginInfo()).map(LoginSystemManager::getAuthorities).orElse(null);
+    }
+
+    /**
+     * 获取登录用户 Authentication
+     *
+     * @return 登录用户 Authentication
      */
     public static Authentication getAuthentication() {
         return SecurityContextHolder.getContext().getAuthentication();
     }
 
     /**
-     * 是否为超级管理员
+     * 判断登录用户是否为超级管理员
      *
-     * @return 结果
+     * @return 登录用户是否为超级管理员
      */
     public static boolean isSuperAdmin() {
         // TODO 这里理论上应该是判断角色是否为超级管理员，但是目前判断的是账号的数据权限。需要修改。

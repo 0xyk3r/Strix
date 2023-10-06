@@ -23,7 +23,7 @@ public class MybatisMetaObjectConfig implements MetaObjectHandler {
         this.strictInsertFill(metaObject, "updateTime", LocalDateTime.class, LocalDateTime.now());
         this.strictInsertFill(metaObject, "deletedStatus", Integer.class, 0);
 
-        String loginManagerId = Optional.ofNullable(SecurityUtils.getLoginManagerId()).orElse("0");
+        String loginManagerId = Optional.ofNullable(SecurityUtils.getManagerId()).orElse("0");
         this.strictInsertFill(metaObject, "createBy", String.class, loginManagerId);
         this.strictInsertFill(metaObject, "updateBy", String.class, loginManagerId);
     }
@@ -32,7 +32,7 @@ public class MybatisMetaObjectConfig implements MetaObjectHandler {
     public void updateFill(MetaObject metaObject) {
         this.strictUpdateFill(metaObject, "updateTime", LocalDateTime.class, LocalDateTime.now());
 
-        String loginManagerId = Optional.ofNullable(SecurityUtils.getLoginManagerId()).orElse("0");
+        String loginManagerId = Optional.ofNullable(SecurityUtils.getManagerId()).orElse("0");
         this.strictInsertFill(metaObject, "updateBy", String.class, loginManagerId);
     }
 

@@ -110,8 +110,8 @@ public class SystemMenuController extends BaseSystemController {
                 req.getParentId(),
                 req.getSortValue()
         );
-        systemMenu.setCreateBy(getLoginManagerId());
-        systemMenu.setUpdateBy(getLoginManagerId());
+        systemMenu.setCreateBy(loginManagerId());
+        systemMenu.setUpdateBy(loginManagerId());
 
         UniqueDetectionTool.check(systemMenu);
 
@@ -131,7 +131,7 @@ public class SystemMenuController extends BaseSystemController {
         SystemMenu systemMenu = systemMenuService.getById(menuId);
         Assert.notNull(systemMenu, "系统菜单信息不存在");
 
-        UpdateWrapper<SystemMenu> updateWrapper = UpdateConditionBuilder.build(systemMenu, req, getLoginManagerId());
+        UpdateWrapper<SystemMenu> updateWrapper = UpdateConditionBuilder.build(systemMenu, req);
         UniqueDetectionTool.check(systemMenu);
         Assert.isTrue(systemMenuService.update(updateWrapper), "保存失败");
         // 更新缓存

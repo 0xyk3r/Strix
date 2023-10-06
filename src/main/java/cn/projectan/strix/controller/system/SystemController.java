@@ -96,7 +96,7 @@ public class SystemController extends BaseSystemController {
 
     @PostMapping("checkToken")
     public RetResult<SystemLoginResp> checkToken() {
-        SystemManager systemManager = getSystemManager();
+        SystemManager systemManager = loginManager();
         LocalDateTime tokenExpire = redisUtil.getExpireDateTime("strix:system:manager:login_token:login:id_" + systemManager.getId());
 
         return RetMarker.makeSuccessRsp(new SystemLoginResp(
@@ -106,7 +106,7 @@ public class SystemController extends BaseSystemController {
 
     @PostMapping("renewToken")
     public RetResult<SystemLoginResp> renewToken() {
-        SystemManager systemManager = getSystemManager();
+        SystemManager systemManager = loginManager();
         systemManager = systemManagerService.getById(systemManager.getId());
         Object oldTokenObj = redisUtil.get("strix:system:manager:login_token:login:id_" + systemManager.getId());
         Assert.notNull(oldTokenObj, "旧token已失效，请重新登陆");
@@ -125,7 +125,7 @@ public class SystemController extends BaseSystemController {
 
     @GetMapping("menus")
     public RetResult<SystemMenuResp> getMenuList() {
-        List<SystemMenu> systemMenus = SecurityUtils.getSystemMenus();
+        List<SystemMenu> systemMenus = SecurityUtils.getManagerMenuPermissions();
         Assert.notEmpty(systemMenus, "当前账号无菜单权限");
         return RetMarker.makeSuccessRsp(new SystemMenuResp(systemMenus));
     }

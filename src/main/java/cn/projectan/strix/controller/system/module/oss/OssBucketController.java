@@ -73,8 +73,8 @@ public class OssBucketController extends BaseSystemController {
                 req.getStorageClass(),
                 null
         );
-        ossBucket.setCreateBy(getLoginManagerId());
-        ossBucket.setUpdateBy(getLoginManagerId());
+        ossBucket.setCreateBy(loginManagerId());
+        ossBucket.setUpdateBy(loginManagerId());
 
         UniqueDetectionTool.check(ossBucket);
 
@@ -93,7 +93,7 @@ public class OssBucketController extends BaseSystemController {
         OssBucket ossBucket = ossBucketService.getById(id);
         Assert.notNull(ossBucket, "原记录不存在");
 
-        UpdateWrapper<OssBucket> updateWrapper = UpdateConditionBuilder.build(ossBucket, req, getLoginManagerId());
+        UpdateWrapper<OssBucket> updateWrapper = UpdateConditionBuilder.build(ossBucket, req);
         UniqueDetectionTool.check(ossBucket);
         Assert.isTrue(ossBucketService.update(updateWrapper), "保存失败");
 

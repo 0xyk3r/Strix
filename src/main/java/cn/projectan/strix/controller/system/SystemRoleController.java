@@ -87,8 +87,8 @@ public class SystemRoleController extends BaseSystemController {
         SystemRole systemRole = new SystemRole(
                 req.getName()
         );
-        systemRole.setCreateBy(getLoginManagerId());
-        systemRole.setUpdateBy(getLoginManagerId());
+        systemRole.setCreateBy(loginManagerId());
+        systemRole.setUpdateBy(loginManagerId());
 
         UniqueDetectionTool.check(systemRole);
 
@@ -106,7 +106,7 @@ public class SystemRoleController extends BaseSystemController {
         SystemRole systemRole = systemRoleService.getById(roleId);
         Assert.notNull(systemRole, "系统角色信息不存在");
 
-        UpdateWrapper<SystemRole> updateWrapper = UpdateConditionBuilder.build(systemRole, req, getLoginManagerId());
+        UpdateWrapper<SystemRole> updateWrapper = UpdateConditionBuilder.build(systemRole, req);
         UniqueDetectionTool.check(systemRole);
         Assert.isTrue(systemRoleService.update(updateWrapper), "保存失败");
 
@@ -138,8 +138,8 @@ public class SystemRoleController extends BaseSystemController {
                     SystemRoleMenu systemRoleMenu = new SystemRoleMenu();
                     systemRoleMenu.setSystemRoleId(roleId);
                     systemRoleMenu.setSystemMenuId(k);
-                    systemRoleMenu.setCreateBy(getLoginManagerId());
-                    systemRoleMenu.setUpdateBy(getLoginManagerId());
+                    systemRoleMenu.setCreateBy(loginManagerId());
+                    systemRoleMenu.setUpdateBy(loginManagerId());
                     systemRoleMenuList.add(systemRoleMenu);
                 });
                 Assert.isTrue(systemRoleMenuService.saveBatch(systemRoleMenuList), "增加该角色的菜单权限失败");
@@ -165,8 +165,8 @@ public class SystemRoleController extends BaseSystemController {
                     SystemRolePermission systemRolePermission = new SystemRolePermission();
                     systemRolePermission.setSystemRoleId(roleId);
                     systemRolePermission.setSystemPermissionId(k);
-                    systemRolePermission.setCreateBy(getLoginManagerId());
-                    systemRolePermission.setUpdateBy(getLoginManagerId());
+                    systemRolePermission.setCreateBy(loginManagerId());
+                    systemRolePermission.setUpdateBy(loginManagerId());
                     systemRoleMenuList.add(systemRolePermission);
                 });
                 Assert.isTrue(systemRolePermissionService.saveBatch(systemRoleMenuList), "增加该角色的菜单权限失败");

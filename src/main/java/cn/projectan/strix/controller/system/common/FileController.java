@@ -40,7 +40,7 @@ public class FileController extends BaseSystemController {
         Assert.notNull(ossFile, "下载文件失败, 文件不存在.");
 
         response.setContentType(FileExtUtil.ext2mime(ossFile.getExt()));
-        response.sendRedirect(ossFileService.getUrl(fileId, StrixOssFileGroupSecretType.MANAGER, getLoginManagerId(), "https://oss.huiboche.cn/System/404.png"));
+        response.sendRedirect(ossFileService.getUrl(fileId, StrixOssFileGroupSecretType.MANAGER, loginManagerId(), "https://oss.huiboche.cn/System/404.png"));
     }
 
     @PostMapping("{groupId}/upload")
@@ -54,7 +54,7 @@ public class FileController extends BaseSystemController {
 //            FileUtils.copyInputStreamToFile(file.getInputStream(), tempFile);
             IoUtil.copy(file.getInputStream(), FileUtil.getOutputStream(tempFile));
 
-            OssFile ossFile = ossFileService.upload(groupId, tempFile, getLoginManagerId());
+            OssFile ossFile = ossFileService.upload(groupId, tempFile, loginManagerId());
 
             //noinspection ResultOfMethodCallIgnored
             tempFile.delete();

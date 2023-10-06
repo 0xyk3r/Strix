@@ -71,9 +71,9 @@ public class SystemRegionController extends BaseSystemController {
         } else {
             systemRegionQueryWrapper.eq("parent_id", "0");
         }
-        if (!isSuperManager()) {
+        if (notSuperManager()) {
             systemRegionQueryWrapper = new QueryWrapper<>();
-            systemRegionQueryWrapper.in("id", getLoginManagerRegionIdList());
+            systemRegionQueryWrapper.in("id", loginManagerRegionIdList());
             if (StringUtils.hasText(req.getKeyword())) {
                 systemRegionQueryWrapper.like("name", req.getKeyword());
             }
@@ -118,9 +118,9 @@ public class SystemRegionController extends BaseSystemController {
         QueryWrapper<SystemRegion> systemRegionQueryWrapper = new QueryWrapper<>();
         systemRegionQueryWrapper.eq("parent_id", systemRegion.getId());
         List<SystemRegion> childrenList = systemRegionService.list(systemRegionQueryWrapper);
-        if (!isSuperManager()) {
+        if (notSuperManager()) {
             Set<SystemRegion> resultList = new HashSet<>();
-            getLoginManagerRegionIdList().forEach(lmr -> childrenList.forEach(c -> {
+            loginManagerRegionIdList().forEach(lmr -> childrenList.forEach(c -> {
                 if (c.getId().equals(lmr)) {
                     resultList.add(c);
                 }
@@ -139,8 +139,8 @@ public class SystemRegionController extends BaseSystemController {
         Assert.notNull(systemRegion, "系统地区信息不存在");
         Assert.hasText(singleFieldModifyReq.getField(), "参数错误");
 
-        if (!isSuperManager()) {
-            StrixAssert.in(id, "没有相应的地区权限", getLoginManagerRegionIdListExcludeCurrent().toArray(new String[0]));
+        if (notSuperManager()) {
+            StrixAssert.in(id, "没有相应的地区权限", loginManagerRegionIdListExcludeCurrent().toArray(new String[0]));
         }
 
         UpdateWrapper<SystemRegion> systemRegionUpdateWrapper = new UpdateWrapper<>();
@@ -171,8 +171,8 @@ public class SystemRegionController extends BaseSystemController {
             req.setParentId("0");
         }
 
-        if (!isSuperManager()) {
-            StrixAssert.in(req.getParentId(), "没有相应的地区权限", getLoginManagerRegionIdListExcludeCurrent().toArray(new String[0]));
+        if (notSuperManager()) {
+            StrixAssert.in(req.getParentId(), "没有相应的地区权限", loginManagerRegionIdListExcludeCurrent().toArray(new String[0]));
         }
 
         SystemRegion systemRegion = new SystemRegion(
@@ -183,8 +183,8 @@ public class SystemRegionController extends BaseSystemController {
                 null,
                 req.getRemarks()
         );
-        systemRegion.setCreateBy(getLoginManagerId());
-        systemRegion.setUpdateBy(getLoginManagerId());
+        systemRegion.setCreateBy(loginManagerId());
+        systemRegion.setUpdateBy(loginManagerId());
 
         UniqueDetectionTool.check(systemRegion);
         Assert.isTrue(systemRegionService.save(systemRegion), "保存失败");
@@ -215,11 +215,11 @@ public class SystemRegionController extends BaseSystemController {
         }
         boolean parentChanged = !systemRegion.getParentId().equals(req.getParentId());
 
-        if (!isSuperManager()) {
-            StrixAssert.in(id, "没有相应的地区权限", getLoginManagerRegionIdListExcludeCurrent().toArray(new String[0]));
+        if (notSuperManager()) {
+            StrixAssert.in(id, "没有相应的地区权限", loginManagerRegionIdListExcludeCurrent().toArray(new String[0]));
         }
 
-        UpdateWrapper<SystemRegion> updateWrapper = UpdateConditionBuilder.build(systemRegion, req, getLoginManagerId());
+        UpdateWrapper<SystemRegion> updateWrapper = UpdateConditionBuilder.build(systemRegion, req);
         UniqueDetectionTool.check(systemRegion);
 
         if (parentChanged) {
@@ -237,8 +237,8 @@ public class SystemRegionController extends BaseSystemController {
     public RetResult<Object> remove(@PathVariable String id) {
         Assert.hasText(id, "参数错误");
 
-        if (!isSuperManager()) {
-            StrixAssert.in(id, "没有相应的地区权限", getLoginManagerRegionIdListExcludeCurrent().toArray(new String[0]));
+        if (notSuperManager()) {
+            StrixAssert.in(id, "没有相应的地区权限", loginManagerRegionIdListExcludeCurrent().toArray(new String[0]));
         }
 
         SystemRegion systemRegion = systemRegionService.getById(id);
@@ -275,10 +275,10 @@ public class SystemRegionController extends BaseSystemController {
     @GetMapping("cascader")
     public RetResult<CommonCascaderDataResp> getCascaderData() {
         List<SystemRegion> systemRegionList = systemRegionService.list();
-        if (!isSuperManager()) {
+        if (notSuperManager()) {
             List<SystemRegion> resultList = new ArrayList<>();
             Set<String> returnIdList = new HashSet<>();
-            systemRegionList.forEach(r -> getLoginManagerRegionIdList().forEach(id -> {
+            systemRegionList.forEach(r -> loginManagerRegionIdList().forEach(id -> {
                 if (r.getFullPath().contains("," + id + ",")) {
                     returnIdList.addAll(Arrays.asList(r.getFullPath().split(",")));
                 }
@@ -296,10 +296,10 @@ public class SystemRegionController extends BaseSystemController {
     @GetMapping("tree")
     public RetResult<CommonTreeDataResp> getTreeData() {
         List<SystemRegion> systemRegionList = systemRegionService.list();
-        if (!isSuperManager()) {
+        if (notSuperManager()) {
             List<SystemRegion> resultList = new ArrayList<>();
             Set<String> returnIdList = new HashSet<>();
-            systemRegionList.forEach(r -> getLoginManagerRegionIdList().forEach(id -> {
+            systemRegionList.forEach(r -> loginManagerRegionIdList().forEach(id -> {
                 if (r.getFullPath().contains("," + id + ",")) {
                     returnIdList.addAll(Arrays.asList(r.getFullPath().split(",")));
                 }
