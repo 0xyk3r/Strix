@@ -13,8 +13,8 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface PopularityConfigService extends IService<PopularityConfig> {
 
-    PopularityConfig getPopularityConfig(String dataType);
+    PopularityConfig getPopularityConfig(String key);
 
-    void clearCache(String dataType);
+    void clearCache(String key);
 
 }

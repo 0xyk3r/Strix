@@ -30,7 +30,7 @@ public class PopularityData extends BaseModel {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    private String dataType;
+    private String configKey;
 
     private String dataId;
 
