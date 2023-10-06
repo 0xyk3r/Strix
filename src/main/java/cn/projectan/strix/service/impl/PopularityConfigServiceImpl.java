@@ -21,18 +21,18 @@ import org.springframework.stereotype.Service;
 public class PopularityConfigServiceImpl extends ServiceImpl<PopularityConfigMapper, PopularityConfig> implements PopularityConfigService {
 
     @Override
-    @Cacheable(value = "strix:popularity:config", key = "#dataType")
-    public PopularityConfig getPopularityConfig(String dataType) {
+    @Cacheable(value = "strix:popularity:config", key = "#key")
+    public PopularityConfig getPopularityConfig(String key) {
         return getBaseMapper().selectOne(
                 new LambdaQueryWrapper<>(PopularityConfig.class)
-                        .eq(PopularityConfig::getDataType, dataType)
+                        .eq(PopularityConfig::getConfigKey, key)
         );
 
     }
 
     @Override
-    @CacheEvict(value = "strix:popularity:config", key = "#dataType")
-    public void clearCache(String dataType) {
+    @CacheEvict(value = "strix:popularity:config", key = "#key")
+    public void clearCache(String key) {
     }
 
 }

@@ -6,7 +6,6 @@ import cn.projectan.strix.job.PopularityJob;
 import cn.projectan.strix.model.annotation.Anonymous;
 import cn.projectan.strix.model.annotation.IgnoreDataEncryption;
 import cn.projectan.strix.utils.PopularityUtil;
-import cn.projectan.strix.utils.async.ParallelExecution;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
@@ -38,44 +37,8 @@ public class DebugController {
     @GetMapping("test/{key}")
     public RetResult<Object> test(@PathVariable String key, HttpServletRequest request) throws JsonProcessingException {
 
-        ParallelExecution.allOf(
-                () -> {
-                    log.info("test1");
-                    try {
-                        Thread.sleep(5000);
-                        log.info("5000");
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
-                },
-                () -> {
-                    log.info("test2");
-                    try {
-                        Thread.sleep(7000);
-                        log.info("7000");
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
-                },
-                () -> {
-                    log.info("test3");
-                    try {
-                        Thread.sleep(3000);
-                        log.info("3000");
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
-                },
-                () -> {
-                    log.info("test4");
-                    try {
-                        Thread.sleep(9000);
-                        log.info("9000");
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-        );
+        popularityUtil.addPopularity("test", key);
+        popularityUtil.addPopularity("test2", key);
 
         return RetMarker.makeSuccessRsp();
     }

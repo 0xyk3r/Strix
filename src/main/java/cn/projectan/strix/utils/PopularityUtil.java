@@ -56,7 +56,32 @@ public class PopularityUtil {
             int value = o == null ? 0 : Integer.parseInt(o.toString());
             return new PopularityData(split[0], split[1], value);
         }).toList();
-        popularityDataService.saveBatch(list);
+        List<PopularityData> dbList = popularityDataService.lambdaQuery()
+                .select(PopularityData::getId, PopularityData::getConfigKey, PopularityData::getDataId, PopularityData::getOriginalValue)
+                .list();
+        // 找出需要新增的数据
+        List<PopularityData> insertList = list.stream().filter(popularityData -> {
+            for (PopularityData data : dbList) {
+                if (data.getConfigKey().equals(popularityData.getConfigKey()) && data.getDataId().equals(popularityData.getDataId())) {
+                    return false;
+                }
+            }
+            return true;
+        }).toList();
+
+        // 找出需要更新的数据
+        List<PopularityData> updateList = list.stream().filter(popularityData -> {
+            for (PopularityData data : dbList) {
+                if (data.getConfigKey().equals(popularityData.getConfigKey()) && data.getDataId().equals(popularityData.getDataId())) {
+                    popularityData.setId(data.getId());
+                    return true;
+                }
+            }
+            return false;
+        }).toList();
+
+        popularityDataService.saveBatch(insertList);
+        popularityDataService.updateBatchById(updateList);
     }
 
     public void loadFromDatabase(boolean force) {
@@ -67,7 +92,7 @@ public class PopularityUtil {
         }
         List<PopularityData> dbList = popularityDataService.list();
         dbList.forEach(popularityData -> {
-            redisUtil.set(PopularityConstants.POPULARITY_DATA_REDIS_KEY_PREFIX + popularityData.getDataType() + "::" + popularityData.getDataId(), popularityData.getOriginalValue());
+            redisUtil.set(PopularityConstants.POPULARITY_DATA_REDIS_KEY_PREFIX + popularityData.getConfigKey() + "::" + popularityData.getDataId(), popularityData.getOriginalValue());
         });
     }
 

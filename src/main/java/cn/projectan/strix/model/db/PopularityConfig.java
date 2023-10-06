@@ -1,5 +1,6 @@
 package cn.projectan.strix.model.db;
 
+import cn.projectan.strix.model.annotation.UniqueDetection;
 import cn.projectan.strix.model.db.base.BaseModel;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
@@ -31,9 +32,16 @@ public class PopularityConfig extends BaseModel {
     private static final long serialVersionUID = 1L;
 
     /**
-     * 数据类型
+     * 配置名称
      */
-    private String dataType;
+    @UniqueDetection("配置名称")
+    private String name;
+
+    /**
+     * 配置 Key
+     */
+    @UniqueDetection("配置Key")
+    private String configKey;
 
     /**
      * 初始的数值（参与乘算）
