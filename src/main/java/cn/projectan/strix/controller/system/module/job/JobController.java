@@ -87,8 +87,8 @@ public class JobController extends BaseSystemController {
                 req.getConcurrent(),
                 req.getStatus()
         );
-        job.setCreateBy(getLoginManagerId());
-        job.setUpdateBy(getLoginManagerId());
+        job.setCreateBy(loginManagerId());
+        job.setUpdateBy(loginManagerId());
 
         UniqueDetectionTool.check(job);
 
@@ -108,7 +108,7 @@ public class JobController extends BaseSystemController {
         Job job = jobService.getById(id);
         Assert.notNull(job, "原记录不存在");
 
-        UpdateWrapper<Job> updateWrapper = UpdateConditionBuilder.build(job, req, getLoginManagerId());
+        UpdateWrapper<Job> updateWrapper = UpdateConditionBuilder.build(job, req);
         UniqueDetectionTool.check(job);
 
         try {

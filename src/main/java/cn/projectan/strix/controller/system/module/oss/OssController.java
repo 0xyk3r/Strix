@@ -114,8 +114,8 @@ public class OssController extends BaseSystemController {
                 req.getAccessSecret(),
                 req.getRemark()
         );
-        ossConfig.setCreateBy(getLoginManagerId());
-        ossConfig.setUpdateBy(getLoginManagerId());
+        ossConfig.setCreateBy(loginManagerId());
+        ossConfig.setUpdateBy(loginManagerId());
 
         UniqueDetectionTool.check(ossConfig);
 
@@ -135,7 +135,7 @@ public class OssController extends BaseSystemController {
         Assert.notNull(ossConfig, "原记录不存在");
         String originKey = ossConfig.getKey();
 
-        UpdateWrapper<OssConfig> updateWrapper = UpdateConditionBuilder.build(ossConfig, req, getLoginManagerId());
+        UpdateWrapper<OssConfig> updateWrapper = UpdateConditionBuilder.build(ossConfig, req);
         UniqueDetectionTool.check(ossConfig);
         Assert.isTrue(ossConfigService.update(updateWrapper), "保存失败");
 

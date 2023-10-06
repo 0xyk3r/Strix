@@ -116,8 +116,8 @@ public class SystemUserController extends BaseSystemController {
                 null,
                 null
         );
-        systemUser.setCreateBy(getLoginManagerId());
-        systemUser.setUpdateBy(getLoginManagerId());
+        systemUser.setCreateBy(loginManagerId());
+        systemUser.setUpdateBy(loginManagerId());
 
         UniqueDetectionTool.check(systemUser);
 
@@ -135,7 +135,7 @@ public class SystemUserController extends BaseSystemController {
         SystemUser systemUser = systemUserService.getById(userId);
         Assert.notNull(systemUser, "系统用户信息不存在");
 
-        UpdateWrapper<SystemUser> updateWrapper = UpdateConditionBuilder.build(systemUser, req, getLoginManagerId());
+        UpdateWrapper<SystemUser> updateWrapper = UpdateConditionBuilder.build(systemUser, req);
         UniqueDetectionTool.check(systemUser);
         Assert.isTrue(systemUserService.update(updateWrapper), "保存失败");
 

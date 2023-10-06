@@ -11,7 +11,6 @@ import cn.projectan.strix.model.response.common.CommonDictVersionResp;
 import cn.projectan.strix.model.response.system.dict.DictDataListResp;
 import cn.projectan.strix.service.DictDataService;
 import cn.projectan.strix.service.DictService;
-import cn.projectan.strix.utils.SecurityUtils;
 import cn.projectan.strix.utils.UniqueDetectionTool;
 import cn.projectan.strix.utils.UpdateConditionBuilder;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -105,7 +104,7 @@ public class DictServiceImpl extends ServiceImpl<DictMapper, Dict> implements Di
                     .update();
         }
 
-        UpdateWrapper<Dict> updateWrapper = UpdateConditionBuilder.build(dict, req, SecurityUtils.getLoginManagerId());
+        UpdateWrapper<Dict> updateWrapper = UpdateConditionBuilder.build(dict, req);
         UniqueDetectionTool.check(dict);
         updateWrapper.set("version", dict.getVersion() + 1);
         Assert.isTrue(update(updateWrapper), "保存失败");
@@ -160,7 +159,7 @@ public class DictServiceImpl extends ServiceImpl<DictMapper, Dict> implements Di
     )
     @Transactional(rollbackFor = Exception.class)
     public void updateDictData(DictData dictData, DictDataUpdateReq req) {
-        UpdateWrapper<DictData> updateWrapper = UpdateConditionBuilder.build(dictData, req, SecurityUtils.getLoginManagerId());
+        UpdateWrapper<DictData> updateWrapper = UpdateConditionBuilder.build(dictData, req);
         UniqueDetectionTool.check(dictData);
 
 

@@ -99,8 +99,8 @@ public class OssFileGroupController extends BaseSystemController {
                 req.getSecretLevel(),
                 req.getRemark()
         );
-        ossFileGroup.setCreateBy(getLoginManagerId());
-        ossFileGroup.setUpdateBy(getLoginManagerId());
+        ossFileGroup.setCreateBy(loginManagerId());
+        ossFileGroup.setUpdateBy(loginManagerId());
 
         UniqueDetectionTool.check(ossFileGroup);
 
@@ -116,7 +116,7 @@ public class OssFileGroupController extends BaseSystemController {
         OssFileGroup ossFileGroup = ossFileGroupService.getById(id);
         Assert.notNull(ossFileGroup, "原记录不存在");
 
-        UpdateWrapper<OssFileGroup> updateWrapper = UpdateConditionBuilder.build(ossFileGroup, req, getLoginManagerId());
+        UpdateWrapper<OssFileGroup> updateWrapper = UpdateConditionBuilder.build(ossFileGroup, req);
         UniqueDetectionTool.check(ossFileGroup);
         Assert.isTrue(ossFileGroupService.update(updateWrapper), "保存失败");
 

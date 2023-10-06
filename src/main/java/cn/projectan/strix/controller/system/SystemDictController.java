@@ -110,8 +110,8 @@ public class SystemDictController extends BaseSystemController {
                 0,
                 DictProvided.NO
         );
-        dict.setCreateBy(getLoginManagerId());
-        dict.setUpdateBy(getLoginManagerId());
+        dict.setCreateBy(loginManagerId());
+        dict.setUpdateBy(loginManagerId());
 
         dictService.saveDict(dict);
 
@@ -202,8 +202,8 @@ public class SystemDictController extends BaseSystemController {
                 req.getStatus(),
                 req.getRemark()
         );
-        dictData.setCreateBy(getLoginManagerId());
-        dictData.setUpdateBy(getLoginManagerId());
+        dictData.setCreateBy(loginManagerId());
+        dictData.setUpdateBy(loginManagerId());
 
         dictService.saveDictData(dictData);
 

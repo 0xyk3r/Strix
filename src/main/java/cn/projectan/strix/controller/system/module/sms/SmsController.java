@@ -115,8 +115,8 @@ public class SmsController extends BaseSystemController {
                 req.getAccessSecret(),
                 req.getRemark()
         );
-        smsConfig.setCreateBy(getLoginManagerId());
-        smsConfig.setUpdateBy(getLoginManagerId());
+        smsConfig.setCreateBy(loginManagerId());
+        smsConfig.setUpdateBy(loginManagerId());
 
         UniqueDetectionTool.check(smsConfig);
 
@@ -136,7 +136,7 @@ public class SmsController extends BaseSystemController {
         Assert.notNull(smsConfig, "原记录不存在");
         String originKey = smsConfig.getKey();
 
-        UpdateWrapper<SmsConfig> updateWrapper = UpdateConditionBuilder.build(smsConfig, req, getLoginManagerId());
+        UpdateWrapper<SmsConfig> updateWrapper = UpdateConditionBuilder.build(smsConfig, req);
         UniqueDetectionTool.check(smsConfig);
         Assert.isTrue(smsConfigService.update(updateWrapper), "保存失败");
 

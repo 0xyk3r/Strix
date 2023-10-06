@@ -79,8 +79,8 @@ public class SystemPermissionController extends BaseSystemController {
                 req.getMenuId(),
                 req.getDescription()
         );
-        systemPermission.setCreateBy(getLoginManagerId());
-        systemPermission.setUpdateBy(getLoginManagerId());
+        systemPermission.setCreateBy(loginManagerId());
+        systemPermission.setUpdateBy(loginManagerId());
 
         UniqueDetectionTool.check(systemPermission);
         Assert.isTrue(systemPermissionService.save(systemPermission), "保存失败");
@@ -98,7 +98,7 @@ public class SystemPermissionController extends BaseSystemController {
         SystemPermission systemPermission = systemPermissionService.getById(permissionId);
         Assert.notNull(systemPermission, "系统权限信息不存在");
 
-        UpdateWrapper<SystemPermission> updateWrapper = UpdateConditionBuilder.build(systemPermission, req, getLoginManagerId());
+        UpdateWrapper<SystemPermission> updateWrapper = UpdateConditionBuilder.build(systemPermission, req);
         UniqueDetectionTool.check(systemPermission);
         Assert.isTrue(systemPermissionService.update(updateWrapper), "保存失败");
         // 更新缓存

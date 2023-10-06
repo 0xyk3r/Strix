@@ -62,10 +62,10 @@ public class SystemManagerController extends BaseSystemController {
     @StrixLog(operationGroup = "系统人员", operationName = "查询人员列表")
     public RetResult<SystemManagerListResp> getSystemManagerList(SystemManagerListReq req) {
         QueryWrapper<SystemManager> systemManagerQueryWrapper = new QueryWrapper<>();
-        if (!isSuperManager()) {
+        if (notSuperManager()) {
             // 非超级管理员用户 根据地区权限查询
             systemManagerQueryWrapper.eq("type", SystemManagerType.NORMAL_ACCOUNT);
-            systemManagerQueryWrapper.in("region_id", getLoginManagerRegionIdList());
+            systemManagerQueryWrapper.in("region_id", loginManagerRegionIdList());
         }
         if (StringUtils.hasText(req.getKeyword())) {
             systemManagerQueryWrapper.like("nickname", req.getKeyword())
@@ -148,8 +148,8 @@ public class SystemManagerController extends BaseSystemController {
                             SystemManagerRole systemManagerRole = new SystemManagerRole();
                             systemManagerRole.setSystemManagerId(managerId);
                             systemManagerRole.setSystemRoleId(k);
-                            systemManagerRole.setCreateBy(getLoginManagerId());
-                            systemManagerRole.setUpdateBy(getLoginManagerId());
+                            systemManagerRole.setCreateBy(loginManagerId());
+                            systemManagerRole.setUpdateBy(loginManagerId());
                             systemManagerRoleList.add(systemManagerRole);
                         });
                         Assert.isTrue(systemManagerRoleService.saveBatch(systemManagerRoleList), "增加该角色的菜单权限失败");
@@ -191,8 +191,8 @@ public class SystemManagerController extends BaseSystemController {
                 req.getType(),
                 req.getRegionId()
         );
-        systemManager.setCreateBy(getLoginManagerId());
-        systemManager.setUpdateBy(getLoginManagerId());
+        systemManager.setCreateBy(loginManagerId());
+        systemManager.setUpdateBy(loginManagerId());
 
         UniqueDetectionTool.check(systemManager);
 
@@ -211,7 +211,7 @@ public class SystemManagerController extends BaseSystemController {
         SystemManager systemManager = systemManagerService.getById(managerId);
         Assert.notNull(systemManager, "系统人员信息不存在");
 
-        UpdateWrapper<SystemManager> updateWrapper = UpdateConditionBuilder.build(systemManager, req, getLoginManagerId());
+        UpdateWrapper<SystemManager> updateWrapper = UpdateConditionBuilder.build(systemManager, req);
         UniqueDetectionTool.check(systemManager);
         Assert.isTrue(systemManagerService.update(updateWrapper), "保存失败");
 
