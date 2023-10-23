@@ -81,7 +81,7 @@ dependencies {
     implementation 'cn.hutool:hutool-all:5.8.22'
     implementation 'org.bouncycastle:bcprov-jdk18on:1.76'
     implementation 'org.lionsoul:ip2region:2.7.0'
-    implementation 'org.apache.tika:tika-core:2.9.0'
+    implementation 'org.apache.tika:tika-core:2.9.1'
     implementation 'com.github.oshi:oshi-core:6.4.6'
     implementation 'org.reflections:reflections:0.10.2'
     // Third Party
