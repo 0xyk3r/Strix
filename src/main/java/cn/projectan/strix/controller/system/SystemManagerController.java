@@ -135,30 +135,32 @@ public class SystemManagerController extends BaseSystemController {
                 systemManagerRoleQueryWrapper.select("system_role_id");
                 systemManagerRoleQueryWrapper.eq("system_manager_id", managerId);
                 List<String> systemManagerRoleIds = systemManagerRoleService.listObjs(systemManagerRoleQueryWrapper, Object::toString);
-                KeysDiffHandler.handle(systemManagerRoleIds, Arrays.asList(req.getValue().split(",")), (removeKeys, addKeys) -> {
-                    if (removeKeys.size() > 0) {
-                        QueryWrapper<SystemManagerRole> removeQueryWrapper = new QueryWrapper<>();
-                        removeQueryWrapper.eq("system_manager_id", managerId);
-                        removeQueryWrapper.in("system_role_id", removeKeys);
-                        Assert.isTrue(systemManagerRoleService.remove(removeQueryWrapper), "移除该管理用户的角色失败");
-                    }
-                    if (addKeys.size() > 0) {
-                        List<SystemManagerRole> systemManagerRoleList = new ArrayList<>();
-                        addKeys.forEach(k -> {
-                            SystemManagerRole systemManagerRole = new SystemManagerRole();
-                            systemManagerRole.setSystemManagerId(managerId);
-                            systemManagerRole.setSystemRoleId(k);
-                            systemManagerRole.setCreateBy(loginManagerId());
-                            systemManagerRole.setUpdateBy(loginManagerId());
-                            systemManagerRoleList.add(systemManagerRole);
-                        });
-                        Assert.isTrue(systemManagerRoleService.saveBatch(systemManagerRoleList), "增加该角色的菜单权限失败");
-                    }
-                    // 刷新redis缓存
-                    systemMenuCache.updateRedisBySystemManageId(managerId);
-                    systemPermissionCache.updateRedisBySystemManageId(managerId);
-                    needReturnNewData.set(true);
-                });
+                KeysDiffHandler.handle(systemManagerRoleIds, Arrays.asList(req.getValue().split(",")),
+                        (removeKeys) -> {
+                            QueryWrapper<SystemManagerRole> removeQueryWrapper = new QueryWrapper<>();
+                            removeQueryWrapper.eq("system_manager_id", managerId);
+                            removeQueryWrapper.in("system_role_id", removeKeys);
+                            Assert.isTrue(systemManagerRoleService.remove(removeQueryWrapper), "移除该管理用户的角色失败");
+                        },
+                        (addKeys) -> {
+                            List<SystemManagerRole> systemManagerRoleList = new ArrayList<>();
+                            addKeys.forEach(k -> {
+                                SystemManagerRole systemManagerRole = new SystemManagerRole();
+                                systemManagerRole.setSystemManagerId(managerId);
+                                systemManagerRole.setSystemRoleId(k);
+                                systemManagerRole.setCreateBy(loginManagerId());
+                                systemManagerRole.setUpdateBy(loginManagerId());
+                                systemManagerRoleList.add(systemManagerRole);
+                            });
+                            Assert.isTrue(systemManagerRoleService.saveBatch(systemManagerRoleList), "增加该角色的菜单权限失败");
+                        },
+                        () -> {
+                            // 刷新redis缓存
+                            systemMenuCache.updateRedisBySystemManageId(managerId);
+                            systemPermissionCache.updateRedisBySystemManageId(managerId);
+                            needReturnNewData.set(true);
+                        }
+                );
             }
             default -> {
                 return RetMarker.makeErrRsp("参数错误");

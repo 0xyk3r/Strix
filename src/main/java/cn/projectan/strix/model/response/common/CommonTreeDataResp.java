@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -82,7 +83,7 @@ public class CommonTreeDataResp {
         private Boolean isLeaf;
 
         public Boolean getIsLeaf() {
-            return children == null || children.size() == 0;
+            return CollectionUtils.isEmpty(children);
         }
 
         public TreeDataItem(String value, String label, List<TreeDataItem> children) {

@@ -51,14 +51,14 @@ public class SystemRoleServiceImpl extends ServiceImpl<SystemRoleMapper, SystemR
     @Cacheable(value = "strix:system:role:menu_by_rid", key = "#roleId")
     @Override
     public List<SystemMenu> getMenusByRoleId(SortedSet<String> roleId) {
-        if (roleId.size() == 0) {
+        if (roleId.isEmpty()) {
             return new ArrayList<>();
         }
         QueryWrapper<SystemRoleMenu> systemRoleMenuQueryWrapper = new QueryWrapper<>();
         systemRoleMenuQueryWrapper.select("system_menu_id");
         systemRoleMenuQueryWrapper.in("system_role_id", roleId);
         List<String> systemRoleMenuIds = systemRoleMenuService.listObjs(systemRoleMenuQueryWrapper, Object::toString);
-        if (systemRoleMenuIds.size() == 0) {
+        if (systemRoleMenuIds.isEmpty()) {
             return new ArrayList<>();
         }
         QueryWrapper<SystemMenu> systemMenuQueryWrapper = new QueryWrapper<>();
@@ -78,14 +78,14 @@ public class SystemRoleServiceImpl extends ServiceImpl<SystemRoleMapper, SystemR
     @Cacheable(value = "strix:system:role:permission_by_rid", key = "#roleId")
     @Override
     public List<SystemPermission> getSystemPermissionByRoleId(SortedSet<String> roleId) {
-        if (roleId.size() == 0) {
+        if (roleId.isEmpty()) {
             return new ArrayList<>();
         }
         QueryWrapper<SystemRolePermission> systemRolePermissionQueryWrapper = new QueryWrapper<>();
         systemRolePermissionQueryWrapper.select("system_permission_id");
         systemRolePermissionQueryWrapper.in("system_role_id", roleId);
         List<String> systemPermissionIdList = systemRolePermissionService.listObjs(systemRolePermissionQueryWrapper, Object::toString);
-        if (systemPermissionIdList.size() == 0) {
+        if (systemPermissionIdList.isEmpty()) {
             return new ArrayList<>();
         }
         QueryWrapper<SystemPermission> systemPermissionQueryWrapper = new QueryWrapper<>();

@@ -6,7 +6,6 @@ import cn.projectan.strix.job.PopularityJob;
 import cn.projectan.strix.model.annotation.Anonymous;
 import cn.projectan.strix.model.annotation.IgnoreDataEncryption;
 import cn.projectan.strix.utils.PopularityUtil;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +34,7 @@ public class DebugController {
 
     @IgnoreDataEncryption
     @GetMapping("test/{key}")
-    public RetResult<Object> test(@PathVariable String key, HttpServletRequest request) throws JsonProcessingException {
+    public RetResult<Object> test(@PathVariable String key, HttpServletRequest request) {
 
         popularityUtil.addPopularity("test", key);
         popularityUtil.addPopularity("test2", key);

@@ -67,12 +67,12 @@ public class WechatSignUtil {
                     continue;
                 }
                 // 参数值为空，则不参与签名
-                if (data.get(s).trim().length() > 0) {
+                if (!data.get(s).trim().isEmpty()) {
                     sb.append(s).append("=").append(data.get(s).trim()).append("&");
                 }
             }
             String sortedKvStr = sb.toString();
-            if (sb.length() > 0) {
+            if (!sb.isEmpty()) {
                 sortedKvStr = sb.substring(0, sb.length() - 1);
             }
             // SHA1签名生成

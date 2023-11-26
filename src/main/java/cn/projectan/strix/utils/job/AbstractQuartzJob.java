@@ -4,7 +4,6 @@ import cn.projectan.strix.model.constant.JobConstants;
 import cn.projectan.strix.model.db.Job;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
 
 /**
  * quartz 抽象类
@@ -15,7 +14,7 @@ public abstract class AbstractQuartzJob implements org.quartz.Job {
     private static final ThreadLocal<Long> threadLocal = new ThreadLocal<>();
 
     @Override
-    public void execute(JobExecutionContext context) throws JobExecutionException {
+    public void execute(JobExecutionContext context) {
         Object o = context.getMergedJobDataMap().get(JobConstants.TASK_PROPERTIES);
         if (o instanceof Job job) {
             try {

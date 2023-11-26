@@ -65,7 +65,7 @@ public class CommonCascaderDataResp {
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
-        return result.size() > 0 ? result : null;
+        return !result.isEmpty() ? result : null;
     }
 
     @Data
