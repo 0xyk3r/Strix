@@ -169,7 +169,7 @@ public class JobInvokeUtil {
         Object[] classList = new Object[methodParams.size()];
         int index = 0;
         for (Object[] os : methodParams) {
-            classList[index] = (Object) os[0];
+            classList[index] = os[0];
             index++;
         }
         return classList;

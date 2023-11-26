@@ -91,9 +91,7 @@ public class PopularityUtil {
             return;
         }
         List<PopularityData> dbList = popularityDataService.list();
-        dbList.forEach(popularityData -> {
-            redisUtil.set(PopularityConstants.POPULARITY_DATA_REDIS_KEY_PREFIX + popularityData.getConfigKey() + "::" + popularityData.getDataId(), popularityData.getOriginalValue());
-        });
+        dbList.forEach(popularityData -> redisUtil.set(PopularityConstants.POPULARITY_DATA_REDIS_KEY_PREFIX + popularityData.getConfigKey() + "::" + popularityData.getDataId(), popularityData.getOriginalValue()));
     }
 
     private String getPopularityFormRedis(String popularityDataType, String popularityDataId) {

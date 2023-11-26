@@ -13,7 +13,7 @@ import java.util.TreeMap;
  */
 public class ApiSecurityTest {
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         ObjectMapper objectMapper = new ObjectMapper();
         ApiSecurity apiSecurity = new ApiSecurity(objectMapper);
 

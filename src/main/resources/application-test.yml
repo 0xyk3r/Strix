@@ -1,5 +1,9 @@
 server:
   port: 80
+  undertow:
+    threads:
+      io: 4
+      worker: 4
 spring:
   datasource:
     dynamic:
@@ -8,7 +12,7 @@ spring:
       datasource:
         master:
           driver-class-name: com.mysql.cj.jdbc.Driver
-          url: jdbc:mysql://huibochepolardb001.rwlb.rds.aliyuncs.com:3306/strix?useSSL=true&serverTimezone=Asia/Shanghai&autoReconnect=true
+          url: jdbc:mysql://huibochepolardb001.rwlb.rds.aliyuncs.com:3306/strix?useSSL=true&serverTimezone=Asia/Shanghai&autoReconnect=true&rewriteBatchedStatements=true
           username: strix
           password: Str1XP8Pr0j3cTAAAm
           type: com.zaxxer.hikari.HikariDataSource

@@ -43,7 +43,6 @@ public interface JobService extends IService<Job> {
      * 批量删除调度信息
      *
      * @param jobIds 需要删除的任务ID
-     * @return 结果
      */
     void deleteJobByIds(String[] jobIds) throws SchedulerException;
 
@@ -58,7 +57,7 @@ public interface JobService extends IService<Job> {
     /**
      * 立即运行任务
      *
-     * @param job 调度信息
+     * @param id 调度ID
      * @return 结果
      */
     boolean run(String id) throws SchedulerException;
@@ -67,7 +66,6 @@ public interface JobService extends IService<Job> {
      * 新增任务
      *
      * @param job 调度信息
-     * @return 结果
      */
     void insertJob(Job job) throws SchedulerException, StrixJobException;
 
@@ -75,7 +73,6 @@ public interface JobService extends IService<Job> {
      * 更新任务
      *
      * @param job 调度信息
-     * @return 结果
      */
     void updateJob(Job job) throws SchedulerException, StrixJobException;
 

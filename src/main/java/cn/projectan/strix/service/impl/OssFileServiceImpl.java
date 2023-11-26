@@ -144,7 +144,7 @@ public class OssFileServiceImpl extends ServiceImpl<OssFileMapper, OssFile> impl
             byte[] imageByte = Base64.getDecoder().decode(data);
             for (int i = 0; i < imageByte.length; ++i) {
                 if (imageByte[i] < 0) {
-                    imageByte[i] += 256;
+                    imageByte[i] += (byte) 256;
                 }
             }
 

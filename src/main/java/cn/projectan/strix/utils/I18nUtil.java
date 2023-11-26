@@ -31,6 +31,7 @@ public class I18nUtil {
 
     @PostConstruct
     public void init() {
+        log.info("Strix I18n: 当前语言为：{}.", defaultLocale);
         setBasename(basename);
     }
 
@@ -87,7 +88,10 @@ public class I18nUtil {
 
     public static Locale convertLocale(String locale) {
         String[] split = locale.split("_");
-        return new Locale(split[0], split[1]);
+        return new Locale.Builder()
+                .setLanguage(split[0])
+                .setRegion(split[1])
+                .build();
     }
 
 }
