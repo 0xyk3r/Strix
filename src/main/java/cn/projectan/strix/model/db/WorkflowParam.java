@@ -42,11 +42,6 @@ public class WorkflowParam extends BaseModel {
     private String workflowInstanceId;
 
     /**
-     * 步骤ID
-     */
-    private String stepId;
-
-    /**
      * 参数名称
      */
     @TableField("`name`")

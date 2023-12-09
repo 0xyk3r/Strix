@@ -4,6 +4,7 @@ import cn.projectan.strix.core.ss.details.LoginSystemManager;
 import cn.projectan.strix.model.db.SystemManager;
 import cn.projectan.strix.model.db.SystemMenu;
 import cn.projectan.strix.model.db.SystemPermission;
+import cn.projectan.strix.model.db.SystemUser;
 import cn.projectan.strix.model.dict.SystemManagerType;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
@@ -118,6 +119,26 @@ public class SecurityUtils {
      */
     public static Authentication getAuthentication() {
         return SecurityContextHolder.getContext().getAuthentication();
+    }
+
+    /**
+     * 判断登录用户是否为系统用户
+     *
+     * @return 登录用户是否为系统用户
+     */
+    public static boolean isSystemUser() {
+        Object principal = SecurityUtils.getAuthentication().getPrincipal();
+        return principal instanceof SystemUser;
+    }
+
+    /**
+     * 判断登录用户是否为系统管理员
+     *
+     * @return 登录用户是否为系统管理员
+     */
+    public static boolean isSystemManager() {
+        Object principal = SecurityUtils.getAuthentication().getPrincipal();
+        return principal instanceof LoginSystemManager;
     }
 
     /**

@@ -15,6 +15,12 @@ import java.util.List;
 @Slf4j
 public class InvokeUtil {
 
+    /**
+     * 校验调用目标是否合法
+     *
+     * @param invokeTarget 目标字符串
+     * @return true是 false否
+     */
     public static boolean valid(String invokeTarget) {
         if (StringUtils.isEmpty(invokeTarget)) {
             return false;
@@ -33,7 +39,7 @@ public class InvokeUtil {
     /**
      * 执行方法
      *
-     * @param job 任务对象
+     * @param invokeTarget 目标字符串
      */
     public static void invokeMethod(String invokeTarget) {
         if (StringUtils.isEmpty(invokeTarget)) {
@@ -49,6 +55,29 @@ public class InvokeUtil {
         } else {
             log.warn("调用目标：" + invokeTarget + "未启动成功，请检查是否配置正确！");
         }
+    }
+
+    /**
+     * 执行带返回值的方法
+     *
+     * @param invokeTarget 目标字符串
+     * @return 返回值
+     */
+    public static Object invokeMethodWithReturn(String invokeTarget) {
+        if (StringUtils.isEmpty(invokeTarget)) {
+            return null;
+        }
+        String beanName = getBeanName(invokeTarget);
+        String methodName = getMethodName(invokeTarget);
+        List<Object[]> methodParams = getMethodParams(invokeTarget);
+
+        if (valid(invokeTarget)) {
+            Object bean = SpringUtil.getBean(beanName);
+            return invokeMethodWithReturn(bean, methodName, methodParams);
+        } else {
+            log.warn("调用目标：" + invokeTarget + "未启动成功，请检查是否配置正确！");
+        }
+        return null;
     }
 
     /**
@@ -70,6 +99,28 @@ public class InvokeUtil {
         } catch (Exception e) {
             throw new RuntimeException("执行目标：" + bean.getClass().getName() + "." + methodName + "失败", e);
         }
+    }
+
+    /**
+     * 调用带返回值的任务方法
+     *
+     * @param bean         目标对象
+     * @param methodName   方法名称
+     * @param methodParams 方法参数
+     */
+    private static Object invokeMethodWithReturn(Object bean, String methodName, List<Object[]> methodParams) {
+        try {
+            if (methodParams != null && !methodParams.isEmpty()) {
+                Method method = bean.getClass().getMethod(methodName, getMethodParamsType(methodParams));
+                Object invokeResult = method.invoke(bean, getMethodParamsValue(methodParams));
+            } else {
+                Method method = bean.getClass().getMethod(methodName);
+                Object invokeResult = method.invoke(bean);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("执行目标：" + bean.getClass().getName() + "." + methodName + "失败", e);
+        }
+        return null;
     }
 
     /**
