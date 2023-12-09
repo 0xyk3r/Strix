@@ -2,10 +2,9 @@ package cn.projectan.strix.controller.system;
 
 import cn.projectan.strix.core.ret.RetMarker;
 import cn.projectan.strix.core.ret.RetResult;
-import cn.projectan.strix.job.PopularityJob;
 import cn.projectan.strix.model.annotation.Anonymous;
 import cn.projectan.strix.model.annotation.IgnoreDataEncryption;
-import cn.projectan.strix.utils.PopularityUtil;
+import cn.projectan.strix.utils.WorkflowUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -29,16 +28,22 @@ import org.springframework.web.bind.annotation.RestController;
 public class DebugController {
 
     private final ObjectMapper objectMapper;
-    private final PopularityUtil popularityUtil;
-    private final PopularityJob popularityJob;
+    private final WorkflowUtil workflowUtil;
 
     @IgnoreDataEncryption
-    @GetMapping("test/{key}")
-    public RetResult<Object> test(@PathVariable String key, HttpServletRequest request) {
+    @GetMapping("create/{configId}")
+    public RetResult<Object> test(@PathVariable String configId,
+                                  HttpServletRequest request) {
+        workflowUtil.createInstance(configId);
+        return RetMarker.makeSuccessRsp();
+    }
 
-        popularityUtil.addPopularity("test", key);
-        popularityUtil.addPopularity("test2", key);
-
+    @IgnoreDataEncryption
+    @GetMapping("next/{instanceId}/{nextType}")
+    public RetResult<Object> test(@PathVariable String instanceId,
+                                  @PathVariable String nextType,
+                                  HttpServletRequest request) {
+        workflowUtil.nextStep(instanceId, Byte.valueOf(nextType));
         return RetMarker.makeSuccessRsp();
     }
 

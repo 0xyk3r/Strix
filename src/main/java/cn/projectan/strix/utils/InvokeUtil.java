@@ -1,13 +1,10 @@
-package cn.projectan.strix.utils.job;
+package cn.projectan.strix.utils;
 
 import cn.projectan.strix.model.annotation.StrixJob;
-import cn.projectan.strix.model.db.Job;
-import cn.projectan.strix.utils.SpringUtil;
 import io.netty.util.internal.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.LinkedList;
 import java.util.List;
@@ -16,13 +13,12 @@ import java.util.List;
  * 任务执行工具
  */
 @Slf4j
-public class JobInvokeUtil {
+public class InvokeUtil {
 
-    public static boolean valid(Job job) {
-        if (job == null) {
+    public static boolean valid(String invokeTarget) {
+        if (StringUtils.isEmpty(invokeTarget)) {
             return false;
         }
-        String invokeTarget = job.getInvokeTarget();
         if (StringUtils.isNotEmpty(invokeTarget)) {
             String beanName = getBeanName(invokeTarget);
             if (!isValidClassName(beanName)) {
@@ -39,17 +35,19 @@ public class JobInvokeUtil {
      *
      * @param job 任务对象
      */
-    public static void invokeMethod(Job job) throws Exception {
-        String invokeTarget = job.getInvokeTarget();
+    public static void invokeMethod(String invokeTarget) {
+        if (StringUtils.isEmpty(invokeTarget)) {
+            return;
+        }
         String beanName = getBeanName(invokeTarget);
         String methodName = getMethodName(invokeTarget);
         List<Object[]> methodParams = getMethodParams(invokeTarget);
 
-        if (valid(job)) {
+        if (valid(invokeTarget)) {
             Object bean = SpringUtil.getBean(beanName);
             invokeMethod(bean, methodName, methodParams);
         } else {
-            log.warn("任务名称：" + job.getName() + "未启动成功，请检查是否配置正确！");
+            log.warn("调用目标：" + invokeTarget + "未启动成功，请检查是否配置正确！");
         }
     }
 
@@ -60,15 +58,17 @@ public class JobInvokeUtil {
      * @param methodName   方法名称
      * @param methodParams 方法参数
      */
-    private static void invokeMethod(Object bean, String methodName, List<Object[]> methodParams)
-            throws NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException,
-            InvocationTargetException {
-        if (methodParams != null && !methodParams.isEmpty()) {
-            Method method = bean.getClass().getMethod(methodName, getMethodParamsType(methodParams));
-            method.invoke(bean, getMethodParamsValue(methodParams));
-        } else {
-            Method method = bean.getClass().getMethod(methodName);
-            method.invoke(bean);
+    private static void invokeMethod(Object bean, String methodName, List<Object[]> methodParams) {
+        try {
+            if (methodParams != null && !methodParams.isEmpty()) {
+                Method method = bean.getClass().getMethod(methodName, getMethodParamsType(methodParams));
+                method.invoke(bean, getMethodParamsValue(methodParams));
+            } else {
+                Method method = bean.getClass().getMethod(methodName);
+                method.invoke(bean);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("执行目标：" + bean.getClass().getName() + "." + methodName + "失败", e);
         }
     }
 
