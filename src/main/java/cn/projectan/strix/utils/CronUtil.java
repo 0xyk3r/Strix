@@ -1,4 +1,4 @@
-package cn.projectan.strix.utils.job;
+package cn.projectan.strix.utils;
 
 import org.quartz.CronExpression;
 

@@ -6,8 +6,8 @@ import cn.projectan.strix.model.constant.JobConstants;
 import cn.projectan.strix.model.db.Job;
 import cn.projectan.strix.model.dict.JobStatus;
 import cn.projectan.strix.service.JobService;
-import cn.projectan.strix.utils.job.CronUtil;
-import cn.projectan.strix.utils.job.JobInvokeUtil;
+import cn.projectan.strix.utils.CronUtil;
+import cn.projectan.strix.utils.InvokeUtil;
 import cn.projectan.strix.utils.job.ScheduleUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.apache.commons.lang3.StringUtils;
@@ -149,6 +149,6 @@ public class JobServiceImpl extends ServiceImpl<JobMapper, Job> implements JobSe
         Assert.isTrue(!StringUtils.containsAnyIgnoreCase(job.getInvokeTarget(), "http://", "https://"), "目标字符串不合法");
         Assert.isTrue(!StringUtils.containsAnyIgnoreCase(job.getInvokeTarget(), "java.net.URL", "javax.naming.InitialContext", "org.yaml.snakeyaml",
                 "org.springframework", "org.apache", "cn.projectan.strix.utils", "cn.projectan.strix.config"), "目标字符串不合法");
-        Assert.isTrue(JobInvokeUtil.valid(job), "目标字符串不合法");
+        Assert.isTrue(InvokeUtil.valid(job.getInvokeTarget()), "目标字符串不合法");
     }
 }

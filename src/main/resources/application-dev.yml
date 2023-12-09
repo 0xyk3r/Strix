@@ -12,9 +12,9 @@ spring:
       datasource:
         master:
           driver-class-name: com.mysql.cj.jdbc.Driver
-          url: jdbc:mysql://huibochepolardb001.rwlb.rds.aliyuncs.com:3306/strix?useSSL=true&serverTimezone=Asia/Shanghai&autoReconnect=true&rewriteBatchedStatements=true
-          username: strix
-          password: Str1XP8Pr0j3cTAAAm
+          url: jdbc:mysql://192.168.31.188:3366/strix?useSSL=true&serverTimezone=Asia/Shanghai&autoReconnect=true&rewriteBatchedStatements=true
+          username: root
+          password: AnAn@8899#
           type: com.zaxxer.hikari.HikariDataSource
           hikari:
             keepalive-time: 60000

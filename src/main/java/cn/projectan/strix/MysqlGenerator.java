@@ -25,11 +25,11 @@ import java.util.List;
  */
 public class MysqlGenerator {
 
-    private static final String DB_URL = "jdbc:mysql://huibochepolardb001.rwlb.rds.aliyuncs.com:3306/strix?useSSL=true&serverTimezone=Asia/Shanghai&autoReconnect=true";
+    private static final String DB_URL = "jdbc:mysql://192.168.31.188:3366/strix?useSSL=true&serverTimezone=Asia/Shanghai&autoReconnect=true";
 
-    private static final String DB_USER = "strix";
+    private static final String DB_USER = "root";
 
-    private static final String DB_PWD = "Str1XP8Pr0j3cTAAAm";
+    private static final String DB_PWD = "AnAn@8899#";
 
     public static void main(String[] args) {
         String projectPath = System.getProperty("user.dir");
