@@ -32,7 +32,7 @@ public class DebugController {
 
     @IgnoreDataEncryption
     @GetMapping("create/{configId}")
-    public RetResult<Object> test(@PathVariable String configId,
+    public RetResult<Object> create(@PathVariable String configId,
                                   HttpServletRequest request) {
         workflowUtil.createInstance(configId);
         return RetMarker.makeSuccessRsp();
@@ -40,10 +40,29 @@ public class DebugController {
 
     @IgnoreDataEncryption
     @GetMapping("next/{instanceId}/{nextType}")
-    public RetResult<Object> test(@PathVariable String instanceId,
+    public RetResult<Object> next(@PathVariable String instanceId,
                                   @PathVariable String nextType,
                                   HttpServletRequest request) {
         workflowUtil.nextStep(instanceId, Byte.valueOf(nextType));
+        return RetMarker.makeSuccessRsp();
+    }
+
+    @IgnoreDataEncryption
+    @GetMapping("getParam/{instanceId}/{paramName}")
+    public RetResult<Object> getParam(@PathVariable String instanceId,
+                                      @PathVariable String paramName,
+                                      HttpServletRequest request) {
+        String param = workflowUtil.getParam(instanceId, paramName);
+        return RetMarker.makeSuccessRsp(param);
+    }
+
+    @IgnoreDataEncryption
+    @GetMapping("setParam/{instanceId}/{paramName}/{paramValue}")
+    public RetResult<Object> setParam(@PathVariable String instanceId,
+                                      @PathVariable String paramName,
+                                      @PathVariable String paramValue,
+                                      HttpServletRequest request) {
+        workflowUtil.setParam(instanceId, paramName, paramValue);
         return RetMarker.makeSuccessRsp();
     }
 

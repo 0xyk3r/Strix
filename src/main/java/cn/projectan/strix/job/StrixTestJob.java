@@ -3,8 +3,11 @@ package cn.projectan.strix.job;
 import cn.projectan.strix.model.annotation.StrixJob;
 import cn.projectan.strix.model.db.SystemConfig;
 import cn.projectan.strix.service.SystemConfigService;
+import cn.projectan.strix.utils.SecurityUtils;
+import cn.projectan.strix.utils.WorkflowUtil;
+import cn.projectan.strix.utils.context.ContextHolder;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -14,10 +17,11 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @StrixJob
 @Component("strixTestJob")
+@RequiredArgsConstructor
 public class StrixTestJob {
 
-    @Autowired
-    private SystemConfigService systemConfigService;
+    private final SystemConfigService systemConfigService;
+    private final WorkflowUtil workflowUtil;
 
     public void testSomething() {
         log.info("Do job: `StrixTestJob.testSomething`");
@@ -32,6 +36,23 @@ public class StrixTestJob {
         SystemConfig testConfig = systemConfigService.getById("DevTest");
         testConfig.setValue(str);
         systemConfigService.updateById(testConfig);
+    }
+
+    public boolean testCheckSystemManager() {
+        log.info("Do job: `StrixTestJob.testCheckSystemManager` " + SecurityUtils.getManagerName());
+        return SecurityUtils.getManagerName().equals("anjiongyi");
+    }
+
+    public void testSetParam() {
+        Object workflowInstanceId = ContextHolder.get("STRIX_WORKFLOW_INSTANCE_ID");
+        log.info("Do job: `StrixTestJob.testSetParam`" + workflowInstanceId);
+        workflowUtil.setParam(workflowInstanceId.toString(), "testParam", "testValue");
+    }
+
+    public void testGetParam() {
+        Object workflowInstanceId = ContextHolder.get("STRIX_WORKFLOW_INSTANCE_ID");
+        String testParam = workflowUtil.getParam(workflowInstanceId.toString(), "testParam");
+        log.info("Do job: `StrixTestJob.testGetParam` " + testParam);
     }
 
 }
