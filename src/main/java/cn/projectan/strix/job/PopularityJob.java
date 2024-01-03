@@ -7,6 +7,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 /**
+ * 热度工具定时任务
+ *
  * @author 安炯奕
  * @date 2023/9/29 0:12
  */
@@ -18,6 +20,9 @@ public class PopularityJob {
 
     private final PopularityUtil popularityUtil;
 
+    /**
+     * 保存热度数据到数据库
+     */
     public void saveToDatabase() {
         popularityUtil.saveToDatabase();
     }

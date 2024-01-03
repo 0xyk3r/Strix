@@ -8,6 +8,8 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 /**
+ * 其他功能初始化类
+ *
  * @author 安炯奕
  * @date 2023/6/18 15:42
  */

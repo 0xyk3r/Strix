@@ -1,6 +1,8 @@
 package cn.projectan.strix.utils;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.connection.RedisConnectionCommands;
 import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ScanOptions;
@@ -13,20 +15,17 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Redis工具类
+ * Redis 工具类
  *
  * @author 安炯奕
  * @date 2021/05/12 19:36
  */
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class RedisUtil {
 
     private final RedisTemplate<String, Object> redisTemplate;
-
-    public RedisUtil(RedisTemplate<String, Object> redisTemplate) {
-        this.redisTemplate = redisTemplate;
-    }
 
     /**
      * 设置缓存失效时间
@@ -642,6 +641,13 @@ public class RedisUtil {
             }
         }
         return keys;
+    }
+
+    /**
+     * ping
+     */
+    public void ping() {
+        redisTemplate.execute(RedisConnectionCommands::ping);
     }
 
 }

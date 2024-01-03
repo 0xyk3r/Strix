@@ -7,6 +7,8 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 /**
+ * 启动成功 Banner
+ *
  * @author 安炯奕
  * @date 2023/6/18 15:42
  */
