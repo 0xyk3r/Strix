@@ -5,7 +5,7 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 /**
@@ -14,16 +14,16 @@ import java.time.format.DateTimeFormatter;
  */
 @Slf4j
 @Configuration
-public class LocalDateConvert implements Converter<String, LocalDate> {
+public class StrixStringToLocalDateTimeConverter implements Converter<String, LocalDateTime> {
 
-    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @Override
-    public LocalDate convert(@NotNull String source) {
+    public LocalDateTime convert(@NotNull String source) {
         try {
-            return LocalDate.parse(source, formatter);
+            return LocalDateTime.parse(source, formatter);
         } catch (Exception e) {
-            log.warn("Strix - LocalDateTimeConvert: 捕获到时间转换异常：", e);
+            log.warn("Strix - StrixStringToLocalDateTimeConverter: 捕获到时间转换异常：", e);
         }
         return null;
     }

@@ -11,6 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 /**
+ * 定时任务测试方法
+ *
  * @author 安炯奕
  * @date 2023/7/30 16:51
  */

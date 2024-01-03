@@ -10,6 +10,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 /**
+ * Redis 保活任务
+ *
  * @author 安炯奕
  * @date 2022/9/9 18:45
  */
@@ -24,7 +26,7 @@ public class RedisKeepaliveTask {
 
     @Scheduled(cron = "0/50 * * * * ?")
     public void keepalive() {
-        redisUtil.get("keepalive");
+        redisUtil.ping();
     }
 
 }

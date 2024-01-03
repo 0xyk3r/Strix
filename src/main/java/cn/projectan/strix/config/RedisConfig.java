@@ -77,6 +77,10 @@ public class RedisConfig {
                 .build();
     }
 
+    /**
+     * 配置缓存时长
+     * 由于 Spring 的 @Cacheable 注解不支持配置缓存时长，所以需要在此进行配置
+     */
     private Map<String, RedisCacheConfiguration> getRedisCacheConfigurationMap() {
         Map<String, RedisCacheConfiguration> redisCacheConfigurationMap = new HashMap<>();
 //        redisCacheConfigurationMap.put("strix:system:manager:permission_by_smid", this.getRedisCacheConfigurationWithTtl(60 * 60 * 24));
