@@ -1,13 +1,11 @@
 <h1 align="center">Strix</h1>
 <p align="center">一个基于 Java 和 Spring Boot 的后端应用程序</p>
-<p align="center">功能还算完整，代码还算规范，用法还算简洁</p>
-<p align="center">有点意思</p>
 
 ## 一、项目特性
 
-### 1.1 使用 Java 17 & Spring Boot 3
+### 1.1 使用 Java 21 & Spring Boot 3
 
-使用最新的 Java 17 和 Spring Boot 3，享受最新的语言特性和框架特性。
+使用最新的 Java 21 和 Spring Boot 3，享受最新的语言特性和框架特性。
 
 ### 1.2 支持可选模块
 

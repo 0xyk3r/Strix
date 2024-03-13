@@ -1,11 +1,11 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '3.2.1'
+    id 'org.springframework.boot' version '3.2.3'
     id 'io.spring.dependency-management' version '1.1.4'
 }
 
 group = 'cn.projectan'
-version = '1.6.4'
+version = '1.6.5'
 description = 'Strix'
 
 java {
@@ -70,11 +70,11 @@ dependencies {
     runtimeOnly 'com.mysql:mysql-connector-j'
     implementation 'com.baomidou:mybatis-plus-spring-boot3-starter:3.5.5'
     implementation 'com.baomidou:mybatis-plus-generator:3.5.5'
-    implementation 'com.baomidou:dynamic-datasource-spring-boot3-starter:4.2.0'
+    implementation 'com.baomidou:dynamic-datasource-spring-boot3-starter:4.3.0'
     implementation 'org.apache.velocity:velocity-engine-core:2.3'
     // Database - ClickHouse
-    implementation 'com.clickhouse:clickhouse-jdbc:0.5.0'
-    implementation 'org.apache.httpcomponents.client5:httpclient5:5.3'
+    implementation 'com.clickhouse:clickhouse-jdbc:0.6.0'
+    implementation 'org.apache.httpcomponents.client5:httpclient5:5.3.1'
     runtimeOnly 'org.lz4:lz4-java:1.8.0'
     // Strix Module
     implementation files('libs/strix-captcha-1.2.0.jar')
@@ -84,16 +84,16 @@ dependencies {
     }
     // Other Tools
     implementation 'com.squareup.okhttp3:okhttp'
-    implementation 'cn.hutool:hutool-all:5.8.24'
+    implementation 'cn.hutool:hutool-all:5.8.26'
     implementation 'org.bouncycastle:bcprov-jdk18on:1.77'
     implementation 'org.lionsoul:ip2region:2.7.0'
     implementation 'org.apache.tika:tika-core:2.9.1'
-    implementation 'com.github.oshi:oshi-core:6.4.10'
+    implementation 'com.github.oshi:oshi-core:6.4.13'
     implementation 'org.reflections:reflections:0.10.2'
     // Third Party
     implementation 'com.aliyun:aliyun-java-sdk-dysmsapi:2.2.1'
     implementation 'com.aliyun.oss:aliyun-sdk-oss:3.17.4'
-    implementation 'com.github.javen205:IJPay-WxPay:2.9.9'
+    implementation 'com.github.javen205:IJPay-WxPay:2.9.10-17'
 }
 
 tasks.withType(JavaCompile).configureEach {

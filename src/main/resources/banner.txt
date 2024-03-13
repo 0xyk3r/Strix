@@ -17,7 +17,4 @@
 
                                            ProjectAn Strix is starting...
 
-                                                                                           Powered by ProjectAn Strix
-                                                                                      Developer: An.(anjiongyi@163.com)
-
 
