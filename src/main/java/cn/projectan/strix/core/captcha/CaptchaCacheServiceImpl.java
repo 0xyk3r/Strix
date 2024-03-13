@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
 /**
- * @author 安炯奕
+ * @author ProjectAn
  * @date 2022/9/30 15:13
  */
 public class CaptchaCacheServiceImpl implements CaptchaCacheService {

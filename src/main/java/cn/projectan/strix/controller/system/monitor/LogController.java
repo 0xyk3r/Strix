@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * @author 安炯奕
+ * @author ProjectAn
  * @date 2023/6/17 22:21
  */
 @Slf4j

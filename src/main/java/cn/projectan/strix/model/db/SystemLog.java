@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
  * sys_system_log
  * </p>
  *
- * @author 安炯奕
+ * @author ProjectAn
  * @since 2023-06-16
  */
 @Getter

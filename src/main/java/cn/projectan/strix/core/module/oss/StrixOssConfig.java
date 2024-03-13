@@ -10,7 +10,7 @@ import java.util.Set;
 /**
  * Strix OSS 对象存储服务
  *
- * @author 安炯奕
+ * @author ProjectAn
  * @date 2021/05/02 17:23
  */
 @Component

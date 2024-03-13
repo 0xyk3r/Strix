@@ -4,6 +4,8 @@ import lombok.Getter;
 
 /**
  * 定时任务异常
+ *
+ * @author ProjectAn
  */
 @Getter
 public class StrixJobException extends StrixException {

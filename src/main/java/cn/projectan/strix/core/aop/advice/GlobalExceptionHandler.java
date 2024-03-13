@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 /**
  * 全局异常处理类
  *
- * @author 安炯奕
+ * @author ProjectAn
  * @date 2021/5/7 18:20
  */
 @Slf4j

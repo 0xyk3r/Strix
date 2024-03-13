@@ -39,7 +39,7 @@ import java.util.Map;
  * <p>
  * 备注：操他妈的由于这个类部分接口需要重定向Controller上面用的是@Controller。需要注意需要返回Json的接口，记得要加@ResponseBody
  *
- * @author 安炯奕
+ * @author ProjectAn
  * @date 2021/8/24 16:40
  */
 @Slf4j

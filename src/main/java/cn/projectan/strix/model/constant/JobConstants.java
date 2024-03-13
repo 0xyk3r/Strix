@@ -2,6 +2,8 @@ package cn.projectan.strix.model.constant;
 
 /**
  * 任务调度通用常量
+ *
+ * @author ProjectAn
  */
 public class JobConstants {
 

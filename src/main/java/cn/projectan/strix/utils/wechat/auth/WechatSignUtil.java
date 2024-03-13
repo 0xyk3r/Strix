@@ -10,7 +10,7 @@ import java.util.Set;
 /**
  * 微信SHA1签名工具类
  *
- * @author 安炯奕
+ * @author ProjectAn
  * @date 2019/11/5 17:00
  */
 @Slf4j

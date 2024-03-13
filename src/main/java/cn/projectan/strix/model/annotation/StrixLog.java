@@ -8,7 +8,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * @author 安炯奕
+ * @author ProjectAn
  * @date 2023/6/17 14:11
  */
 @Target({ElementType.PARAMETER, ElementType.METHOD})

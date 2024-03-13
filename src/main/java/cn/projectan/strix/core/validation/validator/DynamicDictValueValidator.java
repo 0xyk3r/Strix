@@ -15,7 +15,7 @@ import java.util.List;
  * 动态字典值校验器 <br/>
  * 适用于字典值可被后台动态修改的情况
  *
- * @author 安炯奕
+ * @author ProjectAn
  * @date 2023/9/6 21:50
  */
 @Slf4j

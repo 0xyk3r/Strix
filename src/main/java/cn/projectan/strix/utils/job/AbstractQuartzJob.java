@@ -7,6 +7,8 @@ import org.quartz.JobExecutionContext;
 
 /**
  * quartz 抽象类
+ *
+ * @author ProjectAn
  */
 @Slf4j
 public abstract class AbstractQuartzJob implements org.quartz.Job {

@@ -1,7 +1,7 @@
 package cn.projectan.strix.core.exception;
 
 /**
- * @author 安炯奕
+ * @author ProjectAn
  * @date 2021/5/7 18:21
  */
 public class StrixException extends RuntimeException {

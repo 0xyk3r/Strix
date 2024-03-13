@@ -3,7 +3,7 @@ package cn.projectan.strix.model.wechat;
 import lombok.Data;
 
 /**
- * @author 安炯奕
+ * @author ProjectAn
  */
 @Data
 public class Oauth2Token {

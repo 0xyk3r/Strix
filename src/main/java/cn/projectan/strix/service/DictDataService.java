@@ -8,7 +8,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * 服务类
  * </p>
  *
- * @author 安炯奕
+ * @author ProjectAn
  * @since 2023-05-28
  */
 public interface DictDataService extends IService<DictData> {

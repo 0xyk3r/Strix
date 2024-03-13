@@ -6,7 +6,7 @@ import cn.projectan.strix.model.annotation.DictData;
 /**
  * 系统管理用户 类型
  *
- * @author 安炯奕
+ * @author ProjectAn
  * @date 2021/6/16 15:32
  */
 @Dict(key = "SystemManagerType", value = "系统人员-类型")

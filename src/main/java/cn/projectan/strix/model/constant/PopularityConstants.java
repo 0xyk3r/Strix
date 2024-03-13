@@ -1,7 +1,7 @@
 package cn.projectan.strix.model.constant;
 
 /**
- * @author 安炯奕
+ * @author ProjectAn
  * @date 2023/9/15 17:01
  */
 public class PopularityConstants {

@@ -20,7 +20,7 @@ import java.util.Map;
 /**
  * api加解密工具，客户端使用
  *
- * @author 安炯奕
+ * @author ProjectAn
  * @date 2023/4/6 17:10
  */
 @Slf4j

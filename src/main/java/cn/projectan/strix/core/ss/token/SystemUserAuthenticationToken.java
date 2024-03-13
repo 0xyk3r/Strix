@@ -6,7 +6,7 @@ import org.springframework.security.core.GrantedAuthority;
 import java.util.Collection;
 
 /**
- * @author 安炯奕
+ * @author ProjectAn
  * @date 2023/2/25 14:27
  */
 public class SystemUserAuthenticationToken extends UsernamePasswordAuthenticationToken {

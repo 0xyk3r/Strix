@@ -3,7 +3,7 @@ package cn.projectan.strix.model.annotation;
 import java.lang.annotation.*;
 
 /**
- * @author 安炯奕
+ * @author ProjectAn
  * @date 2021/6/17 14:14
  */
 @Target({ElementType.FIELD})

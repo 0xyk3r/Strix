@@ -19,7 +19,7 @@ import java.util.Optional;
 /**
  * MybatisPlus 配置类
  *
- * @author 安炯奕
+ * @author ProjectAn
  * @date 2021/05/02 17:53
  */
 @Configuration
@@ -49,7 +49,7 @@ public class MybatisPlusConfig {
     /**
      * MyBatisPlus 字段自动填充配置
      *
-     * @author 安炯奕
+     * @author ProjectAn
      * @date 2022/7/15 18:42
      */
     @Component

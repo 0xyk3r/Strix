@@ -20,7 +20,7 @@ import java.util.List;
 /**
  * MyBatisPlus 代码生成器 新版本
  *
- * @author 安炯奕
+ * @author ProjectAn
  * @date 2022-07-15
  */
 public class MysqlGenerator {
@@ -41,7 +41,7 @@ public class MysqlGenerator {
 
         FastAutoGenerator.create(dataSourceConfigBuilder)
                 .globalConfig(builder -> builder.outputDir(projectPath + "/src/main/java")
-                        .author("安炯奕")
+                        .author("ProjectAn")
                         .dateType(DateType.TIME_PACK)
                         .commentDate("yyyy-MM-dd")
                         .disableOpenDir()

@@ -40,7 +40,7 @@ import java.util.TimeZone;
 /**
  * Redis配置类
  *
- * @author 安炯奕
+ * @author ProjectAn
  * @date 2021/05/02 16:41
  */
 @Configuration

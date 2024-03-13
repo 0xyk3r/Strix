@@ -8,7 +8,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * Mapper 接口
  * </p>
  *
- * @author 安炯奕
+ * @author ProjectAn
  * @since 2023-05-20
  */
 public interface SmsTemplateMapper extends BaseMapper<SmsTemplate> {

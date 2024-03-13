@@ -8,7 +8,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  *  Mapper 接口
  * </p>
  *
- * @author 安炯奕
+ * @author ProjectAn
  * @since 2022-03-27
  */
 public interface WechatPushMapper extends BaseMapper<WechatPush> {

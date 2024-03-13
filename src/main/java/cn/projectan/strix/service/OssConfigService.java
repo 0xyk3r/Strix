@@ -11,7 +11,7 @@ import java.util.List;
  * 阿里云OSS配置 服务类
  * </p>
  *
- * @author 安炯奕
+ * @author ProjectAn
  * @since 2021-05-02
  */
 public interface OssConfigService extends IService<OssConfig> {

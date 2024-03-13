@@ -8,7 +8,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * sys_system_log 服务类
  * </p>
  *
- * @author 安炯奕
+ * @author ProjectAn
  * @since 2023-06-16
  */
 public interface SystemLogService extends IService<SystemLog> {

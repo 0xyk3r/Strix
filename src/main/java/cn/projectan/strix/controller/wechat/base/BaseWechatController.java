@@ -5,7 +5,7 @@ import cn.projectan.strix.utils.SecurityUtils;
 import org.springframework.util.Assert;
 
 /**
- * @author 安炯奕
+ * @author ProjectAn
  * @date 2021/8/31 13:58
  */
 public class BaseWechatController {

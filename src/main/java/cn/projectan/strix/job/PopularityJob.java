@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 /**
  * 热度工具定时任务
  *
- * @author 安炯奕
+ * @author ProjectAn
  * @date 2023/9/29 0:12
  */
 @Slf4j

@@ -5,7 +5,7 @@ import cn.projectan.strix.model.request.base.BasePageReq;
 import lombok.Data;
 
 /**
- * @author 安炯奕
+ * @author ProjectAn
  * @date 2021/8/27 15:44
  */
 @Data

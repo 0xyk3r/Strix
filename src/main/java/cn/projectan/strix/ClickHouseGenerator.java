@@ -15,7 +15,7 @@ import java.util.List;
 /**
  * ClickHouse 代码生成器 新版本
  *
- * @author 安炯奕
+ * @author ProjectAn
  * @date 2023-06-16
  */
 public class ClickHouseGenerator {
@@ -37,7 +37,7 @@ public class ClickHouseGenerator {
 
         FastAutoGenerator.create(dataSourceConfigBuilder)
                 .globalConfig(builder -> builder.outputDir(projectPath + "/src/main/java")
-                        .author("安炯奕")
+                        .author("ProjectAn")
                         .dateType(DateType.TIME_PACK)
                         .commentDate("yyyy-MM-dd")
                         .disableOpenDir()

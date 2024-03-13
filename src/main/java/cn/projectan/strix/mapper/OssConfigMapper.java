@@ -8,7 +8,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * 阿里云OSS配置 Mapper 接口
  * </p>
  *
- * @author 安炯奕
+ * @author ProjectAn
  * @since 2021-05-02
  */
 public interface OssConfigMapper extends BaseMapper<OssConfig> {

@@ -7,7 +7,7 @@ import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
- * @author 安炯奕
+ * @author ProjectAn
  * @date 2023/5/18 15:21
  */
 @Getter

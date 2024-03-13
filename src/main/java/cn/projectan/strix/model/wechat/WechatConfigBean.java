@@ -3,7 +3,7 @@ package cn.projectan.strix.model.wechat;
 import lombok.Data;
 
 /**
- * @author 安炯奕
+ * @author ProjectAn
  * @date 2021/8/24 19:08
  */
 @Data

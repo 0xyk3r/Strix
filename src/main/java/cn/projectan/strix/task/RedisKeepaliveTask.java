@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 /**
  * Redis 保活任务
  *
- * @author 安炯奕
+ * @author ProjectAn
  * @date 2022/9/9 18:45
  */
 @Slf4j

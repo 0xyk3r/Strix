@@ -10,7 +10,7 @@ import org.quartz.SchedulerException;
  * 服务类
  * </p>
  *
- * @author 安炯奕
+ * @author ProjectAn
  * @since 2023-07-30
  */
 public interface JobService extends IService<Job> {

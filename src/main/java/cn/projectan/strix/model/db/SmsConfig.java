@@ -17,7 +17,7 @@ import java.io.Serial;
  * 短信服务配置
  * </p>
  *
- * @author 安炯奕
+ * @author ProjectAn
  * @since 2023/5/22 11:59
  */
 @Data

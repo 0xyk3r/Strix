@@ -8,7 +8,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
  *  服务类
  * </p>
  *
- * @author 安炯奕
+ * @author ProjectAn
  * @since 2022-03-27
  */
 public interface WechatPushService extends IService<WechatPush> {

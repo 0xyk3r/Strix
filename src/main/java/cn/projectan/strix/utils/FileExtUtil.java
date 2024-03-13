@@ -11,7 +11,7 @@ import java.util.Optional;
 /**
  * 文件拓展名工具类
  *
- * @author 安炯奕
+ * @author ProjectAn
  * @date 2023/5/22 18:21
  */
 public class FileExtUtil {

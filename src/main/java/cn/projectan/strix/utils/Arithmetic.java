@@ -6,7 +6,7 @@ import java.math.RoundingMode;
 /**
  * 使用BigDecimal实现精确的浮点数运算
  *
- * @author 安炯奕
+ * @author ProjectAn
  * @date 2022/9/30 21:54
  */
 public class Arithmetic {

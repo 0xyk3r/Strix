@@ -13,7 +13,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * 服务类
  * </p>
  *
- * @author 安炯奕
+ * @author ProjectAn
  * @since 2021-08-31
  */
 public interface DictService extends IService<Dict> {

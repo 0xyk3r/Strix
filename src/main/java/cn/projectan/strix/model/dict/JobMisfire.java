@@ -4,7 +4,7 @@ import cn.projectan.strix.model.annotation.Dict;
 import cn.projectan.strix.model.annotation.DictData;
 
 /**
- * @author 安炯奕
+ * @author ProjectAn
  * @date 2023/8/1 14:33
  */
 @Dict(key = "JobMisfire", value = "系统定时任务-错过执行策略")

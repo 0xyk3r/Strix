@@ -11,7 +11,7 @@ import java.util.List;
  * 服务类
  * </p>
  *
- * @author 安炯奕
+ * @author ProjectAn
  * @since 2023-05-23
  */
 public interface OssBucketService extends IService<OssBucket> {

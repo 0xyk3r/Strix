@@ -10,7 +10,7 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
 
 /**
- * @author 安炯奕
+ * @author ProjectAn
  * @date 2021/6/10 16:25
  */
 @Slf4j

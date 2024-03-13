@@ -11,7 +11,7 @@ import java.util.List;
  * 服务类
  * </p>
  *
- * @author 安炯奕
+ * @author ProjectAn
  * @since 2021-05-02
  */
 public interface SmsConfigService extends IService<SmsConfig> {

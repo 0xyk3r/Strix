@@ -16,7 +16,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * Strix UpdateWrapper构造器
  *
- * @author 安炯奕
+ * @author ProjectAn
  * @date 2021/6/17 17:20
  */
 @Slf4j

@@ -8,7 +8,7 @@ import java.io.File;
 /**
  * 微信支付v3接口 图片MediaID
  *
- * @author 安炯奕
+ * @author ProjectAn
  * @date 2022/7/22 17:59
  */
 public class MediaStringHandler {

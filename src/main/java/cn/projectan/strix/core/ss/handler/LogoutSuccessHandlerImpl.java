@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 /**
- * @author 安炯奕
+ * @author ProjectAn
  * @date 2023/5/26 17:58
  */
 @Component

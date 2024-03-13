@@ -4,7 +4,7 @@ import cn.projectan.strix.model.annotation.Dict;
 import cn.projectan.strix.model.annotation.DictData;
 
 /**
- * @author 安炯奕
+ * @author ProjectAn
  * @date 2023/11/29 16:02
  */
 @Dict(key = "WorkflowStepType", value = "工作流-步骤-类型")

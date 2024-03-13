@@ -5,7 +5,7 @@ import cn.projectan.strix.core.module.payment.wxpay.WxPayTools;
 /**
  * 微信支付v3接口 敏感消息字符串
  *
- * @author 安炯奕
+ * @author ProjectAn
  * @date 2022/7/22 17:34
  */
 public class SensitiveStringHandler {

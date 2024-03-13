@@ -11,7 +11,7 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor;
 
 /**
- * @author 安炯奕
+ * @author ProjectAn
  * @date 2022/10/2 19:51
  */
 @Configuration

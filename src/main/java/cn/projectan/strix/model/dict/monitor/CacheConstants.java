@@ -1,7 +1,7 @@
 package cn.projectan.strix.model.dict.monitor;
 
 /**
- * @author 安炯奕
+ * @author ProjectAn
  * @date 2022/9/30 22:17
  */
 public interface CacheConstants {
