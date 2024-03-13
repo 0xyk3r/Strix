@@ -16,7 +16,7 @@ import java.util.Locale;
 /**
  * 使用 Jackson 解析 LocalDateTime 相关配置
  *
- * @author 安炯奕
+ * @author ProjectAn
  * @date 2021/05/02 16:32
  */
 @Configuration

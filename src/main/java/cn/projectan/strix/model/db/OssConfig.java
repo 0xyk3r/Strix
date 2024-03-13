@@ -16,7 +16,7 @@ import java.io.Serial;
  * 阿里云OSS配置
  * </p>
  *
- * @author 安炯奕
+ * @author ProjectAn
  * @since 2021-05-02
  */
 @Data

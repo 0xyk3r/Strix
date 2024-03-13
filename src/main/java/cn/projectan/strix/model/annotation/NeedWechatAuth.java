@@ -6,7 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * @author 安炯奕
+ * @author ProjectAn
  * @date 2021/8/26 11:31
  * @deprecated 已使用 Spring Security 替代
  */

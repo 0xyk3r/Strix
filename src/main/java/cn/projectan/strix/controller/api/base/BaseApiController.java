@@ -5,7 +5,7 @@ import cn.projectan.strix.utils.SecurityUtils;
 import org.springframework.util.Assert;
 
 /**
- * @author 安炯奕
+ * @author ProjectAn
  * @date 2023/4/6 13:43
  */
 public class BaseApiController {

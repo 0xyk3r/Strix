@@ -16,7 +16,7 @@ import java.util.Set;
 /**
  * 热度工具类
  *
- * @author 安炯奕
+ * @author ProjectAn
  * @date 2023/9/15 16:59
  */
 @Component

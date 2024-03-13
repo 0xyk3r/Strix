@@ -4,7 +4,7 @@ import cn.projectan.strix.model.annotation.Dict;
 import cn.projectan.strix.model.annotation.DictData;
 
 /**
- * @author 安炯奕
+ * @author ProjectAn
  * @date 2023/5/30 12:23
  */
 @Dict(key = "DictDataStatus", value = "系统字典-数据-状态")

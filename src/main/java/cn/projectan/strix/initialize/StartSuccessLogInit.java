@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 /**
  * 启动成功 Banner
  *
- * @author 安炯奕
+ * @author ProjectAn
  * @date 2023/6/18 15:42
  */
 @Slf4j

@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
  * 在两个对象集合中查找两个字段相同的对象集合
  * 备注：如果性能要求较高，建议参照本工具类自行实现，因为本工具类使用了Java反射，性能较差
  *
- * @author 安炯奕
+ * @author ProjectAn
  * @date 2022/10/27 17:48
  */
 @Slf4j

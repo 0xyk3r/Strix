@@ -8,7 +8,7 @@ import java.util.stream.Stream;
 /**
  * 断言工具类
  *
- * @author 安炯奕
+ * @author ProjectAn
  * @date 2021/6/16 15:34
  */
 public class StrixAssert {

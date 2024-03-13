@@ -30,7 +30,7 @@ import org.springframework.core.NamedThreadLocal;
 import org.springframework.stereotype.Component;
 
 /**
- * @author 安炯奕
+ * @author ProjectAn
  * @date 2023/6/17 14:21
  */
 @Slf4j

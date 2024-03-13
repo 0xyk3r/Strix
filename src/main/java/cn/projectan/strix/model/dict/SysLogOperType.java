@@ -4,7 +4,7 @@ import cn.projectan.strix.model.annotation.Dict;
 import cn.projectan.strix.model.annotation.DictData;
 
 /**
- * @author 安炯奕
+ * @author ProjectAn
  * @date 2023/6/17 15:14
  */
 @Dict(key = "SysLogOperType", value = "系统日志-操作类型")

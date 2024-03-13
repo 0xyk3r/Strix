@@ -9,7 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * @author 安炯奕
+ * @author ProjectAn
  * @date 2023/2/22 14:52
  */
 @Slf4j

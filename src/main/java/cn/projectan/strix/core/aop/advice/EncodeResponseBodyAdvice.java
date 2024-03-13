@@ -21,7 +21,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 /**
  * 响应统一处理 用于响应加密
  *
- * @author 安炯奕
+ * @author ProjectAn
  * @date 2021/5/2 19:06
  */
 @Slf4j

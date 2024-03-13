@@ -11,7 +11,7 @@ import java.util.Collections;
 /**
  * CORS 跨域配置
  *
- * @author 安炯奕
+ * @author ProjectAn
  * @date 2021/05/02 17:11
  */
 @Configuration

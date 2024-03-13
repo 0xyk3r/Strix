@@ -9,7 +9,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * @author 安炯奕
+ * @author ProjectAn
  * @date 2022/10/27 15:28
  */
 public class FindSameValueInObjectListTest {

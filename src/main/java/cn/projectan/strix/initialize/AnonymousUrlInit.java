@@ -27,7 +27,7 @@ import java.util.regex.Pattern;
 /**
  * 允许匿名访问的URL列表初始化类
  *
- * @author 安炯奕
+ * @author ProjectAn
  * @date 2023/4/6 16:24
  */
 @Configuration

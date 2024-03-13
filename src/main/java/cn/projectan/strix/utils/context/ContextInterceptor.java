@@ -5,7 +5,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 /**
- * @author 安炯奕
+ * @author ProjectAn
  * @date 2023/12/9 16:25
  */
 public class ContextInterceptor implements HandlerInterceptor {

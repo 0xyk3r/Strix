@@ -8,7 +8,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
- * @author 安炯奕
+ * @author ProjectAn
  * @date 2023/6/16 22:56
  */
 public class AsyncUtil {

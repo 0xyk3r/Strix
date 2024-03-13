@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 /**
  * 其他功能初始化类
  *
- * @author 安炯奕
+ * @author ProjectAn
  * @date 2023/6/18 15:42
  */
 @Slf4j

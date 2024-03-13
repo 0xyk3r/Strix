@@ -5,7 +5,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import java.util.concurrent.ThreadPoolExecutor;
 
 /**
- * @author 安炯奕
+ * @author ProjectAn
  * @date 2023/9/29 17:55
  */
 public class CompletableThreadPool {

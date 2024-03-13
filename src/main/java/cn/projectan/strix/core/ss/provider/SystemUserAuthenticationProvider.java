@@ -11,7 +11,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 
 /**
- * @author 安炯奕
+ * @author ProjectAn
  * @date 2023/2/25 14:28
  */
 @Service

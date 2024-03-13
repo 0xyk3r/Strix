@@ -1,7 +1,7 @@
 package cn.projectan.strix.utils;
 
 /**
- * @author 安炯奕
+ * @author ProjectAn
  * @date 2021/6/11 18:14
  */
 public class NumUtils {

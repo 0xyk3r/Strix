@@ -9,7 +9,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * sys_system_log Mapper 接口
  * </p>
  *
- * @author 安炯奕
+ * @author ProjectAn
  * @since 2023-06-16
  */
 @DS("clickhouse")

@@ -18,7 +18,7 @@ import java.util.Set;
 /**
  * 数据库字段重复检测工具
  *
- * @author 安炯奕
+ * @author ProjectAn
  * @date 2021/6/17 14:13
  */
 @Slf4j

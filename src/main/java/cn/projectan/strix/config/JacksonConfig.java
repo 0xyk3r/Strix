@@ -12,7 +12,7 @@ import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import java.util.TimeZone;
 
 /**
- * @author 安炯奕
+ * @author ProjectAn
  * @date 2021/5/13 19:19
  */
 @Configuration

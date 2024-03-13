@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.util.Objects;
 
 /**
- * @author 安炯奕
+ * @author ProjectAn
  * @date 2023/2/22 14:56
  */
 public final class DataMaskSerializer extends StdScalarSerializer<Object> {

@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 /**
  * 是否允许该字段被更新
  *
- * @author 安炯奕
+ * @author ProjectAn
  * @date 2021/6/17 17:27
  */
 @Target({ElementType.FIELD})

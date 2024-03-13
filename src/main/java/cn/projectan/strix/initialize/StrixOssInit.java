@@ -16,7 +16,7 @@ import java.util.List;
 /**
  * Strix OSS 初始化
  *
- * @author 安炯奕
+ * @author ProjectAn
  * @date 2021/5/2 17:20
  */
 @Slf4j

@@ -3,7 +3,7 @@ package cn.projectan.strix.utils;
 import java.util.regex.Pattern;
 
 /**
- * @author 安炯奕
+ * @author ProjectAn
  * @date 2023/5/23 10:05
  */
 public class RegexUtils {

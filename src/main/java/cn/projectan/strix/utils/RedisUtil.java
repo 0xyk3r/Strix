@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Redis 工具类
  *
- * @author 安炯奕
+ * @author ProjectAn
  * @date 2021/05/12 19:36
  */
 @Slf4j

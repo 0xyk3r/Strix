@@ -25,7 +25,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 /**
- * @author 安炯奕
+ * @author ProjectAn
  * @date 2023/2/24 23:17
  */
 @Configuration

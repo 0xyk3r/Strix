@@ -7,6 +7,8 @@ import org.quartz.JobExecutionContext;
 
 /**
  * 定时任务处理（不允许并发执行）
+ *
+ * @author ProjectAn
  */
 @DisallowConcurrentExecution
 public class QuartzDisallowConcurrentExecution extends AbstractQuartzJob {

@@ -32,7 +32,7 @@ import java.util.Set;
 /**
  * 同步字典常量至数据库
  *
- * @author 安炯奕
+ * @author ProjectAn
  * @date 2023/6/9 15:18
  */
 @Slf4j

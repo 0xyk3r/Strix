@@ -9,7 +9,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * 服务类
  * </p>
  *
- * @author 安炯奕
+ * @author ProjectAn
  * @since 2021-05-12
  */
 public interface SystemMenuService extends IService<SystemMenu> {

@@ -11,7 +11,7 @@ import java.util.List;
  * Mapper 接口
  * </p>
  *
- * @author 安炯奕
+ * @author ProjectAn
  * @since 2021-09-29
  */
 public interface SystemRegionMapper extends BaseMapper<SystemRegion> {

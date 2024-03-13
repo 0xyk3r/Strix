@@ -6,7 +6,7 @@ import cn.projectan.strix.model.annotation.DictData;
 /**
  * 系统管理用户 状态
  *
- * @author 安炯奕
+ * @author ProjectAn
  * @date 2021/5/12 18:52
  */
 @Dict(key = "SystemManagerStatus", value = "系统人员-状态")

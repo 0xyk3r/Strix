@@ -4,7 +4,7 @@ import com.aliyun.oss.OSS;
 import lombok.Data;
 
 /**
- * @author 安炯奕
+ * @author ProjectAn
  * @date 2021/5/2 17:28
  */
 @Data

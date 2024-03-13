@@ -16,7 +16,7 @@ import java.util.Random;
 /**
  * 微信相关工具类
  *
- * @author 安炯奕
+ * @author ProjectAn
  * @date 2019/11/5 16:58
  */
 @Slf4j

@@ -3,7 +3,7 @@ package cn.projectan.strix.utils;
 import cn.hutool.core.lang.Snowflake;
 
 /**
- * @author 安炯奕
+ * @author ProjectAn
  * @date 2023/5/23 9:39
  */
 public class SnowflakeUtil {

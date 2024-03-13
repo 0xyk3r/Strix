@@ -1,7 +1,7 @@
 package cn.projectan.strix.core.ret;
 
 /**
- * @author 安炯奕
+ * @author ProjectAn
  * @date 2021/1/31 18:22
  */
 public interface RetCode {

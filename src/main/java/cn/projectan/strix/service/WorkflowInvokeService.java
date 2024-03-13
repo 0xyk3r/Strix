@@ -8,7 +8,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * 服务类
  * </p>
  *
- * @author 安炯奕
+ * @author ProjectAn
  * @since 2023-11-29
  */
 public interface WorkflowInvokeService extends IService<WorkflowInvoke> {

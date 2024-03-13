@@ -1,7 +1,7 @@
 package cn.projectan.strix.model.dict;
 
 /**
- * @author 安炯奕
+ * @author ProjectAn
  * @date 2021/9/3 11:02
  */
 public interface PaymentOrderStatus {

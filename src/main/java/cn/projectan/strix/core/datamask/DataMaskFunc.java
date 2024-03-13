@@ -3,7 +3,7 @@ package cn.projectan.strix.core.datamask;
 import org.springframework.util.StringUtils;
 
 /**
- * @author 安炯奕
+ * @author ProjectAn
  * @date 2023/2/22 14:30
  */
 public enum DataMaskFunc {

@@ -3,7 +3,7 @@ package cn.projectan.strix.core.datamask;
 import java.lang.annotation.*;
 
 /**
- * @author 安炯奕
+ * @author ProjectAn
  * @date 2023/2/22 14:28
  */
 @Target({ElementType.FIELD, ElementType.TYPE})

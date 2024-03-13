@@ -11,7 +11,7 @@ import java.io.File;
  * 服务类
  * </p>
  *
- * @author 安炯奕
+ * @author ProjectAn
  * @since 2022-03-09
  */
 public interface OssFileService extends IService<OssFile> {

@@ -4,7 +4,7 @@ import cn.projectan.strix.model.annotation.Dict;
 import cn.projectan.strix.model.annotation.DictData;
 
 /**
- * @author 安炯奕
+ * @author ProjectAn
  * @date 2023/5/20 17:35
  */
 @Dict(key = "StrixSmsTemplateStatus", value = "短信服务-短信模板-状态")
