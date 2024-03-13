@@ -88,7 +88,7 @@ dependencies {
     implementation 'org.bouncycastle:bcprov-jdk18on:1.77'
     implementation 'org.lionsoul:ip2region:2.7.0'
     implementation 'org.apache.tika:tika-core:2.9.1'
-    implementation 'com.github.oshi:oshi-core:6.4.13'
+    implementation 'com.github.oshi:oshi-core:6.5.0'
     implementation 'org.reflections:reflections:0.10.2'
     // Third Party
     implementation 'com.aliyun:aliyun-java-sdk-dysmsapi:2.2.1'
