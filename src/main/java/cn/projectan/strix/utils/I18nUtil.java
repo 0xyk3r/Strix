@@ -87,11 +87,16 @@ public class I18nUtil {
     }
 
     public static Locale convertLocale(String locale) {
-        String[] split = locale.split("_");
-        return new Locale.Builder()
-                .setLanguage(split[0])
-                .setRegion(split[1])
-                .build();
+        try {
+            String[] split = locale.split("_");
+            return new Locale.Builder()
+                    .setLanguage(split[0])
+                    .setRegion(split[1])
+                    .build();
+        } catch (Exception ignore) {
+            log.warn("无法解析语言参数：{}，将使用默认语言：{}.", locale, defaultLocale);
+            return convertLocale(defaultLocale);
+        }
     }
 
 }
