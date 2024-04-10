@@ -1,7 +1,7 @@
 package cn.projectan.strix.core.aop.aspect;
 
+import cn.projectan.strix.core.ret.RetBuilder;
 import cn.projectan.strix.core.ret.RetCode;
-import cn.projectan.strix.core.ret.RetMarker;
 import cn.projectan.strix.model.annotation.IgnoreDataEncryption;
 import cn.projectan.strix.utils.ApiSignUtil;
 import cn.projectan.strix.utils.I18nUtil;
@@ -16,6 +16,7 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -33,7 +34,7 @@ import java.util.*;
  */
 @Slf4j
 @Aspect
-@Order(1)
+@Order(Ordered.HIGHEST_PRECEDENCE)
 @Component
 public class ApiSecurityCheckAspect {
 
@@ -45,7 +46,7 @@ public class ApiSecurityCheckAspect {
         objectMapper.setTimeZone(TimeZone.getTimeZone("GMT+8"));
     }
 
-    @Pointcut("execution(public * cn.projectan..controller..*(..)) && !execution(public * cn.projectan.captcha.controller..*(..))")
+    @Pointcut("execution(public * cn.projectan..controller..*(..))")
     public void controller() {
     }
 
@@ -77,18 +78,18 @@ public class ApiSecurityCheckAspect {
         // 这里由于不是所有方法都经过 DecodeRequestBodyAdvice 处理，所以默认为 True
         boolean security = Optional.ofNullable(request.getAttribute("Strix-Security")).map(String::valueOf).map(Boolean::parseBoolean).orElse(true);
         if (!security) {
-            return RetMarker.makeErrRsp(RetCode.BAT_REQUEST, I18nUtil.getMessage("error.bad_request") + "1");
+            return RetBuilder.error(RetCode.BAT_REQUEST, I18nUtil.getMessage("error.bad_request") + "1");
         }
 
         String url = request.getRequestURI();
         String timestamp = request.getHeader("timestamp");
         String sign = request.getHeader("sign");
         if (!StringUtils.hasText(sign) || !StringUtils.hasText(timestamp)) {
-            return RetMarker.makeErrRsp(RetCode.BAT_REQUEST, I18nUtil.getMessage("error.bad_request") + "2");
+            return RetBuilder.error(RetCode.BAT_REQUEST, I18nUtil.getMessage("error.bad_request") + "2");
         }
         // 校验时间戳 30s 内有效
         if (System.currentTimeMillis() - Long.parseLong(timestamp) > 1000 * 30) {
-            return RetMarker.makeErrRsp(RetCode.BAT_REQUEST, I18nUtil.getMessage("error.bad_request") + "3");
+            return RetBuilder.error(RetCode.BAT_REQUEST, I18nUtil.getMessage("error.bad_request") + "3");
         }
 
         final Map<String, Object> paramsMap = new TreeMap<>();
@@ -108,7 +109,7 @@ public class ApiSecurityCheckAspect {
 
         // 校验签名
         if (!ApiSignUtil.verifySign(paramsMap, sign)) {
-            return RetMarker.makeErrRsp(RetCode.BAT_REQUEST, I18nUtil.getMessage("error.bad_request") + "4");
+            return RetBuilder.error(RetCode.BAT_REQUEST, I18nUtil.getMessage("error.bad_request") + "4");
         }
 
         return pjp.proceed();

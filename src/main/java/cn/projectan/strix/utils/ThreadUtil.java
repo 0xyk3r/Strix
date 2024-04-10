@@ -5,6 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.concurrent.*;
 
 /**
+ * 线程工具类
+ *
  * @author ProjectAn
  * @date 2023/6/16 23:01
  */

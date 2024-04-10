@@ -1,20 +1,21 @@
 package cn.projectan.strix.initialize;
 
-import cn.projectan.strix.core.module.oss.StrixOssConfig;
+import cn.projectan.strix.core.module.oss.StrixOssStore;
 import cn.projectan.strix.model.db.Dict;
 import cn.projectan.strix.model.db.DictData;
 import cn.projectan.strix.model.dict.DictDataStatus;
 import cn.projectan.strix.model.dict.DictProvided;
 import cn.projectan.strix.model.dict.DictStatus;
+import cn.projectan.strix.model.dict.base.BaseDict;
 import cn.projectan.strix.model.properties.StrixPackageScanProperties;
 import cn.projectan.strix.model.request.system.dict.DictDataUpdateReq;
 import cn.projectan.strix.model.request.system.dict.DictUpdateReq;
 import cn.projectan.strix.model.response.common.CommonDictResp;
 import cn.projectan.strix.model.response.system.dict.DictDataListResp;
 import cn.projectan.strix.service.DictService;
+import cn.projectan.strix.utils.SpringUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.reflections.Reflections;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -38,27 +39,25 @@ import java.util.Set;
 @Slf4j
 @Order(20)
 @Component
-@ConditionalOnBean(StrixOssConfig.class)
+@ConditionalOnBean(StrixOssStore.class)
 @RequiredArgsConstructor
 @EnableConfigurationProperties(StrixPackageScanProperties.class)
 public class DictSyncInit implements ApplicationRunner {
 
-    private final List<String> STRIX_DICT_PACKAGE = new ArrayList<>();
-
-    private final StrixPackageScanProperties strixPackageScanProperties;
     private final DictService dictService;
 
     @Override
     public void run(ApplicationArguments args) {
-        STRIX_DICT_PACKAGE.add("cn.projectan.strix.model.dict");
-        STRIX_DICT_PACKAGE.addAll(List.of(strixPackageScanProperties.getDict()));
-
+        // 扫描指定包下的字典常量类 (被 Spring 管理的 Bean)
         Set<Class<?>> dictClassSet = new HashSet<>();
-        STRIX_DICT_PACKAGE.forEach(pkg -> {
-            Reflections reflections = new Reflections(pkg);
-            dictClassSet.addAll(reflections.getTypesAnnotatedWith(cn.projectan.strix.model.annotation.Dict.class));
-        });
+        SpringUtil.getBeansOfType(BaseDict.class).forEach((key, value) -> {
+                    dictClassSet.add(value.getClass());
+                    // 注销Spring Bean注册
+                    SpringUtil.unregisterBean(key);
+                }
+        );
 
+        log.info("Strix Dict: 扫描完成, 扫描了 {} 个字典类.", dictClassSet.size());
         dictClassSet.forEach(clazz -> {
             cn.projectan.strix.model.annotation.Dict annotationDict = clazz.getAnnotation(cn.projectan.strix.model.annotation.Dict.class);
             String key = StringUtils.hasText(annotationDict.key()) ? annotationDict.key() : clazz.getSimpleName();
@@ -93,7 +92,7 @@ public class DictSyncInit implements ApplicationRunner {
                 }
                 syncToDb(dict, dictDataList);
             } catch (Exception e) {
-                log.error("同步字典常量至数据库失败", e);
+                log.error("Strix Dict: 同步字典常量至数据库失败", e);
             }
 
         });

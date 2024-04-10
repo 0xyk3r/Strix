@@ -1,12 +1,12 @@
 package cn.projectan.strix.service.impl;
 
 import cn.projectan.strix.core.module.oss.StrixOssClient;
-import cn.projectan.strix.core.module.oss.StrixOssConfig;
+import cn.projectan.strix.core.module.oss.StrixOssStore;
 import cn.projectan.strix.mapper.OssBucketMapper;
 import cn.projectan.strix.model.db.OssBucket;
-import cn.projectan.strix.model.system.StrixOssBucket;
+import cn.projectan.strix.model.other.module.oss.StrixOssBucket;
 import cn.projectan.strix.service.OssBucketService;
-import cn.projectan.strix.utils.KeysDiffHandler;
+import cn.projectan.strix.utils.KeyDiffUtil;
 import cn.projectan.strix.utils.SpringUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -33,10 +34,10 @@ public class OssBucketServiceImpl extends ServiceImpl<OssBucketMapper, OssBucket
     public void syncBucketList(String configKey, List<StrixOssBucket> bucketList) {
         List<OssBucket> dbBucketList = this.list(new LambdaQueryWrapper<>(OssBucket.class).eq(OssBucket::getConfigKey, configKey));
 
-        List<String> dbBucketNameList = dbBucketList.stream().map(OssBucket::getName).toList();
-        List<String> bucketNameList = bucketList.stream().map(StrixOssBucket::getName).toList();
+        List<String> dbBucketNameList = dbBucketList.stream().map(OssBucket::getName).collect(Collectors.toList());
+        List<String> bucketNameList = bucketList.stream().map(StrixOssBucket::getName).collect(Collectors.toList());
 
-        KeysDiffHandler.handle(dbBucketNameList, bucketNameList,
+        KeyDiffUtil.handle(dbBucketNameList, bucketNameList,
                 (removeKeys) -> removeKeys.forEach(key -> {
                     QueryWrapper<OssBucket> removeQueryWrapper = new QueryWrapper<>();
                     removeQueryWrapper.eq("config_key", configKey);
@@ -54,7 +55,7 @@ public class OssBucketServiceImpl extends ServiceImpl<OssBucketMapper, OssBucket
                                     .setRegion(b.getRegion())
                                     .setStorageClass(b.getStorageClass())
                             )
-                            .toList();
+                            .collect(Collectors.toList());
                     Assert.isTrue(saveBatch(ossBucketList), "Strix OSS: 同步增加存储空间失败.");
                 }
         );
@@ -62,7 +63,7 @@ public class OssBucketServiceImpl extends ServiceImpl<OssBucketMapper, OssBucket
 
     @Override
     public void createBucket(String configKey, String bucketName, String storageClass) {
-        StrixOssClient instance = SpringUtil.getBean(StrixOssConfig.class).getInstance(configKey);
+        StrixOssClient instance = SpringUtil.getBean(StrixOssStore.class).getInstance(configKey);
         Assert.notNull(instance, "创建存储空间失败. OSS服务配置不存在");
         instance.createBucket(bucketName, storageClass);
     }

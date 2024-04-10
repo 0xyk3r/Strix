@@ -1,20 +1,21 @@
 package cn.projectan.strix.controller.wechat;
 
 import cn.hutool.core.util.IdUtil;
-import cn.projectan.strix.config.GlobalWechatConfig;
-import cn.projectan.strix.core.ret.RetMarker;
+import cn.projectan.strix.core.exception.StrixException;
+import cn.projectan.strix.core.module.oauth.StrixOAuthStore;
+import cn.projectan.strix.core.module.oauth.WechatOAuthClient;
+import cn.projectan.strix.core.module.oauth.WechatOAuthTools;
+import cn.projectan.strix.core.ret.RetBuilder;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.model.annotation.Anonymous;
 import cn.projectan.strix.model.annotation.IgnoreDataEncryption;
+import cn.projectan.strix.model.db.OauthUser;
 import cn.projectan.strix.model.db.SystemUser;
-import cn.projectan.strix.model.db.WechatUser;
-import cn.projectan.strix.model.wechat.Oauth2Token;
-import cn.projectan.strix.model.wechat.WechatConfigBean;
+import cn.projectan.strix.model.other.module.oauth.BaseOAuthUserInfo;
+import cn.projectan.strix.model.other.module.oauth.WechatOAuthConfig;
+import cn.projectan.strix.service.OauthUserService;
 import cn.projectan.strix.service.SystemUserService;
-import cn.projectan.strix.service.WechatUserService;
 import cn.projectan.strix.utils.RedisUtil;
-import cn.projectan.strix.utils.wechat.auth.WechatSignUtil;
-import cn.projectan.strix.utils.wechat.auth.WechatUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -26,25 +27,24 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.io.IOException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * 微信相关api
  * <p>
- * 备注：操他妈的由于这个类部分接口需要重定向Controller上面用的是@Controller。需要注意需要返回Json的接口，记得要加@ResponseBody
+ * 该类使用 @Controller 注解, 需要注意需要返回 Json 的接口，记得要加 @ResponseBody 注解.
  *
  * @author ProjectAn
  * @date 2021/8/24 16:40
  */
 @Slf4j
 @Controller
-@RequestMapping("wechat/{wechatConfigId}")
+@RequestMapping("wechat/{configId}")
 @RequiredArgsConstructor
 public class WechatController {
 
@@ -52,10 +52,9 @@ public class WechatController {
     private String env;
 
     private final SystemUserService systemUserService;
-    private final WechatUserService wechatUserService;
+    private final OauthUserService oauthUserService;
     private final RedisUtil redisUtil;
-    private final WechatUtils wechatUtils;
-    private final GlobalWechatConfig globalWechatConfig;
+    private final StrixOAuthStore strixOAuthStore;
 
     /**
      * 统一跳转入口
@@ -63,28 +62,27 @@ public class WechatController {
     @Anonymous
     @IgnoreDataEncryption
     @RequestMapping("jump/{model}")
-    public void jumpToModel(@PathVariable String wechatConfigId, @PathVariable String model, String params, HttpServletResponse response) {
-        WechatConfigBean wechatConfigBean = globalWechatConfig.getInstance(wechatConfigId);
+    public void jumpToModel(@PathVariable String configId, @PathVariable String model, @RequestParam(defaultValue = "") String params, HttpServletResponse response) {
+        WechatOAuthClient instance = (WechatOAuthClient) strixOAuthStore.getInstance(configId);
+        WechatOAuthConfig config = (WechatOAuthConfig) instance.getConfig();
+        String authorizeUrl = instance.getAuthorizeUrl(config.getAuthUrl() + configId + "/auth?model=" + model + "&params=" + params);
         try {
-            if (params == null) {
-                params = "";
-            }
-            response.sendRedirect(wechatUtils.getAuthorizeUrl(wechatConfigBean.getAppId(), URLEncoder.encode(wechatConfigBean.getAuthUrl() + wechatConfigId + "/auth?model=" + model + "&params=" + params, StandardCharsets.UTF_8), 1));
+            response.sendRedirect(authorizeUrl);
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            throw new StrixException("跳转失败");
         }
     }
 
     /**
      * 统一授权接口
-     * TODO 后续改为独立的授权服务，以应对微信只允许设置两个授权回调域名
      */
     @Anonymous
     @IgnoreDataEncryption
     @RequestMapping("auth")
-    public void userAuth(@PathVariable String wechatConfigId, String model, String params,
+    public void userAuth(@PathVariable String configId, String model, String params,
                          HttpServletRequest request, HttpServletResponse response) {
-        WechatConfigBean wechatConfigBean = globalWechatConfig.getInstance(wechatConfigId);
+        WechatOAuthClient instance = (WechatOAuthClient) strixOAuthStore.getInstance(configId);
+        WechatOAuthConfig config = (WechatOAuthConfig) instance.getConfig();
         try {
             Map<String, String[]> reqParams = request.getParameterMap();
             String[] codes = reqParams.get("code");
@@ -93,22 +91,23 @@ public class WechatController {
             }
             String code = codes[0];
 
-            // 获取网页授权access_token
-            Oauth2Token oauth2Token = wechatUtils.getOauth2AccessToken(wechatConfigBean.getAppId(), wechatConfigBean.getAppSecret(), code);
+            // 获取 OAuth 用户信息
+            BaseOAuthUserInfo oAuthUserInfo = instance.grantBaseUserInfo(code);
 
-            // 保存至数据库
-            QueryWrapper<WechatUser> wechatUserQueryWrapper = new QueryWrapper<>();
-            wechatUserQueryWrapper.eq("app_id", wechatConfigBean.getAppId());
-            wechatUserQueryWrapper.eq("open_id", oauth2Token.getOpenId());
-            WechatUser wechatUser = wechatUserService.getOne(wechatUserQueryWrapper);
-            if (wechatUser == null) {
-                // 新建微信用户信息 并创建系统用户 并绑定
-                wechatUser = wechatUserService.createWechatUser(oauth2Token.getOpenId(), wechatConfigBean);
+            // 保存 OAuth 用户信息至数据库
+            QueryWrapper<OauthUser> oauthUserQueryWrapper = new QueryWrapper<>();
+            oauthUserQueryWrapper.eq("app_id", oAuthUserInfo.getAppId());
+            oauthUserQueryWrapper.eq("open_id", oAuthUserInfo.getOpenId());
+            OauthUser oauthUser = oauthUserService.getOne(oauthUserQueryWrapper);
+            SystemUser systemUser = null;
+            if (oauthUser == null) {
+                // 如果数据库中没有 OAuth 用户信息, 则创建
+                systemUser = oauthUserService.createSystemUser(oAuthUserInfo, instance.getPlatform());
+            } else {
+                // 如果数据库中有 OAuth 用户信息, 则获取
+                systemUser = systemUserService.getSystemUser(oauthUser.getPlatform(), oauthUser.getId());
             }
-
-            // 获取SystemUser
-            SystemUser systemUser = systemUserService.getSystemUser(1, wechatUser.getId());
-            Assert.notNull(systemUser, "系统用户创建异常");
+            Assert.notNull(systemUser, "系统用户信息获取失败");
 
             // 检查之前该账号是否存在token
             Object existToken = redisUtil.get("strix:system:user:login_token:login:id_" + systemUser.getId());
@@ -122,18 +121,7 @@ public class WechatController {
             redisUtil.set("strix:system:user:login_token:login:id_" + systemUser.getId(), token, 60 * 60 * 24 * 30);
             redisUtil.set("strix:system:user:login_token:token:" + token, systemUser, 60 * 60 * 24 * 30);
 
-            redirect(wechatConfigBean.getWebIndexUrl(), model, params, token, wechatConfigId, response);
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-        }
-    }
-
-    /**
-     * 通用跳转方法
-     */
-    private void redirect(String webIndexUrl, String model, String params, String token, String wechatConfigId, HttpServletResponse response) {
-        try {
-            response.sendRedirect(webIndexUrl + "?token=" + token + "&cfid=" + wechatConfigId + "&tp=" + model + "&params=" + params);
+            response.sendRedirect(config.getWebIndexUrl() + "?token=" + token + "&cfid=" + configId + "&tp=" + model + "&params=" + params);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
@@ -146,26 +134,24 @@ public class WechatController {
     @IgnoreDataEncryption
     @ResponseBody
     @RequestMapping("config")
-    public Map<String, String> config(@PathVariable String wechatConfigId, String webUrl) {
-        WechatConfigBean wechatConfigBean = globalWechatConfig.getInstance(wechatConfigId);
-        String webIndexUrl = wechatConfigBean.getWebIndexUrl();
-
+    public Map<String, String> config(@PathVariable String configId, String webUrl) {
+        WechatOAuthClient instance = (WechatOAuthClient) strixOAuthStore.getInstance(configId);
+        WechatOAuthConfig config = (WechatOAuthConfig) instance.getConfig();
         try {
             if (!"dev".equals(env)) {
-                Assert.isTrue(StringUtils.hasText(webUrl) && (webUrl.startsWith(webIndexUrl)), "域名不合法");
+                Assert.isTrue(StringUtils.hasText(webUrl) && (webUrl.startsWith(config.getWebIndexUrl())), "域名不合法");
             }
-
             Map<String, String> signMap = new HashMap<>();
-            signMap.put("jsapi_ticket", wechatConfigBean.getJsApiTicket());
-            signMap.put("noncestr", WechatUtils.generateNonceStr());
-            signMap.put("timestamp", String.valueOf(WechatUtils.getCurrentTimestamp()));
+            signMap.put("jsapi_ticket", instance.getJsApiTicket());
+            signMap.put("noncestr", WechatOAuthTools.generateNonceStr());
+            signMap.put("timestamp", String.valueOf(WechatOAuthTools.getCurrentTimestamp()));
             signMap.put("url", webUrl);
 
             Map<String, String> resultMap = new HashMap<>();
-            resultMap.put("appId", wechatConfigBean.getAppId());
+            resultMap.put("appId", config.getAppId());
             resultMap.put("timestamp", signMap.get("timestamp"));
             resultMap.put("nonceStr", signMap.get("noncestr"));
-            resultMap.put("signature", WechatSignUtil.signBySha1(signMap));
+            resultMap.put("signature", WechatOAuthTools.signBySha1(signMap));
 
             return resultMap;
         } catch (Exception e) {
@@ -180,32 +166,32 @@ public class WechatController {
     @Anonymous
     @IgnoreDataEncryption
     @RequestMapping("giveMeSessionTokenOnDevMode")
-    public void devMode(@PathVariable String wechatConfigId, HttpServletResponse response) throws IOException {
+    public void devMode(@PathVariable String configId, HttpServletResponse response) throws IOException {
         if ("dev".equals(env)) {
             log.warn("通过api获取微信Token...");
 
-            SystemUser systemUser = systemUserService.getById("1629392552362844162");
-
-            // 检查之前该账号是否存在token
-            Object existToken = redisUtil.get("strix:system:user:login_token:login:id_" + systemUser.getId());
-            if (existToken != null) {
-                // 使旧数据失效
-                redisUtil.del("strix:system:user:login_token:token:" + existToken);
-                redisUtil.del("strix:system:user:login_token:login:id_" + systemUser.getId());
-            }
-            // 生成并保存Token 有效期30天
-            String token = IdUtil.simpleUUID();
-            redisUtil.set("strix:system:user:login_token:login:id_" + systemUser.getId(), token, 60 * 60 * 24 * 30);
-            redisUtil.set("strix:system:user:login_token:token:" + token, systemUser, 60 * 60 * 24 * 30);
-
-            response.sendRedirect("http://localhost:8080/?token=" + token + "&cfid=" + wechatConfigId);
+//            SystemUser systemUser = systemUserService.getById("1629392552362844162");
+//
+//            // 检查之前该账号是否存在token
+//            Object existToken = redisUtil.get("strix:system:user:login_token:login:id_" + systemUser.getId());
+//            if (existToken != null) {
+//                // 使旧数据失效
+//                redisUtil.del("strix:system:user:login_token:token:" + existToken);
+//                redisUtil.del("strix:system:user:login_token:login:id_" + systemUser.getId());
+//            }
+//            // 生成并保存Token 有效期30天
+//            String token = IdUtil.simpleUUID();
+//            redisUtil.set("strix:system:user:login_token:login:id_" + systemUser.getId(), token, 60 * 60 * 24 * 30);
+//            redisUtil.set("strix:system:user:login_token:token:" + token, systemUser, 60 * 60 * 24 * 30);
+//
+//            response.sendRedirect("http://localhost:8080/?token=" + token + "&cfid=" + configId);
         }
     }
 
     @ResponseBody
     @RequestMapping("checkToken")
     public RetResult<Object> checkToken() {
-        return RetMarker.makeSuccessRsp();
+        return RetBuilder.success();
     }
 
 }

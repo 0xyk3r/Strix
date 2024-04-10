@@ -1,7 +1,7 @@
 package cn.projectan.strix.controller.system;
 
 import cn.projectan.strix.controller.system.base.BaseSystemController;
-import cn.projectan.strix.core.ret.RetMarker;
+import cn.projectan.strix.core.ret.RetBuilder;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.core.validation.group.InsertGroup;
 import cn.projectan.strix.core.validation.group.UpdateGroup;
@@ -10,6 +10,7 @@ import cn.projectan.strix.model.db.SystemUser;
 import cn.projectan.strix.model.db.SystemUserRelation;
 import cn.projectan.strix.model.dict.SysLogOperType;
 import cn.projectan.strix.model.dict.SystemUserStatus;
+import cn.projectan.strix.model.enums.NumCategory;
 import cn.projectan.strix.model.request.common.SingleFieldModifyReq;
 import cn.projectan.strix.model.request.system.user.SystemUserListReq;
 import cn.projectan.strix.model.request.system.user.SystemUserUpdateReq;
@@ -17,7 +18,7 @@ import cn.projectan.strix.model.response.system.user.SystemUserListResp;
 import cn.projectan.strix.model.response.system.user.SystemUserResp;
 import cn.projectan.strix.service.SystemUserRelationService;
 import cn.projectan.strix.service.SystemUserService;
-import cn.projectan.strix.utils.NumUtils;
+import cn.projectan.strix.utils.NumUtil;
 import cn.projectan.strix.utils.UniqueDetectionTool;
 import cn.projectan.strix.utils.UpdateConditionBuilder;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -53,7 +54,7 @@ public class SystemUserController extends BaseSystemController {
             systemUserQueryWrapper.like("nickname", req.getKeyword())
                     .or(q -> q.like("phone_number", req.getKeyword()));
         }
-        if (NumUtils.isNonNegativeNumber(req.getStatus())) {
+        if (NumUtil.checkCategory(req.getStatus(), NumCategory.NON_NEGATIVE)) {
             systemUserQueryWrapper.eq("status", req.getStatus());
         }
         systemUserQueryWrapper.orderByAsc("create_time");
@@ -61,7 +62,7 @@ public class SystemUserController extends BaseSystemController {
         Page<SystemUser> page = systemUserService.page(req.getPage(), systemUserQueryWrapper);
         SystemUserListResp resp = new SystemUserListResp(page.getRecords(), page.getTotal());
 
-        return RetMarker.makeSuccessRsp(resp);
+        return RetBuilder.success(resp);
     }
 
     @GetMapping("{userId}")
@@ -72,7 +73,7 @@ public class SystemUserController extends BaseSystemController {
         SystemUser systemUser = systemUserService.getById(userId);
         Assert.notNull(systemUser, "系统用户信息不存在");
 
-        return RetMarker.makeSuccessRsp(new SystemUserResp(systemUser));
+        return RetBuilder.success(new SystemUserResp(systemUser));
     }
 
     @PostMapping("modify/{userId}")
@@ -94,13 +95,13 @@ public class SystemUserController extends BaseSystemController {
             }
             case "phoneNumber" -> systemUserUpdateWrapper.set("phone_number", req.getValue());
             default -> {
-                return RetMarker.makeErrRsp("参数错误");
+                return RetBuilder.error("参数错误");
             }
         }
 
         Assert.isTrue(systemUserService.update(systemUserUpdateWrapper), "修改失败");
 
-        return RetMarker.makeSuccessRsp();
+        return RetBuilder.success();
     }
 
     @PostMapping("update")
@@ -123,7 +124,7 @@ public class SystemUserController extends BaseSystemController {
 
         Assert.isTrue(systemUserService.save(systemUser), "保存失败");
 
-        return RetMarker.makeSuccessRsp();
+        return RetBuilder.success();
     }
 
     @PostMapping("update/{userId}")
@@ -139,7 +140,7 @@ public class SystemUserController extends BaseSystemController {
         UniqueDetectionTool.check(systemUser);
         Assert.isTrue(systemUserService.update(updateWrapper), "保存失败");
 
-        return RetMarker.makeSuccessRsp();
+        return RetBuilder.success();
     }
 
     @PostMapping("remove/{userId}")
@@ -158,7 +159,7 @@ public class SystemUserController extends BaseSystemController {
         systemUserRelationQueryWrapper.eq("system_user_id", systemUser.getId());
         systemUserRelationService.remove(systemUserRelationQueryWrapper);
 
-        return RetMarker.makeSuccessRsp();
+        return RetBuilder.success();
     }
 
 }

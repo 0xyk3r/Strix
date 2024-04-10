@@ -2,6 +2,7 @@ package cn.projectan.strix.mapper;
 
 import cn.projectan.strix.model.db.OssBucket;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.apache.ibatis.annotations.Mapper;
 
 /**
  * <p>
@@ -11,6 +12,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * @author ProjectAn
  * @since 2023-05-23
  */
+@Mapper
 public interface OssBucketMapper extends BaseMapper<OssBucket> {
 
 }

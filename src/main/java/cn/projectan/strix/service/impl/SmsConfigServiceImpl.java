@@ -2,7 +2,7 @@ package cn.projectan.strix.service.impl;
 
 import cn.projectan.strix.core.exception.StrixException;
 import cn.projectan.strix.core.module.sms.AliyunSmsClient;
-import cn.projectan.strix.core.module.sms.StrixSmsConfig;
+import cn.projectan.strix.core.module.sms.StrixSmsStore;
 import cn.projectan.strix.mapper.SmsConfigMapper;
 import cn.projectan.strix.model.db.SmsConfig;
 import cn.projectan.strix.model.dict.StrixSmsPlatform;
@@ -37,7 +37,7 @@ public class SmsConfigServiceImpl extends ServiceImpl<SmsConfigMapper, SmsConfig
     @Override
     public void createInstance(List<SmsConfig> smsConfigList) {
         StrixSmsTask strixSmsTask = SpringUtil.getBean(StrixSmsTask.class);
-        StrixSmsConfig strixSmsConfig = SpringUtil.getBean(StrixSmsConfig.class);
+        StrixSmsStore strixSmsStore = SpringUtil.getBean(StrixSmsStore.class);
 
         for (SmsConfig smsConfig : smsConfigList) {
             boolean success = true;
@@ -45,20 +45,20 @@ public class SmsConfigServiceImpl extends ServiceImpl<SmsConfigMapper, SmsConfig
                 switch (smsConfig.getPlatform()) {
                     case StrixSmsPlatform.ALIYUN -> {
                         DefaultProfile profile = DefaultProfile.getProfile(smsConfig.getRegionId(), smsConfig.getAccessKey(), smsConfig.getAccessSecret());
-                        Assert.notNull(profile, "Strix SMS: 初始化短信服务实例<" + smsConfig.getKey() + ">失败. (阿里云短信服务配置错误)");
-                        strixSmsConfig.addInstance(smsConfig.getKey(), new AliyunSmsClient(new DefaultAcsClient(profile)));
+                        Assert.notNull(profile, "Strix SMS: 初始化短信服务实例 <" + smsConfig.getKey() + "> 失败. (阿里云短信服务配置错误)");
+                        strixSmsStore.addInstance(smsConfig.getKey(), new AliyunSmsClient(new DefaultAcsClient(profile)));
                     }
                     case StrixSmsPlatform.TENCENT ->
-                            throw new StrixException("Strix SMS: 初始化短信服务实例<" + smsConfig.getKey() + ">失败. (暂不支持腾讯云短信服务)");
+                            throw new StrixException("Strix SMS: 初始化短信服务实例 <" + smsConfig.getKey() + "> 失败. (暂不支持腾讯云短信服务)");
                     default ->
-                            throw new StrixException("Strix SMS: 初始化短信服务实例<" + smsConfig.getKey() + ">失败. (暂不支持该短信服务平台)");
+                            throw new StrixException("Strix SMS: 初始化短信服务实例 <" + smsConfig.getKey() + "> 失败. (暂不支持该短信服务平台)");
                 }
             } catch (Exception e) {
                 success = false;
-                log.error("Strix SMS: 初始化短信服务实例<" + smsConfig.getKey() + ">失败. (其他错误)", e);
+                log.error("Strix SMS: 初始化短信服务实例 <" + smsConfig.getKey() + "> 失败. (其他错误)", e);
             }
             if (success) {
-                log.info("Strix SMS: 初始化短信服务实例<" + smsConfig.getKey() + ">成功.");
+                log.info("Strix SMS: 初始化短信服务实例 <" + smsConfig.getKey() + "> 成功.");
             }
         }
 

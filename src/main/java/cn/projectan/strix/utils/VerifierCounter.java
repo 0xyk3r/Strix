@@ -5,6 +5,8 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.stereotype.Component;
 
 /**
+ * 验证码计数器
+ *
  * @author ProjectAn
  * @date 2023/5/15 22:29
  */
@@ -34,7 +36,7 @@ public class VerifierCounter {
 
     private boolean isOverLimit(String key, Long limit, Long seconds) {
         if (redisUtil.hasKey(key)) {
-            long count = redisUtil.incr(key, 1);
+            long count = redisUtil.incr(key);
             return count > limit;
         } else {
             redisUtil.set(key, 1, seconds);

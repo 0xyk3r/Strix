@@ -3,7 +3,7 @@ package cn.projectan.strix.controller.system;
 import cn.projectan.strix.controller.system.base.BaseSystemController;
 import cn.projectan.strix.core.cache.SystemMenuCache;
 import cn.projectan.strix.core.cache.SystemPermissionCache;
-import cn.projectan.strix.core.ret.RetMarker;
+import cn.projectan.strix.core.ret.RetBuilder;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.core.validation.group.InsertGroup;
 import cn.projectan.strix.core.validation.group.UpdateGroup;
@@ -18,7 +18,7 @@ import cn.projectan.strix.model.response.system.permission.SystemPermissionListR
 import cn.projectan.strix.model.response.system.role.SystemRoleListResp;
 import cn.projectan.strix.model.response.system.role.SystemRoleResp;
 import cn.projectan.strix.service.*;
-import cn.projectan.strix.utils.KeysDiffHandler;
+import cn.projectan.strix.utils.KeyDiffUtil;
 import cn.projectan.strix.utils.SpringUtil;
 import cn.projectan.strix.utils.UniqueDetectionTool;
 import cn.projectan.strix.utils.UpdateConditionBuilder;
@@ -60,7 +60,7 @@ public class SystemRoleController extends BaseSystemController {
         systemRoleQueryWrapper.orderByAsc("create_time");
         List<SystemRole> systemRoleList = systemRoleService.list(systemRoleQueryWrapper);
 
-        return RetMarker.makeSuccessRsp(new SystemRoleListResp(systemRoleList));
+        return RetBuilder.success(new SystemRoleListResp(systemRoleList));
     }
 
     @GetMapping("{roleId}")
@@ -75,7 +75,7 @@ public class SystemRoleController extends BaseSystemController {
         List<SystemPermission> systemPermissionByRoleId = systemRoleService.getSystemPermissionByRoleId(roleId);
         List<SystemMenuListResp.SystemMenuItem> menuItems = new SystemMenuListResp(menusByRoleId, systemPermissionByRoleId).getSystemMenuList();
         List<SystemPermissionListResp.SystemPermissionItem> permissionList = new SystemPermissionListResp(systemPermissionByRoleId).getSystemPermissionList();
-        return RetMarker.makeSuccessRsp(new SystemRoleResp(systemRole.getId(), systemRole.getName(), menuItems, permissionList));
+        return RetBuilder.success(new SystemRoleResp(systemRole.getId(), systemRole.getName(), menuItems, permissionList));
     }
 
     @PostMapping("update")
@@ -94,7 +94,7 @@ public class SystemRoleController extends BaseSystemController {
 
         Assert.isTrue(systemRoleService.save(systemRole), "保存失败");
 
-        return RetMarker.makeSuccessRsp();
+        return RetBuilder.success();
     }
 
     @PostMapping("update/{roleId}")
@@ -110,7 +110,7 @@ public class SystemRoleController extends BaseSystemController {
         UniqueDetectionTool.check(systemRole);
         Assert.isTrue(systemRoleService.update(updateWrapper), "保存失败");
 
-        return RetMarker.makeSuccessRsp();
+        return RetBuilder.success();
     }
 
     @PostMapping("update/{roleId}/menu")
@@ -125,7 +125,7 @@ public class SystemRoleController extends BaseSystemController {
         systemRoleMenuQueryWrapper.select("system_menu_id");
         systemRoleMenuQueryWrapper.eq("system_role_id", roleId);
         List<String> systemRoleMenuIds = systemRoleMenuService.listObjs(systemRoleMenuQueryWrapper, Object::toString);
-        KeysDiffHandler.handle(systemRoleMenuIds, Arrays.asList(req.getMenuIds().split(",")),
+        KeyDiffUtil.handle(systemRoleMenuIds, Arrays.asList(req.getMenuIds().split(",")),
                 (removeKeys) -> {
                     QueryWrapper<SystemRoleMenu> removeQueryWrapper = new QueryWrapper<>();
                     removeQueryWrapper.eq("system_role_id", roleId);
@@ -154,7 +154,7 @@ public class SystemRoleController extends BaseSystemController {
         systemRolePermissionQueryWrapper.select("system_permission_id");
         systemRolePermissionQueryWrapper.eq("system_role_id", roleId);
         List<String> systemRolePermissionIds = systemRolePermissionService.listObjs(systemRolePermissionQueryWrapper, Object::toString);
-        KeysDiffHandler.handle(systemRolePermissionIds, Arrays.asList(req.getPermissionIds().split(",")),
+        KeyDiffUtil.handle(systemRolePermissionIds, Arrays.asList(req.getPermissionIds().split(",")),
                 (removeKeys) -> {
                     QueryWrapper<SystemRolePermission> removeQueryWrapper = new QueryWrapper<>();
                     removeQueryWrapper.eq("system_role_id", roleId);
@@ -188,7 +188,7 @@ public class SystemRoleController extends BaseSystemController {
         List<SystemPermission> systemPermissionByRoleId = systemRoleService.getSystemPermissionByRoleId(roleId);
         List<SystemMenuListResp.SystemMenuItem> menuItems = new SystemMenuListResp(menusByRoleId, systemPermissionByRoleId).getSystemMenuList();
         List<SystemPermissionListResp.SystemPermissionItem> permissionList = new SystemPermissionListResp(systemPermissionByRoleId).getSystemPermissionList();
-        return RetMarker.makeSuccessRsp(new SystemRoleResp(systemRole.getId(), systemRole.getName(), menuItems, permissionList));
+        return RetBuilder.success(new SystemRoleResp(systemRole.getId(), systemRole.getName(), menuItems, permissionList));
     }
 
     @PostMapping("remove/{roleId}")
@@ -216,7 +216,7 @@ public class SystemRoleController extends BaseSystemController {
         deleteRolePermissionRelationQueryWrapper.eq("system_role_id", systemRole.getId());
         systemRolePermissionService.remove(deleteRolePermissionRelationQueryWrapper);
 
-        return RetMarker.makeSuccessRsp();
+        return RetBuilder.success();
     }
 
     /**
@@ -254,7 +254,7 @@ public class SystemRoleController extends BaseSystemController {
         List<SystemMenuListResp.SystemMenuItem> menuItems = new SystemMenuListResp(menusByRoleId, systemPermissionByRoleId).getSystemMenuList();
         // 需要删除
         List<SystemPermissionListResp.SystemPermissionItem> permissionList = new SystemPermissionListResp(systemPermissionByRoleId).getSystemPermissionList();
-        return RetMarker.makeSuccessRsp(new SystemRoleResp(systemRole.getId(), systemRole.getName(), menuItems, permissionList));
+        return RetBuilder.success(new SystemRoleResp(systemRole.getId(), systemRole.getName(), menuItems, permissionList));
     }
 
     /**
@@ -288,12 +288,12 @@ public class SystemRoleController extends BaseSystemController {
         List<SystemPermission> systemPermissionByRoleId = systemRoleService.getSystemPermissionByRoleId(roleId);
         List<SystemMenuListResp.SystemMenuItem> menuItems = new SystemMenuListResp(menusByRoleId, systemPermissionByRoleId).getSystemMenuList();
         List<SystemPermissionListResp.SystemPermissionItem> permissionList = new SystemPermissionListResp(systemPermissionByRoleId).getSystemPermissionList();
-        return RetMarker.makeSuccessRsp(new SystemRoleResp(systemRole.getId(), systemRole.getName(), menuItems, permissionList));
+        return RetBuilder.success(new SystemRoleResp(systemRole.getId(), systemRole.getName(), menuItems, permissionList));
     }
 
     @GetMapping("select")
     public RetResult<CommonSelectDataResp> getSystemRoleSelectList() {
-        return RetMarker.makeSuccessRsp(systemRoleService.getSelectData());
+        return RetBuilder.success(systemRoleService.getSelectData());
     }
 
 }

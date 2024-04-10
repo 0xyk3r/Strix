@@ -1,8 +1,6 @@
 package cn.projectan.strix.core.ss.details;
 
 import cn.projectan.strix.model.db.SystemManager;
-import cn.projectan.strix.model.db.SystemMenu;
-import cn.projectan.strix.model.db.SystemPermission;
 import cn.projectan.strix.model.dict.SystemManagerStatus;
 import cn.projectan.strix.model.dict.SystemManagerType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -19,6 +17,8 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
+ * 系统管理员登录信息
+ *
  * @author ProjectAn
  * @date 2023/2/25 0:05
  */
@@ -28,20 +28,17 @@ import java.util.stream.Collectors;
 public class LoginSystemManager implements UserDetails {
 
     private SystemManager systemManager;
-
-    private List<SystemMenu> menus;
-
-    private List<SystemPermission> permissions;
-
+    private List<String> menusKeys;
+    private List<String> permissionKeys;
     private List<String> regionIds;
 
     @JsonIgnore
     private List<GrantedAuthority> authorities;
 
-    public LoginSystemManager(SystemManager systemManager, List<SystemMenu> menus, List<SystemPermission> permissions, List<String> regionIds) {
+    public LoginSystemManager(SystemManager systemManager, List<String> menusKeys, List<String> permissionKeys, List<String> regionIds) {
         this.systemManager = systemManager;
-        this.menus = menus;
-        this.permissions = permissions;
+        this.menusKeys = menusKeys;
+        this.permissionKeys = permissionKeys;
         this.regionIds = regionIds;
     }
 
@@ -49,8 +46,11 @@ public class LoginSystemManager implements UserDetails {
     @JsonIgnore
     public Collection<? extends GrantedAuthority> getAuthorities() {
         if (this.authorities == null) {
-            this.authorities = this.permissions.stream().map(p -> new SimpleGrantedAuthority(p.getKey())).collect(Collectors.toList());
+            // 添加权限
+            this.authorities = this.permissionKeys.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList());
+            // 添加管理员角色
             this.authorities.add(new SimpleGrantedAuthority("ROLE_SYSTEM_MANAGER"));
+            // 添加超级管理员角色
             if (systemManager.getType() == SystemManagerType.SUPER_ACCOUNT) {
                 this.authorities.add(new SimpleGrantedAuthority("ROLE_SUPER_SYSTEM_MANAGER"));
             }

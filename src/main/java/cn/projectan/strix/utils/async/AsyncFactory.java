@@ -9,6 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.TimerTask;
 
 /**
+ * 异步工厂
+ *
  * @author ProjectAn
  * @date 2023/6/16 23:43
  */
@@ -16,7 +18,7 @@ import java.util.TimerTask;
 public class AsyncFactory {
 
     /**
-     * 操作日志记录
+     * 保存操作日志记录
      *
      * @param systemLog 操作日志信息
      * @return 任务task

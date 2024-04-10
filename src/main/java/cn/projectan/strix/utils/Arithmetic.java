@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 /**
- * 使用BigDecimal实现精确的浮点数运算
+ * 使用 BigDecimal 实现精确的浮点数运算
  *
  * @author ProjectAn
  * @date 2022/9/30 21:54

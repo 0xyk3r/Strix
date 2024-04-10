@@ -1,19 +1,19 @@
 package cn.projectan.strix.core.aop.aspect;
 
 import cn.hutool.core.date.LocalDateTimeUtil;
-import cn.hutool.http.useragent.UserAgent;
-import cn.hutool.http.useragent.UserAgentUtil;
 import cn.projectan.strix.core.ret.RetCode;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.model.annotation.StrixLog;
 import cn.projectan.strix.model.db.SystemLog;
 import cn.projectan.strix.model.db.SystemManager;
+import cn.projectan.strix.model.other.ua.UserAgent;
 import cn.projectan.strix.model.properties.StrixLogProperties;
 import cn.projectan.strix.utils.SecurityUtils;
 import cn.projectan.strix.utils.ServletUtils;
 import cn.projectan.strix.utils.async.AsyncFactory;
 import cn.projectan.strix.utils.async.AsyncUtil;
 import cn.projectan.strix.utils.ip.IpUtils;
+import cn.projectan.strix.utils.ua.UserAgentUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;

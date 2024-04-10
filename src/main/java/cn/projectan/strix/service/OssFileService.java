@@ -26,8 +26,8 @@ public interface OssFileService extends IService<OssFile> {
     String getUrl(String fileId, String defaultUrl);
 
     /**
-     * 获取文件访问URL (无权限校验) <br>
-     * 不推荐直接使用 请使用 {@link #getUrl(String, String)} 或 {@link #getUrl(String, Integer, String, String)}
+     * 获取文件访问URL (无权限校验)
+     * <p>不推荐直接使用 请使用 {@link #getUrl(String, String)} 或 {@link #getUrl(String, Integer, String, String)}
      *
      * @param ossFile      文件
      * @param ossFileGroup 文件组
@@ -77,8 +77,8 @@ public interface OssFileService extends IService<OssFile> {
     File download(String fileId, String saveFile);
 
     /**
-     * 下载文件 <br>
-     * 不推荐直接使用 请使用 {@link #download(String, String)} 或 {@link #download(String, String, Integer, String)}
+     * 下载文件
+     * <p>不推荐直接使用 请使用 {@link #download(String, String)} 或 {@link #download(String, String, Integer, String)}
      *
      * @param ossFile      文件
      * @param ossFileGroup 文件组

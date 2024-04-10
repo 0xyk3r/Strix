@@ -38,7 +38,7 @@ import java.util.Map;
 import java.util.TimeZone;
 
 /**
- * Redis配置类
+ * Redis 配置类
  *
  * @author ProjectAn
  * @date 2021/05/02 16:41
@@ -48,6 +48,9 @@ import java.util.TimeZone;
 @EnableCaching
 public class RedisConfig {
 
+    /**
+     * RedisTemplate 配置
+     */
     @Bean
     public RedisTemplate<String, Object> redisTemplate(LettuceConnectionFactory redisConnectionFactory) {
         RedisTemplate<String, Object> template = new RedisTemplate<>();
@@ -66,8 +69,9 @@ public class RedisConfig {
     }
 
     /**
-     * 配置使用注解的时候缓存配置，默认是序列化反序列化的形式，加上此配置则为 json 形式
-     * 默认缓存时长为30天
+     * 配置使用 @Cacheable 注解的序列化方式
+     * <p>默认是 JDK 序列化, 加上此配置则为 JSON 序列化
+     * <p>默认缓存时长为30天
      */
     @Bean
     public CacheManager cacheManager(RedisConnectionFactory factory) {
@@ -78,19 +82,25 @@ public class RedisConfig {
     }
 
     /**
-     * 配置缓存时长
-     * 由于 Spring 的 @Cacheable 注解不支持配置缓存时长，所以需要在此进行配置
+     * 缓存时长配置
+     * <p>由于 @Cacheable 注解不支持配置缓存时长，所以需要在此进行配置
      */
     private Map<String, RedisCacheConfiguration> getRedisCacheConfigurationMap() {
         Map<String, RedisCacheConfiguration> redisCacheConfigurationMap = new HashMap<>();
-//        redisCacheConfigurationMap.put("strix:system:manager:permission_by_smid", this.getRedisCacheConfigurationWithTtl(60 * 60 * 24));
-//        redisCacheConfigurationMap.put("strix:system:manager:menu_by_smid", this.getRedisCacheConfigurationWithTtl(60 * 60 * 24));
-//        redisCacheConfigurationMap.put("strix:system:role:menu_by_rid", this.getRedisCacheConfigurationWithTtl(60 * 60 * 24));
+//        redisCacheConfigurationMap.put("strix:system:manager:permission_by_smid:*", this.getRedisCacheConfigurationWithTtl(60 * 60 * 24));
+//        redisCacheConfigurationMap.put("strix:system:manager:menu_by_smid:*", this.getRedisCacheConfigurationWithTtl(60 * 60 * 24));
+//        redisCacheConfigurationMap.put("strix:system:role:menu_by_rid:*", this.getRedisCacheConfigurationWithTtl(60 * 60 * 24));
 //        redisCacheConfigurationMap.put("strix:system:role:permission_by_rid:*", this.getRedisCacheConfigurationWithTtl(60 * 60 * 24));
 
         return redisCacheConfigurationMap;
     }
 
+    /**
+     * 设置序列化方式以及缓存时长
+     *
+     * @param seconds 缓存时长
+     * @return RedisCacheConfiguration
+     */
     private RedisCacheConfiguration getRedisCacheConfigurationWithTtl(Integer seconds) {
         RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig();
         config = config
@@ -106,6 +116,9 @@ public class RedisConfig {
         return config;
     }
 
+    /**
+     * Jackson2JsonRedisSerializer 配置
+     */
     private Jackson2JsonRedisSerializer<Object> jackson2JsonRedisSerializer() {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);

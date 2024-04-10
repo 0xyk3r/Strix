@@ -3,6 +3,8 @@ package cn.projectan.strix.core.ret;
 import java.util.List;
 
 /**
+ * 分页响应信息
+ *
  * @author ProjectAn
  * @date 2021/1/31 18:22
  */

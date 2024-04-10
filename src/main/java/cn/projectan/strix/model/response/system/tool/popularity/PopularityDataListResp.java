@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author ProjectAn
@@ -23,7 +24,7 @@ public class PopularityDataListResp extends BasePageResp {
         setTotal(page.getTotal());
         items = page.getRecords().stream()
                 .map(item -> new PopularityDataItem(item.getId(), item.getConfigKey(), item.getDataId(), item.getOriginalValue()))
-                .toList();
+                .collect(Collectors.toList());
     }
 
     @Data

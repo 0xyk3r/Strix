@@ -21,7 +21,9 @@ public class OssConfigListResp extends BasePageResp {
     private final List<OssConfigItem> configs;
 
     public OssConfigListResp(List<OssConfig> data, Long total) {
-        configs = data.stream().map(d -> new OssConfigItem(d.getId(), d.getKey(), d.getName(), d.getPlatform(), d.getPublicEndpoint(), d.getPrivateEndpoint(), d.getAccessKey(), d.getRemark(), d.getCreateTime())).collect(Collectors.toList());
+        configs = data.stream().map(d ->
+                new OssConfigItem(d.getId(), d.getKey(), d.getName(), d.getPlatform(), d.getPublicEndpoint(), d.getPrivateEndpoint(), d.getAccessKey(), d.getRemark(), d.getCreateTime())
+        ).collect(Collectors.toList());
         this.setTotal(total);
     }
 

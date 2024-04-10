@@ -3,6 +3,7 @@ package cn.projectan.strix.mapper;
 import cn.projectan.strix.model.db.SystemLog;
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.apache.ibatis.annotations.Mapper;
 
 /**
  * <p>
@@ -13,6 +14,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * @since 2023-06-16
  */
 @DS("clickhouse")
+@Mapper
 public interface SystemLogMapper extends BaseMapper<SystemLog> {
 
 }

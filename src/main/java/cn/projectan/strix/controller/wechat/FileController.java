@@ -1,7 +1,7 @@
 package cn.projectan.strix.controller.wechat;
 
 import cn.projectan.strix.controller.wechat.base.BaseWechatController;
-import cn.projectan.strix.core.ret.RetMarker;
+import cn.projectan.strix.core.ret.RetBuilder;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.model.annotation.Anonymous;
 import cn.projectan.strix.model.annotation.IgnoreDataEncryption;
@@ -33,7 +33,7 @@ public class FileController extends BaseWechatController {
         Assert.hasText(imageBase64, "参数错误");
 
         OssFile ossFile = ossFileService.upload("Wechat", imageBase64, getLoginWechatUserId());
-        return RetMarker.makeSuccessRsp(Map.of("fileId", ossFile.getId()));
+        return RetBuilder.success(Map.of("fileId", ossFile.getId()));
     }
 
     @Anonymous

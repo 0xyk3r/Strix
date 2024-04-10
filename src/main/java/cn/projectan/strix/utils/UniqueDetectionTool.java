@@ -27,9 +27,9 @@ public class UniqueDetectionTool {
     private static final String SERVICE_SUFFIX = "Service";
 
     /**
-     * 重复性检查工具 <br>
-     * 注意：仅支持在Controller或Service中调用 <br>
-     * 注意：调用方不得包含超过1个与"controller"或"service"完全匹配的包路径 <br>
+     * 重复性检查工具
+     * <p>注意：仅支持在Controller或Service中调用
+     * <p>注意：调用方不得包含超过1个与"controller"或"service"完全匹配的包路径
      *
      * @param obj 需要检查的对象，需为数据库bean
      * @param <T> 对象类型
@@ -71,7 +71,7 @@ public class UniqueDetectionTool {
             Class<?> caller = CallerUtil.getCallerCaller();
             String callerName = caller.getName();
             String callerPackageName;
-            // FIXME 如果用户包名完全匹配controller或service，这里的判断会有问题，不过几乎不可能
+            // FIXME 如果用户包名完全匹配controller或service，这里的判断会有问题，不过几乎不存在此情况
             if (callerName.contains(".controller.")) {
                 callerPackageName = callerName.substring(0, callerName.indexOf(".controller.")) + ".service.";
             } else if (callerName.contains(".service.")) {

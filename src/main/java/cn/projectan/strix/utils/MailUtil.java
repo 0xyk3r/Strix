@@ -16,6 +16,8 @@ import org.springframework.stereotype.Component;
 import java.io.File;
 
 /**
+ * 邮件工具类
+ *
  * @author ProjectAn
  * @date 2023/5/15 21:23
  */

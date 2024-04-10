@@ -1,5 +1,6 @@
 package cn.projectan.strix.controller.wechat.base;
 
+import cn.projectan.strix.controller.BaseController;
 import cn.projectan.strix.model.db.SystemUser;
 import cn.projectan.strix.utils.SecurityUtils;
 import org.springframework.util.Assert;
@@ -8,7 +9,7 @@ import org.springframework.util.Assert;
  * @author ProjectAn
  * @date 2021/8/31 13:58
  */
-public class BaseWechatController {
+public class BaseWechatController extends BaseController {
 
     protected SystemUser getLoginSystemUser() {
         SystemUser systemUser = (SystemUser) SecurityUtils.getAuthentication().getPrincipal();

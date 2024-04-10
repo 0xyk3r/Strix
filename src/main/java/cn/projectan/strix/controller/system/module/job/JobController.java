@@ -1,7 +1,7 @@
 package cn.projectan.strix.controller.system.module.job;
 
 import cn.projectan.strix.controller.system.base.BaseSystemController;
-import cn.projectan.strix.core.ret.RetMarker;
+import cn.projectan.strix.core.ret.RetBuilder;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.core.validation.group.InsertGroup;
 import cn.projectan.strix.core.validation.group.UpdateGroup;
@@ -50,7 +50,7 @@ public class JobController extends BaseSystemController {
         }
 
         Page<Job> page = jobService.page(req.getPage(), queryWrapper);
-        return RetMarker.makeSuccessRsp(new JobListResp(page.getRecords(), page.getTotal()));
+        return RetBuilder.success(new JobListResp(page.getRecords(), page.getTotal()));
     }
 
     @GetMapping("{id}")
@@ -60,7 +60,7 @@ public class JobController extends BaseSystemController {
         Job job = jobService.getById(id);
         Assert.notNull(job, "定时任务不存在");
 
-        return RetMarker.makeSuccessRsp(
+        return RetBuilder.success(
                 new JobResp(
                         job.getId(),
                         job.getName(),
@@ -95,10 +95,10 @@ public class JobController extends BaseSystemController {
         try {
             jobService.insertJob(job);
         } catch (Exception e) {
-            return RetMarker.makeErrRsp(e.getMessage());
+            return RetBuilder.error(e.getMessage());
         }
 
-        return RetMarker.makeSuccessRsp();
+        return RetBuilder.success();
     }
 
     @PostMapping("update/{id}")
@@ -114,10 +114,10 @@ public class JobController extends BaseSystemController {
         try {
             jobService.updateJob(job);
         } catch (Exception e) {
-            return RetMarker.makeErrRsp(e.getMessage());
+            return RetBuilder.error(e.getMessage());
         }
 
-        return RetMarker.makeSuccessRsp();
+        return RetBuilder.success();
     }
 
     @PostMapping("remove/{id}")
@@ -132,10 +132,10 @@ public class JobController extends BaseSystemController {
         try {
             jobService.deleteJob(job);
         } catch (Exception e) {
-            return RetMarker.makeErrRsp(e.getMessage());
+            return RetBuilder.error(e.getMessage());
         }
 
-        return RetMarker.makeSuccessRsp();
+        return RetBuilder.success();
     }
 
     @PostMapping("run/{id}")
@@ -147,10 +147,10 @@ public class JobController extends BaseSystemController {
         try {
             jobService.run(id);
         } catch (Exception e) {
-            return RetMarker.makeErrRsp(e.getMessage());
+            return RetBuilder.error(e.getMessage());
         }
 
-        return RetMarker.makeSuccessRsp();
+        return RetBuilder.success();
     }
 
 }

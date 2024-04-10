@@ -21,7 +21,9 @@ public class OssBucketListResp extends BasePageResp {
     private final List<OssBucketItem> buckets;
 
     public OssBucketListResp(List<OssBucket> data, Long total) {
-        buckets = data.stream().map(d -> new OssBucketItem(d.getId(), d.getConfigKey(), d.getName(), d.getPublicEndpoint(), d.getPrivateEndpoint(), d.getRegion(), d.getStorageClass(), d.getRemark(), d.getCreateTime())).collect(Collectors.toList());
+        buckets = data.stream().map(d ->
+                new OssBucketItem(d.getId(), d.getConfigKey(), d.getName(), d.getPublicEndpoint(), d.getPrivateEndpoint(), d.getRegion(), d.getStorageClass(), d.getRemark(), d.getCreateTime())
+        ).collect(Collectors.toList());
         this.setTotal(total);
     }
 

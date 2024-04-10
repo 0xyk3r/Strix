@@ -6,6 +6,7 @@ import org.springframework.security.core.GrantedAuthority;
 import java.util.Collection;
 
 /**
+ * 系统管理员认证Token
  * @author ProjectAn
  * @date 2023/2/25 14:26
  */

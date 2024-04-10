@@ -3,14 +3,14 @@ package cn.projectan.strix.controller.system.common;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.IoUtil;
 import cn.projectan.strix.controller.system.base.BaseSystemController;
-import cn.projectan.strix.core.ret.RetMarker;
+import cn.projectan.strix.core.ret.RetBuilder;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.model.annotation.IgnoreDataEncryption;
 import cn.projectan.strix.model.db.OssFile;
 import cn.projectan.strix.model.dict.StrixOssFileGroupSecretType;
 import cn.projectan.strix.service.OssFileGroupService;
 import cn.projectan.strix.service.OssFileService;
-import cn.projectan.strix.utils.FileExtUtil;
+import cn.projectan.strix.utils.MimeUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,7 +39,7 @@ public class FileController extends BaseSystemController {
         OssFile ossFile = ossFileService.getById(fileId);
         Assert.notNull(ossFile, "下载文件失败, 文件不存在.");
 
-        response.setContentType(FileExtUtil.ext2mime(ossFile.getExt()));
+        response.setContentType(MimeUtil.ext2Mime(ossFile.getExt()));
         response.sendRedirect(ossFileService.getUrl(fileId, StrixOssFileGroupSecretType.MANAGER, loginManagerId(), "https://oss.huiboche.cn/System/404.png"));
     }
 
@@ -59,12 +59,12 @@ public class FileController extends BaseSystemController {
             //noinspection ResultOfMethodCallIgnored
             tempFile.delete();
 
-            return RetMarker.makeSuccessRsp(Map.of("fileId", ossFile.getId()));
+            return RetBuilder.success(Map.of("fileId", ossFile.getId()));
         } catch (IllegalArgumentException e) {
-            return RetMarker.makeErrRsp("上传文件失败，" + e.getMessage());
+            return RetBuilder.error("上传文件失败，" + e.getMessage());
         } catch (Exception e) {
             log.error("上传文件失败", e);
-            return RetMarker.makeErrRsp("上传文件失败");
+            return RetBuilder.error("上传文件失败");
         }
     }
 

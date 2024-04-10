@@ -12,13 +12,14 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
- * okhttp3 工具类
+ * OkHttp 工具类
  *
  * @author ProjectAn
  * @date 2019/3/26 17:21
  */
 @Slf4j
 public class OkHttpUtil {
+
     private static volatile OkHttpClient singleton;
 
     private static final MediaType MEDIA_TYPE_JSON = MediaType.parse("application/json; charset=utf-8");

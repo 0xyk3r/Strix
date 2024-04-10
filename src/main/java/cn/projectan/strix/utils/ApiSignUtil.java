@@ -9,6 +9,8 @@ import org.springframework.util.StringUtils;
 import java.util.Map;
 
 /**
+ * API 签名工具类
+ *
  * @author ProjectAn
  * @date 2021/6/10 16:20
  */

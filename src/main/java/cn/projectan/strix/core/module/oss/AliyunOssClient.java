@@ -1,7 +1,7 @@
 package cn.projectan.strix.core.module.oss;
 
 import cn.projectan.strix.core.exception.StrixException;
-import cn.projectan.strix.model.system.StrixOssBucket;
+import cn.projectan.strix.model.other.module.oss.StrixOssBucket;
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.model.Bucket;
 import com.aliyun.oss.model.CreateBucketRequest;
@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * @author ProjectAn
@@ -158,7 +159,7 @@ public class AliyunOssClient extends StrixOssClient {
                         b.getRegion(),
                         b.getStorageClass().toString(),
                         b.getCreationDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime()
-                )).toList();
+                )).collect(Collectors.toList());
     }
 
     @Override
@@ -168,7 +169,7 @@ public class AliyunOssClient extends StrixOssClient {
             if (StringUtils.hasText(storageClass)) {
                 createBucketRequest.setStorageClass(StorageClass.parse(storageClass));
             }
-            Bucket bucket = privateClient.createBucket(createBucketRequest);
+            privateClient.createBucket(createBucketRequest);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             if (e.getMessage().contains("BucketAlreadyExists")) {

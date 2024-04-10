@@ -19,7 +19,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableCaching
 @EnableScheduling
 @EnableAspectJAutoProxy(exposeProxy = true)
-@SpringBootApplication(scanBasePackages = "cn.projectan")
+@SpringBootApplication(proxyBeanMethods = false, scanBasePackages = "cn.projectan")
 @EnableConfigurationProperties(StrixModuleProperties.class)
 public class StrixApplication {
 

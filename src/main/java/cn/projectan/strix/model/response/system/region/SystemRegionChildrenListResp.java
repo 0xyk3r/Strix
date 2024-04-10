@@ -22,7 +22,9 @@ public class SystemRegionChildrenListResp {
     private List<SystemRegionItem> children = new ArrayList<>();
 
     public SystemRegionChildrenListResp(Collection<SystemRegion> data) {
-        children = data.stream().map(r -> new SystemRegionItem(r.getId(), r.getName(), r.getLevel(), r.getParentId(), r.getFullPath(), r.getFullName(), r.getRemarks())).collect(Collectors.toList());
+        children = data.stream().map(r ->
+                new SystemRegionItem(r.getId(), r.getName(), r.getLevel(), r.getParentId(), r.getFullPath(), r.getFullName(), r.getRemarks())
+        ).collect(Collectors.toList());
     }
 
     @Data

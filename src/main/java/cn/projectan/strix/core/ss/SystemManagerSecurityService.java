@@ -1,6 +1,5 @@
 package cn.projectan.strix.core.ss;
 
-import cn.projectan.strix.model.db.SystemMenu;
 import cn.projectan.strix.utils.SecurityUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -107,13 +106,12 @@ public class SystemManagerSecurityService {
             return false;
         }
 
-        List<SystemMenu> hasMenus = SecurityUtils.getManagerMenuPermissions();
-        if (CollectionUtils.isEmpty(hasMenus)) {
+        List<String> hasMenuKeys = SecurityUtils.getManagerMenuKeys();
+        if (CollectionUtils.isEmpty(hasMenuKeys)) {
             return false;
         }
 
-        return hasMenus.stream()
-                .anyMatch(p -> p.getKey().equals(menu));
+        return hasMenuKeys.contains(menu);
     }
 
     /**
@@ -133,17 +131,14 @@ public class SystemManagerSecurityService {
             return false;
         }
 
-        List<SystemMenu> hasMenus = SecurityUtils.getManagerMenuPermissions();
-        if (CollectionUtils.isEmpty(hasMenus)) {
+        List<String> hasMenuKeys = SecurityUtils.getManagerMenuKeys();
+        if (CollectionUtils.isEmpty(hasMenuKeys)) {
             return false;
         }
 
         List<String> menuList = Arrays.asList(menus);
-        List<String> hasMenuList = hasMenus.stream()
-                .map(SystemMenu::getKey)
-                .toList();
 
-        return hasMenuList.stream().anyMatch(menuList::contains);
+        return hasMenuKeys.stream().anyMatch(menuList::contains);
     }
 
 }

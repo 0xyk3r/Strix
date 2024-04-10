@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 /**
  * @author ProjectAn
  * @date 2023/10/5 21:45
@@ -24,7 +26,7 @@ public class PopularityConfigResp {
 
     private Integer extraValue;
 
-    private Double magValue;
+    private BigDecimal magValue;
 
     public PopularityConfigResp(PopularityConfig data) {
         this.id = data.getId();

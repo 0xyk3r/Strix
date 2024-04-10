@@ -1,14 +1,15 @@
 package cn.projectan.strix.controller.system.monitor;
 
 import cn.projectan.strix.controller.system.base.BaseSystemController;
-import cn.projectan.strix.core.ret.RetMarker;
+import cn.projectan.strix.core.ret.RetBuilder;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.model.annotation.StrixLog;
 import cn.projectan.strix.model.db.SystemLog;
+import cn.projectan.strix.model.enums.NumCategory;
 import cn.projectan.strix.model.request.system.monitor.log.SystemLogListReq;
 import cn.projectan.strix.model.response.system.monitor.log.SystemLogListResp;
 import cn.projectan.strix.service.SystemLogService;
-import cn.projectan.strix.utils.NumUtils;
+import cn.projectan.strix.utils.NumUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
@@ -46,7 +47,7 @@ public class LogController extends BaseSystemController {
         if (StringUtils.hasText(req.getKeyword())) {
             queryWrapper.eq(SystemLog::getOperationName, req.getKeyword());
         }
-        if (NumUtils.isPositiveNumber(req.getResponseCode())) {
+        if (NumUtil.checkCategory(req.getResponseCode(), NumCategory.POSITIVE)) {
             queryWrapper.eq(SystemLog::getResponseCode, req.getResponseCode());
         }
 
@@ -54,9 +55,9 @@ public class LogController extends BaseSystemController {
 
         try {
             Page<SystemLog> page = systemLogService.page(req.getPage(), queryWrapper);
-            return RetMarker.makeSuccessRsp(new SystemLogListResp(page.getRecords(), page.getTotal()));
+            return RetBuilder.success(new SystemLogListResp(page.getRecords(), page.getTotal()));
         } catch (Exception e) {
-            return RetMarker.makeErrRsp("Strix 日志服务未开启，无法查询日志");
+            return RetBuilder.error("Strix 日志服务未开启，无法查询日志");
         }
     }
 

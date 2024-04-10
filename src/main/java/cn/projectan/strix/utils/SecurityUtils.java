@@ -2,8 +2,6 @@ package cn.projectan.strix.utils;
 
 import cn.projectan.strix.core.ss.details.LoginSystemManager;
 import cn.projectan.strix.model.db.SystemManager;
-import cn.projectan.strix.model.db.SystemMenu;
-import cn.projectan.strix.model.db.SystemPermission;
 import cn.projectan.strix.model.db.SystemUser;
 import cn.projectan.strix.model.dict.SystemManagerType;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +12,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import java.util.*;
 
 /**
+ * 安全工具类
+ *
  * @author ProjectAn
  * @date 2023/2/25 16:42
  */
@@ -61,8 +61,8 @@ public class SecurityUtils {
      *
      * @return 登录用户具有的菜单权限列表
      */
-    public static List<SystemMenu> getManagerMenuPermissions() {
-        return Optional.ofNullable(getLoginInfo()).map(LoginSystemManager::getMenus).orElse(null);
+    public static List<String> getManagerMenuKeys() {
+        return Optional.ofNullable(getLoginInfo()).map(LoginSystemManager::getMenusKeys).orElse(null);
     }
 
     /**
@@ -73,8 +73,8 @@ public class SecurityUtils {
     public static Set<String> getManagerAllPermissions() {
         try {
             Set<String> permissionSet = new HashSet<>();
-            permissionSet.addAll(getLoginInfo().getMenus().stream().map(SystemMenu::getKey).toList());
-            permissionSet.addAll(getLoginInfo().getPermissions().stream().map(SystemPermission::getKey).toList());
+            permissionSet.addAll(getLoginInfo().getMenusKeys());
+            permissionSet.addAll(getLoginInfo().getPermissionKeys());
             return permissionSet;
         } catch (Exception e) {
             return null;

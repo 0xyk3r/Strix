@@ -55,7 +55,7 @@ public class CommonTransferDataResp {
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
-    private static class TransferDataItem {
+    public static class TransferDataItem {
 
         private String value;
 

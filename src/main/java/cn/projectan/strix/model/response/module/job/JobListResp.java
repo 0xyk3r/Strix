@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author ProjectAn
@@ -19,7 +20,9 @@ public class JobListResp extends BasePageResp {
     private final List<JobItem> items;
 
     public JobListResp(List<Job> data, Long total) {
-        items = data.stream().map(d -> new JobItem(d.getId(), d.getName(), d.getGroup(), d.getInvokeTarget(), d.getCronExpression(), d.getMisfirePolicy(), d.getConcurrent(), d.getStatus())).toList();
+        items = data.stream().map(d ->
+                new JobItem(d.getId(), d.getName(), d.getGroup(), d.getInvokeTarget(), d.getCronExpression(), d.getMisfirePolicy(), d.getConcurrent(), d.getStatus())
+        ).collect(Collectors.toList());
         this.setTotal(total);
     }
 

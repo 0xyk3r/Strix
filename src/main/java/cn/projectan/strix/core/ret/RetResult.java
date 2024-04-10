@@ -4,6 +4,8 @@ package cn.projectan.strix.core.ret;
 import lombok.Data;
 
 /**
+ * 响应信息
+ *
  * @author ProjectAn
  * @date 2021/1/31 18:22
  */

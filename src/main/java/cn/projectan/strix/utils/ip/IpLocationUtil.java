@@ -12,6 +12,8 @@ import java.io.RandomAccessFile;
 import java.nio.file.Files;
 
 /**
+ * IP 地理位置工具类
+ *
  * @author ProjectAn
  * @date 2022/10/1 18:07
  */
@@ -35,9 +37,9 @@ public class IpLocationUtil {
             try (RandomAccessFile raf = new RandomAccessFile(file, "r")) {
                 cBuff = Searcher.loadContent(raf);
                 searcher = Searcher.newWithBuffer(cBuff);
-                log.info("Strix IP-Region: 初始化成功");
+                log.info("Strix IP-Region: 初始化完成");
             } catch (Exception e) {
-                log.error("Strix IP-Region: 初始化IP-Region功能失败", e);
+                log.error("Strix IP-Region: 初始化失败", e);
             }
         }
     }
@@ -52,7 +54,7 @@ public class IpLocationUtil {
         try {
             return searcher.search(ip).replaceAll("\\|", " ").replaceAll("0", "").replaceAll(" +", " ");
         } catch (Exception e) {
-            log.error("Strix IP-Region: 获取IP-Region失败", e);
+            log.error("Strix IP-Region: 获取数据失败", e);
             return "unknown";
         }
     }

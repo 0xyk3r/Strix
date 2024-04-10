@@ -21,9 +21,11 @@ public interface SystemRoleService extends IService<SystemRole> {
 
     /**
      * 获取下拉框数据 （有缓存）
+     *
      * @return 下拉框数据
      */
     CommonSelectDataResp getSelectData();
+
     /**
      * 根据角色ID获取菜单列表
      *

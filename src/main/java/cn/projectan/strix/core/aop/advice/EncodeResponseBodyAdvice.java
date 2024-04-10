@@ -1,7 +1,7 @@
 package cn.projectan.strix.core.aop.advice;
 
+import cn.projectan.strix.core.ret.RetBuilder;
 import cn.projectan.strix.core.ret.RetCode;
-import cn.projectan.strix.core.ret.RetMarker;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.core.security.ApiSecurity;
 import cn.projectan.strix.model.annotation.IgnoreDataEncryption;
@@ -32,8 +32,6 @@ public class EncodeResponseBodyAdvice implements ResponseBodyAdvice<Object> {
     private final ApiSecurity apiSecurity;
     private final ObjectMapper objectMapper;
 
-    @Value("${spring.profiles.active}")
-    private String profiles;
     @Value("${strix.show-response:false}")
     private Boolean showResponse;
 
@@ -51,16 +49,17 @@ public class EncodeResponseBodyAdvice implements ResponseBodyAdvice<Object> {
     @Override
     public Object beforeBodyWrite(Object body, @NotNull MethodParameter methodParameter, @NotNull MediaType mediaType, @NotNull Class aClass, @NotNull ServerHttpRequest serverHttpRequest, @NotNull ServerHttpResponse serverHttpResponse) {
         try {
-            if ("dev".equals(profiles) && showResponse) {
-                log.info("\n===============================================================\n" +
-                        "返回数据原内容: ------" + methodParameter.getContainingClass().getName() + "------\n" +
+            if (showResponse) {
+                String fullMethodName = methodParameter.getContainingClass().getName() + "." + methodParameter.getMethod().getName();
+                log.info("\n============================================================\n" +
+                        "响应数据: " + fullMethodName + "\n" +
                         objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(body) +
-                        "\n===============================================================");
+                        "\n============================================================");
             }
             return apiSecurity.encrypt(body);
         } catch (Exception e) {
             try {
-                RetResult<Object> errorResponse = RetMarker.makeErrRsp(RetCode.BAT_REQUEST, "响应封装时发生异常");
+                RetResult<Object> errorResponse = RetBuilder.error(RetCode.BAT_REQUEST, "响应封装时发生异常");
                 return apiSecurity.encrypt(errorResponse);
             } catch (Exception exception) {
                 return "An exception occurred in the API server !";

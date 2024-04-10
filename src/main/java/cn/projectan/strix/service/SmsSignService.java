@@ -1,7 +1,7 @@
 package cn.projectan.strix.service;
 
 import cn.projectan.strix.model.db.SmsSign;
-import cn.projectan.strix.model.system.StrixSmsSign;
+import cn.projectan.strix.model.other.module.sms.StrixSmsSign;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 import java.util.List;

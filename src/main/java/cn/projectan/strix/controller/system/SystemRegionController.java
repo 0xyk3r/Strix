@@ -4,7 +4,7 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.projectan.strix.controller.system.base.BaseSystemController;
 import cn.projectan.strix.core.cache.SystemRegionCache;
 import cn.projectan.strix.core.listener.StrixCommonListener;
-import cn.projectan.strix.core.ret.RetMarker;
+import cn.projectan.strix.core.ret.RetBuilder;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.core.validation.group.InsertGroup;
 import cn.projectan.strix.core.validation.group.UpdateGroup;
@@ -94,7 +94,7 @@ public class SystemRegionController extends BaseSystemController {
 
         SystemRegionListResp resp = new SystemRegionListResp(page.getRecords(), page.getTotal());
 
-        return RetMarker.makeSuccessRsp(resp);
+        return RetBuilder.success(resp);
     }
 
     @GetMapping("{id}")
@@ -105,7 +105,7 @@ public class SystemRegionController extends BaseSystemController {
         SystemRegion systemRegion = systemRegionService.getById(id);
         Assert.notNull(systemRegion, "系统地区信息不存在");
 
-        return RetMarker.makeSuccessRsp(new SystemRegionResp(systemRegion.getId(), systemRegion.getName(), systemRegion.getLevel(), systemRegion.getParentId(), systemRegion.getFullPath(), systemRegion.getFullName(), systemRegion.getRemarks()));
+        return RetBuilder.success(new SystemRegionResp(systemRegion.getId(), systemRegion.getName(), systemRegion.getLevel(), systemRegion.getParentId(), systemRegion.getFullPath(), systemRegion.getFullName(), systemRegion.getRemarks()));
     }
 
     @GetMapping("{id}/children")
@@ -125,10 +125,10 @@ public class SystemRegionController extends BaseSystemController {
                     resultList.add(c);
                 }
             }));
-            return RetMarker.makeSuccessRsp(new SystemRegionChildrenListResp(resultList));
+            return RetBuilder.success(new SystemRegionChildrenListResp(resultList));
         }
 
-        return RetMarker.makeSuccessRsp(new SystemRegionChildrenListResp(childrenList));
+        return RetBuilder.success(new SystemRegionChildrenListResp(childrenList));
     }
 
     @PostMapping("modify/{id}")
@@ -153,13 +153,13 @@ public class SystemRegionController extends BaseSystemController {
             systemRegionUpdateWrapper.set("full_path", fullInfo.get("path"));
             systemRegionUpdateWrapper.set("level", fullInfo.get("level"));
         } else {
-            return RetMarker.makeErrRsp("参数错误");
+            return RetBuilder.error("参数错误");
         }
 
         Assert.isTrue(systemRegionService.update(systemRegionUpdateWrapper), "修改失败");
         systemRegionCache.refreshRedisCacheById(id);
 
-        return RetMarker.makeSuccessRsp();
+        return RetBuilder.success();
     }
 
     @PostMapping("update")
@@ -199,7 +199,7 @@ public class SystemRegionController extends BaseSystemController {
         systemRegionCache.refreshRedisCacheById(systemRegion.getId());
         systemRegionCache.refreshRedisCacheById(systemRegion.getParentId());
 
-        return RetMarker.makeSuccessRsp();
+        return RetBuilder.success();
     }
 
     @PostMapping("update/{id}")
@@ -228,7 +228,7 @@ public class SystemRegionController extends BaseSystemController {
             Assert.isTrue(systemRegionService.update(updateWrapper), "保存失败");
         }
 
-        return RetMarker.makeSuccessRsp();
+        return RetBuilder.success();
     }
 
     @PostMapping("remove/{id}")
@@ -269,7 +269,7 @@ public class SystemRegionController extends BaseSystemController {
             }
         }
 
-        return RetMarker.makeSuccessRsp();
+        return RetBuilder.success();
     }
 
     @GetMapping("cascader")
@@ -288,9 +288,9 @@ public class SystemRegionController extends BaseSystemController {
                     resultList.add(region);
                 }
             }));
-            return RetMarker.makeSuccessRsp(new CommonCascaderDataResp(resultList));
+            return RetBuilder.success(new CommonCascaderDataResp(resultList));
         }
-        return RetMarker.makeSuccessRsp(new CommonCascaderDataResp(systemRegionList));
+        return RetBuilder.success(new CommonCascaderDataResp(systemRegionList));
     }
 
     @GetMapping("tree")
@@ -309,9 +309,9 @@ public class SystemRegionController extends BaseSystemController {
                     resultList.add(region);
                 }
             }));
-            return RetMarker.makeSuccessRsp(new CommonTreeDataResp(resultList));
+            return RetBuilder.success(new CommonTreeDataResp(resultList));
         }
-        return RetMarker.makeSuccessRsp(new CommonTreeDataResp(systemRegionList));
+        return RetBuilder.success(new CommonTreeDataResp(systemRegionList));
     }
 
 }

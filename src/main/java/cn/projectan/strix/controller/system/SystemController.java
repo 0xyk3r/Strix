@@ -1,12 +1,10 @@
 package cn.projectan.strix.controller.system;
 
 import cn.hutool.core.util.IdUtil;
-import cn.projectan.captcha.model.common.ResponseModel;
-import cn.projectan.captcha.model.vo.CaptchaVO;
-import cn.projectan.captcha.service.CaptchaService;
 import cn.projectan.strix.controller.system.base.BaseSystemController;
 import cn.projectan.strix.core.cache.SystemConfigCache;
-import cn.projectan.strix.core.ret.RetMarker;
+import cn.projectan.strix.core.captcha.CaptchaService;
+import cn.projectan.strix.core.ret.RetBuilder;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.core.ss.details.LoginSystemManager;
 import cn.projectan.strix.model.annotation.Anonymous;
@@ -15,10 +13,13 @@ import cn.projectan.strix.model.db.SystemManager;
 import cn.projectan.strix.model.db.SystemMenu;
 import cn.projectan.strix.model.dict.SysLogOperType;
 import cn.projectan.strix.model.dict.SystemManagerStatus;
+import cn.projectan.strix.model.other.captcha.CaptchaInfoVO;
 import cn.projectan.strix.model.request.system.SystemLoginReq;
+import cn.projectan.strix.model.response.module.captcha.StrixCaptchaResp;
 import cn.projectan.strix.model.response.system.SystemLoginResp;
 import cn.projectan.strix.model.response.system.SystemMenuResp;
 import cn.projectan.strix.service.SystemManagerService;
+import cn.projectan.strix.service.SystemMenuService;
 import cn.projectan.strix.utils.RedisUtil;
 import cn.projectan.strix.utils.SecurityUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -42,6 +43,7 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 public class SystemController extends BaseSystemController {
 
+    private final SystemMenuService systemMenusService;
     private final SystemManagerService systemManagerService;
     private final CaptchaService captchaService;
     private final SystemConfigCache systemConfigCache;
@@ -53,11 +55,11 @@ public class SystemController extends BaseSystemController {
     public RetResult<Object> login(@RequestBody SystemLoginReq req) {
         // 验证码校验
         Assert.hasText(req.getCaptchaVerification(), "行为验证不通过，请重新验证");
-        CaptchaVO captchaVO = new CaptchaVO();
-        captchaVO.setCaptchaVerification(req.getCaptchaVerification());
-        ResponseModel response = captchaService.verification(captchaVO);
-        if (!response.isSuccess()) {
-            return RetMarker.makeErrRsp("行为验证不通过，请重新验证");
+        CaptchaInfoVO captchaInfoVO = new CaptchaInfoVO();
+        captchaInfoVO.setCaptchaVerification(req.getCaptchaVerification());
+        StrixCaptchaResp strixCaptchaResp = captchaService.verification(captchaInfoVO);
+        if (!strixCaptchaResp.isSuccess()) {
+            return RetBuilder.error("行为验证不通过，请重新验证");
         }
 
         QueryWrapper<SystemManager> loginQueryWrapper = new QueryWrapper<>();
@@ -89,7 +91,7 @@ public class SystemController extends BaseSystemController {
         redisUtil.set("strix:system:manager:login_token:login:id_" + systemManager.getId(), token, effectiveTime, TimeUnit.MINUTES);
         redisUtil.set("strix:system:manager:login_token:token:" + token, loginSystemManager, effectiveTime, TimeUnit.MINUTES);
 
-        return RetMarker.makeSuccessRsp(new SystemLoginResp(
+        return RetBuilder.success(new SystemLoginResp(
                 new SystemLoginResp.LoginManagerInfo(systemManager.getId(), systemManager.getNickname(), systemManager.getType()),
                 token, LocalDateTime.now().plusMinutes(effectiveTime)));
     }
@@ -97,11 +99,11 @@ public class SystemController extends BaseSystemController {
     @PostMapping("checkToken")
     public RetResult<SystemLoginResp> checkToken() {
         SystemManager systemManager = loginManager();
-        LocalDateTime tokenExpire = redisUtil.getExpireDateTime("strix:system:manager:login_token:login:id_" + systemManager.getId());
+        long tokenTTL = redisUtil.getExpire("strix:system:manager:login_token:login:id_" + systemManager.getId());
 
-        return RetMarker.makeSuccessRsp(new SystemLoginResp(
+        return RetBuilder.success(new SystemLoginResp(
                 new SystemLoginResp.LoginManagerInfo(systemManager.getId(), systemManager.getNickname(), systemManager.getType()),
-                "original token", tokenExpire));
+                "original token", LocalDateTime.now().plusMinutes(tokenTTL)));
     }
 
     @PostMapping("renewToken")
@@ -118,16 +120,23 @@ public class SystemController extends BaseSystemController {
         redisUtil.setExpire("strix:system:manager:login_token:login:id_" + systemManager.getId(), effectiveTime, TimeUnit.MINUTES);
         redisUtil.setExpire("strix:system:manager:login_token:token:" + oldTokenObj, effectiveTime, TimeUnit.MINUTES);
 
-        return RetMarker.makeSuccessRsp(new SystemLoginResp(
+        return RetBuilder.success(new SystemLoginResp(
                 new SystemLoginResp.LoginManagerInfo(systemManager.getId(), systemManager.getNickname(), systemManager.getType()),
                 oldTokenObj.toString(), LocalDateTime.now().plusMinutes(effectiveTime)));
     }
 
     @GetMapping("menus")
     public RetResult<SystemMenuResp> getMenuList() {
-        List<SystemMenu> systemMenus = SecurityUtils.getManagerMenuPermissions();
-        Assert.notEmpty(systemMenus, "当前账号无菜单权限");
-        return RetMarker.makeSuccessRsp(new SystemMenuResp(systemMenus));
+        List<String> systemMenuKeys = SecurityUtils.getManagerMenuKeys();
+        Assert.notEmpty(systemMenuKeys, "当前账号无菜单权限");
+
+        QueryWrapper<SystemMenu> qw = new QueryWrapper<>();
+        qw.in("`key`", systemMenuKeys);
+        qw.orderByAsc("sort_value");
+        List<SystemMenu> systemMenus = systemMenusService.list(qw);
+        Assert.notEmpty(systemMenus, "当前账号无可用菜单权限");
+
+        return RetBuilder.success(new SystemMenuResp(systemMenus));
     }
 
 }

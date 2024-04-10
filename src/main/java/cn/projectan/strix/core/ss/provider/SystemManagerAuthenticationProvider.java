@@ -11,6 +11,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 
 /**
+ * 系统管理员认证提供者
+ * <p>由于实现了自定义登录api，该类在项目中无实际作用</p>
+ *
  * @author ProjectAn
  * @date 2023/2/25 14:21
  */

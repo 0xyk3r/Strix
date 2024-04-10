@@ -1,6 +1,6 @@
 package cn.projectan.strix.initialize;
 
-import cn.projectan.strix.core.module.sms.StrixSmsConfig;
+import cn.projectan.strix.core.module.sms.StrixSmsStore;
 import cn.projectan.strix.model.db.SmsConfig;
 import cn.projectan.strix.service.SmsConfigService;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +22,7 @@ import java.util.List;
 @Slf4j
 @Order(10)
 @Component
-@ConditionalOnBean(StrixSmsConfig.class)
+@ConditionalOnBean(StrixSmsStore.class)
 @RequiredArgsConstructor
 public class StrixSmsInit implements ApplicationRunner {
 
@@ -31,7 +31,6 @@ public class StrixSmsInit implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) {
         List<SmsConfig> smsConfigList = smsConfigService.list();
-
         smsConfigService.createInstance(smsConfigList);
     }
 }

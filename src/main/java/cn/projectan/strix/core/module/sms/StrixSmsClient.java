@@ -1,8 +1,8 @@
 package cn.projectan.strix.core.module.sms;
 
 import cn.projectan.strix.model.db.SmsLog;
-import cn.projectan.strix.model.system.StrixSmsSign;
-import cn.projectan.strix.model.system.StrixSmsTemplate;
+import cn.projectan.strix.model.other.module.sms.StrixSmsSign;
+import cn.projectan.strix.model.other.module.sms.StrixSmsTemplate;
 import lombok.Getter;
 import lombok.Setter;
 

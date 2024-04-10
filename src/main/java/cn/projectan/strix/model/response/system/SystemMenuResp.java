@@ -31,13 +31,15 @@ public class SystemMenuResp {
     }
 
     private List<SystemMenuItem> findChildren(List<SystemMenu> menus, String id) {
-        return menus.stream().filter(m -> id.equals(m.getParentId())).sorted(Comparator.comparing(SystemMenu::getSortValue)).map(m -> new SystemMenuItem(m.getId(), m.getName(), m.getUrl(), m.getIcon(), findChildren(menus, m.getId()))).collect(Collectors.toList());
+        return menus.stream().filter(m ->
+                id.equals(m.getParentId())).sorted(Comparator.comparing(SystemMenu::getSortValue)).map(m -> new SystemMenuItem(m.getId(), m.getName(), m.getUrl(), m.getIcon(), findChildren(menus, m.getId()))
+        ).collect(Collectors.toList());
     }
 
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
-    private static class SystemMenuItem {
+    public static class SystemMenuItem {
 
         private String id;
 

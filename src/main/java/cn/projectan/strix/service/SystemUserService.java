@@ -27,17 +27,17 @@ public interface SystemUserService extends IService<SystemUser> {
      *
      * @param systemUserId 本系统用户id
      * @param relationType 都三方平台类型
-     * @param relationId   第三方平台用户id
+     * @param oauthUserId   第三方平台用户id
      */
-    void bindThirdUser(String systemUserId, Integer relationType, String relationId);
+    void bindThirdUser(String systemUserId, Integer relationType, String oauthUserId);
 
     /**
      * 获取关联的SystemUser对象 带缓存
      *
      * @param relationType 关联类型
-     * @param relationId   关联id
+     * @param oauthUserId   关联id
      * @return SystemUser对象
      */
-    SystemUser getSystemUser(Integer relationType, String relationId);
+    SystemUser getSystemUser(Integer relationType, String oauthUserId);
 
 }

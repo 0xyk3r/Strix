@@ -1,6 +1,6 @@
 package cn.projectan.strix.core.module.oss;
 
-import cn.projectan.strix.model.system.StrixOssBucket;
+import cn.projectan.strix.model.other.module.oss.StrixOssBucket;
 import lombok.Getter;
 import lombok.Setter;
 

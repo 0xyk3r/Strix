@@ -9,7 +9,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -47,8 +46,7 @@ public class SystemManagerAuthenticationTokenFilter extends OncePerRequestFilter
         SystemManagerAuthenticationToken authentication =
                 new SystemManagerAuthenticationToken(loginSystemManager, null, loginSystemManager.getAuthorities());
 
-        SecurityContext context = SecurityContextHolder.getContext();
-        context.setAuthentication(authentication);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
 
         filterChain.doFilter(request, response);
     }

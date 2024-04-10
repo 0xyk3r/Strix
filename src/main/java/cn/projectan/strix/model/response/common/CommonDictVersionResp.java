@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import java.io.Serial;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author ProjectAn
@@ -24,7 +25,7 @@ public class CommonDictVersionResp implements java.io.Serializable {
     private List<DictVersionItem> items = new ArrayList<>();
 
     public CommonDictVersionResp(List<Dict> data) {
-        items = data.stream().map(d -> new DictVersionItem(d.getKey(), d.getVersion())).toList();
+        items = data.stream().map(d -> new DictVersionItem(d.getKey(), d.getVersion())).collect(Collectors.toList());
     }
 
     @Data
