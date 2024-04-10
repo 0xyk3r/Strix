@@ -1,6 +1,6 @@
 package cn.projectan.strix.initialize;
 
-import cn.projectan.strix.core.module.oss.StrixOssConfig;
+import cn.projectan.strix.core.module.oss.StrixOssStore;
 import cn.projectan.strix.model.db.OssConfig;
 import cn.projectan.strix.service.OssConfigService;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +22,7 @@ import java.util.List;
 @Slf4j
 @Order(10)
 @Component
-@ConditionalOnBean(StrixOssConfig.class)
+@ConditionalOnBean(StrixOssStore.class)
 @RequiredArgsConstructor
 public class StrixOssInit implements ApplicationRunner {
 
@@ -31,7 +31,6 @@ public class StrixOssInit implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) {
         List<OssConfig> ossConfigList = ossConfigService.list();
-
         ossConfigService.createInstance(ossConfigList);
     }
 

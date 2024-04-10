@@ -1,7 +1,7 @@
 package cn.projectan.strix.controller.system.monitor;
 
 import cn.projectan.strix.controller.system.base.BaseSystemController;
-import cn.projectan.strix.core.ret.RetMarker;
+import cn.projectan.strix.core.ret.RetBuilder;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.model.annotation.StrixLog;
 import lombok.RequiredArgsConstructor;
@@ -52,7 +52,7 @@ public class CacheController extends BaseSystemController {
             });
         }
         result.put("commandStats", pieList);
-        return RetMarker.makeSuccessRsp(result);
+        return RetBuilder.success(result);
     }
 
 }

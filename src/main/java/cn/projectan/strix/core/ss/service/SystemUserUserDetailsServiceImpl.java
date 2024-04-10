@@ -11,6 +11,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 /**
+ * 系统用户用户详情服务
+ * <p>由于实现了自定义登录api，该类在项目中无实际作用</p>
+ *
  * @author ProjectAn
  * @date 2023/2/25 14:30
  */

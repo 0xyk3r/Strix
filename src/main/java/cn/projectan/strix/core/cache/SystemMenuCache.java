@@ -31,7 +31,7 @@ public class SystemMenuCache {
         QueryWrapper<SystemMenu> systemMenuQueryWrapper = new QueryWrapper<>();
         systemMenuQueryWrapper.orderByAsc("sort_value");
         instance = systemMenuService.list(systemMenuQueryWrapper);
-        log.info(String.format("Strix Cache: 管理系统菜单缓存加载成功, 缓存了 %s 个菜单.", instance.size()));
+        log.info(String.format("Strix Cache: 管理系统菜单缓存加载完成, 缓存了 %s 个菜单.", instance.size()));
     }
 
     public List<String> getIdListByParentMenu(String menuId) {
@@ -50,18 +50,18 @@ public class SystemMenuCache {
     }
 
     public void updateRedis() {
-        redisUtil.delKeys("strix:system:manager:menu_by_smid:*");
-        redisUtil.delKeys("strix:system:role:menu_by_rid:*");
+        redisUtil.delLike("strix:system:manager:menu_by_smid:*");
+        redisUtil.delLike("strix:system:role:menu_by_rid:*");
     }
 
     public void updateRedisBySystemRoleId(String roleId) {
-        redisUtil.delKeys("strix:system:role:menu_by_rid::" + roleId);
+        redisUtil.delLike("strix:system:role:menu_by_rid::" + roleId);
         // TODO 可优化为仅清除拥有该角色的管理用户缓存
-        redisUtil.delKeys("strix:system:manager:menu_by_smid:*");
+        redisUtil.delLike("strix:system:manager:menu_by_smid:*");
     }
 
     public void updateRedisBySystemManageId(String managerId) {
-        redisUtil.delKeys("strix:system:manager:menu_by_smid::" + managerId);
+        redisUtil.delLike("strix:system:manager:menu_by_smid::" + managerId);
     }
 
     public void updateRamAndRedis() {

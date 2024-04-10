@@ -2,9 +2,9 @@ package cn.projectan.strix.service.impl;
 
 import cn.projectan.strix.mapper.SmsTemplateMapper;
 import cn.projectan.strix.model.db.SmsTemplate;
-import cn.projectan.strix.model.system.StrixSmsTemplate;
+import cn.projectan.strix.model.other.module.sms.StrixSmsTemplate;
 import cn.projectan.strix.service.SmsTemplateService;
-import cn.projectan.strix.utils.KeysDiffHandler;
+import cn.projectan.strix.utils.KeyDiffUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -30,10 +31,10 @@ public class SmsTemplateServiceImpl extends ServiceImpl<SmsTemplateMapper, SmsTe
     public void syncTemplateList(String configKey, List<StrixSmsTemplate> templateList) {
         List<SmsTemplate> dbTemplateList = this.list(new LambdaQueryWrapper<>(SmsTemplate.class).eq(SmsTemplate::getConfigKey, configKey));
 
-        List<String> dbTemplateCodeList = dbTemplateList.stream().map(SmsTemplate::getCode).toList();
-        List<String> templateCodeList = templateList.stream().map(StrixSmsTemplate::getCode).toList();
+        List<String> dbTemplateCodeList = dbTemplateList.stream().map(SmsTemplate::getCode).collect(Collectors.toList());
+        List<String> templateCodeList = templateList.stream().map(StrixSmsTemplate::getCode).collect(Collectors.toList());
 
-        KeysDiffHandler.handle(dbTemplateCodeList, templateCodeList,
+        KeyDiffUtil.handle(dbTemplateCodeList, templateCodeList,
                 (removeKeys) -> {
                     QueryWrapper<SmsTemplate> removeQueryWrapper = new QueryWrapper<>();
                     removeQueryWrapper.eq("config_key", configKey);
@@ -51,7 +52,7 @@ public class SmsTemplateServiceImpl extends ServiceImpl<SmsTemplateMapper, SmsTe
                                     .setStatus(t.getStatus())
                                     .setContent(t.getContent())
                             )
-                            .toList();
+                            .collect(Collectors.toList());
                     Assert.isTrue(saveBatch(smsTemplateList), "Strix SMS: 同步增加模板失败.");
                 }
         );

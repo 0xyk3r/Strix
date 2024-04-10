@@ -29,9 +29,9 @@ public class StrixModuleProperties {
     private Boolean job = false;
 
     /**
-     * 是否启用 Auth 服务
+     * 是否启用 OAuth 服务
      */
-    private Boolean auth = false;
+    private Boolean oauth = false;
 
     /**
      * 是否启用 Push 服务
@@ -39,8 +39,8 @@ public class StrixModuleProperties {
     private Boolean push = false;
 
     /**
-     * 是否启用 Payment 服务
+     * 是否启用 Pay 服务
      */
-    private Boolean payment = false;
+    private Boolean pay = false;
 
 }

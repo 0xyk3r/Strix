@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author ProjectAn
@@ -20,7 +21,7 @@ public class PopularityConfigListResp {
     public PopularityConfigListResp(List<PopularityConfig> data) {
         items = data.stream()
                 .map(item -> new PopularityConfigItem(item.getId(), item.getName()))
-                .toList();
+                .collect(Collectors.toList());
     }
 
     @Data

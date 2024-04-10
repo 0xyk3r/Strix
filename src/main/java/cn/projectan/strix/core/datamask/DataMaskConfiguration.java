@@ -9,6 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
 
 /**
+ * Strix 数据脱敏工具配置
+ *
  * @author ProjectAn
  * @date 2023/2/22 14:52
  */
@@ -21,10 +23,10 @@ public class DataMaskConfiguration {
 
     @PostConstruct
     public void init() {
-        log.info("Strix Data Mask: 数据脱敏工具已启用.");
         AnnotationIntrospector ai = objectMapper.getSerializationConfig().getAnnotationIntrospector();
         AnnotationIntrospector newAi = AnnotationIntrospectorPair.pair(ai, new DataMaskAnnotationIntrospector());
         objectMapper.setAnnotationIntrospector(newAi);
+        log.info("Strix DataMask: 数据脱敏工具初始化完成.");
     }
 
 }

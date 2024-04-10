@@ -23,7 +23,9 @@ public class SmsSignListResp extends BasePageResp {
     private List<SmsSignItem> signs = new ArrayList<>();
 
     public SmsSignListResp(List<SmsSign> data, Long total) {
-        signs = data.stream().map(d -> new SmsSignItem(d.getId(), d.getConfigKey(), d.getName(), d.getStatus(), d.getCreateTime())).collect(Collectors.toList());
+        signs = data.stream().map(d ->
+                new SmsSignItem(d.getId(), d.getConfigKey(), d.getName(), d.getStatus(), d.getCreateTime())
+        ).collect(Collectors.toList());
         this.setTotal(total);
     }
 

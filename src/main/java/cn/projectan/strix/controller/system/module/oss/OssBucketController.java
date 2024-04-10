@@ -1,8 +1,8 @@
 package cn.projectan.strix.controller.system.module.oss;
 
 import cn.projectan.strix.controller.system.base.BaseSystemController;
-import cn.projectan.strix.core.module.oss.StrixOssConfig;
-import cn.projectan.strix.core.ret.RetMarker;
+import cn.projectan.strix.core.module.oss.StrixOssStore;
+import cn.projectan.strix.core.ret.RetBuilder;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.core.validation.group.InsertGroup;
 import cn.projectan.strix.core.validation.group.UpdateGroup;
@@ -35,7 +35,7 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 @RestController
 @RequestMapping("system/oss/bucket")
-@ConditionalOnBean(StrixOssConfig.class)
+@ConditionalOnBean(StrixOssStore.class)
 @RequiredArgsConstructor
 public class OssBucketController extends BaseSystemController {
 
@@ -57,7 +57,7 @@ public class OssBucketController extends BaseSystemController {
 
         Page<OssBucket> page = ossBucketService.page(req.getPage(), queryWrapper);
 
-        return RetMarker.makeSuccessRsp(new OssBucketListResp(page.getRecords(), page.getTotal()));
+        return RetBuilder.success(new OssBucketListResp(page.getRecords(), page.getTotal()));
     }
 
     @PostMapping("update")
@@ -83,7 +83,7 @@ public class OssBucketController extends BaseSystemController {
 
         // 使用同步进行创建
 
-        return RetMarker.makeSuccessRsp();
+        return RetBuilder.success();
     }
 
     @PostMapping("update/{id}")
@@ -97,7 +97,7 @@ public class OssBucketController extends BaseSystemController {
         UniqueDetectionTool.check(ossBucket);
         Assert.isTrue(ossBucketService.update(updateWrapper), "保存失败");
 
-        return RetMarker.makeSuccessRsp();
+        return RetBuilder.success();
     }
 
     @PostMapping("remove/{id}")
@@ -108,7 +108,7 @@ public class OssBucketController extends BaseSystemController {
 
         ossBucketService.removeById(id);
 
-        return RetMarker.makeSuccessRsp();
+        return RetBuilder.success();
     }
 
 }

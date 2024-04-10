@@ -2,7 +2,7 @@ package cn.projectan.strix.controller.system;
 
 import cn.projectan.strix.controller.system.base.BaseSystemController;
 import cn.projectan.strix.core.cache.SystemMenuCache;
-import cn.projectan.strix.core.ret.RetMarker;
+import cn.projectan.strix.core.ret.RetBuilder;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.core.validation.group.InsertGroup;
 import cn.projectan.strix.core.validation.group.UpdateGroup;
@@ -59,7 +59,7 @@ public class SystemMenuController extends BaseSystemController {
         List<SystemMenu> systemMenuList = systemMenuService.list();
         List<SystemPermission> systemPermissionList = systemPermissionService.list();
 
-        return RetMarker.makeSuccessRsp(new SystemMenuListResp(systemMenuList, systemPermissionList));
+        return RetBuilder.success(new SystemMenuListResp(systemMenuList, systemPermissionList));
     }
 
     @GetMapping("{menuId}")
@@ -70,7 +70,7 @@ public class SystemMenuController extends BaseSystemController {
         SystemMenu sm = systemMenuService.getById(menuId);
         Assert.notNull(sm, "系统菜单信息不存在");
 
-        return RetMarker.makeSuccessRsp(new SystemMenuResp(sm.getId(), sm.getKey(), sm.getName(), sm.getUrl(), sm.getIcon(), sm.getParentId(), sm.getSortValue()));
+        return RetBuilder.success(new SystemMenuResp(sm.getId(), sm.getKey(), sm.getName(), sm.getUrl(), sm.getIcon(), sm.getParentId(), sm.getSortValue()));
     }
 
     @PostMapping("modify/{menuId}")
@@ -87,13 +87,13 @@ public class SystemMenuController extends BaseSystemController {
         if ("icon".equals(req.getField())) {
             systemMenuUpdateWrapper.set("icon", req.getValue());
         } else {
-            return RetMarker.makeErrRsp("参数错误");
+            return RetBuilder.error("参数错误");
         }
         Assert.isTrue(systemMenuService.update(systemMenuUpdateWrapper), "修改失败");
         // 更新缓存
         systemMenuCache.updateRamAndRedis();
 
-        return RetMarker.makeSuccessRsp();
+        return RetBuilder.success();
     }
 
     @PostMapping("update")
@@ -119,7 +119,7 @@ public class SystemMenuController extends BaseSystemController {
         // 更新缓存
         systemMenuCache.updateRamAndRedis();
 
-        return RetMarker.makeSuccessRsp();
+        return RetBuilder.success();
     }
 
     @PostMapping("update/{menuId}")
@@ -140,7 +140,7 @@ public class SystemMenuController extends BaseSystemController {
         SystemManagerService systemManagerService = SpringUtil.getBean(SystemManagerService.class);
         systemManagerService.refreshLoginInfoByMenu(menuId);
 
-        return RetMarker.makeSuccessRsp();
+        return RetBuilder.success();
     }
 
     @PostMapping("remove/{menuId}")
@@ -171,12 +171,12 @@ public class SystemMenuController extends BaseSystemController {
         // 更新缓存
         systemMenuCache.updateRamAndRedis();
 
-        return RetMarker.makeSuccessRsp();
+        return RetBuilder.success();
     }
 
     @GetMapping("tree")
     public RetResult<CommonTreeDataResp> getSystemMenuTree() {
-        return RetMarker.makeSuccessRsp(systemMenuService.getTreeData());
+        return RetBuilder.success(systemMenuService.getTreeData());
     }
 
     private Set<String> findSystemMenuChildrenIdList(List<SystemMenu> menus, String parentId) {

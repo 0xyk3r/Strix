@@ -33,7 +33,7 @@ spring:
             maximum-pool-size: 4
   data:
     redis:
-      database: 6
+      database: 0
       host: 192.168.31.188
       port: 6379
       password: str1Xredis

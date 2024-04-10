@@ -50,34 +50,34 @@ public class SystemUserServiceImpl extends ServiceImpl<SystemUserMapper, SystemU
     }
 
     @Override
-    public void bindThirdUser(String systemUserId, Integer relationType, String relationId) {
+    public void bindThirdUser(String systemUserId, Integer relationType, String oauthUserId) {
         QueryWrapper<SystemUserRelation> checkOneQueryWrapper = new QueryWrapper<>();
         checkOneQueryWrapper.eq("relation_type", relationType);
         checkOneQueryWrapper.eq("system_user_id", systemUserId);
         Assert.isTrue(systemUserRelationService.count(checkOneQueryWrapper) == 0, "已经绑定过该平台账号了，不能重复绑定");
         QueryWrapper<SystemUserRelation> checkTwoQueryWrapper = new QueryWrapper<>();
         checkTwoQueryWrapper.eq("relation_type", relationType);
-        checkTwoQueryWrapper.eq("relation_id", relationId);
+        checkTwoQueryWrapper.eq("relation_id", oauthUserId);
         Assert.isTrue(systemUserRelationService.count(checkTwoQueryWrapper) == 0, "该平台账号已被其他用户绑定，不能重复绑定");
 
         SystemUserRelation systemUserRelation = new SystemUserRelation();
         systemUserRelation.setRelationType(relationType);
-        systemUserRelation.setRelationId(relationId);
+        systemUserRelation.setRelationId(oauthUserId);
         systemUserRelation.setSystemUserId(systemUserId);
         systemUserRelation.setCreateBy("CreateUser");
         systemUserRelation.setUpdateBy("CreateUser");
 
-        redisUtil.del("strix:system:user:userRelation::" + relationType + "-" + relationId);
+        redisUtil.del("strix:system:user:userRelation::" + relationType + "-" + oauthUserId);
 
         systemUserRelationService.save(systemUserRelation);
     }
 
-    @Cacheable(value = "strix:system:user:userRelation", key = "#relationType+'-'+#relationId")
+    @Cacheable(value = "strix:system:user:userRelation", key = "#relationType+'-'+#oauthUserId")
     @Override
-    public SystemUser getSystemUser(Integer relationType, String relationId) {
+    public SystemUser getSystemUser(Integer relationType, String oauthUserId) {
         QueryWrapper<SystemUserRelation> systemUserRelationQueryWrapper = new QueryWrapper<>();
         systemUserRelationQueryWrapper.eq("relation_type", relationType);
-        systemUserRelationQueryWrapper.eq("relation_id", relationId);
+        systemUserRelationQueryWrapper.eq("relation_id", oauthUserId);
         SystemUserRelation systemUserRelation = systemUserRelationService.getOne(systemUserRelationQueryWrapper);
         if (systemUserRelation != null) {
             return getBaseMapper().selectById(systemUserRelation.getSystemUserId());

@@ -2,7 +2,7 @@ package cn.projectan.strix.service.impl;
 
 import cn.projectan.strix.core.exception.StrixException;
 import cn.projectan.strix.core.module.oss.StrixOssClient;
-import cn.projectan.strix.core.module.oss.StrixOssConfig;
+import cn.projectan.strix.core.module.oss.StrixOssStore;
 import cn.projectan.strix.mapper.OssFileMapper;
 import cn.projectan.strix.model.db.OssFile;
 import cn.projectan.strix.model.db.OssFileGroup;
@@ -11,7 +11,7 @@ import cn.projectan.strix.service.DictService;
 import cn.projectan.strix.service.OssConfigService;
 import cn.projectan.strix.service.OssFileGroupService;
 import cn.projectan.strix.service.OssFileService;
-import cn.projectan.strix.utils.FileExtUtil;
+import cn.projectan.strix.utils.MimeUtil;
 import cn.projectan.strix.utils.RegexUtils;
 import cn.projectan.strix.utils.SnowflakeUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -41,14 +41,14 @@ import java.util.regex.Matcher;
 @Service
 public class OssFileServiceImpl extends ServiceImpl<OssFileMapper, OssFile> implements OssFileService {
 
-    private final StrixOssConfig strixOssConfig;
+    private final StrixOssStore strixOssStore;
     private final OssConfigService ossConfigService;
     private final OssFileGroupService ossFileGroupService;
     private final DictService dictService;
 
     @Autowired
-    public OssFileServiceImpl(@Autowired(required = false) StrixOssConfig strixOssConfig, OssConfigService ossConfigService, OssFileGroupService ossFileGroupService, DictService dictService) {
-        this.strixOssConfig = strixOssConfig;
+    public OssFileServiceImpl(@Autowired(required = false) StrixOssStore strixOssStore, OssConfigService ossConfigService, OssFileGroupService ossFileGroupService, DictService dictService) {
+        this.strixOssStore = strixOssStore;
         this.ossConfigService = ossConfigService;
         this.ossFileGroupService = ossFileGroupService;
         this.dictService = dictService;
@@ -72,7 +72,7 @@ public class OssFileServiceImpl extends ServiceImpl<OssFileMapper, OssFile> impl
     @Override
     public String getUrl(OssFile ossFile, OssFileGroup ossFileGroup, String defaultUrl) {
         try {
-            StrixOssClient client = strixOssConfig.getInstance(ossFileGroup.getConfigKey());
+            StrixOssClient client = strixOssStore.getInstance(ossFileGroup.getConfigKey());
             Assert.notNull(client, "获取文件URL失败. OSS服务实例不存在");
 
             String url = client.getUrlPublic(ossFileGroup.getBucketName(), ossFile.getPath(), 300);
@@ -128,7 +128,7 @@ public class OssFileServiceImpl extends ServiceImpl<OssFileMapper, OssFile> impl
     public OssFile upload(String groupKey, String fileBase64, String uploaderId) {
         OssFileGroup ossFileGroup = ossFileGroupService.getGroupByKey(groupKey);
         Assert.notNull(ossFileGroup, "上传文件失败. 文件组不存在");
-        StrixOssClient client = strixOssConfig.getInstance(ossFileGroup.getConfigKey());
+        StrixOssClient client = strixOssStore.getInstance(ossFileGroup.getConfigKey());
         Assert.notNull(client, "上传文件失败. OSS服务实例不存在");
 
         List<String> allowExtSet = Arrays.asList(ossFileGroup.getAllowExtension().split(","));
@@ -138,7 +138,7 @@ public class OssFileServiceImpl extends ServiceImpl<OssFileMapper, OssFile> impl
             String mimeType = matcher.group(1);
             String data = matcher.group(2);
 
-            String ext = FileExtUtil.mime2ext(mimeType);
+            String ext = MimeUtil.mime2Ext(mimeType);
             Assert.isTrue(allowExtSet.contains(ext), "上传文件失败, 不支持的文件格式.");
 
             byte[] imageByte = Base64.getDecoder().decode(data);
@@ -186,7 +186,7 @@ public class OssFileServiceImpl extends ServiceImpl<OssFileMapper, OssFile> impl
 
     @Override
     public File download(OssFile ossFile, OssFileGroup ossFileGroup, String saveFile) {
-        StrixOssClient client = strixOssConfig.getInstance(ossFileGroup.getConfigKey());
+        StrixOssClient client = strixOssStore.getInstance(ossFileGroup.getConfigKey());
         Assert.notNull(client, "上传文件失败. OSS服务实例不存在");
 
         return client.downloadPrivate(ossFileGroup.getBucketName(), ossFile.getPath(), saveFile);
@@ -219,7 +219,7 @@ public class OssFileServiceImpl extends ServiceImpl<OssFileMapper, OssFile> impl
             if (downloaderType != null && downloaderId != null) {
                 Assert.isTrue(checkPermission(ossFile, ossFileGroup, downloaderType, downloaderId), "删除文件失败, 文件不存在.");
             }
-            StrixOssClient client = strixOssConfig.getInstance(ossFileGroup.getConfigKey());
+            StrixOssClient client = strixOssStore.getInstance(ossFileGroup.getConfigKey());
             Assert.notNull(client, "上传文件失败. OSS服务实例不存在");
             client.deletePrivate(ossFileGroup.getBucketName(), ossFile.getPath());
         } catch (Exception e) {

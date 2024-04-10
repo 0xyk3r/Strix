@@ -22,7 +22,9 @@ public class SystemRegionListResp extends BasePageResp {
     private List<SystemRegionItem> systemRegionList = new ArrayList<>();
 
     public SystemRegionListResp(List<SystemRegion> data, Long total) {
-        systemRegionList = data.stream().map(d -> new SystemRegionItem(d.getId(), d.getName(), d.getLevel(), d.getParentId(), d.getFullPath(), d.getFullName(), d.getRemarks())).collect(Collectors.toList());
+        systemRegionList = data.stream().map(d ->
+                new SystemRegionItem(d.getId(), d.getName(), d.getLevel(), d.getParentId(), d.getFullPath(), d.getFullName(), d.getRemarks())
+        ).collect(Collectors.toList());
         this.setTotal(total);
     }
 

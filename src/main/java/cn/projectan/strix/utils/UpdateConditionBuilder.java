@@ -37,7 +37,7 @@ public class UpdateConditionBuilder {
         String id = ReflectUtil.getString(bean, "id");
         if (!StringUtils.hasText(id)) {
             log.warn("构造UpdateCondition失败，无法获取原数据 ID");
-            throw new StrixException("构造修改条件失败，原数据可能不存在");
+            throw new StrixException("更新数据失败，原数据可能不存在");
         }
         updateWrapper.eq("id", id);
 

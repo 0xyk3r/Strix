@@ -33,7 +33,7 @@ public class SystemPermissionCache {
     @PostConstruct
     private void init() {
         instance = systemPermissionService.list();
-        log.info(String.format("Strix Cache: 管理系统权限缓存加载成功, 缓存了 %s 个权限.", instance.size()));
+        log.info(String.format("Strix Cache: 管理系统权限缓存加载完成, 缓存了 %s 个权限.", instance.size()));
     }
 
     public List<SystemPermission> getByIds(String... systemPermissionIds) {
@@ -46,19 +46,19 @@ public class SystemPermissionCache {
     }
 
     public void updateRedis() {
-        redisUtil.delKeys("strix:system:role:permission_by_rid:*");
-        redisUtil.delKeys("strix:system:manager:permission_by_smid:*");
+        redisUtil.delLike("strix:system:role:permission_by_rid:*");
+        redisUtil.delLike("strix:system:manager:permission_by_smid:*");
     }
 
     public void updateRedisBySystemRoleId(String roleId) {
-        redisUtil.delKeys("strix:system:role:permission_by_rid::" + roleId);
-        redisUtil.delKeys("strix:system:role:select_data:*");
+        redisUtil.delLike("strix:system:role:permission_by_rid::" + roleId);
+        redisUtil.delLike("strix:system:role:select_data:*");
         // TODO 可优化为仅清除拥有该角色的管理用户缓存
-        redisUtil.delKeys("strix:system:manager:permission_by_smid:*");
+        redisUtil.delLike("strix:system:manager:permission_by_smid:*");
     }
 
     public void updateRedisBySystemManageId(String managerId) {
-        redisUtil.delKeys("strix:system:manager:permission_by_smid::" + managerId);
+        redisUtil.delLike("strix:system:manager:permission_by_smid::" + managerId);
 
         // TODO 暂不确定写在这里是否合适
         Object existToken = redisUtil.get("strix:system:manager:login_token:login:id_" + managerId);

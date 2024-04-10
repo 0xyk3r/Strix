@@ -10,6 +10,7 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 
 import java.io.Serial;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
@@ -56,7 +57,7 @@ public class PopularityConfig extends BaseModel {
     /**
      * 数值倍率
      */
-    private Double magValue;
+    private BigDecimal magValue;
 
     public PopularityConfig(String createBy, String updateBy) {
         super(createBy, updateBy);

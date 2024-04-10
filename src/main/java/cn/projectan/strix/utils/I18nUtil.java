@@ -31,8 +31,8 @@ public class I18nUtil {
 
     @PostConstruct
     public void init() {
-        log.info("Strix I18n: 当前语言为：{}.", defaultLocale);
         setBasename(basename);
+        log.info("Strix I18n: 初始化完成, 当前语言为: {}.", defaultLocale);
     }
 
     /**

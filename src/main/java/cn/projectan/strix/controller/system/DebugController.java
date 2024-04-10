@@ -1,19 +1,24 @@
 package cn.projectan.strix.controller.system;
 
-import cn.projectan.strix.core.ret.RetMarker;
-import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.model.annotation.Anonymous;
 import cn.projectan.strix.model.annotation.IgnoreDataEncryption;
-import cn.projectan.strix.utils.WorkflowUtil;
+import cn.projectan.strix.model.db.SystemManager;
+import cn.projectan.strix.model.dict.PayType;
+import cn.projectan.strix.model.other.module.pay.wxpay.WechatPayPaymentData;
+import cn.projectan.strix.model.other.security.*;
+import cn.projectan.strix.service.PayOrderService;
+import cn.projectan.strix.service.SystemManagerService;
+import cn.projectan.strix.utils.RedisUtil;
+import cn.projectan.strix.utils.TokenUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 /**
  * @author ProjectAn
@@ -21,49 +26,66 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @Slf4j
 @Anonymous
+@IgnoreDataEncryption
 @RestController
 @RequestMapping("debug")
 @ConditionalOnProperty(prefix = "spring.profiles", name = "active", havingValue = "dev")
 @RequiredArgsConstructor
 public class DebugController {
 
+    private final SystemManagerService systemManagerService;
     private final ObjectMapper objectMapper;
-    private final WorkflowUtil workflowUtil;
+    private final PayOrderService payOrderService;
+    private final TokenUtil tokenUtil;
+    private final RedisUtil redisUtil;
 
-    @IgnoreDataEncryption
-    @GetMapping("create/{configId}")
-    public RetResult<Object> create(@PathVariable String configId,
-                                  HttpServletRequest request) {
-        workflowUtil.createInstance(configId);
-        return RetMarker.makeSuccessRsp();
+    @GetMapping("pay1")
+    public void test1() {
+        payOrderService.createOrder("AliPaySandbox", "testorder",
+                new WechatPayPaymentData("o5KMAt-6GqVzWNlAmJXMPPVY8vew"),
+                "toatt", 1, PayType.WAP);
+
     }
 
-    @IgnoreDataEncryption
-    @GetMapping("next/{instanceId}/{nextType}")
-    public RetResult<Object> next(@PathVariable String instanceId,
-                                  @PathVariable String nextType,
-                                  HttpServletRequest request) {
-        workflowUtil.nextStep(instanceId, Byte.valueOf(nextType));
-        return RetMarker.makeSuccessRsp();
+    @GetMapping("pay2")
+    public void test2() {
+        payOrderService.createOrder("AliPaySandbox", "testorder",
+                new WechatPayPaymentData("o5KMAt-6GqVzWNlAmJXMPPVY8vew"),
+                "toatt", 1, PayType.WEB);
     }
 
-    @IgnoreDataEncryption
-    @GetMapping("getParam/{instanceId}/{paramName}")
-    public RetResult<Object> getParam(@PathVariable String instanceId,
-                                      @PathVariable String paramName,
-                                      HttpServletRequest request) {
-        String param = workflowUtil.getParam(instanceId, paramName);
-        return RetMarker.makeSuccessRsp(param);
+    @GetMapping("getJwt")
+    public void getJwt() {
+        SystemManager systemManager = systemManagerService.getById("anjiongyi");
+
+        TokenDTO info = tokenUtil.createToken(
+                new SystemManagerTokenInfo(
+                        UserType.SYSTEM_MANAGER,
+                        systemManager.getId(),
+                        systemManager.getNickname(),
+                        systemManager.getStatus(),
+                        systemManager.getType(),
+                        systemManager.getRegionId(),
+                        List.of("menuKey1", "menuKey2"),
+                        List.of("permissionKey1", "permissionKey2")
+                ));
+
+        System.out.println(info.getToken());
+        System.out.println(info.getRefreshToken());
     }
 
-    @IgnoreDataEncryption
-    @GetMapping("setParam/{instanceId}/{paramName}/{paramValue}")
-    public RetResult<Object> setParam(@PathVariable String instanceId,
-                                      @PathVariable String paramName,
-                                      @PathVariable String paramValue,
-                                      HttpServletRequest request) {
-        workflowUtil.setParam(instanceId, paramName, paramValue);
-        return RetMarker.makeSuccessRsp();
+    @GetMapping("verifyToken")
+    public void verifyToken(String token) {
+        BaseTokenInfo baseTokenInfo = tokenUtil.parseToken(token);
+
+        System.out.println(baseTokenInfo);
+    }
+
+    @GetMapping("verifyRefreshToken")
+    public void verifyRefreshToken(String refreshToken) {
+        BaseRefreshTokenInfo baseRefreshTokenInfo = tokenUtil.parseRefreshToken(refreshToken);
+
+        System.out.println(baseRefreshTokenInfo);
     }
 
 }

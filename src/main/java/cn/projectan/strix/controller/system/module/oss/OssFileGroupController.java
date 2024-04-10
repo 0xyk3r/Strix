@@ -1,8 +1,8 @@
 package cn.projectan.strix.controller.system.module.oss;
 
 import cn.projectan.strix.controller.system.base.BaseSystemController;
-import cn.projectan.strix.core.module.oss.StrixOssConfig;
-import cn.projectan.strix.core.ret.RetMarker;
+import cn.projectan.strix.core.module.oss.StrixOssStore;
+import cn.projectan.strix.core.ret.RetBuilder;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.core.validation.group.InsertGroup;
 import cn.projectan.strix.core.validation.group.UpdateGroup;
@@ -36,7 +36,7 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 @RestController
 @RequestMapping("system/oss/fileGroup")
-@ConditionalOnBean(StrixOssConfig.class)
+@ConditionalOnBean(StrixOssStore.class)
 @RequiredArgsConstructor
 public class OssFileGroupController extends BaseSystemController {
 
@@ -57,7 +57,7 @@ public class OssFileGroupController extends BaseSystemController {
 
         Page<OssFileGroup> page = ossFileGroupService.page(req.getPage(), queryWrapper);
 
-        return RetMarker.makeSuccessRsp(new OssFileGroupListResp(page.getRecords(), page.getTotal()));
+        return RetBuilder.success(new OssFileGroupListResp(page.getRecords(), page.getTotal()));
     }
 
     @GetMapping("{id}")
@@ -67,7 +67,7 @@ public class OssFileGroupController extends BaseSystemController {
         OssFileGroup ossFileGroup = ossFileGroupService.getById(id);
         Assert.notNull(ossFileGroup, "记录不存在");
 
-        return RetMarker.makeSuccessRsp(new OssFileGroupResp(
+        return RetBuilder.success(new OssFileGroupResp(
                 ossFileGroup.getId(),
                 ossFileGroup.getKey(),
                 ossFileGroup.getConfigKey(),
@@ -106,7 +106,7 @@ public class OssFileGroupController extends BaseSystemController {
 
         Assert.isTrue(ossFileGroupService.save(ossFileGroup), "保存失败");
 
-        return RetMarker.makeSuccessRsp();
+        return RetBuilder.success();
     }
 
     @PostMapping("update/{id}")
@@ -120,7 +120,7 @@ public class OssFileGroupController extends BaseSystemController {
         UniqueDetectionTool.check(ossFileGroup);
         Assert.isTrue(ossFileGroupService.update(updateWrapper), "保存失败");
 
-        return RetMarker.makeSuccessRsp();
+        return RetBuilder.success();
     }
 
     @PostMapping("remove/{id}")
@@ -131,12 +131,12 @@ public class OssFileGroupController extends BaseSystemController {
 
         ossFileGroupService.removeById(id);
 
-        return RetMarker.makeSuccessRsp();
+        return RetBuilder.success();
     }
 
     @GetMapping(value = {"select", "select/{configKey}"})
     public RetResult<CommonSelectDataResp> getOssFileGroupSelectList(@PathVariable(required = false) String configKey) {
-        return RetMarker.makeSuccessRsp(ossFileGroupService.getSelectData(configKey));
+        return RetBuilder.success(ossFileGroupService.getSelectData(configKey));
     }
 
 }

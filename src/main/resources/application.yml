@@ -27,7 +27,6 @@ spring:
     basename: i18n/strix
 # mybatis
 mybatis-plus:
-  mapper-locations: classpath*:/mapper/**Mapper.xml
   # 实体扫描路径, 多个 package 使用,或;分隔
   typeAliasesPackage: cn.projectan.**.model.db
   global-config:
@@ -54,9 +53,18 @@ strix:
     sms: true
     oss: true
     job: true
-    auth: false
-    push: false
-    payment: false
+    oauth: true
+    push: true
+    pay: true
+  # 控制台输出原始请求内容
+  show-request: false
+  # 控制台输出原始响应内容
+  show-response: false
+  security:
+    jwt:
+      secret-key: T3GMtWkpWMgioX4nyY1tnU9feVpRElw1PA8DRNpEmng=
+      expire-time: 86400000
+      refresh-expire-time: 604800000
   # log 持久化配置
   log:
     enable: false
@@ -83,6 +91,4 @@ strix:
   default-locale: zh_CN
   # 包扫描路径
   package-scan:
-    dict:
-    entity:
-    service:
+    model:

@@ -17,6 +17,7 @@ import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -39,24 +40,32 @@ public class SystemManagerServiceImpl extends ServiceImpl<SystemManagerMapper, S
     private final SystemRolePermissionService systemRolePermissionService;
     private final RedisUtil redisUtil;
 
-    @Cacheable(value = "strix:system:manager:menu_by_smid", key = "#systemManagerId")
+    @Cacheable(value = "strix:system:manager:menu_by_mid", key = "#systemManagerId")
     @Override
-    public List<SystemMenu> getAllSystemMenuByManager(String systemManagerId) {
+    public List<String> getMenuKeyList(String systemManagerId) {
         QueryWrapper<SystemManagerRole> systemManagerRoleQueryWrapper = new QueryWrapper<>();
         systemManagerRoleQueryWrapper.select("system_role_id");
         systemManagerRoleQueryWrapper.eq("system_manager_id", systemManagerId);
         List<String> systemManagerRoleIdList = systemManagerRoleService.listObjs(systemManagerRoleQueryWrapper, Object::toString);
-        return systemRoleService.getMenusByRoleId(new TreeSet<>(systemManagerRoleIdList));
+
+        return systemRoleService.getMenusByRoleId(new TreeSet<>(systemManagerRoleIdList))
+                .stream()
+                .map(SystemMenu::getKey)
+                .collect(Collectors.toList());
     }
 
-    @Cacheable(value = "strix:system:manager:permission_by_smid", key = "#systemManagerId")
+    @Cacheable(value = "strix:system:manager:permission_by_mid", key = "#systemManagerId")
     @Override
-    public List<SystemPermission> getAllSystemPermissionByManager(String systemManagerId) {
+    public List<String> getPermissionKeyList(String systemManagerId) {
         QueryWrapper<SystemManagerRole> systemManagerRoleQueryWrapper = new QueryWrapper<>();
         systemManagerRoleQueryWrapper.select("system_role_id");
         systemManagerRoleQueryWrapper.eq("system_manager_id", systemManagerId);
         List<String> systemManagerRoleIdList = systemManagerRoleService.listObjs(systemManagerRoleQueryWrapper, Object::toString);
-        return systemRoleService.getSystemPermissionByRoleId(new TreeSet<>(systemManagerRoleIdList));
+
+        return systemRoleService.getSystemPermissionByRoleId(new TreeSet<>(systemManagerRoleIdList))
+                .stream()
+                .map(SystemPermission::getKey)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -65,17 +74,19 @@ public class SystemManagerServiceImpl extends ServiceImpl<SystemManagerMapper, S
 
         SystemManager systemManager = proxy.getById(systemManagerId);
 
-        List<SystemMenu> menus;
-        List<SystemPermission> permissions;
+        List<String> menus;
+        List<String> permissions;
         List<String> regionIds = null;
         if (systemManager.getType() == SystemManagerType.SUPER_ACCOUNT) {
             // 超级账号默认拥有所有权限
-            menus = systemMenuService.list(new LambdaQueryWrapper<SystemMenu>().orderByAsc(SystemMenu::getSortValue));
-            permissions = systemPermissionService.list();
+            menus = systemMenuService.list()
+                    .stream().map(SystemMenu::getKey).collect(Collectors.toList());
+            permissions = systemPermissionService.list()
+                    .stream().map(SystemPermission::getKey).collect(Collectors.toList());
         } else {
             // 普通账号
-            menus = proxy.getAllSystemMenuByManager(systemManager.getId());
-            permissions = proxy.getAllSystemPermissionByManager(systemManager.getId());
+            menus = proxy.getMenuKeyList(systemManager.getId());
+            permissions = proxy.getPermissionKeyList(systemManager.getId());
             if (StringUtils.hasText(systemManager.getRegionId())) {
                 regionIds = systemRegionService.getChildrenIdList(systemManager.getRegionId());
             }
@@ -124,7 +135,7 @@ public class SystemManagerServiceImpl extends ServiceImpl<SystemManagerMapper, S
                                 .select(SystemRoleMenu::getSystemRoleId)
                                 .eq(SystemRoleMenu::getSystemMenuId, menuId)
                 ).stream()
-                .map(Object::toString).toList();
+                .map(Object::toString).collect(Collectors.toList());
 
         if (!roleIdList.isEmpty()) {
             refreshLoginInfoByRole(roleIdList);
@@ -138,7 +149,7 @@ public class SystemManagerServiceImpl extends ServiceImpl<SystemManagerMapper, S
                                 .select(SystemRolePermission::getSystemRoleId)
                                 .eq(SystemRolePermission::getSystemPermissionId, permissionId)
                 ).stream()
-                .map(Object::toString).toList();
+                .map(Object::toString).collect(Collectors.toList());
 
         if (!roleIdList.isEmpty()) {
             refreshLoginInfoByRole(roleIdList);

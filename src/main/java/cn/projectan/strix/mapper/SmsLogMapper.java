@@ -2,6 +2,7 @@ package cn.projectan.strix.mapper;
 
 import cn.projectan.strix.model.db.SmsLog;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.apache.ibatis.annotations.Mapper;
 
 /**
  * <p>
@@ -11,6 +12,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * @author ProjectAn
  * @since 2021-08-30
  */
+@Mapper
 public interface SmsLogMapper extends BaseMapper<SmsLog> {
 
 }

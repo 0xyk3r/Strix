@@ -39,8 +39,8 @@ public class DecodeRequestBodyAdvice implements RequestBodyAdvice {
     private final ApiSecurity apiSecurity;
     private final ObjectMapper objectMapper;
 
-    @Value("${spring.profiles.active}")
-    private String profiles;
+    @Value("${strix.show-request:false}")
+    private Boolean showRequest;
 
     @Override
     public boolean supports(MethodParameter methodParameter, @NotNull Type type, @NotNull Class<? extends HttpMessageConverter<?>> aClass) {
@@ -56,7 +56,7 @@ public class DecodeRequestBodyAdvice implements RequestBodyAdvice {
     @Override
     public HttpInputMessage beforeBodyRead(@NotNull HttpInputMessage inputMessage, @NotNull MethodParameter methodParameter, @NotNull Type type, @NotNull Class<? extends HttpMessageConverter<?>> aClass) {
         try {
-            return new HttpInputMessageHandler(inputMessage);
+            return new HttpInputMessageHandler(inputMessage, methodParameter);
         } catch (Exception e) {
             Method method = methodParameter.getMethod();
             if (method != null) {
@@ -83,21 +83,29 @@ public class DecodeRequestBodyAdvice implements RequestBodyAdvice {
         private final HttpHeaders headers;
         private InputStream body;
 
-        public HttpInputMessageHandler(HttpInputMessage inputMessage) throws Exception {
+        public HttpInputMessageHandler(HttpInputMessage inputMessage, MethodParameter methodParameter) throws Exception {
             HttpServletRequest request = ServletUtils.getRequest();
 
             this.headers = inputMessage.getHeaders();
             this.body = inputMessage.getBody();
             String originalBody = StrUtil.str(IoUtil.readBytes(this.body, false), StandardCharsets.UTF_8);
 
-            String handlingData = handleSecurity(originalBody);
-            if (!StringUtils.hasText(handlingData)) {
+            String decryptBodyStr = handleSecurity(originalBody);
+
+            if (showRequest) {
+                String fullMethodName = methodParameter.getContainingClass().getName() + "." + methodParameter.getMethod().getName();
+                log.info("\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n" +
+                        "请求数据: " + fullMethodName + "\n" +
+                        decryptBodyStr +
+                        "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+            }
+
+            if (!StringUtils.hasText(decryptBodyStr)) {
                 request.setAttribute("Strix-Security", false);
                 this.body = InputStream.nullInputStream();
             } else {
                 request.setAttribute("Strix-Security", true);
-                // this.body = IOUtils.toInputStream(handlingData, StandardCharsets.UTF_8);
-                this.body = IoUtil.toStream(handlingData, StandardCharsets.UTF_8);
+                this.body = IoUtil.toStream(decryptBodyStr, StandardCharsets.UTF_8);
             }
         }
 

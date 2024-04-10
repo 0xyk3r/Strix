@@ -53,8 +53,8 @@ public class SystemRegionServiceImpl extends ServiceImpl<SystemRegionMapper, Sys
         while (StringUtils.hasText(currentRegion.getParentId()) && !"0".equals(currentRegion.getParentId())) {
             currentRegion = systemRegionService.queryRegionById(currentRegion.getParentId());
 
-            fullPathList.add(0, currentRegion.getId());
-            fullNameList.add(0, currentRegion.getName());
+            fullPathList.addFirst(currentRegion.getId());
+            fullNameList.addFirst(currentRegion.getName());
             level++;
         }
 

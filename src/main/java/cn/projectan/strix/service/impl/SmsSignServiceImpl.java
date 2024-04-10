@@ -2,9 +2,9 @@ package cn.projectan.strix.service.impl;
 
 import cn.projectan.strix.mapper.SmsSignMapper;
 import cn.projectan.strix.model.db.SmsSign;
-import cn.projectan.strix.model.system.StrixSmsSign;
+import cn.projectan.strix.model.other.module.sms.StrixSmsSign;
 import cn.projectan.strix.service.SmsSignService;
-import cn.projectan.strix.utils.KeysDiffHandler;
+import cn.projectan.strix.utils.KeyDiffUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -30,10 +31,10 @@ public class SmsSignServiceImpl extends ServiceImpl<SmsSignMapper, SmsSign> impl
     public void syncSignList(String configKey, List<StrixSmsSign> signList) {
         List<SmsSign> dbSignList = this.list(new LambdaQueryWrapper<>(SmsSign.class).eq(SmsSign::getConfigKey, configKey));
 
-        List<String> dbSignNameList = dbSignList.stream().map(SmsSign::getName).toList();
-        List<String> signNameList = signList.stream().map(StrixSmsSign::getName).toList();
+        List<String> dbSignNameList = dbSignList.stream().map(SmsSign::getName).collect(Collectors.toList());
+        List<String> signNameList = signList.stream().map(StrixSmsSign::getName).collect(Collectors.toList());
 
-        KeysDiffHandler.handle(dbSignNameList, signNameList,
+        KeyDiffUtil.handle(dbSignNameList, signNameList,
                 (removeKeys) -> {
                     QueryWrapper<SmsSign> removeQueryWrapper = new QueryWrapper<>();
                     removeQueryWrapper.eq("config_key", configKey);
@@ -48,7 +49,7 @@ public class SmsSignServiceImpl extends ServiceImpl<SmsSignMapper, SmsSign> impl
                                     .setName(s.getName())
                                     .setStatus(s.getStatus())
                             )
-                            .toList();
+                            .collect(Collectors.toList());
                     Assert.isTrue(saveBatch(smsSignList), "Strix SMS: 同步增加签名失败.");
                 }
         );

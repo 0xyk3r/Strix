@@ -8,6 +8,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
+ * 异步工具类
+ *
  * @author ProjectAn
  * @date 2023/6/16 22:56
  */

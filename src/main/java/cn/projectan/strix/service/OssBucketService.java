@@ -1,7 +1,7 @@
 package cn.projectan.strix.service;
 
 import cn.projectan.strix.model.db.OssBucket;
-import cn.projectan.strix.model.system.StrixOssBucket;
+import cn.projectan.strix.model.other.module.oss.StrixOssBucket;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 import java.util.List;

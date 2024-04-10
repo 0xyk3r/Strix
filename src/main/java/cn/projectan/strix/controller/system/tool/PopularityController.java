@@ -1,7 +1,7 @@
 package cn.projectan.strix.controller.system.tool;
 
 import cn.projectan.strix.controller.system.base.BaseSystemController;
-import cn.projectan.strix.core.ret.RetMarker;
+import cn.projectan.strix.core.ret.RetBuilder;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.core.validation.group.InsertGroup;
 import cn.projectan.strix.core.validation.group.UpdateGroup;
@@ -50,7 +50,7 @@ public class PopularityController extends BaseSystemController {
         List<PopularityConfig> list = popularityConfigService.lambdaQuery()
                 .select(PopularityConfig::getId, PopularityConfig::getName)
                 .list();
-        return RetMarker.makeSuccessRsp(
+        return RetBuilder.success(
                 new PopularityConfigListResp(list)
         );
     }
@@ -62,7 +62,7 @@ public class PopularityController extends BaseSystemController {
         PopularityConfig data = popularityConfigService.getById(id);
         Assert.notNull(data, "数据不存在");
 
-        return RetMarker.makeSuccessRsp(
+        return RetBuilder.success(
                 new PopularityConfigResp(data)
         );
     }
@@ -78,13 +78,13 @@ public class PopularityController extends BaseSystemController {
                 req.getConfigKey(),
                 req.getInitialValue(),
                 req.getExtraValue(),
-                req.getMagValue().doubleValue()
+                req.getMagValue()
         );
         UniqueDetectionTool.check(popularityConfig);
 
         Assert.isTrue(popularityConfigService.save(popularityConfig), "保存失败");
 
-        return RetMarker.makeSuccessRsp();
+        return RetBuilder.success();
     }
 
     @PostMapping("update/{id}")
@@ -98,7 +98,7 @@ public class PopularityController extends BaseSystemController {
         UniqueDetectionTool.check(data);
         Assert.isTrue(popularityConfigService.update(updateWrapper), "保存失败");
 
-        return RetMarker.makeSuccessRsp();
+        return RetBuilder.success();
     }
 
     @PostMapping("remove/{id}")
@@ -116,7 +116,7 @@ public class PopularityController extends BaseSystemController {
         // 删除缓存数据
         popularityConfigService.clearCache(data.getConfigKey());
 
-        return RetMarker.makeSuccessRsp();
+        return RetBuilder.success();
     }
 
     @GetMapping("{id}/data")
@@ -129,7 +129,7 @@ public class PopularityController extends BaseSystemController {
         Page<PopularityData> list = popularityDataService.lambdaQuery()
                 .eq(PopularityData::getConfigKey, config.getConfigKey())
                 .page(req.getPage());
-        return RetMarker.makeSuccessRsp(
+        return RetBuilder.success(
                 new PopularityDataListResp(list)
         );
     }
@@ -147,7 +147,7 @@ public class PopularityController extends BaseSystemController {
                 .set(PopularityData::getOriginalValue, req.getOriginalValue())
                 .update();
 
-        return RetMarker.makeSuccessRsp();
+        return RetBuilder.success();
     }
 
     @PostMapping("{id}/data/remove/{dataId}")
@@ -162,7 +162,7 @@ public class PopularityController extends BaseSystemController {
                 .eq(PopularityData::getId, dataId)
                 .remove();
 
-        return RetMarker.makeSuccessRsp();
+        return RetBuilder.success();
     }
 
 }

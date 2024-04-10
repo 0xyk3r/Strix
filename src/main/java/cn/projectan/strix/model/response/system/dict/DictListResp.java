@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author ProjectAn
@@ -22,7 +23,9 @@ public class DictListResp extends BasePageResp {
     private List<DictItem> items = new ArrayList<>();
 
     public DictListResp(List<Dict> data, long total) {
-        items = data.stream().map(d -> new DictItem(d.getId(), d.getKey(), d.getName(), d.getDataType(), d.getStatus(), d.getRemark(), d.getVersion(), d.getProvided(), d.getCreateTime())).toList();
+        items = data.stream().map(d ->
+                new DictItem(d.getId(), d.getKey(), d.getName(), d.getDataType(), d.getStatus(), d.getRemark(), d.getVersion(), d.getProvided(), d.getCreateTime())
+        ).collect(Collectors.toList());
         this.setTotal(total);
     }
 

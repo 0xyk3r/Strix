@@ -11,6 +11,8 @@ spring:
       strict: false
       datasource:
         master:
+          #          driver-class-name: com.p6spy.engine.spy.P6SpyDriver
+          #          url: jdbc:p6spy:mysql://192.168.31.188:3366/strix?useSSL=true&serverTimezone=Asia/Shanghai&autoReconnect=true&rewriteBatchedStatements=true
           driver-class-name: com.mysql.cj.jdbc.Driver
           url: jdbc:mysql://192.168.31.188:3366/strix?useSSL=true&serverTimezone=Asia/Shanghai&autoReconnect=true&rewriteBatchedStatements=true
           username: root
@@ -33,7 +35,7 @@ spring:
             maximum-pool-size: 4
   data:
     redis:
-      database: 6
+      database: 0
       host: 192.168.31.188
       port: 6379
       password: str1Xredis
@@ -43,5 +45,3 @@ spring:
           max-active: 1
           max-idle: 1
           min-idle: 1
-strix:
-  show-response: false

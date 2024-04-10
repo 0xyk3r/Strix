@@ -1,7 +1,7 @@
 package cn.projectan.strix.controller.system;
 
 import cn.projectan.strix.controller.system.base.BaseSystemController;
-import cn.projectan.strix.core.ret.RetMarker;
+import cn.projectan.strix.core.ret.RetBuilder;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.core.validation.group.InsertGroup;
 import cn.projectan.strix.core.validation.group.UpdateGroup;
@@ -10,6 +10,7 @@ import cn.projectan.strix.model.db.Dict;
 import cn.projectan.strix.model.db.DictData;
 import cn.projectan.strix.model.dict.DictProvided;
 import cn.projectan.strix.model.dict.SysLogOperType;
+import cn.projectan.strix.model.enums.NumCategory;
 import cn.projectan.strix.model.request.system.dict.DictDataListReq;
 import cn.projectan.strix.model.request.system.dict.DictDataUpdateReq;
 import cn.projectan.strix.model.request.system.dict.DictListReq;
@@ -20,7 +21,7 @@ import cn.projectan.strix.model.response.system.dict.DictListResp;
 import cn.projectan.strix.model.response.system.dict.DictResp;
 import cn.projectan.strix.service.DictDataService;
 import cn.projectan.strix.service.DictService;
-import cn.projectan.strix.utils.NumUtils;
+import cn.projectan.strix.utils.NumUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
@@ -57,16 +58,16 @@ public class SystemDictController extends BaseSystemController {
                     .or()
                     .like(Dict::getName, req.getKeyword());
         }
-        if (NumUtils.isPositiveNumber(req.getStatus())) {
+        if (NumUtil.checkCategory(req.getStatus(), NumCategory.POSITIVE)) {
             queryWrapper.eq(Dict::getStatus, req.getStatus());
         }
-        if (NumUtils.isPositiveNumber(req.getProvided())) {
+        if (NumUtil.checkCategory(req.getProvided(), NumCategory.POSITIVE)) {
             queryWrapper.eq(Dict::getProvided, req.getProvided());
         }
 
         Page<Dict> page = dictService.page(req.getPage(), queryWrapper);
 
-        return RetMarker.makeSuccessRsp(
+        return RetBuilder.success(
                 new DictListResp(page.getRecords(), page.getTotal())
         );
     }
@@ -82,7 +83,7 @@ public class SystemDictController extends BaseSystemController {
                 .eq(DictData::getKey, dict.getKey()).list();
         List<DictDataListResp.DictDataItem> dictDataItems = new DictDataListResp(dictDataList, dictDataList.size()).getItems();
 
-        return RetMarker.makeSuccessRsp(
+        return RetBuilder.success(
                 new DictResp(
                         dict.getId(),
                         dict.getKey(),
@@ -115,7 +116,7 @@ public class SystemDictController extends BaseSystemController {
 
         dictService.saveDict(dict);
 
-        return RetMarker.makeSuccessRsp();
+        return RetBuilder.success();
     }
 
     @PostMapping("update/{id}")
@@ -127,7 +128,7 @@ public class SystemDictController extends BaseSystemController {
 
         dictService.updateDict(dict, req);
 
-        return RetMarker.makeSuccessRsp();
+        return RetBuilder.success();
     }
 
     @PostMapping("remove/{id}")
@@ -141,7 +142,7 @@ public class SystemDictController extends BaseSystemController {
             dictService.removeDict(dict);
         }
 
-        return RetMarker.makeSuccessRsp();
+        return RetBuilder.success();
     }
 
     @GetMapping("data/{key}")
@@ -156,14 +157,14 @@ public class SystemDictController extends BaseSystemController {
                     .or()
                     .like(DictData::getLabel, req.getKeyword());
         }
-        if (NumUtils.isPositiveNumber(req.getStatus())) {
+        if (NumUtil.checkCategory(req.getStatus(), NumCategory.POSITIVE)) {
             queryWrapper.eq(DictData::getStatus, req.getStatus());
         }
         queryWrapper.orderByAsc(DictData::getSort);
 
         Page<DictData> page = dictDataService.page(req.getPage(), queryWrapper);
 
-        return RetMarker.makeSuccessRsp(
+        return RetBuilder.success(
                 new DictDataListResp(page.getRecords(), page.getTotal())
         );
     }
@@ -175,7 +176,7 @@ public class SystemDictController extends BaseSystemController {
         DictData dictData = dictDataService.getById(id);
         Assert.notNull(dictData, "该数据不存在");
 
-        return RetMarker.makeSuccessRsp(
+        return RetBuilder.success(
                 new DictDataResp(
                         dictData.getId(),
                         dictData.getKey(),
@@ -207,7 +208,7 @@ public class SystemDictController extends BaseSystemController {
 
         dictService.saveDictData(dictData);
 
-        return RetMarker.makeSuccessRsp();
+        return RetBuilder.success();
     }
 
     @PostMapping("data/{key}/update/{id}")
@@ -219,7 +220,7 @@ public class SystemDictController extends BaseSystemController {
 
         dictService.updateDictData(dictData, req);
 
-        return RetMarker.makeSuccessRsp();
+        return RetBuilder.success();
     }
 
     @PostMapping("data/{key}/remove/{id}")
@@ -233,7 +234,7 @@ public class SystemDictController extends BaseSystemController {
             dictService.removeDictData(dictData);
         }
 
-        return RetMarker.makeSuccessRsp();
+        return RetBuilder.success();
     }
 
 }

@@ -1,8 +1,8 @@
 package cn.projectan.strix.controller.system.module.sms;
 
 import cn.projectan.strix.controller.system.base.BaseSystemController;
-import cn.projectan.strix.core.module.sms.StrixSmsConfig;
-import cn.projectan.strix.core.ret.RetMarker;
+import cn.projectan.strix.core.module.sms.StrixSmsStore;
+import cn.projectan.strix.core.ret.RetBuilder;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.core.validation.group.InsertGroup;
 import cn.projectan.strix.core.validation.group.UpdateGroup;
@@ -12,6 +12,7 @@ import cn.projectan.strix.model.db.SmsLog;
 import cn.projectan.strix.model.db.SmsSign;
 import cn.projectan.strix.model.db.SmsTemplate;
 import cn.projectan.strix.model.dict.SysLogOperType;
+import cn.projectan.strix.model.enums.NumCategory;
 import cn.projectan.strix.model.request.module.sms.*;
 import cn.projectan.strix.model.response.common.CommonSelectDataResp;
 import cn.projectan.strix.model.response.module.sms.*;
@@ -20,7 +21,7 @@ import cn.projectan.strix.service.SmsLogService;
 import cn.projectan.strix.service.SmsSignService;
 import cn.projectan.strix.service.SmsTemplateService;
 import cn.projectan.strix.task.StrixSmsTask;
-import cn.projectan.strix.utils.NumUtils;
+import cn.projectan.strix.utils.NumUtil;
 import cn.projectan.strix.utils.SpringUtil;
 import cn.projectan.strix.utils.UniqueDetectionTool;
 import cn.projectan.strix.utils.UpdateConditionBuilder;
@@ -46,7 +47,7 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequestMapping("system/sms")
-@ConditionalOnBean(StrixSmsConfig.class)
+@ConditionalOnBean(StrixSmsStore.class)
 @RequiredArgsConstructor
 public class SmsController extends BaseSystemController {
 
@@ -69,7 +70,7 @@ public class SmsController extends BaseSystemController {
         Page<SmsConfig> page = smsConfigService.page(req.getPage(), queryWrapper);
         SmsConfigListResp resp = new SmsConfigListResp(page.getRecords(), page.getTotal());
 
-        return RetMarker.makeSuccessRsp(resp);
+        return RetBuilder.success(resp);
     }
 
 
@@ -86,7 +87,7 @@ public class SmsController extends BaseSystemController {
         List<SmsTemplate> templates = smsTemplateService.lambdaQuery().eq(SmsTemplate::getConfigKey, smsConfig.getKey()).list();
         List<SmsTemplateListResp.SmsTemplateItem> templateItems = new SmsTemplateListResp(templates, (long) templates.size()).getTemplates();
 
-        return RetMarker.makeSuccessRsp(
+        return RetBuilder.success(
                 new SmsConfigResp(
                         smsConfig.getId(),
                         smsConfig.getKey(),
@@ -125,7 +126,7 @@ public class SmsController extends BaseSystemController {
         // 重新加载配置
         SpringUtil.getBean(StrixSmsTask.class).refreshConfig();
 
-        return RetMarker.makeSuccessRsp();
+        return RetBuilder.success();
     }
 
     @PostMapping("update/{id}")
@@ -141,10 +142,10 @@ public class SmsController extends BaseSystemController {
         Assert.isTrue(smsConfigService.update(updateWrapper), "保存失败");
 
         // 卸载原配置 重新加载
-        SpringUtil.getBean(StrixSmsConfig.class).getInstance(originKey).close();
+        SpringUtil.getBean(StrixSmsStore.class).getInstance(originKey).close();
         SpringUtil.getBean(StrixSmsTask.class).refreshConfig();
 
-        return RetMarker.makeSuccessRsp();
+        return RetBuilder.success();
     }
 
     @PostMapping("remove/{id}")
@@ -163,7 +164,7 @@ public class SmsController extends BaseSystemController {
         smsSignService.remove(new LambdaQueryWrapper<>(SmsSign.class).eq(SmsSign::getConfigKey, key));
         smsTemplateService.remove(new LambdaQueryWrapper<>(SmsTemplate.class).eq(SmsTemplate::getConfigKey, key));
 
-        return RetMarker.makeSuccessRsp();
+        return RetBuilder.success();
     }
 
     @GetMapping("sign")
@@ -175,7 +176,7 @@ public class SmsController extends BaseSystemController {
         if (StringUtils.hasText(req.getKeyword())) {
             queryWrapper.like("name", req.getKeyword());
         }
-        if (NumUtils.isPositiveNumber(req.getStatus())) {
+        if (NumUtil.checkCategory(req.getStatus(), NumCategory.POSITIVE)) {
             queryWrapper.eq("status", req.getStatus());
         }
         if (StringUtils.hasText(req.getConfigKey())) {
@@ -184,7 +185,7 @@ public class SmsController extends BaseSystemController {
 
         Page<SmsSign> page = smsSignService.page(req.getPage(), queryWrapper);
 
-        return RetMarker.makeSuccessRsp(new SmsSignListResp(page.getRecords(), page.getTotal()));
+        return RetBuilder.success(new SmsSignListResp(page.getRecords(), page.getTotal()));
     }
 
     @GetMapping("template")
@@ -196,10 +197,10 @@ public class SmsController extends BaseSystemController {
         if (StringUtils.hasText(req.getKeyword())) {
             queryWrapper.like("name", req.getKeyword());
         }
-        if (NumUtils.isPositiveNumber(req.getType())) {
+        if (NumUtil.checkCategory(req.getType(), NumCategory.POSITIVE)) {
             queryWrapper.eq("type", req.getType());
         }
-        if (NumUtils.isPositiveNumber(req.getStatus())) {
+        if (NumUtil.checkCategory(req.getStatus(), NumCategory.POSITIVE)) {
             queryWrapper.eq("status", req.getStatus());
         }
         if (StringUtils.hasText(req.getConfigKey())) {
@@ -208,7 +209,7 @@ public class SmsController extends BaseSystemController {
 
         Page<SmsTemplate> page = smsTemplateService.page(req.getPage(), queryWrapper);
 
-        return RetMarker.makeSuccessRsp(new SmsTemplateListResp(page.getRecords(), page.getTotal()));
+        return RetBuilder.success(new SmsTemplateListResp(page.getRecords(), page.getTotal()));
     }
 
     @GetMapping("log")
@@ -229,12 +230,12 @@ public class SmsController extends BaseSystemController {
 
         Page<SmsLog> page = smsLogService.page(req.getPage(), queryWrapper);
 
-        return RetMarker.makeSuccessRsp(new SmsLogListResp(page.getRecords(), page.getTotal()));
+        return RetBuilder.success(new SmsLogListResp(page.getRecords(), page.getTotal()));
     }
 
     @GetMapping("config/select")
     public RetResult<CommonSelectDataResp> getSmsConfigSelectList() {
-        return RetMarker.makeSuccessRsp(smsConfigService.getSelectData());
+        return RetBuilder.success(smsConfigService.getSelectData());
     }
 
 }

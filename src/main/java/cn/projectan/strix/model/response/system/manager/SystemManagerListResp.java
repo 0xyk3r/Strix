@@ -23,7 +23,9 @@ public class SystemManagerListResp extends BasePageResp {
     private List<SystemManagerItem> systemManagerList = new ArrayList<>();
 
     public SystemManagerListResp(List<SystemManager> data, Long total) {
-        systemManagerList = data.stream().map(d -> new SystemManagerItem(d.getId(), d.getNickname(), d.getLoginName(), d.getStatus(), d.getType(), d.getRegionId(), d.getCreateTime())).collect(Collectors.toList());
+        systemManagerList = data.stream().map(d ->
+                new SystemManagerItem(d.getId(), d.getNickname(), d.getLoginName(), d.getStatus(), d.getType(), d.getRegionId(), d.getCreateTime())
+        ).collect(Collectors.toList());
         this.setTotal(total);
     }
 

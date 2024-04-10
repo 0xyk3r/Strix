@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author ProjectAn
@@ -22,8 +23,10 @@ public class SystemLogListResp extends BasePageResp {
     private List<SystemLogItem> items = new ArrayList<>();
 
     public SystemLogListResp(List<SystemLog> data, Long total) {
-        items = data.stream().map(d -> new SystemLogItem(d.getAppId(), d.getAppVersion(), d.getOperationType(), d.getOperationGroup(), d.getOperationName(), d.getOperationSpend(), d.getOperationMethod(), d.getOperationUrl(), d.getOperationParam(),
-                d.getOperationTime(), d.getClientIp(), d.getClientDevice(), d.getClientLocation(), d.getClientUser(), d.getClientUsername(), d.getResponseCode(), d.getResponseMsg(), d.getResponseData())).toList();
+        items = data.stream().map(d ->
+                new SystemLogItem(d.getAppId(), d.getAppVersion(), d.getOperationType(), d.getOperationGroup(), d.getOperationName(), d.getOperationSpend(), d.getOperationMethod(), d.getOperationUrl(), d.getOperationParam(),
+                        d.getOperationTime(), d.getClientIp(), d.getClientDevice(), d.getClientLocation(), d.getClientUser(), d.getClientUsername(), d.getResponseCode(), d.getResponseMsg(), d.getResponseData())
+        ).collect(Collectors.toList());
         this.setTotal(total);
     }
 

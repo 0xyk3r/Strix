@@ -12,6 +12,7 @@ import com.baomidou.mybatisplus.generator.config.rules.DateType;
 import com.baomidou.mybatisplus.generator.fill.Column;
 import com.baomidou.mybatisplus.generator.fill.Property;
 import com.baomidou.mybatisplus.generator.keywords.MySqlKeyWordsHandler;
+import org.apache.ibatis.annotations.Mapper;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -83,6 +84,9 @@ public class MysqlGenerator {
                         .serviceBuilder()
                         .formatServiceFileName("%sService")
                         .formatServiceImplFileName("%sServiceImpl")
+                        // Mapper 策略配置
+                        .mapperBuilder()
+                        .mapperAnnotation(Mapper.class)
                         .build())
                 .execute();
 

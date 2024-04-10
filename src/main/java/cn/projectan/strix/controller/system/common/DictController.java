@@ -1,7 +1,7 @@
 package cn.projectan.strix.controller.system.common;
 
 import cn.projectan.strix.controller.system.base.BaseSystemController;
-import cn.projectan.strix.core.ret.RetMarker;
+import cn.projectan.strix.core.ret.RetBuilder;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.model.response.common.CommonDictResp;
 import cn.projectan.strix.model.response.common.CommonDictVersionResp;
@@ -28,7 +28,7 @@ public class DictController extends BaseSystemController {
 
     @GetMapping("_version")
     public RetResult<CommonDictVersionResp> getVersionList() {
-        return RetMarker.makeSuccessRsp(dictService.getDictVersionMapResp());
+        return RetBuilder.success(dictService.getDictVersionMapResp());
     }
 
     @GetMapping("{dictKey}")
@@ -37,7 +37,7 @@ public class DictController extends BaseSystemController {
         CommonDictResp commonDictResp = dictService.getDictResp(dictKey);
         Assert.notNull(commonDictResp, "字典未找到");
 
-        return RetMarker.makeSuccessRsp(commonDictResp);
+        return RetBuilder.success(commonDictResp);
     }
 
 }

@@ -1,7 +1,7 @@
 package cn.projectan.strix.service;
 
 import cn.projectan.strix.model.db.SmsTemplate;
-import cn.projectan.strix.model.system.StrixSmsTemplate;
+import cn.projectan.strix.model.other.module.sms.StrixSmsTemplate;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 import java.util.List;

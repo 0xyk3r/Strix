@@ -12,6 +12,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * 热度工具类
@@ -28,7 +29,7 @@ public class PopularityUtil {
     private final RedisUtil redisUtil;
 
     public void addPopularity(String popularityDataType, String popularityDataId) {
-        redisUtil.incr(PopularityConstants.POPULARITY_DATA_REDIS_KEY_PREFIX + popularityDataType + "::" + popularityDataId, 1);
+        redisUtil.incr(PopularityConstants.POPULARITY_DATA_REDIS_KEY_PREFIX + popularityDataType + "::" + popularityDataId);
     }
 
     public String getPopularity(String popularityDataType, String popularityDataId) {
@@ -39,7 +40,7 @@ public class PopularityUtil {
             // 计算初始数值 + 原始值
             BigDecimal initialCalc = new BigDecimal(config.getInitialValue().toString()).add(new BigDecimal(popularity));
             // 乘算倍数
-            BigDecimal magCalc = initialCalc.multiply(new BigDecimal(config.getMagValue().toString()));
+            BigDecimal magCalc = initialCalc.multiply(config.getMagValue());
             // 加算额外值
             BigDecimal extraCalc = magCalc.add(new BigDecimal(config.getExtraValue().toString()));
             // 只保留整数
@@ -67,7 +68,7 @@ public class PopularityUtil {
                 }
             }
             return true;
-        }).toList();
+        }).collect(Collectors.toList());
 
         // 找出需要更新的数据
         List<PopularityData> updateList = list.stream().filter(popularityData -> {
@@ -78,7 +79,7 @@ public class PopularityUtil {
                 }
             }
             return false;
-        }).toList();
+        }).collect(Collectors.toList());
 
         popularityDataService.saveBatch(insertList);
         popularityDataService.updateBatchById(updateList);

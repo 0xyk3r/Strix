@@ -2,7 +2,7 @@ package cn.projectan.strix.controller.system;
 
 import cn.projectan.strix.controller.system.base.BaseSystemController;
 import cn.projectan.strix.core.cache.SystemPermissionCache;
-import cn.projectan.strix.core.ret.RetMarker;
+import cn.projectan.strix.core.ret.RetBuilder;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.core.validation.group.InsertGroup;
 import cn.projectan.strix.core.validation.group.UpdateGroup;
@@ -53,7 +53,7 @@ public class SystemPermissionController extends BaseSystemController {
         systemPermissionQueryWrapper.orderByAsc("create_time");
         List<SystemPermission> systemPermissionList = systemPermissionService.list(systemPermissionQueryWrapper);
 
-        return RetMarker.makeSuccessRsp(new SystemPermissionListResp(systemPermissionList));
+        return RetBuilder.success(new SystemPermissionListResp(systemPermissionList));
     }
 
     @GetMapping("{permissionId}")
@@ -64,7 +64,7 @@ public class SystemPermissionController extends BaseSystemController {
         SystemPermission systemPermission = systemPermissionService.getById(permissionId);
         Assert.notNull(systemPermission, "系统权限信息不存在");
 
-        return RetMarker.makeSuccessRsp(new SystemPermissionResp(systemPermission.getId(), systemPermission.getName(), systemPermission.getKey(), systemPermission.getMenuId(), systemPermission.getDescription()));
+        return RetBuilder.success(new SystemPermissionResp(systemPermission.getId(), systemPermission.getName(), systemPermission.getKey(), systemPermission.getMenuId(), systemPermission.getDescription()));
     }
 
     @PostMapping("update")
@@ -86,7 +86,7 @@ public class SystemPermissionController extends BaseSystemController {
         Assert.isTrue(systemPermissionService.save(systemPermission), "保存失败");
         systemPermissionCache.updateRamAndRedis();
 
-        return RetMarker.makeSuccessRsp();
+        return RetBuilder.success();
     }
 
     @PostMapping("update/{permissionId}")
@@ -107,7 +107,7 @@ public class SystemPermissionController extends BaseSystemController {
         SystemManagerService systemManagerService = SpringUtil.getBean(SystemManagerService.class);
         systemManagerService.refreshLoginInfoByPermission(permissionId);
 
-        return RetMarker.makeSuccessRsp();
+        return RetBuilder.success();
     }
 
     @PostMapping("remove/{permissionId}")
@@ -125,7 +125,7 @@ public class SystemPermissionController extends BaseSystemController {
         systemRolePermissionService.remove(deleteRolePermissionRelationQueryWrapper);
         systemPermissionCache.updateRamAndRedis();
 
-        return RetMarker.makeSuccessRsp();
+        return RetBuilder.success();
     }
 
     @GetMapping("transfer")
@@ -134,7 +134,7 @@ public class SystemPermissionController extends BaseSystemController {
         systemPermissionQueryWrapper.select("id", "name");
         List<SystemPermission> systemPermissionList = systemPermissionService.list(systemPermissionQueryWrapper);
 
-        return RetMarker.makeSuccessRsp(new CommonTransferDataResp(systemPermissionList, "id", "name", null));
+        return RetBuilder.success(new CommonTransferDataResp(systemPermissionList, "id", "name", null));
     }
 
 }

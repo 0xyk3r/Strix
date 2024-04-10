@@ -12,8 +12,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 常量字典值校验器 <br/>
- * 注意：本校验器通过反射获取字典值，仅适用于字典值不可被后台修改的情况
+ * 常量字典值校验器
+ * <p>注意：本校验器通过反射获取字典值，仅适用于字典值不可被后台修改的情况
  *
  * @author ProjectAn
  * @date 2023/9/6 16:43

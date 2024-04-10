@@ -4,7 +4,7 @@ import cn.projectan.strix.controller.system.base.BaseSystemController;
 import cn.projectan.strix.core.cache.SystemMenuCache;
 import cn.projectan.strix.core.cache.SystemPermissionCache;
 import cn.projectan.strix.core.cache.SystemRegionCache;
-import cn.projectan.strix.core.ret.RetMarker;
+import cn.projectan.strix.core.ret.RetBuilder;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.core.validation.group.InsertGroup;
 import cn.projectan.strix.core.validation.group.UpdateGroup;
@@ -14,6 +14,7 @@ import cn.projectan.strix.model.db.SystemManagerRole;
 import cn.projectan.strix.model.dict.SysLogOperType;
 import cn.projectan.strix.model.dict.SystemManagerStatus;
 import cn.projectan.strix.model.dict.SystemManagerType;
+import cn.projectan.strix.model.enums.NumCategory;
 import cn.projectan.strix.model.request.common.SingleFieldModifyReq;
 import cn.projectan.strix.model.request.system.manager.SystemManagerListReq;
 import cn.projectan.strix.model.request.system.manager.SystemManagerUpdateReq;
@@ -21,8 +22,8 @@ import cn.projectan.strix.model.response.system.manager.SystemManagerListResp;
 import cn.projectan.strix.model.response.system.manager.SystemManagerResp;
 import cn.projectan.strix.service.SystemManagerRoleService;
 import cn.projectan.strix.service.SystemManagerService;
-import cn.projectan.strix.utils.KeysDiffHandler;
-import cn.projectan.strix.utils.NumUtils;
+import cn.projectan.strix.utils.KeyDiffUtil;
+import cn.projectan.strix.utils.NumUtil;
 import cn.projectan.strix.utils.UniqueDetectionTool;
 import cn.projectan.strix.utils.UpdateConditionBuilder;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -71,10 +72,10 @@ public class SystemManagerController extends BaseSystemController {
             systemManagerQueryWrapper.like("nickname", req.getKeyword())
                     .or(q -> q.like("login_name", req.getKeyword()));
         }
-        if (NumUtils.isNonNegativeNumber(req.getStatus())) {
+        if (NumUtil.checkCategory(req.getStatus(), NumCategory.NON_NEGATIVE)) {
             systemManagerQueryWrapper.eq("status", req.getStatus());
         }
-        if (NumUtils.isPositiveNumber(req.getType())) {
+        if (NumUtil.checkCategory(req.getType(), NumCategory.POSITIVE)) {
             systemManagerQueryWrapper.eq("type", req.getType());
         }
         systemManagerQueryWrapper.orderByAsc("create_time");
@@ -83,7 +84,7 @@ public class SystemManagerController extends BaseSystemController {
 
         SystemManagerListResp resp = new SystemManagerListResp(page.getRecords(), page.getTotal());
 
-        return RetMarker.makeSuccessRsp(resp);
+        return RetBuilder.success(resp);
     }
 
     @GetMapping("{managerId}")
@@ -99,7 +100,7 @@ public class SystemManagerController extends BaseSystemController {
         systemManagerRoleQueryWrapper.eq("system_manager_id", managerId);
         List<String> systemManagerRoleIds = systemManagerRoleService.listObjs(systemManagerRoleQueryWrapper, Object::toString);
 
-        return RetMarker.makeSuccessRsp(new SystemManagerResp(systemManager.getId(), systemManager.getNickname(), systemManager.getLoginName(), systemManager.getStatus(), systemManager.getType(), systemManager.getRegionId(), systemManager.getCreateTime(), String.join(",", systemManagerRoleIds)));
+        return RetBuilder.success(new SystemManagerResp(systemManager.getId(), systemManager.getNickname(), systemManager.getLoginName(), systemManager.getStatus(), systemManager.getType(), systemManager.getRegionId(), systemManager.getCreateTime(), String.join(",", systemManagerRoleIds)));
     }
 
     @PostMapping("modify/{managerId}")
@@ -135,7 +136,7 @@ public class SystemManagerController extends BaseSystemController {
                 systemManagerRoleQueryWrapper.select("system_role_id");
                 systemManagerRoleQueryWrapper.eq("system_manager_id", managerId);
                 List<String> systemManagerRoleIds = systemManagerRoleService.listObjs(systemManagerRoleQueryWrapper, Object::toString);
-                KeysDiffHandler.handle(systemManagerRoleIds, Arrays.asList(req.getValue().split(",")),
+                KeyDiffUtil.handle(systemManagerRoleIds, Arrays.asList(req.getValue().split(",")),
                         (removeKeys) -> {
                             QueryWrapper<SystemManagerRole> removeQueryWrapper = new QueryWrapper<>();
                             removeQueryWrapper.eq("system_manager_id", managerId);
@@ -163,7 +164,7 @@ public class SystemManagerController extends BaseSystemController {
                 );
             }
             default -> {
-                return RetMarker.makeErrRsp("参数错误");
+                return RetBuilder.error("参数错误");
             }
         }
 
@@ -173,10 +174,10 @@ public class SystemManagerController extends BaseSystemController {
             systemManagerRoleQueryWrapper.eq("system_manager_id", managerId);
             List<String> systemManagerRoleIds = systemManagerRoleService.listObjs(systemManagerRoleQueryWrapper, Object::toString);
 
-            return RetMarker.makeSuccessRsp(new SystemManagerResp(systemManager.getId(), systemManager.getNickname(), systemManager.getLoginName(), systemManager.getStatus(), systemManager.getType(), systemManager.getRegionId(), systemManager.getCreateTime(), String.join(",", systemManagerRoleIds)));
+            return RetBuilder.success(new SystemManagerResp(systemManager.getId(), systemManager.getNickname(), systemManager.getLoginName(), systemManager.getStatus(), systemManager.getType(), systemManager.getRegionId(), systemManager.getCreateTime(), String.join(",", systemManagerRoleIds)));
         }
 
-        return RetMarker.makeSuccessRsp();
+        return RetBuilder.success();
     }
 
     @PostMapping("update")
@@ -200,7 +201,7 @@ public class SystemManagerController extends BaseSystemController {
 
         Assert.isTrue(systemManagerService.save(systemManager), "保存失败");
 
-        return RetMarker.makeSuccessRsp();
+        return RetBuilder.success();
     }
 
     @PostMapping("update/{managerId}")
@@ -217,7 +218,7 @@ public class SystemManagerController extends BaseSystemController {
         UniqueDetectionTool.check(systemManager);
         Assert.isTrue(systemManagerService.update(updateWrapper), "保存失败");
 
-        return RetMarker.makeSuccessRsp();
+        return RetBuilder.success();
     }
 
     @PostMapping("remove/{managerId}")
@@ -236,7 +237,7 @@ public class SystemManagerController extends BaseSystemController {
         deleteManagerRoleRelationQueryWrapper.eq("system_manager_id", systemManager.getId());
         systemManagerRoleService.remove(deleteManagerRoleRelationQueryWrapper);
 
-        return RetMarker.makeSuccessRsp();
+        return RetBuilder.success();
     }
 
 }

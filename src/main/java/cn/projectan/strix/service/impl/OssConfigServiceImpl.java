@@ -2,7 +2,7 @@ package cn.projectan.strix.service.impl;
 
 import cn.projectan.strix.core.exception.StrixException;
 import cn.projectan.strix.core.module.oss.AliyunOssClient;
-import cn.projectan.strix.core.module.oss.StrixOssConfig;
+import cn.projectan.strix.core.module.oss.StrixOssStore;
 import cn.projectan.strix.mapper.OssConfigMapper;
 import cn.projectan.strix.model.db.OssConfig;
 import cn.projectan.strix.model.dict.StrixOssPlatform;
@@ -40,7 +40,7 @@ public class OssConfigServiceImpl extends ServiceImpl<OssConfigMapper, OssConfig
     @Override
     public void createInstance(List<OssConfig> ossConfigList) {
         StrixOssTask strixOssTask = SpringUtil.getBean(StrixOssTask.class);
-        StrixOssConfig strixOssConfig = SpringUtil.getBean(StrixOssConfig.class);
+        StrixOssStore strixOssStore = SpringUtil.getBean(StrixOssStore.class);
 
         for (OssConfig ossConfig : ossConfigList) {
             boolean success = true;
@@ -55,21 +55,21 @@ public class OssConfigServiceImpl extends ServiceImpl<OssConfigMapper, OssConfig
                         if ("prod".equals(profiles)) {
                             privateClient = new OSSClientBuilder().build(ossConfig.getPrivateEndpoint(), ossConfig.getAccessKey(), ossConfig.getAccessSecret(), conf);
                         }
-                        Assert.notNull(publicClient, "Strix OSS: 初始化对象存储服务实例<" + ossConfig.getKey() + ">失败. (阿里云公网对象存储服务配置错误)");
-                        Assert.notNull(privateClient, "Strix OSS: 初始化对象存储服务实例<" + ossConfig.getKey() + ">失败. (阿里云私网对象存储服务配置错误)");
-                        strixOssConfig.addInstance(ossConfig.getKey(), new AliyunOssClient(publicClient, privateClient));
+                        Assert.notNull(publicClient, "Strix OSS: 初始化对象存储服务实例 <" + ossConfig.getKey() + "> 失败. (阿里云公网对象存储服务配置错误)");
+                        Assert.notNull(privateClient, "Strix OSS: 初始化对象存储服务实例 <" + ossConfig.getKey() + "> 失败. (阿里云私网对象存储服务配置错误)");
+                        strixOssStore.addInstance(ossConfig.getKey(), new AliyunOssClient(publicClient, privateClient));
                     }
                     case StrixOssPlatform.TENCENT ->
-                            throw new StrixException("Strix OSS: 初始化对象存储服务实例<" + ossConfig.getKey() + ">失败. (暂不支持腾讯云对象存储服务)");
+                            throw new StrixException("Strix OSS: 初始化对象存储服务实例 <" + ossConfig.getKey() + "> 失败. (暂不支持腾讯云对象存储服务)");
                     default ->
-                            throw new StrixException("Strix OSS: 初始化对象存储服务实例<" + ossConfig.getKey() + ">失败. (暂不支持该对象存储服务平台)");
+                            throw new StrixException("Strix OSS: 初始化对象存储服务实例 <" + ossConfig.getKey() + "> 失败. (暂不支持该对象存储服务平台)");
                 }
             } catch (Exception e) {
                 success = false;
-                log.error("Strix OSS: 初始化对象存储服务实例<" + ossConfig.getKey() + ">失败. (其他错误)", e);
+                log.error("Strix OSS: 初始化对象存储服务实例 <" + ossConfig.getKey() + "> 失败. (其他错误)", e);
             }
             if (success) {
-                log.info("Strix OSS: 初始化对象存储服务实例<" + ossConfig.getKey() + ">成功.");
+                log.info("Strix OSS: 初始化对象存储服务实例 <" + ossConfig.getKey() + "> 完成.");
             }
         }
 

@@ -4,16 +4,13 @@ import cn.projectan.strix.core.ss.error.AccessDeniedHandlerImpl;
 import cn.projectan.strix.core.ss.error.AuthenticationEntryPointImpl;
 import cn.projectan.strix.core.ss.filter.SystemManagerAuthenticationTokenFilter;
 import cn.projectan.strix.core.ss.filter.SystemUserAuthenticationTokenFilter;
-import cn.projectan.strix.core.ss.handler.LogoutSuccessHandlerImpl;
+import cn.projectan.strix.core.ss.handler.SystemManagerLogoutSuccessHandler;
 import cn.projectan.strix.core.ss.provider.SystemManagerAuthenticationProvider;
 import cn.projectan.strix.core.ss.provider.SystemUserAuthenticationProvider;
-import cn.projectan.strix.initialize.AnonymousUrlInit;
-import cn.projectan.strix.initialize.RoleUrlInit;
+import cn.projectan.strix.initialize.SecurityRuleInit;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -25,6 +22,8 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 /**
+ * Spring Security 配置类
+ *
  * @author ProjectAn
  * @date 2023/2/24 23:17
  */
@@ -40,33 +39,36 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
-        return authenticationConfiguration.getAuthenticationManager();
-    }
-
-    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http,
-                                                   SystemManagerAuthenticationTokenFilter systemManagerAuthenticationTokenFilter,
-                                                   SystemUserAuthenticationTokenFilter systemUserAuthenticationTokenFilter,
                                                    SystemManagerAuthenticationProvider systemManagerAuthenticationProvider,
                                                    SystemUserAuthenticationProvider systemUserAuthenticationProvider,
+                                                   SystemManagerAuthenticationTokenFilter systemManagerAuthenticationTokenFilter,
+                                                   SystemUserAuthenticationTokenFilter systemUserAuthenticationTokenFilter,
                                                    AccessDeniedHandlerImpl accessDeniedHandler,
                                                    AuthenticationEntryPointImpl authenticationEntryPoint,
-                                                   AnonymousUrlInit anonymousUrlInit,
-                                                   RoleUrlInit roleUrlInit,
-                                                   LogoutSuccessHandlerImpl logoutSuccessHandler) throws Exception {
+                                                   SecurityRuleInit securityRuleInit,
+                                                   SystemManagerLogoutSuccessHandler logoutSuccessHandler) throws Exception {
         http
+                .cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
-                // 禁止自动跳转登录页面
+                // 禁用内置登录
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
+//                .formLogin((formLogin) -> formLogin
+//                        .loginProcessingUrl("/system/login")
+//                        .usernameParameter("username")
+//                        .passwordParameter("password")
+//                        .successHandler(loginSuccessHandler)
+//                        .failureHandler(loginFailureHandler)
+//                )
+                // 无状态会话
                 .sessionManagement((sessionManagement) -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests((authorizeRequests) -> {
                     // 加载匿名访问的URL (form DB & annotation)
-                    anonymousUrlInit.getUrls().forEach(url -> authorizeRequests.requestMatchers(url).permitAll());
+                    securityRuleInit.getAnonymousUrlList().forEach(url -> authorizeRequests.requestMatchers(url).permitAll());
                     // 加载访问URL需要的角色 (form DB)
-                    roleUrlInit.getUrlRoleMap().forEach((url, role) -> authorizeRequests.requestMatchers(url).hasRole(role));
-                    roleUrlInit.getUrlAnyRoleMap().forEach((url, role) -> authorizeRequests.requestMatchers(url).hasAnyRole(role.split(",")));
+                    securityRuleInit.getUrlRoleMap().forEach((url, role) -> authorizeRequests.requestMatchers(url).hasRole(role));
+                    securityRuleInit.getUrlAnyRoleMap().forEach((url, role) -> authorizeRequests.requestMatchers(url).hasAnyRole(role.split(",")));
                     // 所有请求全部需要鉴权认证
                     authorizeRequests.anyRequest().authenticated();
                 })
@@ -75,11 +77,9 @@ public class SecurityConfig {
                 .authenticationProvider(systemManagerAuthenticationProvider)
                 .authenticationProvider(systemUserAuthenticationProvider)
                 .exceptionHandling((exceptionHandling) -> exceptionHandling
-                        // 添加认证/权限异常处理
+                        // 异常处理
                         .accessDeniedHandler(accessDeniedHandler)
                         .authenticationEntryPoint(authenticationEntryPoint))
-                // 允许跨域
-                .cors(Customizer.withDefaults())
                 .logout((logout) -> logout
                         // 登出URL
                         .logoutUrl("/system/logout")

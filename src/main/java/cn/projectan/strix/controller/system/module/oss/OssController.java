@@ -1,8 +1,8 @@
 package cn.projectan.strix.controller.system.module.oss;
 
 import cn.projectan.strix.controller.system.base.BaseSystemController;
-import cn.projectan.strix.core.module.oss.StrixOssConfig;
-import cn.projectan.strix.core.ret.RetMarker;
+import cn.projectan.strix.core.module.oss.StrixOssStore;
+import cn.projectan.strix.core.ret.RetBuilder;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.core.validation.group.InsertGroup;
 import cn.projectan.strix.core.validation.group.UpdateGroup;
@@ -47,7 +47,7 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequestMapping("system/oss")
-@ConditionalOnBean(StrixOssConfig.class)
+@ConditionalOnBean(StrixOssStore.class)
 @RequiredArgsConstructor
 public class OssController extends BaseSystemController {
 
@@ -67,7 +67,7 @@ public class OssController extends BaseSystemController {
         }
 
         Page<OssConfig> page = ossConfigService.page(req.getPage(), queryWrapper);
-        return RetMarker.makeSuccessRsp(new OssConfigListResp(page.getRecords(), page.getTotal()));
+        return RetBuilder.success(new OssConfigListResp(page.getRecords(), page.getTotal()));
     }
 
     @GetMapping("{id}")
@@ -83,7 +83,7 @@ public class OssController extends BaseSystemController {
         List<OssFileGroup> fileGroups = ossFileGroupService.lambdaQuery().eq(OssFileGroup::getConfigKey, ossConfig.getKey()).list();
         List<OssFileGroupListResp.OssFileGroupItem> fileGroupItems = new OssFileGroupListResp(fileGroups, (long) fileGroups.size()).getFileGroups();
 
-        return RetMarker.makeSuccessRsp(
+        return RetBuilder.success(
                 new OssConfigResp(
                         ossConfig.getId(),
                         ossConfig.getKey(),
@@ -124,7 +124,7 @@ public class OssController extends BaseSystemController {
         // 重新加载配置
         SpringUtil.getBean(StrixOssTask.class).refreshConfig();
 
-        return RetMarker.makeSuccessRsp();
+        return RetBuilder.success();
     }
 
     @PostMapping("update/{id}")
@@ -140,10 +140,10 @@ public class OssController extends BaseSystemController {
         Assert.isTrue(ossConfigService.update(updateWrapper), "保存失败");
 
         // 卸载原配置 重新加载
-        SpringUtil.getBean(StrixOssConfig.class).getInstance(originKey).close();
+        SpringUtil.getBean(StrixOssStore.class).getInstance(originKey).close();
         SpringUtil.getBean(StrixOssTask.class).refreshConfig();
 
-        return RetMarker.makeSuccessRsp();
+        return RetBuilder.success();
     }
 
     @PostMapping("remove/{id}")
@@ -161,12 +161,12 @@ public class OssController extends BaseSystemController {
         // 删除 Bucket 配置   但不删除 文件组 和 文件
         ossBucketService.remove(new LambdaQueryWrapper<>(OssBucket.class).eq(OssBucket::getConfigKey, key));
 
-        return RetMarker.makeSuccessRsp();
+        return RetBuilder.success();
     }
 
     @GetMapping("config/select")
     public RetResult<CommonSelectDataResp> getOssConfigSelectList() {
-        return RetMarker.makeSuccessRsp(ossConfigService.getSelectData());
+        return RetBuilder.success(ossConfigService.getSelectData());
     }
 
     @GetMapping("file")
@@ -187,7 +187,7 @@ public class OssController extends BaseSystemController {
 
         Page<OssFile> page = ossFileService.page(req.getPage(), queryWrapper);
 
-        return RetMarker.makeSuccessRsp(new OssFileListResp(page.getRecords(), page.getTotal()));
+        return RetBuilder.success(new OssFileListResp(page.getRecords(), page.getTotal()));
     }
 
     @PostMapping("file/remove/{id}")
@@ -195,7 +195,7 @@ public class OssController extends BaseSystemController {
     @StrixLog(operationGroup = "系统存储", operationName = "删除存储文件", operationType = SysLogOperType.DELETE)
     public RetResult<Object> removeFile(@PathVariable String id) {
         ossFileService.delete(id);
-        return RetMarker.makeSuccessRsp();
+        return RetBuilder.success();
     }
 
 }

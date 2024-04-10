@@ -23,7 +23,9 @@ public class SmsConfigListResp extends BasePageResp {
     private List<SmsConfigItem> configs = new ArrayList<>();
 
     public SmsConfigListResp(List<SmsConfig> data, Long total) {
-        configs = data.stream().map(d -> new SmsConfigItem(d.getId(), d.getKey(), d.getName(), d.getPlatform(), d.getRegionId(), d.getAccessKey(), d.getRemark(), d.getCreateTime())).collect(Collectors.toList());
+        configs = data.stream().map(d ->
+                new SmsConfigItem(d.getId(), d.getKey(), d.getName(), d.getPlatform(), d.getRegionId(), d.getAccessKey(), d.getRemark(), d.getCreateTime())
+        ).collect(Collectors.toList());
         this.setTotal(total);
     }
 
