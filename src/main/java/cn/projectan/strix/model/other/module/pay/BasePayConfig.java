@@ -7,7 +7,7 @@ import lombok.Data;
  * @date 2021/8/24 15:47
  */
 @Data
-public class BasePaymentConfig {
+public class BasePayConfig {
 
     private String id;
 

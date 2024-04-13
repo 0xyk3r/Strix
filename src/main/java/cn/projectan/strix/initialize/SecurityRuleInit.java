@@ -65,7 +65,7 @@ public class SecurityRuleInit {
                 .stream().collect(Collectors.toMap(SecurityUrl::getUrl, SecurityUrl::getRuleValue, (k1, k2) -> k1));
 
         // 从 URL 映射中获取允许匿名访问的 URL
-        RequestMappingHandlerMapping mapping = SpringUtil.getBean(RequestMappingHandlerMapping.class);
+        RequestMappingHandlerMapping mapping = SpringUtil.getBean("requestMappingHandlerMapping", RequestMappingHandlerMapping.class);
         Map<RequestMappingInfo, HandlerMethod> map = mapping.getHandlerMethods();
         map.keySet().forEach(info -> {
             HandlerMethod handlerMethod = map.get(info);
@@ -83,6 +83,7 @@ public class SecurityRuleInit {
                 }
             }
         });
+        log.info("Strix Security: 初始化 URL 安全规则完成, 允许匿名访问 URL 数量: {}", anonymousUrlList.size());
     }
 
 }

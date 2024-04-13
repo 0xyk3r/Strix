@@ -3,7 +3,6 @@ package cn.projectan.strix;
 import com.baomidou.mybatisplus.generator.FastAutoGenerator;
 import com.baomidou.mybatisplus.generator.config.DataSourceConfig;
 import com.baomidou.mybatisplus.generator.config.OutputFile;
-import com.baomidou.mybatisplus.generator.config.TemplateType;
 import com.baomidou.mybatisplus.generator.config.querys.ClickHouseQuery;
 import com.baomidou.mybatisplus.generator.config.rules.DateType;
 import com.baomidou.mybatisplus.generator.query.SQLQuery;
@@ -52,29 +51,29 @@ public class ClickHouseGenerator {
                         .controller("controller")
                         .pathInfo(Collections.singletonMap(OutputFile.xml, projectPath + "/src/main/resources/mapper"))
                         .build())
-                .templateConfig(builder -> builder.disable(TemplateType.CONTROLLER)
-                        .entity("templates/mp/entity.java")
-                        .service("templates/mp/service.java")
-                        .serviceImpl("templates/mp/serviceImpl.java")
-                        .mapper("templates/mp/mapper.java")
-                        .xml("templates/mp/mapper.xml")
-                        .build())
                 .strategyConfig((scanner, builder) -> builder.addInclude(getTables(scanner.apply("请输入表名，多个英文逗号分隔。所有输入 all")))
                         .addTablePrefix("sys_", "tab_") // 表前缀过滤
+                        // Controller 策略配置
+                        .controllerBuilder()
+                        .disable()
                         // Entity 策略配置
                         .entityBuilder()
+                        .javaTemplate("templates/mp/entity.java")
                         .enableLombok()
                         .enableChainModel()
                         // Service 策略配置
                         .serviceBuilder()
+                        .serviceTemplate("templates/mp/service.java")
+                        .serviceImplTemplate("templates/mp/serviceImpl.java")
                         .formatServiceFileName("%sService")
                         .formatServiceImplFileName("%sServiceImpl")
                         // Mapper 策略配置
                         .mapperBuilder()
+                        .mapperTemplate("templates/mp/mapper.java")
+                        .mapperXmlTemplate("templates/mp/mapper.xml")
                         .mapperAnnotation(Mapper.class)
                         .build())
                 .execute();
-
     }
 
     // 处理 all 情况

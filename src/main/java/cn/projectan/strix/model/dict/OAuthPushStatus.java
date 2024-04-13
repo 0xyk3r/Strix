@@ -2,6 +2,7 @@ package cn.projectan.strix.model.dict;
 
 import cn.projectan.strix.model.annotation.Dict;
 import cn.projectan.strix.model.annotation.DictData;
+import cn.projectan.strix.model.dict.base.BaseDict;
 import org.springframework.stereotype.Component;
 
 /**
@@ -12,7 +13,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Dict(key = "OAuthPushStatus", value = "OAuth推送状态")
-public class OAuthPushStatus {
+public class OAuthPushStatus implements BaseDict {
 
     @DictData(label = "等待", sort = 1, style = DictDataStyle.DEFAULT)
     public static final byte WAITING = 1;

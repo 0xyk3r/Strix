@@ -6,7 +6,7 @@ plugins {
 }
 
 group = 'cn.projectan'
-version = '2.0.0'
+version = '2.1.0'
 description = 'Strix'
 
 java {
@@ -58,11 +58,13 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-mail'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
-    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     // Spring Boot - Test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
     annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
+    // Redis
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation 'org.redisson:redisson-spring-boot-starter:3.27.2'
     // Database - MySQL
     implementation 'p6spy:p6spy:3.9.1'
     runtimeOnly 'com.mysql:mysql-connector-j'
