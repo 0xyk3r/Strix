@@ -6,7 +6,7 @@ plugins {
 }
 
 group = 'cn.projectan'
-version = '2.1.0'
+version = '2.1.1'
 description = 'Strix'
 
 java {
@@ -122,6 +122,7 @@ graalvmNative {
                     '--enable-url-protocols=https',
                     '--features=cn.projectan.strix.aot.LambdaRegistrationFeature',
                     '--features=cn.projectan.strix.aot.BouncyCastleFeature',
+                    '--initialize-at-run-time=sun.net.dns.ResolverConfigurationImpl',
                     '--rerun-class-initialization-at-runtime=org.bouncycastle.crypto.prng.SP800SecureRandom',
                     '--rerun-class-initialization-at-runtime=org.bouncycastle.jcajce.provider.drbg.DRBG$Default',
                     '--rerun-class-initialization-at-runtime=org.bouncycastle.jcajce.provider.drbg.DRBG$NonceAndIV',
