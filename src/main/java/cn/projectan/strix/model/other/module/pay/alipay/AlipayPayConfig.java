@@ -1,6 +1,6 @@
 package cn.projectan.strix.model.other.module.pay.alipay;
 
-import cn.projectan.strix.model.other.module.pay.BasePaymentConfig;
+import cn.projectan.strix.model.other.module.pay.BasePayConfig;
 import lombok.Data;
 
 /**
@@ -8,7 +8,7 @@ import lombok.Data;
  * @date 2024/4/3 2:12
  */
 @Data
-public class AlipayPayConfig extends BasePaymentConfig {
+public class AlipayPayConfig extends BasePayConfig {
 
     /**
      * 支付宝AppId

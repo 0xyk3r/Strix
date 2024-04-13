@@ -1,6 +1,6 @@
 package cn.projectan.strix.model.other.module.pay.wxpay;
 
-import cn.projectan.strix.model.other.module.pay.BasePaymentConfig;
+import cn.projectan.strix.model.other.module.pay.BasePayConfig;
 import lombok.Data;
 
 /**
@@ -8,7 +8,7 @@ import lombok.Data;
  * @date 2021/8/24 19:10
  */
 @Data
-public class WechatPayConfig extends BasePaymentConfig {
+public class WechatPayConfig extends BasePayConfig {
 
     /**
      * 公众号AppId

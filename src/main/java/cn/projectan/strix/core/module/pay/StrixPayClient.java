@@ -1,6 +1,9 @@
 package cn.projectan.strix.core.module.pay;
 
 import cn.projectan.strix.model.db.PayOrder;
+import cn.projectan.strix.model.other.module.pay.BasePayResult;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import java.util.Map;
 
@@ -34,5 +37,11 @@ public abstract class StrixPayClient {
     public abstract Map<String, String> createWapPay(PayOrder payOrder);
 
     public abstract Map<String, String> createWebPay(PayOrder payOrder);
+
+    public abstract boolean verifyNotify(HttpServletRequest request);
+
+    public abstract BasePayResult resolveResult(HttpServletRequest request);
+
+    public abstract void respondNotify(boolean success, HttpServletResponse response);
 
 }

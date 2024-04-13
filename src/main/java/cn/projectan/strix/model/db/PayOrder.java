@@ -1,6 +1,7 @@
 package cn.projectan.strix.model.db;
 
 import cn.projectan.strix.model.db.base.BaseModel;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -22,52 +23,60 @@ import java.time.LocalDateTime;
 public class PayOrder extends BaseModel {
 
     @Serial
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
 
     /**
      * 支付配置ID
      */
-    private String paymentConfigId;
+    private String configId;
 
     /**
-     * 支付配置名称
+     * 支付平台
      */
-    private String paymentConfigName;
+    private Integer platform;
 
     /**
-     * 1微信支付 2支付宝 3QQ钱包 4银联 5京东 6PayPal
+     * 业务处理器ID
      */
-    private Integer paymentMethod;
+    private String handlerId;
 
     /**
-     * 支付信息 各渠道格式不同 一般包含订单号流水号等内容
+     * 支付参数
      */
-    private String paymentData;
+    private String params;
 
     /**
-     * 1未支付 2已支付 3已退款
+     * 支付状态
+     *
+     * @see cn.projectan.strix.model.dict.PayOrderStatus
      */
-    private Integer paymentStatus;
+    @TableField("`status`")
+    private Integer status;
 
     /**
-     * 支付内容提示
+     * 支付内容标题
      */
-    private String paymentTitle;
+    private String title;
 
     /**
-     * 支付成功后传入回调方法的信息
+     * 支付成功后回调数据
      */
-    private String paymentAttach;
+    private String attach;
+
+    /**
+     * 订单过期时间
+     */
+    private LocalDateTime expireTime;
 
     /**
      * 支付成功时间
      */
-    private LocalDateTime paymentTime;
+    private LocalDateTime payTime;
 
     /**
-     * 支付结果
+     * 支付回调内容
      */
-    private String paymentResponse;
+    private String notifyContent;
 
     /**
      * 支付订单总金额
@@ -83,6 +92,5 @@ public class PayOrder extends BaseModel {
      * 已经退款的总金额
      */
     private Integer totalRefundAmount;
-
 
 }

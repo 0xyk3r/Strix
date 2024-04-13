@@ -1,6 +1,6 @@
 package cn.projectan.strix.model.other.module.pay.wxpay;
 
-import cn.projectan.strix.model.other.module.pay.PaymentData;
+import cn.projectan.strix.model.other.module.pay.BasePayParam;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class WechatPayPaymentData extends PaymentData {
+public class WechatPayPayParam extends BasePayParam {
 
     private String openId;
 
