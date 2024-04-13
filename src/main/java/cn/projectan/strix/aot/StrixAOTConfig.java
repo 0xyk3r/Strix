@@ -182,6 +182,25 @@ public class StrixAOTConfig {
             hints.reflection().registerType(DefaultJwkSetBuilder.class, MemberCategory.values());
             hints.reflection().registerType(DefaultJwkSetParserBuilder.class, MemberCategory.values());
 
+            // Redisson 内置的 Netty 客户端需要用到 sun.net.dns
+            // 还需要添加 --initialize-at-run-time=sun.net.dns.ResolverConfigurationImpl
+            try {
+                hints.jni().registerType(Class.forName("sun.net.dns.ResolverConfigurationImpl", true, classLoader), MemberCategory.values());
+            } catch (Exception e) {
+                log.warn("Register sun.net.dns.ResolverConfigurationImpl Error: " + e.getMessage());
+            }
+
+            // STRIX JOB 扫描
+            Set<Class<?>> jobClazzSet = ClassUtil.scanPackage("cn.projectan.strix.job", clazz -> clazz.isAnnotationPresent(cn.projectan.strix.model.annotation.StrixJob.class));
+            Optional.ofNullable(packageProperties.getJob()).ifPresent(packages -> {
+                for (String packageName : packages) {
+                    Set<Class<?>> clazzSet = ClassUtil.scanPackage(packageName, clazz -> clazz.isAnnotationPresent(cn.projectan.strix.model.annotation.StrixJob.class));
+                    jobClazzSet.addAll(clazzSet);
+                }
+            });
+            log.info("Scan Job Class Count: " + jobClazzSet.size());
+            jobClazzSet.forEach(clazz -> hints.reflection().registerType(clazz, MemberCategory.values()));
+
             // ALL MODEL 扫描
             Set<Class<?>> modelClazzSet = ClassUtil.scanPackage("cn.projectan.strix.model");
             Optional.ofNullable(packageProperties.getModel()).ifPresent(packages -> {
