@@ -127,51 +127,48 @@ dependencies {
     compileOnly 'org.graalvm.sdk:graal-sdk:24.0.0'
 }
 
-tasks.named('nativeCompile') {
-    args = ['-H:+UnlockExperimentalVMOptions',
-            '-H:+AddAllCharsets',
-            '--enable-url-protocols=http',
-            '--enable-url-protocols=https',
-            '--features=cn.projectan.strix.aot.LambdaRegistrationFeature',
-            '--features=cn.projectan.strix.aot.BouncyCastleFeature',
-            '--initialize-at-run-time=sun.net.dns.ResolverConfigurationImpl',
-            '--rerun-class-initialization-at-runtime=org.bouncycastle.crypto.prng.SP800SecureRandom',
-            '--rerun-class-initialization-at-runtime=org.bouncycastle.jcajce.provider.drbg.DRBG$Default',
-            '--rerun-class-initialization-at-runtime=org.bouncycastle.jcajce.provider.drbg.DRBG$NonceAndIV',
-            '-H:IncludeResources=".*/?.*properties$"',
-            '-H:IncludeResources=".*/?.*xml$"',
-            '-H:IncludeResources=".*/?.*json$"',
-            '-H:IncludeResources=".*/?.*xdb$"',
-            '-H:IncludeResources=".*/?.*types$"',
-            '-H:IncludeResources=".*/?.*png$"',
-            '-H:IncludeResources=".*/?.*jpg$"',
-            '-H:IncludeResources=".*/?.*jpeg$"'
-    ]
-}
-
 graalvmNative {
     binaries {
         main {
-            buildArgs(
-                    '-H:+UnlockExperimentalVMOptions',
-                    '-H:+AddAllCharsets',
-                    '--enable-url-protocols=http',
-                    '--enable-url-protocols=https',
-                    '--features=cn.projectan.strix.aot.LambdaRegistrationFeature',
-                    '--features=cn.projectan.strix.aot.BouncyCastleFeature',
-                    '--initialize-at-run-time=sun.net.dns.ResolverConfigurationImpl',
-                    '--rerun-class-initialization-at-runtime=org.bouncycastle.crypto.prng.SP800SecureRandom',
-                    '--rerun-class-initialization-at-runtime=org.bouncycastle.jcajce.provider.drbg.DRBG$Default',
-                    '--rerun-class-initialization-at-runtime=org.bouncycastle.jcajce.provider.drbg.DRBG$NonceAndIV',
-                    '-H:IncludeResources=".*/?.*properties$"',
-                    '-H:IncludeResources=".*/?.*xml$"',
-                    '-H:IncludeResources=".*/?.*json$"',
-                    '-H:IncludeResources=".*/?.*xdb$"',
-                    '-H:IncludeResources=".*/?.*types$"',
-                    '-H:IncludeResources=".*/?.*png$"',
-                    '-H:IncludeResources=".*/?.*jpg$"',
-                    '-H:IncludeResources=".*/?.*jpeg$"',
-            )
+//            buildArgs(
+//                    '-H:+UnlockExperimentalVMOptions',
+//                    '-H:+AddAllCharsets',
+//                    '--enable-url-protocols=http',
+//                    '--enable-url-protocols=https',
+//                    '--features=cn.projectan.strix.aot.LambdaRegistrationFeature',
+//                    '--features=cn.projectan.strix.aot.BouncyCastleFeature',
+//                    '--initialize-at-run-time=sun.net.dns.ResolverConfigurationImpl',
+//                    '--rerun-class-initialization-at-runtime=org.bouncycastle.crypto.prng.SP800SecureRandom',
+//                    '--rerun-class-initialization-at-runtime=org.bouncycastle.jcajce.provider.drbg.DRBG$Default',
+//                    '--rerun-class-initialization-at-runtime=org.bouncycastle.jcajce.provider.drbg.DRBG$NonceAndIV',
+//                    '-H:IncludeResources=".*/?.*properties$"',
+//                    '-H:IncludeResources=".*/?.*xml$"',
+//                    '-H:IncludeResources=".*/?.*json$"',
+//                    '-H:IncludeResources=".*/?.*xdb$"',
+//                    '-H:IncludeResources=".*/?.*types$"',
+//                    '-H:IncludeResources=".*/?.*png$"',
+//                    '-H:IncludeResources=".*/?.*jpg$"',
+//                    '-H:IncludeResources=".*/?.*jpeg$"',
+//            )
+            buildArgs.add('--no-fallback')
+            buildArgs.add('-H:+UnlockExperimentalVMOptions')
+            buildArgs.add('-H:+AddAllCharsets')
+            buildArgs.add('--enable-url-protocols=http')
+            buildArgs.add('--enable-url-protocols=https')
+            buildArgs.add('--features=cn.projectan.strix.aot.LambdaRegistrationFeature')
+            buildArgs.add('--features=cn.projectan.strix.aot.BouncyCastleFeature')
+            buildArgs.add('--initialize-at-run-time=sun.net.dns.ResolverConfigurationImpl')
+            buildArgs.add('--rerun-class-initialization-at-runtime=org.bouncycastle.crypto.prng.SP800SecureRandom')
+            buildArgs.add('--rerun-class-initialization-at-runtime=org.bouncycastle.jcajce.provider.drbg.DRBG$Default')
+            buildArgs.add('--rerun-class-initialization-at-runtime=org.bouncycastle.jcajce.provider.drbg.DRBG$NonceAndIV')
+            buildArgs.add('-H:IncludeResources=".*/?.*properties$"')
+            buildArgs.add('-H:IncludeResources=".*/?.*xml$"')
+            buildArgs.add('-H:IncludeResources=".*/?.*json$"')
+            buildArgs.add('-H:IncludeResources=".*/?.*xdb$"')
+            buildArgs.add('-H:IncludeResources=".*/?.*types$"')
+            buildArgs.add('-H:IncludeResources=".*/?.*png$"')
+            buildArgs.add('-H:IncludeResources=".*/?.*jpg$"')
+            buildArgs.add('-H:IncludeResources=".*/?.*jpeg$"')
         }
     }
 }
