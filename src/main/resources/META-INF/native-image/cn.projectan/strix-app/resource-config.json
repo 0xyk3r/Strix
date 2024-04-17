@@ -1,0 +1,4274 @@
+{
+  "resources": {
+    "includes": [
+      {
+        "pattern": "\\QMETA-INF/MANIFEST.MF\\E"
+      },
+      {
+        "pattern": "\\QMETA-INF/build-info.properties\\E"
+      },
+      {
+        "pattern": "\\QMETA-INF/resources/index.html\\E"
+      },
+      {
+        "pattern": "\\QMETA-INF/services/ch.qos.logback.classic.spi.Configurator\\E"
+      },
+      {
+        "pattern": "\\QMETA-INF/services/cn.hutool.core.convert.Converter\\E"
+      },
+      {
+        "pattern": "\\QMETA-INF/services/com.clickhouse.client.ClickHouseClient\\E"
+      },
+      {
+        "pattern": "\\QMETA-INF/services/com.clickhouse.logging.LoggerFactory\\E"
+      },
+      {
+        "pattern": "\\QMETA-INF/services/io.jsonwebtoken.io.Deserializer\\E"
+      },
+      {
+        "pattern": "\\QMETA-INF/services/jakarta.el.ExpressionFactory\\E"
+      },
+      {
+        "pattern": "\\QMETA-INF/services/jakarta.validation.ConstraintValidator\\E"
+      },
+      {
+        "pattern": "\\QMETA-INF/services/jakarta.validation.spi.ValidationProvider\\E"
+      },
+      {
+        "pattern": "\\QMETA-INF/services/jakarta.validation.valueextraction.ValueExtractor\\E"
+      },
+      {
+        "pattern": "\\QMETA-INF/services/java.lang.System$LoggerFinder\\E"
+      },
+      {
+        "pattern": "\\QMETA-INF/services/java.net.spi.InetAddressResolverProvider\\E"
+      },
+      {
+        "pattern": "\\QMETA-INF/services/java.net.spi.URLStreamHandlerProvider\\E"
+      },
+      {
+        "pattern": "\\QMETA-INF/services/java.nio.channels.spi.SelectorProvider\\E"
+      },
+      {
+        "pattern": "\\QMETA-INF/services/java.sql.Driver\\E"
+      },
+      {
+        "pattern": "\\QMETA-INF/services/java.time.zone.ZoneRulesProvider\\E"
+      },
+      {
+        "pattern": "\\QMETA-INF/services/java.util.spi.ResourceBundleControlProvider\\E"
+      },
+      {
+        "pattern": "\\QMETA-INF/services/javax.imageio.spi.ImageInputStreamSpi\\E"
+      },
+      {
+        "pattern": "\\QMETA-INF/services/javax.imageio.spi.ImageOutputStreamSpi\\E"
+      },
+      {
+        "pattern": "\\QMETA-INF/services/javax.imageio.spi.ImageReaderSpi\\E"
+      },
+      {
+        "pattern": "\\QMETA-INF/services/javax.imageio.spi.ImageTranscoderSpi\\E"
+      },
+      {
+        "pattern": "\\QMETA-INF/services/javax.imageio.spi.ImageWriterSpi\\E"
+      },
+      {
+        "pattern": "\\QMETA-INF/services/javax.xml.datatype.DatatypeFactory\\E"
+      },
+      {
+        "pattern": "\\QMETA-INF/services/javax.xml.parsers.DocumentBuilderFactory\\E"
+      },
+      {
+        "pattern": "\\QMETA-INF/services/javax.xml.parsers.SAXParserFactory\\E"
+      },
+      {
+        "pattern": "\\QMETA-INF/services/javax.xml.xpath.XPathFactory\\E"
+      },
+      {
+        "pattern": "\\QMETA-INF/services/org.apache.juli.logging.Log\\E"
+      },
+      {
+        "pattern": "\\QMETA-INF/services/org.slf4j.spi.SLF4JServiceProvider\\E"
+      },
+      {
+        "pattern": "\\QMETA-INF/spring-autoconfigure-metadata.properties\\E"
+      },
+      {
+        "pattern": "\\QMETA-INF/spring.components\\E"
+      },
+      {
+        "pattern": "\\QMETA-INF/spring.factories\\E"
+      },
+      {
+        "pattern": "\\QMETA-INF/spring.integration.properties\\E"
+      },
+      {
+        "pattern": "\\QMETA-INF/spring/org.springframework.boot.actuate.autoconfigure.web.ManagementContextConfiguration.imports\\E"
+      },
+      {
+        "pattern": "\\QMETA-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports\\E"
+      },
+      {
+        "pattern": "\\QMETA-INF/validation.xml\\E"
+      },
+      {
+        "pattern": "\\Q\\E"
+      },
+      {
+        "pattern": "\\Qapplication-dev.properties\\E"
+      },
+      {
+        "pattern": "\\Qapplication-dev.xml\\E"
+      },
+      {
+        "pattern": "\\Qapplication-dev.yaml\\E"
+      },
+      {
+        "pattern": "\\Qapplication-dev.yml\\E"
+      },
+      {
+        "pattern": "\\Qapplication.properties\\E"
+      },
+      {
+        "pattern": "\\Qapplication.xml\\E"
+      },
+      {
+        "pattern": "\\Qapplication.yaml\\E"
+      },
+      {
+        "pattern": "\\Qapplication.yml\\E"
+      },
+      {
+        "pattern": "\\Qbanner.txt\\E"
+      },
+      {
+        "pattern": "\\QcaptchaImages/jigsaw/original/1.png\\E"
+      },
+      {
+        "pattern": "\\QcaptchaImages/jigsaw/original/2.png\\E"
+      },
+      {
+        "pattern": "\\QcaptchaImages/jigsaw/original/3.png\\E"
+      },
+      {
+        "pattern": "\\QcaptchaImages/jigsaw/original/4.png\\E"
+      },
+      {
+        "pattern": "\\QcaptchaImages/jigsaw/original/5.png\\E"
+      },
+      {
+        "pattern": "\\QcaptchaImages/jigsaw/original/6.png\\E"
+      },
+      {
+        "pattern": "\\QcaptchaImages/jigsaw/slidingBlock/1.png\\E"
+      },
+      {
+        "pattern": "\\QcaptchaImages/jigsaw/slidingBlock/2.png\\E"
+      },
+      {
+        "pattern": "\\QcaptchaImages/jigsaw/slidingBlock/3.png\\E"
+      },
+      {
+        "pattern": "\\QcaptchaImages/jigsaw/slidingBlock/4.png\\E"
+      },
+      {
+        "pattern": "\\QcaptchaImages/jigsaw/slidingBlock/5.png\\E"
+      },
+      {
+        "pattern": "\\QcaptchaImages/jigsaw/slidingBlock/6.png\\E"
+      },
+      {
+        "pattern": "\\QcaptchaImages/pic-click/1.png\\E"
+      },
+      {
+        "pattern": "\\QcaptchaImages/pic-click/2.png\\E"
+      },
+      {
+        "pattern": "\\QcaptchaImages/pic-click/3.png\\E"
+      },
+      {
+        "pattern": "\\QcaptchaImages/pic-click/4.png\\E"
+      },
+      {
+        "pattern": "\\QcaptchaImages/pic-click/5.png\\E"
+      },
+      {
+        "pattern": "\\QcaptchaImages/pic-click/6.png\\E"
+      },
+      {
+        "pattern": "\\Qcn/hutool/core/lang/TypeReference.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/StrixApplication.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/aot/MyBatisAOTConfig$MyBaitsRuntimeHintsRegistrar.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/aot/MyBatisAOTConfig$MyBatisBeanFactoryInitializationAotProcessor.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/aot/MyBatisAOTConfig$MyBatisMapperFactoryBeanPostProcessor.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/aot/MyBatisAOTConfig$MyBatisMapperTypeUtils.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/aot/MyBatisAOTConfig.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/aot/StrixAOTConfig$StrixRuntimeHintsRegistrar.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/aot/StrixAOTConfig.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/config/CorsConfig$$SpringCGLIB$$0.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/config/CorsConfig.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/config/JacksonConfig$$Lambda/0x000001ed988be1a8.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/config/JacksonConfig$$SpringCGLIB$$0.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/config/JacksonConfig.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/config/MybatisPlusConfig$$SpringCGLIB$$0.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/config/MybatisPlusConfig$MybatisMetaObjectConfig.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/config/MybatisPlusConfig.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/config/RedisConfig$$SpringCGLIB$$0.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/config/RedisConfig.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/config/SecurityConfig$$SpringCGLIB$$0.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/config/SecurityConfig.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/config/StrixCaptchaConfig$$SpringCGLIB$$0.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/config/StrixCaptchaConfig.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/config/StrixLocaleResolver$$SpringCGLIB$$0.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/config/StrixLocaleResolver.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/config/converter/StrixStringToLocalDateConverter$$SpringCGLIB$$0.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/config/converter/StrixStringToLocalDateConverter.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/config/converter/StrixStringToLocalDateTimeConverter$$SpringCGLIB$$0.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/config/converter/StrixStringToLocalDateTimeConverter.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/controller/BaseController.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/controller/api/base/BaseApiController.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/controller/api/common/FileController.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/controller/pay/PayNotifyController.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/controller/system/DebugController.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/controller/system/SystemController.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/controller/system/SystemDictController.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/controller/system/SystemManagerController.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/controller/system/SystemMenuController.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/controller/system/SystemPermissionController.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/controller/system/SystemRegionController.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/controller/system/SystemRoleController.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/controller/system/SystemUserController.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/controller/system/base/BaseSystemController.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/controller/system/common/CaptchaController.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/controller/system/common/DictController.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/controller/system/common/FileController.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/controller/system/module/job/JobController.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/controller/system/module/oss/OssBucketController.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/controller/system/module/oss/OssController.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/controller/system/module/oss/OssFileGroupController.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/controller/system/module/sms/SmsController.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/controller/system/monitor/CacheController.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/controller/system/monitor/LogController.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/controller/system/tool/PopularityController.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/controller/wechat/FileController.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/controller/wechat/WechatController.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/controller/wechat/base/BaseWechatController.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/core/aop/advice/DecodeRequestBodyAdvice$HttpInputMessageHandler.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/core/aop/advice/DecodeRequestBodyAdvice.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/core/aop/advice/EncodeResponseBodyAdvice.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/core/aop/advice/GlobalExceptionHandler.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/core/aop/aspect/ApiSecurityCheckAspect.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/core/cache/SystemConfigCache.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/core/cache/SystemMenuCache.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/core/cache/SystemPermissionCache.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/core/cache/SystemRegionCache.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/core/captcha/AbstractCaptchaService.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/core/captcha/CaptchaCacheService.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/core/captcha/CaptchaService.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/core/captcha/FrequencyLimitHandler.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/core/captcha/impl/BlockPuzzleCaptchaServiceImpl.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/core/captcha/impl/CaptchaCacheServiceImpl.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/core/datamask/DataMaskConfiguration$$SpringCGLIB$$0.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/core/datamask/DataMaskConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/core/exception/StrixException.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/core/listener/StrixOrderExpireListener.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/core/module/oauth/StrixOAuthClient.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/core/module/oauth/StrixOAuthStore.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/core/module/oss/StrixOssClient.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/core/module/oss/StrixOssStore.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/core/module/pay/StrixPayClient.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/core/module/pay/StrixPayStore.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/core/module/sms/StrixSmsClient.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/core/module/sms/StrixSmsStore.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/core/ret/RetResult.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/core/security/ApiSecurity.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/core/security/ApiSecurityClient.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/core/ss/SystemManagerSecurityService.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/core/ss/error/AccessDeniedHandlerImpl.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/core/ss/error/AuthenticationEntryPointImpl.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/core/ss/filter/SystemManagerAuthenticationTokenFilter.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/core/ss/filter/SystemUserAuthenticationTokenFilter.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/core/ss/handler/SystemManagerLoginFailureHandler.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/core/ss/handler/SystemManagerLoginSuccessHandler.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/core/ss/handler/SystemManagerLogoutSuccessHandler.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/core/ss/provider/SystemManagerAuthenticationProvider.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/core/ss/provider/SystemUserAuthenticationProvider.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/core/ss/service/SystemManagerUserDetailsServiceImpl.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/core/ss/service/SystemUserUserDetailsServiceImpl.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/core/threadpool/StrixLogThreadPoolConfig$$SpringCGLIB$$0.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/core/threadpool/StrixLogThreadPoolConfig$1.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/core/threadpool/StrixLogThreadPoolConfig.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/initialize/DictSyncInit.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/initialize/OtherInit.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/initialize/SecurityRuleInit.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/initialize/StrixBannerInit.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/initialize/StrixJobInit.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/initialize/StrixOAuthInit.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/initialize/StrixOssInit.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/initialize/StrixPayInit.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/initialize/StrixSmsInit.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/job/PopularityJob.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/job/StrixTestJob.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/job/TestPayHandler.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/mapper/SystemRegionMapper.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/model/annotation/Anonymous.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/model/annotation/Dict.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/model/annotation/IgnoreDataEncryption.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/model/annotation/StrixJob.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/model/db/base/BaseModel.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/model/dict/CommonFlag.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/model/dict/CommonSwitch.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/model/dict/DictDataStatus.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/model/dict/DictDataStyle.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/model/dict/DictDataType.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/model/dict/DictProvided.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/model/dict/DictStatus.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/model/dict/JobMisfire.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/model/dict/JobStatus.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/model/dict/OAuthPlatform.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/model/dict/OAuthPushStatus.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/model/dict/PayOrderStatus.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/model/dict/PayPlatform.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/model/dict/PayType.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/model/dict/StrixOssFileGroupSecretType.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/model/dict/StrixOssPlatform.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/model/dict/StrixSmsLogStatus.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/model/dict/StrixSmsPlatform.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/model/dict/StrixSmsSignStatus.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/model/dict/StrixSmsTemplateStatus.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/model/dict/StrixSmsTemplateType.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/model/dict/SysLogOperType.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/model/dict/SystemManagerStatus.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/model/dict/SystemManagerType.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/model/dict/SystemUserStatus.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/model/dict/WorkflowInstanceStatus.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/model/dict/WorkflowStepOperatorType.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/model/dict/WorkflowStepRouteType.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/model/dict/WorkflowStepType.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/model/dict/base/BaseDict.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/model/other/module/oauth/BaseOAuthConfig.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/model/other/module/pay/BasePayConfig.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/model/other/module/pay/BasePayParam.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/model/other/security/BaseTokenInfo.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/model/other/ua/UserAgentInfo.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/model/properties/StrixCaptchaProperties.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/model/properties/StrixJwtProperties.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/model/properties/StrixModuleProperties.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/model/properties/StrixPackageScanProperties.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/model/properties/VerifierCounterProperties.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/model/request/base/BasePageReq.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/model/response/base/BasePageResp.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/service/DictDataService.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/service/DictService.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/service/JobService.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/service/OauthConfigService.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/service/OauthPushService.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/service/OauthUserService.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/service/OssBucketService.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/service/OssConfigService.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/service/OssFileGroupService.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/service/OssFileService.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/service/PayConfigService.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/service/PayHandlerService.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/service/PayOrderService.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/service/PopularityConfigService.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/service/PopularityDataService.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/service/SecurityUrlService.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/service/SmsConfigService.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/service/SmsLogService.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/service/SmsSignService.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/service/SmsTemplateService.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/service/SystemConfigService.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/service/SystemLogService.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/service/SystemManagerRoleService.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/service/SystemManagerService.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/service/SystemMenuService.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/service/SystemPermissionService.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/service/SystemRegionService.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/service/SystemRoleMenuService.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/service/SystemRolePermissionService.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/service/SystemRoleService.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/service/SystemUserRelationService.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/service/SystemUserService.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/service/WorkflowConfigService.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/service/WorkflowInstanceService.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/service/WorkflowInvokeService.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/service/WorkflowParamService.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/service/WorkflowStepRouteService.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/service/WorkflowStepService.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/service/impl/DictDataServiceImpl.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/service/impl/DictServiceImpl.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/service/impl/JobServiceImpl.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/service/impl/OauthConfigServiceImpl.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/service/impl/OauthPushServiceImpl.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/service/impl/OauthUserServiceImpl.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/service/impl/OssBucketServiceImpl.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/service/impl/OssConfigServiceImpl.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/service/impl/OssFileGroupServiceImpl.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/service/impl/OssFileServiceImpl.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/service/impl/PayConfigServiceImpl.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/service/impl/PayHandlerServiceImpl.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/service/impl/PayOrderServiceImpl.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/service/impl/PopularityConfigServiceImpl.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/service/impl/PopularityDataServiceImpl.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/service/impl/SecurityUrlServiceImpl.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/service/impl/SmsConfigServiceImpl.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/service/impl/SmsLogServiceImpl.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/service/impl/SmsSignServiceImpl.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/service/impl/SmsTemplateServiceImpl.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/service/impl/SystemConfigServiceImpl.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/service/impl/SystemLogServiceImpl.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/service/impl/SystemManagerRoleServiceImpl.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/service/impl/SystemManagerServiceImpl.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/service/impl/SystemMenuServiceImpl.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/service/impl/SystemPermissionServiceImpl.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/service/impl/SystemRegionServiceImpl.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/service/impl/SystemRoleMenuServiceImpl.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/service/impl/SystemRolePermissionServiceImpl.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/service/impl/SystemRoleServiceImpl.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/service/impl/SystemUserRelationServiceImpl.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/service/impl/SystemUserServiceImpl.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/service/impl/WorkflowConfigServiceImpl.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/service/impl/WorkflowInstanceServiceImpl.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/service/impl/WorkflowInvokeServiceImpl.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/service/impl/WorkflowParamServiceImpl.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/service/impl/WorkflowStepRouteServiceImpl.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/service/impl/WorkflowStepServiceImpl.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/task/RedisKeepaliveTask.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/task/StrixOAuthPushTask.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/task/StrixOssTask.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/task/StrixSmsTask.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/utils/DelayedQueueUtil.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/utils/I18nUtil.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/utils/PopularityUtil.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/utils/RedisUtil.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/utils/SmsUtil.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/utils/SpringUtil.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/utils/SynchronizedUtil.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/utils/TokenUtil.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/utils/VerifierCounter.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/utils/WorkflowUtil.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/utils/job/AbstractQuartzJob.class\\E"
+      },
+      {
+        "pattern": "\\Qcom/alibaba/druid/spring/boot/autoconfigure$DruidDataSourceAutoConfigure.class\\E"
+      },
+      {
+        "pattern": "\\Qcom/alibaba/druid/spring/boot/autoconfigure/DruidDataSourceAutoConfigure.class\\E"
+      },
+      {
+        "pattern": "\\Qcom/alibaba/druid/spring/boot3/autoconfigure$DruidDataSourceAutoConfigure.class\\E"
+      },
+      {
+        "pattern": "\\Qcom/alibaba/druid/spring/boot3/autoconfigure/DruidDataSourceAutoConfigure.class\\E"
+      },
+      {
+        "pattern": "\\Qcom/baomidou/dynamic/datasource/DynamicRoutingDataSource.class\\E"
+      },
+      {
+        "pattern": "\\Qcom/baomidou/dynamic/datasource/annotation/DS.class\\E"
+      },
+      {
+        "pattern": "\\Qcom/baomidou/dynamic/datasource/creator/DefaultDataSourceCreator.class\\E"
+      },
+      {
+        "pattern": "\\Qcom/baomidou/dynamic/datasource/creator/basic/BasicDataSourceCreator.class\\E"
+      },
+      {
+        "pattern": "\\Qcom/baomidou/dynamic/datasource/creator/hikaricp/HikariDataSourceCreator.class\\E"
+      },
+      {
+        "pattern": "\\Qcom/baomidou/dynamic/datasource/creator/jndi/JndiDataSourceCreator.class\\E"
+      },
+      {
+        "pattern": "\\Qcom/baomidou/dynamic/datasource/ds/AbstractDataSource.class\\E"
+      },
+      {
+        "pattern": "\\Qcom/baomidou/dynamic/datasource/ds/AbstractRoutingDataSource.class\\E"
+      },
+      {
+        "pattern": "\\Qcom/baomidou/dynamic/datasource/event/EncDataSourceInitEvent.class\\E"
+      },
+      {
+        "pattern": "\\Qcom/baomidou/dynamic/datasource/processor/DsJakartaHeaderProcessor.class\\E"
+      },
+      {
+        "pattern": "\\Qcom/baomidou/dynamic/datasource/processor/DsProcessor.class\\E"
+      },
+      {
+        "pattern": "\\Qcom/baomidou/dynamic/datasource/provider/AbstractDataSourceProvider.class\\E"
+      },
+      {
+        "pattern": "\\Qcom/baomidou/dynamic/datasource/provider/YmlDynamicDataSourceProvider.class\\E"
+      },
+      {
+        "pattern": "\\Qcom/baomidou/dynamic/datasource/spring/boot/autoconfigure/DruidDynamicDataSourceConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qcom/baomidou/dynamic/datasource/spring/boot/autoconfigure/DynamicDataSourceAopConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qcom/baomidou/dynamic/datasource/spring/boot/autoconfigure/DynamicDataSourceAssistConfiguration$$SpringCGLIB$$0.class\\E"
+      },
+      {
+        "pattern": "\\Qcom/baomidou/dynamic/datasource/spring/boot/autoconfigure/DynamicDataSourceAssistConfiguration$DsTxEventListenerFactoryConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qcom/baomidou/dynamic/datasource/spring/boot/autoconfigure/DynamicDataSourceAssistConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qcom/baomidou/dynamic/datasource/spring/boot/autoconfigure/DynamicDataSourceAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qcom/baomidou/dynamic/datasource/spring/boot/autoconfigure/DynamicDataSourceCreatorAutoConfiguration$$SpringCGLIB$$0.class\\E"
+      },
+      {
+        "pattern": "\\Qcom/baomidou/dynamic/datasource/spring/boot/autoconfigure/DynamicDataSourceCreatorAutoConfiguration$AtomikosDataSourceCreatorConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qcom/baomidou/dynamic/datasource/spring/boot/autoconfigure/DynamicDataSourceCreatorAutoConfiguration$BeeCpDataSourceCreatorConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qcom/baomidou/dynamic/datasource/spring/boot/autoconfigure/DynamicDataSourceCreatorAutoConfiguration$Dbcp2DataSourceCreatorConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qcom/baomidou/dynamic/datasource/spring/boot/autoconfigure/DynamicDataSourceCreatorAutoConfiguration$DruidDataSourceCreatorConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qcom/baomidou/dynamic/datasource/spring/boot/autoconfigure/DynamicDataSourceCreatorAutoConfiguration$HikariDataSourceCreatorConfiguration$$SpringCGLIB$$0.class\\E"
+      },
+      {
+        "pattern": "\\Qcom/baomidou/dynamic/datasource/spring/boot/autoconfigure/DynamicDataSourceCreatorAutoConfiguration$HikariDataSourceCreatorConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qcom/baomidou/dynamic/datasource/spring/boot/autoconfigure/DynamicDataSourceCreatorAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qcom/baomidou/dynamic/datasource/spring/boot/autoconfigure/DynamicDataSourceProperties.class\\E"
+      },
+      {
+        "pattern": "\\Qcom/baomidou/mybatisplus/autoconfigure/DdlApplicationRunner.class\\E"
+      },
+      {
+        "pattern": "\\Qcom/baomidou/mybatisplus/autoconfigure/MybatisPlusAutoConfiguration$AutoConfiguredMapperScannerRegistrar.class\\E"
+      },
+      {
+        "pattern": "\\Qcom/baomidou/mybatisplus/autoconfigure/MybatisPlusAutoConfiguration$MapperScannerRegistrarNotFoundConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qcom/baomidou/mybatisplus/autoconfigure/MybatisPlusAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qcom/baomidou/mybatisplus/autoconfigure/MybatisPlusInnerInterceptorAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qcom/baomidou/mybatisplus/autoconfigure/MybatisPlusLanguageDriverAutoConfiguration$FreeMarkerConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qcom/baomidou/mybatisplus/autoconfigure/MybatisPlusLanguageDriverAutoConfiguration$LegacyFreeMarkerConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qcom/baomidou/mybatisplus/autoconfigure/MybatisPlusLanguageDriverAutoConfiguration$LegacyVelocityConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qcom/baomidou/mybatisplus/autoconfigure/MybatisPlusLanguageDriverAutoConfiguration$ThymeleafConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qcom/baomidou/mybatisplus/autoconfigure/MybatisPlusLanguageDriverAutoConfiguration$VelocityConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qcom/baomidou/mybatisplus/autoconfigure/MybatisPlusLanguageDriverAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qcom/baomidou/mybatisplus/autoconfigure/MybatisPlusProperties.class\\E"
+      },
+      {
+        "pattern": "\\Qcom/baomidou/mybatisplus/core/handlers/MetaObjectHandler.class\\E"
+      },
+      {
+        "pattern": "\\Qcom/baomidou/mybatisplus/core/mapper/BaseMapper.class\\E"
+      },
+      {
+        "pattern": "\\Qcom/baomidou/mybatisplus/core/mapper/Mapper.class\\E"
+      },
+      {
+        "pattern": "\\Qcom/baomidou/mybatisplus/extension/plugins/MybatisPlusInterceptor.class\\E"
+      },
+      {
+        "pattern": "\\Qcom/baomidou/mybatisplus/extension/service/IService.class\\E"
+      },
+      {
+        "pattern": "\\Qcom/baomidou/mybatisplus/extension/service/impl/ServiceImpl.class\\E"
+      },
+      {
+        "pattern": "\\Qcom/fasterxml/jackson/core/ObjectCodec.class\\E"
+      },
+      {
+        "pattern": "\\Qcom/fasterxml/jackson/core/TreeCodec.class\\E"
+      },
+      {
+        "pattern": "\\Qcom/fasterxml/jackson/core/Versioned.class\\E"
+      },
+      {
+        "pattern": "\\Qcom/fasterxml/jackson/core/type/TypeReference.class\\E"
+      },
+      {
+        "pattern": "\\Qcom/fasterxml/jackson/databind/AnnotationIntrospector.class\\E"
+      },
+      {
+        "pattern": "\\Qcom/fasterxml/jackson/databind/JsonDeserializer.class\\E"
+      },
+      {
+        "pattern": "\\Qcom/fasterxml/jackson/databind/JsonSerializer.class\\E"
+      },
+      {
+        "pattern": "\\Qcom/fasterxml/jackson/databind/Module.class\\E"
+      },
+      {
+        "pattern": "\\Qcom/fasterxml/jackson/databind/ObjectMapper.class\\E"
+      },
+      {
+        "pattern": "\\Qcom/fasterxml/jackson/databind/deser/std/StdDeserializer.class\\E"
+      },
+      {
+        "pattern": "\\Qcom/fasterxml/jackson/databind/deser/std/StdScalarDeserializer.class\\E"
+      },
+      {
+        "pattern": "\\Qcom/fasterxml/jackson/databind/introspect/NopAnnotationIntrospector.class\\E"
+      },
+      {
+        "pattern": "\\Qcom/fasterxml/jackson/databind/jsonFormatVisitors/JsonFormatVisitable.class\\E"
+      },
+      {
+        "pattern": "\\Qcom/fasterxml/jackson/databind/jsonschema/SchemaAware.class\\E"
+      },
+      {
+        "pattern": "\\Qcom/fasterxml/jackson/databind/module/SimpleModule.class\\E"
+      },
+      {
+        "pattern": "\\Qcom/fasterxml/jackson/databind/ser/std/StdScalarSerializer.class\\E"
+      },
+      {
+        "pattern": "\\Qcom/fasterxml/jackson/databind/ser/std/StdSerializer.class\\E"
+      },
+      {
+        "pattern": "\\Qcom/fasterxml/jackson/datatype/jsr310/deser/JSR310DateTimeDeserializerBase.class\\E"
+      },
+      {
+        "pattern": "\\Qcom/fasterxml/jackson/datatype/jsr310/deser/JSR310DeserializerBase.class\\E"
+      },
+      {
+        "pattern": "\\Qcom/fasterxml/jackson/datatype/jsr310/deser/LocalDateDeserializer.class\\E"
+      },
+      {
+        "pattern": "\\Qcom/fasterxml/jackson/datatype/jsr310/deser/LocalDateTimeDeserializer.class\\E"
+      },
+      {
+        "pattern": "\\Qcom/fasterxml/jackson/datatype/jsr310/ser/JSR310FormattedSerializerBase.class\\E"
+      },
+      {
+        "pattern": "\\Qcom/fasterxml/jackson/datatype/jsr310/ser/JSR310SerializerBase.class\\E"
+      },
+      {
+        "pattern": "\\Qcom/fasterxml/jackson/datatype/jsr310/ser/LocalDateSerializer.class\\E"
+      },
+      {
+        "pattern": "\\Qcom/fasterxml/jackson/datatype/jsr310/ser/LocalDateTimeSerializer.class\\E"
+      },
+      {
+        "pattern": "\\Qcom/fasterxml/jackson/module/paramnames/ParameterNamesModule.class\\E"
+      },
+      {
+        "pattern": "\\Qcom/google/gson/Gson.class\\E"
+      },
+      {
+        "pattern": "\\Qcom/google/gson/GsonBuilder.class\\E"
+      },
+      {
+        "pattern": "\\Qcom/mysql/cj/TlsSettings.properties\\E"
+      },
+      {
+        "pattern": "\\Qconfig/application-dev.properties\\E"
+      },
+      {
+        "pattern": "\\Qconfig/application-dev.xml\\E"
+      },
+      {
+        "pattern": "\\Qconfig/application-dev.yaml\\E"
+      },
+      {
+        "pattern": "\\Qconfig/application-dev.yml\\E"
+      },
+      {
+        "pattern": "\\Qconfig/application.properties\\E"
+      },
+      {
+        "pattern": "\\Qconfig/application.xml\\E"
+      },
+      {
+        "pattern": "\\Qconfig/application.yaml\\E"
+      },
+      {
+        "pattern": "\\Qconfig/application.yml\\E"
+      },
+      {
+        "pattern": "\\Qdata-all.sql\\E"
+      },
+      {
+        "pattern": "\\Qdata.sql\\E"
+      },
+      {
+        "pattern": "\\Qendpoints.json\\E"
+      },
+      {
+        "pattern": "\\Qgit.properties\\E"
+      },
+      {
+        "pattern": "\\Qi18n/strix.properties\\E"
+      },
+      {
+        "pattern": "\\Qio/lettuce/core/metrics/MicrometerOptions.class\\E"
+      },
+      {
+        "pattern": "\\Qio/lettuce/core/resource/ClientResources.class\\E"
+      },
+      {
+        "pattern": "\\Qio/lettuce/core/resource/DefaultClientResources.class\\E"
+      },
+      {
+        "pattern": "\\Qio/micrometer/core/instrument/Clock$1.class\\E"
+      },
+      {
+        "pattern": "\\Qio/micrometer/core/instrument/MeterRegistry.class\\E"
+      },
+      {
+        "pattern": "\\Qio/micrometer/core/instrument/binder/jvm/ClassLoaderMetrics.class\\E"
+      },
+      {
+        "pattern": "\\Qio/micrometer/core/instrument/binder/jvm/JvmCompilationMetrics.class\\E"
+      },
+      {
+        "pattern": "\\Qio/micrometer/core/instrument/binder/jvm/JvmGcMetrics.class\\E"
+      },
+      {
+        "pattern": "\\Qio/micrometer/core/instrument/binder/jvm/JvmHeapPressureMetrics.class\\E"
+      },
+      {
+        "pattern": "\\Qio/micrometer/core/instrument/binder/jvm/JvmInfoMetrics.class\\E"
+      },
+      {
+        "pattern": "\\Qio/micrometer/core/instrument/binder/jvm/JvmMemoryMetrics.class\\E"
+      },
+      {
+        "pattern": "\\Qio/micrometer/core/instrument/binder/jvm/JvmThreadMetrics.class\\E"
+      },
+      {
+        "pattern": "\\Qio/micrometer/core/instrument/binder/logging/LogbackMetrics.class\\E"
+      },
+      {
+        "pattern": "\\Qio/micrometer/core/instrument/binder/system/FileDescriptorMetrics.class\\E"
+      },
+      {
+        "pattern": "\\Qio/micrometer/core/instrument/binder/system/ProcessorMetrics.class\\E"
+      },
+      {
+        "pattern": "\\Qio/micrometer/core/instrument/binder/system/UptimeMetrics.class\\E"
+      },
+      {
+        "pattern": "\\Qio/micrometer/core/instrument/config/MeterFilter$9.class\\E"
+      },
+      {
+        "pattern": "\\Qio/micrometer/core/instrument/config/MeterFilter.class\\E"
+      },
+      {
+        "pattern": "\\Qio/micrometer/core/instrument/config/MeterRegistryConfig.class\\E"
+      },
+      {
+        "pattern": "\\Qio/micrometer/core/instrument/observation/DefaultMeterObservationHandler.class\\E"
+      },
+      {
+        "pattern": "\\Qio/micrometer/core/instrument/observation/MeterObservationHandler.class\\E"
+      },
+      {
+        "pattern": "\\Qio/micrometer/core/instrument/simple/SimpleConfig.class\\E"
+      },
+      {
+        "pattern": "\\Qio/micrometer/core/instrument/simple/SimpleMeterRegistry.class\\E"
+      },
+      {
+        "pattern": "\\Qio/micrometer/observation/ObservationHandler.class\\E"
+      },
+      {
+        "pattern": "\\Qio/micrometer/observation/ObservationRegistry.class\\E"
+      },
+      {
+        "pattern": "\\Qio/micrometer/observation/SimpleObservationRegistry.class\\E"
+      },
+      {
+        "pattern": "\\Qio/micrometer/observation/annotation/Observed.class\\E"
+      },
+      {
+        "pattern": "\\Qip2region/ip2region.xdb\\E"
+      },
+      {
+        "pattern": "\\Qjakarta/servlet/Filter.class\\E"
+      },
+      {
+        "pattern": "\\Qjakarta/servlet/GenericServlet.class\\E"
+      },
+      {
+        "pattern": "\\Qjakarta/servlet/MultipartConfigElement.class\\E"
+      },
+      {
+        "pattern": "\\Qjakarta/servlet/http/HttpServlet.class\\E"
+      },
+      {
+        "pattern": "\\Qjakarta/validation/ConstraintValidator.class\\E"
+      },
+      {
+        "pattern": "\\Qjava/lang/Iterable.class\\E"
+      },
+      {
+        "pattern": "\\Qjava/lang/Object.class\\E"
+      },
+      {
+        "pattern": "\\Qjava/lang/reflect/Proxy.class\\E"
+      },
+      {
+        "pattern": "\\Qjava/util/concurrent/AbstractExecutorService.class\\E"
+      },
+      {
+        "pattern": "\\Qjava/util/concurrent/ExecutorService.class\\E"
+      },
+      {
+        "pattern": "\\Qjava/util/concurrent/ScheduledThreadPoolExecutor.class\\E"
+      },
+      {
+        "pattern": "\\Qjava/util/concurrent/ThreadPoolExecutor.class\\E"
+      },
+      {
+        "pattern": "\\Qjava/util/function/BiPredicate.class\\E"
+      },
+      {
+        "pattern": "\\Qjavax/sql/CommonDataSource.class\\E"
+      },
+      {
+        "pattern": "\\Qjavax/sql/DataSource.class\\E"
+      },
+      {
+        "pattern": "\\Qjdk/proxy2/$Proxy121.class\\E"
+      },
+      {
+        "pattern": "\\Qjdk/proxy2/$Proxy123.class\\E"
+      },
+      {
+        "pattern": "\\Qjdk/proxy2/$Proxy127.class\\E"
+      },
+      {
+        "pattern": "\\Qjdk/proxy2/$Proxy128.class\\E"
+      },
+      {
+        "pattern": "\\Qjdk/proxy2/$Proxy129.class\\E"
+      },
+      {
+        "pattern": "\\Qjdk/proxy2/$Proxy130.class\\E"
+      },
+      {
+        "pattern": "\\Qjdk/proxy2/$Proxy133.class\\E"
+      },
+      {
+        "pattern": "\\Qjdk/proxy2/$Proxy135.class\\E"
+      },
+      {
+        "pattern": "\\Qjdk/proxy2/$Proxy136.class\\E"
+      },
+      {
+        "pattern": "\\Qjdk/proxy2/$Proxy137.class\\E"
+      },
+      {
+        "pattern": "\\Qjdk/proxy2/$Proxy138.class\\E"
+      },
+      {
+        "pattern": "\\Qjdk/proxy2/$Proxy139.class\\E"
+      },
+      {
+        "pattern": "\\Qjdk/proxy2/$Proxy140.class\\E"
+      },
+      {
+        "pattern": "\\Qjdk/proxy2/$Proxy141.class\\E"
+      },
+      {
+        "pattern": "\\Qjdk/proxy2/$Proxy142.class\\E"
+      },
+      {
+        "pattern": "\\Qjdk/proxy2/$Proxy145.class\\E"
+      },
+      {
+        "pattern": "\\Qjdk/proxy2/$Proxy146.class\\E"
+      },
+      {
+        "pattern": "\\Qjdk/proxy2/$Proxy148.class\\E"
+      },
+      {
+        "pattern": "\\Qjdk/proxy2/$Proxy149.class\\E"
+      },
+      {
+        "pattern": "\\Qjdk/proxy2/$Proxy150.class\\E"
+      },
+      {
+        "pattern": "\\Qjdk/proxy2/$Proxy151.class\\E"
+      },
+      {
+        "pattern": "\\Qjdk/proxy2/$Proxy152.class\\E"
+      },
+      {
+        "pattern": "\\Qjdk/proxy2/$Proxy155.class\\E"
+      },
+      {
+        "pattern": "\\Qjdk/proxy2/$Proxy160.class\\E"
+      },
+      {
+        "pattern": "\\Qjdk/proxy2/$Proxy161.class\\E"
+      },
+      {
+        "pattern": "\\Qjdk/proxy2/$Proxy162.class\\E"
+      },
+      {
+        "pattern": "\\Qjdk/proxy2/$Proxy163.class\\E"
+      },
+      {
+        "pattern": "\\Qjdk/proxy2/$Proxy164.class\\E"
+      },
+      {
+        "pattern": "\\Qjdk/proxy2/$Proxy167.class\\E"
+      },
+      {
+        "pattern": "\\Qjdk/proxy2/$Proxy173.class\\E"
+      },
+      {
+        "pattern": "\\Qjdk/proxy2/$Proxy174.class\\E"
+      },
+      {
+        "pattern": "\\Qjdk/proxy2/$Proxy175.class\\E"
+      },
+      {
+        "pattern": "\\Qjdk/proxy2/$Proxy176.class\\E"
+      },
+      {
+        "pattern": "\\Qjdk/proxy2/$Proxy177.class\\E"
+      },
+      {
+        "pattern": "\\Qjdk/proxy2/$Proxy178.class\\E"
+      },
+      {
+        "pattern": "\\Qjdk/proxy2/$Proxy179.class\\E"
+      },
+      {
+        "pattern": "\\Qjdk/proxy2/$Proxy180.class\\E"
+      },
+      {
+        "pattern": "\\Qjdk/proxy2/$Proxy182.class\\E"
+      },
+      {
+        "pattern": "\\Qjndi.properties\\E"
+      },
+      {
+        "pattern": "\\Qlogback-spring.groovy\\E"
+      },
+      {
+        "pattern": "\\Qlogback-spring.xml\\E"
+      },
+      {
+        "pattern": "\\Qlogback-test-spring.groovy\\E"
+      },
+      {
+        "pattern": "\\Qlogback-test-spring.xml\\E"
+      },
+      {
+        "pattern": "\\Qlogback-test.groovy\\E"
+      },
+      {
+        "pattern": "\\Qlogback-test.scmo\\E"
+      },
+      {
+        "pattern": "\\Qlogback-test.xml\\E"
+      },
+      {
+        "pattern": "\\Qlogback.groovy\\E"
+      },
+      {
+        "pattern": "\\Qlogback.scmo\\E"
+      },
+      {
+        "pattern": "\\Qlogback.xml\\E"
+      },
+      {
+        "pattern": "\\Qmapper/\\E"
+      },
+      {
+        "pattern": "\\Qmozilla/public-suffix-list.txt\\E"
+      },
+      {
+        "pattern": "\\Qokhttp3/Callback.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/apache/catalina/core/RestrictedFilters.properties\\E"
+      },
+      {
+        "pattern": "\\Qorg/apache/catalina/core/RestrictedListeners.properties\\E"
+      },
+      {
+        "pattern": "\\Qorg/apache/catalina/core/RestrictedServlets.properties\\E"
+      },
+      {
+        "pattern": "\\Qorg/apache/catalina/loader/JdbcLeakPrevention.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/apache/catalina/util/CharsetMapperDefault.properties\\E"
+      },
+      {
+        "pattern": "\\Qorg/apache/catalina/util/ServerInfo.properties\\E"
+      },
+      {
+        "pattern": "\\Qorg/apache/http/client/version.properties\\E"
+      },
+      {
+        "pattern": "\\Qorg/apache/ibatis/builder/xml/mybatis-3-mapper.dtd\\E"
+      },
+      {
+        "pattern": "\\Qorg/apache/ibatis/session/defaults/DefaultSqlSessionFactory.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/aspectj/lang/annotation/Aspect.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/graalvm/nativeimage/hosted$Feature.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/graalvm/nativeimage/hosted/Feature.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/mybatis/spring/SqlSessionTemplate.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/mybatis/spring/mapper/MapperFactoryBean.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/mybatis/spring/support/SqlSessionDaoSupport.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/quartz/Job.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/quartz/core/quartz-build.properties\\E"
+      },
+      {
+        "pattern": "\\Qorg/quartz/impl/StdScheduler.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/redisson/Redisson.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/redisson/spring/data/connection/RedissonConnectionFactory.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/redisson/spring/starter/RedissonAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/redisson/spring/starter/RedissonAutoConfigurationV2.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/redisson/spring/starter/RedissonProperties.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/aop/aspectj/annotation/AnnotationAwareAspectJAutoProxyCreator.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/aot/hint/RuntimeHintsRegistrar.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/aot/hint/annotation/Reflective.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/beans/factory/Aware.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/beans/factory/BeanClassLoaderAware.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/beans/factory/BeanFactoryAware.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/beans/factory/BeanNameAware.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/beans/factory/DisposableBean.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/beans/factory/FactoryBean.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/beans/factory/InitializingBean.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/beans/factory/SmartInitializingSingleton.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/beans/factory/aot/BeanFactoryInitializationAotProcessor.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/beans/factory/aot/BeanRegistrationAotProcessor.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/beans/factory/aot/BeanRegistrationExcludeFilter.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/beans/factory/config/BeanFactoryPostProcessor.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/beans/factory/config/BeanPostProcessor.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/beans/factory/support/MergedBeanDefinitionPostProcessor.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/beans/factory/support/NullBean.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/ApplicationRunner.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/LazyInitializationExcludeFilter$$Lambda/0x000001ed98a9fbf0.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/LazyInitializationExcludeFilter.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/Runner.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/audit/AuditAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/audit/AuditEventsEndpointAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/availability/AvailabilityHealthContributorAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/availability/AvailabilityProbesAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/beans/BeansEndpointAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/cache/CachesEndpointAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/cloudfoundry/servlet/CloudFoundryActuatorAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/condition/ConditionsReportEndpointAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/context/ShutdownEndpointAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/context/properties/ConfigurationPropertiesReportEndpointAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/data/redis/RedisHealthContributorAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/data/redis/RedisReactiveHealthContributorAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/endpoint/EndpointAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/endpoint/condition/ConditionalOnAvailableEndpoint.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/endpoint/expose/IncludeExcludeEndpointFilter.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/endpoint/jackson/JacksonEndpointAutoConfiguration$$Lambda/0x000001ed9899faa0.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/endpoint/jackson/JacksonEndpointAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/endpoint/jmx/JmxEndpointAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/endpoint/web/CorsEndpointProperties.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/endpoint/web/MappingWebEndpointPathMapper.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/endpoint/web/ServletEndpointManagementContextConfiguration$JerseyServletEndpointManagementContextConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/endpoint/web/ServletEndpointManagementContextConfiguration$WebMvcServletEndpointManagementContextConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/endpoint/web/ServletEndpointManagementContextConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/endpoint/web/WebEndpointAutoConfiguration$WebEndpointServletConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/endpoint/web/WebEndpointAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/endpoint/web/WebEndpointProperties.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/endpoint/web/jersey/JerseyWebEndpointManagementContextConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/endpoint/web/reactive/WebFluxEndpointManagementContextConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/endpoint/web/servlet/WebMvcEndpointManagementContextConfiguration$EndpointObjectMapperWebMvcConfigurer.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/endpoint/web/servlet/WebMvcEndpointManagementContextConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/env/EnvironmentEndpointAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/health/AbstractCompositeHealthContributorConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/health/AutoConfiguredHealthContributorRegistry.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/health/AutoConfiguredHealthEndpointGroups.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/health/AutoConfiguredReactiveHealthContributorRegistry.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/health/CompositeHealthContributorConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/health/CompositeReactiveHealthContributorConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/health/ConditionalOnEnabledHealthIndicator.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/health/HealthContributorAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/health/HealthEndpointAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/health/HealthEndpointConfiguration$AdaptedReactiveHealthContributors.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/health/HealthEndpointConfiguration$HealthEndpointGroupMembershipValidator.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/health/HealthEndpointConfiguration$HealthEndpointGroupsBeanPostProcessor.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/health/HealthEndpointConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/health/HealthEndpointProperties.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/health/HealthEndpointReactiveWebExtensionConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/health/HealthEndpointWebExtensionConfiguration$JerseyAdditionalHealthEndpointPathsConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/health/HealthEndpointWebExtensionConfiguration$JerseyAdditionalHealthEndpointPathsResourcesRegistrar.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/health/HealthEndpointWebExtensionConfiguration$MvcAdditionalHealthEndpointPathsConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/health/HealthEndpointWebExtensionConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/health/HealthProperties.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/health/ReactiveHealthEndpointConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/info/InfoContributorAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/info/InfoContributorProperties.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/info/InfoEndpointAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/jdbc/DataSourceHealthContributorAutoConfiguration$RoutingDataSourceHealthContributor.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/jdbc/DataSourceHealthContributorAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/jdbc/DataSourceHealthIndicatorProperties.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/logging/LogFileWebEndpointAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/logging/LoggersEndpointAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/mail/MailHealthContributorAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/management/HeapDumpWebEndpointAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/management/ThreadDumpEndpointAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/metrics/CompositeMeterRegistryAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/metrics/CompositeMeterRegistryConfiguration$MultipleNonPrimaryMeterRegistriesCondition$NoMeterRegistryCondition.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/metrics/CompositeMeterRegistryConfiguration$MultipleNonPrimaryMeterRegistriesCondition$SingleInjectableMeterRegistry.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/metrics/CompositeMeterRegistryConfiguration$MultipleNonPrimaryMeterRegistriesCondition.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/metrics/CompositeMeterRegistryConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/metrics/JvmMetricsAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/metrics/LogbackMetricsAutoConfiguration$LogbackLoggingCondition.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/metrics/LogbackMetricsAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/metrics/MeterRegistryPostProcessor.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/metrics/MetricsAspectsAutoConfiguration$ObservationAnnotationsEnabledCondition$ManagementObservationsEnabledCondition.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/metrics/MetricsAspectsAutoConfiguration$ObservationAnnotationsEnabledCondition$MicrometerObservationsEnabledCondition.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/metrics/MetricsAspectsAutoConfiguration$ObservationAnnotationsEnabledCondition.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/metrics/MetricsAspectsAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/metrics/MetricsAutoConfiguration$MeterRegistryCloser.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/metrics/MetricsAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/metrics/MetricsEndpointAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/metrics/MetricsProperties.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/metrics/NoOpMeterRegistryConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/metrics/PropertiesMeterFilter.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/metrics/SystemMetricsAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/metrics/cache/CacheMeterBinderProvidersConfiguration$Cache2kCacheMeterBinderProviderConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/metrics/cache/CacheMeterBinderProvidersConfiguration$CaffeineCacheMeterBinderProviderConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/metrics/cache/CacheMeterBinderProvidersConfiguration$HazelcastCacheMeterBinderProviderConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/metrics/cache/CacheMeterBinderProvidersConfiguration$JCacheCacheMeterBinderProviderConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/metrics/cache/CacheMeterBinderProvidersConfiguration$RedisCacheMeterBinderProviderConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/metrics/cache/CacheMeterBinderProvidersConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/metrics/cache/CacheMetricsAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/metrics/cache/CacheMetricsRegistrarConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/metrics/data/MetricsRepositoryMethodInvocationListenerBeanPostProcessor.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/metrics/data/RepositoryMetricsAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/metrics/export/ConditionalOnEnabledMetricsExport.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/metrics/export/properties/PropertiesConfigAdapter.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/metrics/export/simple/SimpleMetricsExportAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/metrics/export/simple/SimpleProperties.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/metrics/export/simple/SimplePropertiesConfigAdapter.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/metrics/integration/IntegrationMetricsAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/metrics/jdbc/DataSourcePoolMetricsAutoConfiguration$DataSourcePoolMetadataMetricsConfiguration$DataSourcePoolMetadataMeterBinder.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/metrics/jdbc/DataSourcePoolMetricsAutoConfiguration$DataSourcePoolMetadataMetricsConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/metrics/jdbc/DataSourcePoolMetricsAutoConfiguration$HikariDataSourceMetricsConfiguration$HikariDataSourceMeterBinder.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/metrics/jdbc/DataSourcePoolMetricsAutoConfiguration$HikariDataSourceMetricsConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/metrics/jdbc/DataSourcePoolMetricsAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/metrics/redis/LettuceMetricsAutoConfiguration$$Lambda/0x000001ed98a76d48.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/metrics/redis/LettuceMetricsAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/metrics/startup/StartupTimeMetricsListenerAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/metrics/task/TaskExecutorMetricsAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/metrics/web/tomcat/TomcatMetricsAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/observation/ObservationAutoConfiguration$MeterObservationHandlerConfiguration$OnlyMetricsMeterObservationHandlerConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/observation/ObservationAutoConfiguration$MeterObservationHandlerConfiguration$TracingAndMetricsObservationHandlerConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/observation/ObservationAutoConfiguration$MeterObservationHandlerConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/observation/ObservationAutoConfiguration$MetricsWithTracingConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/observation/ObservationAutoConfiguration$ObservedAspectConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/observation/ObservationAutoConfiguration$OnlyMetricsConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/observation/ObservationAutoConfiguration$OnlyTracingConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/observation/ObservationAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/observation/ObservationHandlerGrouping.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/observation/ObservationProperties.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/observation/ObservationRegistryPostProcessor.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/observation/PropertiesObservationFilterPredicate.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/observation/web/client/HttpClientObservationsAutoConfiguration$MeterFilterConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/observation/web/client/HttpClientObservationsAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/observation/web/client/RestClientObservationConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/observation/web/client/RestTemplateObservationConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/observation/web/client/WebClientObservationConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/observation/web/servlet/WebMvcObservationAutoConfiguration$MeterFilterConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/observation/web/servlet/WebMvcObservationAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/quartz/QuartzEndpointAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/scheduling/ScheduledTasksEndpointAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/scheduling/ScheduledTasksObservabilityAutoConfiguration$ObservabilitySchedulingConfigurer.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/scheduling/ScheduledTasksObservabilityAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/security/servlet/ManagementWebSecurityAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/security/servlet/SecurityRequestMatchersManagementContextConfiguration$JerseyRequestMatcherConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/security/servlet/SecurityRequestMatchersManagementContextConfiguration$MvcRequestMatcherConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/security/servlet/SecurityRequestMatchersManagementContextConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/startup/StartupEndpointAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/system/DiskSpaceHealthContributorAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/system/DiskSpaceHealthIndicatorProperties.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/web/ManagementContextConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/web/ManagementContextFactory.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/web/exchanges/HttpExchangesAutoConfiguration$ReactiveHttpExchangesConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/web/exchanges/HttpExchangesAutoConfiguration$ServletHttpExchangesConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/web/exchanges/HttpExchangesAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/web/exchanges/HttpExchangesEndpointAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/web/jersey/JerseyChildManagementContextConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/web/jersey/JerseySameManagementContextConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/web/mappings/MappingsEndpointAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/web/reactive/ReactiveManagementChildContextConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/web/server/ConditionalOnManagementPort.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/web/server/EnableManagementContext.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/web/server/ManagementContextAutoConfiguration$DifferentManagementContextConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/web/server/ManagementContextAutoConfiguration$SameManagementContextConfiguration$EnableSameManagementContextConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/web/server/ManagementContextAutoConfiguration$SameManagementContextConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/web/server/ManagementContextAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/web/server/ManagementContextConfigurationImportSelector.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/web/server/ManagementServerProperties.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/web/servlet/ServletManagementChildContextConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/web/servlet/ServletManagementContextAutoConfiguration$$Lambda/0x000001ed98a8c8f0.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/web/servlet/ServletManagementContextAutoConfiguration$ApplicationContextFilterConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/web/servlet/ServletManagementContextAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/web/servlet/WebMvcEndpointChildContextConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/data/redis/RedisReactiveHealthIndicator.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/endpoint/annotation/EndpointDiscoverer.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/endpoint/invoke/ParameterValueMapper.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/endpoint/invoke/convert/ConversionServiceParameterValueMapper.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/endpoint/invoker/cache/CachingOperationInvokerAdvisor.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/endpoint/web/EndpointMediaTypes.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/endpoint/web/PathMappedEndpoints.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/endpoint/web/PathMapper.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/endpoint/web/ServletEndpointRegistrar.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/endpoint/web/annotation/ControllerEndpointDiscoverer.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/endpoint/web/annotation/ServletEndpointDiscoverer.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/endpoint/web/annotation/WebEndpointDiscoverer.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/endpoint/web/servlet/AbstractWebMvcEndpointHandlerMapping.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/endpoint/web/servlet/AdditionalHealthEndpointPathsWebMvcHandlerMapping.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/endpoint/web/servlet/ControllerEndpointHandlerMapping.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/endpoint/web/servlet/WebMvcEndpointHandlerMapping.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/health/AbstractHealthIndicator.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/health/AbstractReactiveHealthIndicator.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/health/DefaultContributorRegistry.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/health/DefaultHealthContributorRegistry.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/health/DefaultReactiveHealthContributorRegistry.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/health/HealthEndpoint.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/health/HealthEndpointGroups.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/health/HealthEndpointSupport.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/health/HealthEndpointWebExtension.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/health/HealthIndicator.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/health/NamedContributors.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/health/PingHealthIndicator.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/health/ReactiveHealthContributor.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/health/ReactiveHealthIndicator.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/health/SimpleHttpCodeStatusMapper.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/health/SimpleStatusAggregator.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/health/StatusAggregator.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/jdbc/DataSourceHealthIndicator.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/metrics/cache/CacheMetricsRegistrar.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/metrics/cache/JCacheCacheMeterBinderProvider.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/metrics/cache/RedisCacheMeterBinderProvider.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/metrics/data/DefaultRepositoryTagsProvider.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/metrics/data/MetricsRepositoryMethodInvocationListener.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/metrics/startup/StartupTimeMetricsListener.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/metrics/system/DiskSpaceMetricsBinder.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/metrics/web/client/ObservationRestClientCustomizer.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/metrics/web/client/ObservationRestTemplateCustomizer.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/metrics/web/tomcat/TomcatMetricsBinder.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/system/DiskSpaceHealthIndicator.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/AbstractDependsOnBeanFactoryPostProcessor.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/AutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/AutoConfigureAfter.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/AutoConfigureBefore.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/AutoConfigureOrder.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/admin/SpringApplicationAdminJmxAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/aop/AopAutoConfiguration$AspectJAutoProxyingConfiguration$CglibAutoProxyConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/aop/AopAutoConfiguration$AspectJAutoProxyingConfiguration$JdkDynamicAutoProxyConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/aop/AopAutoConfiguration$AspectJAutoProxyingConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/aop/AopAutoConfiguration$ClassProxyingConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/aop/AopAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/availability/ApplicationAvailabilityAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/cache/CacheAutoConfiguration$CacheConfigurationImportSelector.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/cache/CacheAutoConfiguration$CacheManagerEntityManagerFactoryDependsOnPostProcessor.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/cache/CacheAutoConfiguration$CacheManagerValidator.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/cache/CacheAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/cache/GenericCacheConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/cache/HazelcastJCacheCustomizationConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/cache/JCacheCacheConfiguration$JCacheAvailableCondition.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/cache/JCacheCacheConfiguration$JCacheProviderAvailableCondition.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/cache/JCacheCacheConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/cache/NoOpCacheConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/cache/RedisCacheConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/cache/SimpleCacheConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/condition/ConditionalOnBean.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/condition/ConditionalOnClass.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/condition/ConditionalOnMissingBean.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/condition/ConditionalOnMissingClass.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/condition/ConditionalOnNotWarDeployment.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/condition/ConditionalOnProperty.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/condition/ConditionalOnResource.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/condition/ConditionalOnSingleCandidate.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/condition/ConditionalOnWebApplication.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/context/ConfigurationPropertiesAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/context/LifecycleAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/context/LifecycleProperties.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/context/MessageSourceAutoConfiguration$MessageSourceRuntimeHints.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/context/MessageSourceAutoConfiguration$ResourceBundleCondition.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/context/MessageSourceAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/context/MessageSourceProperties.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/context/PropertyPlaceholderAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/dao/PersistenceExceptionTranslationAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/data/AbstractRepositoryConfigurationSourceSupport.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/data/redis/JedisConnectionConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/data/redis/LettuceConnectionConfiguration$PoolBuilderFactory.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/data/redis/LettuceConnectionConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/data/redis/PropertiesRedisConnectionDetails.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/data/redis/RedisAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/data/redis/RedisConnectionConfiguration$ConnectionInfo.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/data/redis/RedisConnectionConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/data/redis/RedisProperties.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/data/redis/RedisReactiveAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/data/redis/RedisRepositoriesAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/data/redis/RedisRepositoriesRegistrar.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/data/web/SpringDataWebAutoConfiguration$$Lambda/0x000001ed98a5a308.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/data/web/SpringDataWebAutoConfiguration$$Lambda/0x000001ed98a5b4a8.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/data/web/SpringDataWebAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/data/web/SpringDataWebProperties.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/gson/GsonAutoConfiguration$StandardGsonBuilderCustomizer.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/gson/GsonAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/gson/GsonProperties.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/http/GsonHttpMessageConvertersConfiguration$GsonHttpMessageConverterConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/http/GsonHttpMessageConvertersConfiguration$JacksonAndJsonbUnavailableCondition$JacksonAvailable.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/http/GsonHttpMessageConvertersConfiguration$JacksonAndJsonbUnavailableCondition$JsonbPreferred.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/http/GsonHttpMessageConvertersConfiguration$JacksonAndJsonbUnavailableCondition.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/http/GsonHttpMessageConvertersConfiguration$PreferGsonOrJacksonAndJsonbUnavailableCondition$GsonPreferred.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/http/GsonHttpMessageConvertersConfiguration$PreferGsonOrJacksonAndJsonbUnavailableCondition$JacksonJsonbUnavailable.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/http/GsonHttpMessageConvertersConfiguration$PreferGsonOrJacksonAndJsonbUnavailableCondition.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/http/GsonHttpMessageConvertersConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/http/HttpMessageConverters.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/http/HttpMessageConvertersAutoConfiguration$HttpMessageConvertersAutoConfigurationRuntimeHints.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/http/HttpMessageConvertersAutoConfiguration$NotReactiveWebApplicationCondition$ReactiveWebApplication.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/http/HttpMessageConvertersAutoConfiguration$NotReactiveWebApplicationCondition.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/http/HttpMessageConvertersAutoConfiguration$StringHttpMessageConverterConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/http/HttpMessageConvertersAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/http/JacksonHttpMessageConvertersConfiguration$MappingJackson2HttpMessageConverterConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/http/JacksonHttpMessageConvertersConfiguration$MappingJackson2XmlHttpMessageConverterConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/http/JacksonHttpMessageConvertersConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/http/JsonbHttpMessageConvertersConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/info/ProjectInfoAutoConfiguration$GitResourceAvailableCondition.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/info/ProjectInfoAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/info/ProjectInfoProperties.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/jackson/JacksonAutoConfiguration$Jackson2ObjectMapperBuilderCustomizerConfiguration$StandardJackson2ObjectMapperBuilderCustomizer.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/jackson/JacksonAutoConfiguration$Jackson2ObjectMapperBuilderCustomizerConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/jackson/JacksonAutoConfiguration$JacksonAutoConfigurationRuntimeHints.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/jackson/JacksonAutoConfiguration$JacksonMixinConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/jackson/JacksonAutoConfiguration$JacksonObjectMapperBuilderConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/jackson/JacksonAutoConfiguration$JacksonObjectMapperConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/jackson/JacksonAutoConfiguration$ParameterNamesModuleConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/jackson/JacksonAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/jackson/JacksonProperties.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/jdbc/DataSourceAutoConfiguration$EmbeddedDatabaseCondition.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/jdbc/DataSourceAutoConfiguration$EmbeddedDatabaseConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/jdbc/DataSourceAutoConfiguration$PooledDataSourceAvailableCondition.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/jdbc/DataSourceAutoConfiguration$PooledDataSourceCondition$ExplicitType.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/jdbc/DataSourceAutoConfiguration$PooledDataSourceCondition$PooledDataSourceAvailable.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/jdbc/DataSourceAutoConfiguration$PooledDataSourceCondition.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/jdbc/DataSourceAutoConfiguration$PooledDataSourceConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/jdbc/DataSourceAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/jdbc/DataSourceCheckpointRestoreConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/jdbc/DataSourceConfiguration$Dbcp2.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/jdbc/DataSourceConfiguration$Generic.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/jdbc/DataSourceConfiguration$Hikari.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/jdbc/DataSourceConfiguration$OracleUcp.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/jdbc/DataSourceConfiguration$Tomcat.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/jdbc/DataSourceJmxConfiguration$Hikari.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/jdbc/DataSourceJmxConfiguration$TomcatDataSourceJmxConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/jdbc/DataSourceJmxConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/jdbc/DataSourceProperties.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/jdbc/DataSourceTransactionManagerAutoConfiguration$JdbcTransactionManagerConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/jdbc/DataSourceTransactionManagerAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/jdbc/JdbcClientAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/jdbc/JdbcProperties.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/jdbc/JdbcTemplateAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/jdbc/JdbcTemplateConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/jdbc/JndiDataSourceAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/jdbc/NamedParameterJdbcTemplateConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/jdbc/metadata/DataSourcePoolMetadataProvidersConfiguration$CommonsDbcp2PoolDataSourceMetadataProviderConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/jdbc/metadata/DataSourcePoolMetadataProvidersConfiguration$HikariPoolDataSourceMetadataProviderConfiguration$$Lambda/0x000001ed98a22a30.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/jdbc/metadata/DataSourcePoolMetadataProvidersConfiguration$HikariPoolDataSourceMetadataProviderConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/jdbc/metadata/DataSourcePoolMetadataProvidersConfiguration$OracleUcpPoolDataSourceMetadataProviderConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/jdbc/metadata/DataSourcePoolMetadataProvidersConfiguration$TomcatDataSourcePoolMetadataProviderConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/jdbc/metadata/DataSourcePoolMetadataProvidersConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/jmx/JmxAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/mail/MailSenderAutoConfiguration$MailSenderCondition$HostProperty.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/mail/MailSenderAutoConfiguration$MailSenderCondition$JndiNameProperty.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/mail/MailSenderAutoConfiguration$MailSenderCondition.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/mail/MailSenderAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/mail/MailSenderValidatorAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/netty/NettyAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/netty/NettyProperties.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/orm/jpa/EntityManagerFactoryDependsOnPostProcessor.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/quartz/QuartzAutoConfiguration$JdbcStoreTypeConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/quartz/QuartzAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/quartz/QuartzProperties.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/reactor/ReactorAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/reactor/ReactorProperties.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/security/ConditionalOnDefaultWebSecurity.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/security/DefaultWebSecurityCondition$Beans.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/security/DefaultWebSecurityCondition$Classes.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/security/DefaultWebSecurityCondition.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/security/SecurityDataConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/security/SecurityProperties.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/security/reactive/ReactiveUserDetailsServiceAutoConfiguration$MissingAlternativeOrUserPropertiesConfigured$MissingAlternative.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/security/reactive/ReactiveUserDetailsServiceAutoConfiguration$MissingAlternativeOrUserPropertiesConfigured$NameConfigured.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/security/reactive/ReactiveUserDetailsServiceAutoConfiguration$MissingAlternativeOrUserPropertiesConfigured$PasswordConfigured.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/security/reactive/ReactiveUserDetailsServiceAutoConfiguration$MissingAlternativeOrUserPropertiesConfigured.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/security/reactive/ReactiveUserDetailsServiceAutoConfiguration$RSocketEnabledOrReactiveWebApplication$RSocketSecurityEnabledCondition.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/security/reactive/ReactiveUserDetailsServiceAutoConfiguration$RSocketEnabledOrReactiveWebApplication$ReactiveWebApplicationCondition.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/security/reactive/ReactiveUserDetailsServiceAutoConfiguration$RSocketEnabledOrReactiveWebApplication.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/security/reactive/ReactiveUserDetailsServiceAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/security/servlet/AntPathRequestMatcherProvider.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/security/servlet/SecurityAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/security/servlet/SecurityFilterAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/security/servlet/SpringBootWebSecurityConfiguration$SecurityFilterChainConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/security/servlet/SpringBootWebSecurityConfiguration$WebSecurityEnablerConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/security/servlet/SpringBootWebSecurityConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/security/servlet/UserDetailsServiceAutoConfiguration$MissingAlternativeOrUserPropertiesConfigured$MissingAlternative.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/security/servlet/UserDetailsServiceAutoConfiguration$MissingAlternativeOrUserPropertiesConfigured$NameConfigured.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/security/servlet/UserDetailsServiceAutoConfiguration$MissingAlternativeOrUserPropertiesConfigured$PasswordConfigured.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/security/servlet/UserDetailsServiceAutoConfiguration$MissingAlternativeOrUserPropertiesConfigured.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/security/servlet/UserDetailsServiceAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/sql/init/DataSourceInitializationConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/sql/init/R2dbcInitializationConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/sql/init/SqlDataSourceScriptDatabaseInitializer.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/sql/init/SqlInitializationAutoConfiguration$SqlInitializationModeCondition$ModeIsNever.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/sql/init/SqlInitializationAutoConfiguration$SqlInitializationModeCondition.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/sql/init/SqlInitializationAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/sql/init/SqlInitializationProperties.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/ssl/FileWatcher.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/ssl/SslAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/ssl/SslProperties.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/ssl/SslPropertiesBundleRegistrar.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/task/ScheduledBeanLazyInitializationExcludeFilter.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/task/TaskExecutionAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/task/TaskExecutionProperties.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/task/TaskExecutorConfigurations$SimpleAsyncTaskExecutorBuilderConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/task/TaskExecutorConfigurations$TaskExecutorBuilderConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/task/TaskExecutorConfigurations$TaskExecutorConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/task/TaskExecutorConfigurations$ThreadPoolTaskExecutorBuilderConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/task/TaskSchedulingAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/task/TaskSchedulingConfigurations$SimpleAsyncTaskSchedulerBuilderConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/task/TaskSchedulingConfigurations$TaskSchedulerBuilderConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/task/TaskSchedulingConfigurations$TaskSchedulerConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/task/TaskSchedulingConfigurations$ThreadPoolTaskSchedulerBuilderConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/task/TaskSchedulingProperties.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/transaction/ExecutionListenersTransactionManagerCustomizer.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/transaction/TransactionAutoConfiguration$AspectJTransactionManagementConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/transaction/TransactionAutoConfiguration$EnableTransactionManagementConfiguration$CglibAutoProxyConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/transaction/TransactionAutoConfiguration$EnableTransactionManagementConfiguration$JdkDynamicAutoProxyConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/transaction/TransactionAutoConfiguration$EnableTransactionManagementConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/transaction/TransactionAutoConfiguration$TransactionTemplateConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/transaction/TransactionAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/transaction/TransactionManagerCustomizationAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/transaction/TransactionManagerCustomizers.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/transaction/TransactionProperties.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/validation/PrimaryDefaultValidatorPostProcessor.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/validation/ValidationAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/validation/ValidatorAdapter.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/web/ServerProperties.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/web/WebProperties.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/web/client/AutoConfiguredRestClientSsl.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/web/client/HttpMessageConvertersRestClientCustomizer.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/web/client/NotReactiveWebApplicationCondition$ReactiveWebApplication.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/web/client/NotReactiveWebApplicationCondition.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/web/client/RestClientAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/web/client/RestClientBuilderConfigurer.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/web/client/RestTemplateAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/web/embedded/EmbeddedWebServerFactoryCustomizerAutoConfiguration$JettyWebServerFactoryCustomizerConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/web/embedded/EmbeddedWebServerFactoryCustomizerAutoConfiguration$NettyWebServerFactoryCustomizerConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/web/embedded/EmbeddedWebServerFactoryCustomizerAutoConfiguration$TomcatWebServerFactoryCustomizerConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/web/embedded/EmbeddedWebServerFactoryCustomizerAutoConfiguration$UndertowWebServerFactoryCustomizerConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/web/embedded/EmbeddedWebServerFactoryCustomizerAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/web/embedded/TomcatWebServerFactoryCustomizer.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/web/format/WebConversionService.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/web/servlet/DispatcherServletAutoConfiguration$DefaultDispatcherServletCondition.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/web/servlet/DispatcherServletAutoConfiguration$DispatcherServletConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/web/servlet/DispatcherServletAutoConfiguration$DispatcherServletRegistrationCondition.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/web/servlet/DispatcherServletAutoConfiguration$DispatcherServletRegistrationConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/web/servlet/DispatcherServletAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/web/servlet/DispatcherServletPath.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/web/servlet/DispatcherServletRegistrationBean.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/web/servlet/HttpEncodingAutoConfiguration$LocaleCharsetMappingsCustomizer.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/web/servlet/HttpEncodingAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/web/servlet/MultipartAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/web/servlet/MultipartProperties.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/web/servlet/ServletWebServerFactoryAutoConfiguration$BeanPostProcessorsRegistrar.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/web/servlet/ServletWebServerFactoryAutoConfiguration$ForwardedHeaderFilterConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/web/servlet/ServletWebServerFactoryAutoConfiguration$ForwardedHeaderFilterCustomizer.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/web/servlet/ServletWebServerFactoryAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/web/servlet/ServletWebServerFactoryConfiguration$EmbeddedJetty.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/web/servlet/ServletWebServerFactoryConfiguration$EmbeddedTomcat.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/web/servlet/ServletWebServerFactoryConfiguration$EmbeddedUndertow.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/web/servlet/ServletWebServerFactoryCustomizer.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/web/servlet/TomcatServletWebServerFactoryCustomizer.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/web/servlet/WebMvcAutoConfiguration$EnableWebMvcConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/web/servlet/WebMvcAutoConfiguration$OptionalPathExtensionContentNegotiationStrategy.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/web/servlet/WebMvcAutoConfiguration$ProblemDetailsErrorHandlingConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/web/servlet/WebMvcAutoConfiguration$ResourceChainCustomizerConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/web/servlet/WebMvcAutoConfiguration$ResourceChainResourceHandlerRegistrationCustomizer.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/web/servlet/WebMvcAutoConfiguration$ResourceHandlerRegistrationCustomizer.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/web/servlet/WebMvcAutoConfiguration$WebMvcAutoConfigurationAdapter.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/web/servlet/WebMvcAutoConfiguration$WelcomePageHandlerMappingFactory.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/web/servlet/WebMvcAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/web/servlet/WebMvcProperties.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/web/servlet/WelcomePageHandlerMapping.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/web/servlet/WelcomePageNotAcceptableHandlerMapping.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/web/servlet/error/AbstractErrorController.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/web/servlet/error/BasicErrorController.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/web/servlet/error/DefaultErrorViewResolver.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/web/servlet/error/ErrorMvcAutoConfiguration$DefaultErrorViewResolverConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/web/servlet/error/ErrorMvcAutoConfiguration$ErrorPageCustomizer.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/web/servlet/error/ErrorMvcAutoConfiguration$ErrorTemplateMissingCondition.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/web/servlet/error/ErrorMvcAutoConfiguration$PreserveErrorControllerTargetClassPostProcessor.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/web/servlet/error/ErrorMvcAutoConfiguration$StaticView.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/web/servlet/error/ErrorMvcAutoConfiguration$WhitelabelErrorViewConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/web/servlet/error/ErrorMvcAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/websocket/servlet/TomcatWebSocketServletWebServerCustomizer.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/websocket/servlet/WebSocketServletAutoConfiguration$JettyWebSocketConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/websocket/servlet/WebSocketServletAutoConfiguration$TomcatWebSocketConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/websocket/servlet/WebSocketServletAutoConfiguration$UndertowWebSocketConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/websocket/servlet/WebSocketServletAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/availability/ApplicationAvailability.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/availability/ApplicationAvailabilityBean.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/context/properties/BoundConfigurationProperties.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/context/properties/EnableConfigurationProperties.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/context/properties/EnableConfigurationPropertiesRegistrar.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/jackson/JsonComponentModule.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/jackson/JsonMixinModule.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/jackson/JsonMixinModuleEntries.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/jdbc/init/DataSourceScriptDatabaseInitializer.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/sql/init/AbstractScriptDatabaseInitializer.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/sql/init/dependency/DatabaseInitializationDependencyConfigurer.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/ssl/DefaultSslBundleRegistry.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/task/SimpleAsyncTaskExecutorBuilder.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/task/SimpleAsyncTaskSchedulerBuilder.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/task/TaskExecutorBuilder.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/task/TaskSchedulerBuilder.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/task/ThreadPoolTaskExecutorBuilder.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/task/ThreadPoolTaskSchedulerBuilder.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/web/embedded/tomcat/TomcatServletWebServerFactory.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/web/server/AbstractConfigurableWebServerFactory.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/web/server/ConfigurableWebServerFactory.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/web/servlet/AbstractFilterRegistrationBean.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/web/servlet/DelegatingFilterProxyRegistrationBean.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/web/servlet/DynamicRegistrationBean.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/web/servlet/FilterRegistrationBean.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/web/servlet/RegistrationBean.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/web/servlet/ServletRegistrationBean.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/web/servlet/error/DefaultErrorAttributes.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/web/servlet/filter/OrderedCharacterEncodingFilter.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/web/servlet/filter/OrderedFormContentFilter.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/web/servlet/filter/OrderedRequestContextFilter.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/web/servlet/server/AbstractServletWebServerFactory.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/cache/annotation/AbstractCachingConfiguration$CachingConfigurerSupplier.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/cache/annotation/AbstractCachingConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/cache/annotation/AnnotationCacheOperationSource.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/cache/annotation/CachingConfigurationSelector.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/cache/annotation/EnableCaching.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/cache/annotation/ProxyCachingConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/cache/interceptor/AbstractFallbackCacheOperationSource.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/cache/jcache/config/AbstractJCacheConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/cache/jcache/config/ProxyJCacheConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/cache/jcache/interceptor/AbstractFallbackJCacheOperationSource.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/cache/jcache/interceptor/AnnotationJCacheOperationSource.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/cache/jcache/interceptor/DefaultJCacheOperationSource.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/cache/support/AbstractCacheManager.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/cache/transaction/AbstractTransactionSupportingCacheManager.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/context/ApplicationContextAware.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/context/ApplicationContextInitializer.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/context/ApplicationListener.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/context/EnvironmentAware.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/context/ResourceLoaderAware.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/context/SmartLifecycle.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/context/annotation/AdviceModeImportSelector.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/context/annotation/AspectJAutoProxyRegistrar.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/context/annotation/AutoProxyRegistrar.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/context/annotation/Conditional.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/context/annotation/Configuration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/context/annotation/DeferredImportSelector.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/context/annotation/EnableAspectJAutoProxy.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/context/annotation/Import.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/context/annotation/ImportAware.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/context/annotation/ImportBeanDefinitionRegistrar.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/context/annotation/ImportRuntimeHints.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/context/annotation/Lazy.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/context/annotation/Role.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/context/event/SmartApplicationListener.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/context/support/AbstractMessageSource.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/context/support/AbstractResourceBasedMessageSource.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/context/support/ApplicationObjectSupport.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/context/support/DefaultLifecycleProcessor.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/context/support/MessageSourceSupport.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/context/support/ResourceBundleMessageSource.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/core/Ordered.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/core/annotation/Order.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/core/convert/ConversionService.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/core/convert/converter/Converter.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/core/convert/support/GenericConversionService.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/core/env/EnvironmentCapable.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/core/task/AsyncTaskExecutor.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/dao/support/DaoSupport.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/data/convert/CustomConversions.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/data/geo/GeoModule.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/data/keyvalue/core/AbstractKeyValueAdapter.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/data/keyvalue/core/KeyValueAdapter.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/data/keyvalue/core/KeyValueTemplate.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/data/keyvalue/core/mapping/context/KeyValueMappingContext.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/data/mapping/context/AbstractMappingContext.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/data/mapping/context/MappingContext.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/data/redis/cache/RedisCacheManager.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/data/redis/core/ReactiveRedisOperations.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/data/redis/core/ReactiveRedisTemplate.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/data/redis/core/ReactiveStringRedisTemplate.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/data/redis/core/RedisAccessor.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/data/redis/core/RedisKeyValueAdapter.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/data/redis/core/RedisKeyValueTemplate.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/data/redis/core/RedisOperations.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/data/redis/core/RedisTemplate.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/data/redis/core/StringRedisTemplate.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/data/redis/core/convert/KeyspaceConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/data/redis/core/convert/MappingConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/data/redis/core/convert/MappingRedisConverter.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/data/redis/core/convert/RedisCustomConversions.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/data/redis/core/convert/ReferenceResolverImpl.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/data/redis/core/index/IndexConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/data/redis/core/mapping/RedisMappingContext.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/data/repository/config/RepositoryRegistrationAotProcessor.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/data/web/OffsetScrollPositionHandlerMethodArgumentResolver.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/data/web/OffsetScrollPositionHandlerMethodArgumentResolverSupport.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/data/web/PageableHandlerMethodArgumentResolver.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/data/web/PageableHandlerMethodArgumentResolverSupport.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/data/web/SortHandlerMethodArgumentResolver.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/data/web/SortHandlerMethodArgumentResolverSupport.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/data/web/config/EnableSpringDataWebSupport$QuerydslActivator.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/data/web/config/EnableSpringDataWebSupport$SpringDataWebConfigurationImportSelector.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/data/web/config/EnableSpringDataWebSupport.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/data/web/config/ProjectingArgumentResolverRegistrar$ProjectingArgumentResolverBeanPostProcessor.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/data/web/config/ProjectingArgumentResolverRegistrar.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/data/web/config/SpringDataJacksonConfiguration$PageModule.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/data/web/config/SpringDataJacksonConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/data/web/config/SpringDataJacksonModules.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/data/web/config/SpringDataWebConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/format/support/DefaultFormattingConversionService.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/format/support/FormattingConversionService.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/http/HttpInputMessage.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/http/HttpMessage.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/http/converter/AbstractGenericHttpMessageConverter.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/http/converter/AbstractHttpMessageConverter.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/http/converter/HttpMessageConverter.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/http/converter/StringHttpMessageConverter.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/http/converter/json/AbstractJackson2HttpMessageConverter.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/http/converter/json/Jackson2ObjectMapperBuilder.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/http/converter/json/MappingJackson2HttpMessageConverter.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/jdbc/core/JdbcTemplate.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/jdbc/core/namedparam/NamedParameterJdbcTemplate.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/jdbc/core/simple/DefaultJdbcClient.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/jdbc/core/simple/JdbcClient.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/jdbc/datasource/DataSourceTransactionManager.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/jdbc/support/JdbcAccessor.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/jdbc/support/JdbcTransactionManager.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/scheduling/SchedulingTaskExecutor.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/scheduling/TaskScheduler.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/scheduling/annotation/AbstractAsyncConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/scheduling/annotation/EnableScheduling.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/scheduling/annotation/ProxyAsyncConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/scheduling/annotation/SchedulingConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/scheduling/concurrent/CustomizableThreadFactory.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/scheduling/concurrent/ExecutorConfigurationSupport.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/scheduling/concurrent/ThreadPoolTaskExecutor.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/scheduling/concurrent/ThreadPoolTaskScheduler.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/scheduling/quartz/SchedulerAccessor.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/scheduling/quartz/SchedulerFactoryBean.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/security/authentication/AbstractAuthenticationToken.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/security/authentication/AnonymousAuthenticationProvider.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/security/authentication/AuthenticationProvider.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/security/authentication/DefaultAuthenticationEventPublisher.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/security/authentication/ProviderManager.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/security/authentication/UsernamePasswordAuthenticationToken.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/security/authorization/AuthorizationManager.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/security/config/annotation/AbstractConfiguredSecurityBuilder.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/security/config/annotation/AbstractSecurityBuilder.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/security/config/annotation/authentication/builders/AuthenticationManagerBuilder.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/security/config/annotation/authentication/configuration/AuthenticationConfiguration$AuthenticationManagerDelegator.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/security/config/annotation/authentication/configuration/AuthenticationConfiguration$DefaultPasswordEncoderAuthenticationManagerBuilder.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/security/config/annotation/authentication/configuration/AuthenticationConfiguration$EnableGlobalAuthenticationAutowiredConfigurer.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/security/config/annotation/authentication/configuration/AuthenticationConfiguration$LazyPasswordEncoder.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/security/config/annotation/authentication/configuration/AuthenticationConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/security/config/annotation/authentication/configuration/EnableGlobalAuthentication.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/security/config/annotation/authentication/configuration/GlobalAuthenticationConfigurerAdapter.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/security/config/annotation/authentication/configuration/InitializeAuthenticationProviderBeanManagerConfigurer.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/security/config/annotation/authentication/configuration/InitializeUserDetailsBeanManagerConfigurer.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/security/config/annotation/configuration/AutowireBeanFactoryObjectPostProcessor.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/security/config/annotation/configuration/ObjectPostProcessorConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/security/config/annotation/method/configuration/EnableMethodSecurity.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/security/config/annotation/method/configuration/MethodSecurityAdvisorRegistrar.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/security/config/annotation/method/configuration/MethodSecuritySelector.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/security/config/annotation/method/configuration/PrePostMethodSecurityConfiguration$DeferringMethodSecurityExpressionHandler.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/security/config/annotation/method/configuration/PrePostMethodSecurityConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/security/config/annotation/method/configuration/SecuredMethodSecurityConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/security/config/annotation/web/builders/HttpSecurity.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/security/config/annotation/web/builders/WebSecurity.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/security/config/annotation/web/configuration/EnableWebSecurity.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/security/config/annotation/web/configuration/HttpSecurityConfiguration$DefaultPasswordEncoderAuthenticationManagerBuilder.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/security/config/annotation/web/configuration/HttpSecurityConfiguration$LazyPasswordEncoder.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/security/config/annotation/web/configuration/HttpSecurityConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/security/config/annotation/web/configuration/OAuth2ImportSelector.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/security/config/annotation/web/configuration/SpringWebMvcImportSelector.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/security/config/annotation/web/configuration/WebMvcSecurityConfiguration$CompositeFilterChainProxy.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/security/config/annotation/web/configuration/WebMvcSecurityConfiguration$HandlerMappingIntrospectorCacheFilterFactoryBean.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/security/config/annotation/web/configuration/WebMvcSecurityConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/security/config/annotation/web/configuration/WebSecurityConfiguration$AnnotationAwareOrderComparator.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/security/config/annotation/web/configuration/WebSecurityConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/security/context/DelegatingApplicationListener.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/security/core/Authentication.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/security/core/CredentialsContainer.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/security/core/userdetails/UserDetails.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/security/core/userdetails/UserDetailsService.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/security/crypto/password/NoOpPasswordEncoder.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/security/crypto/password/PasswordEncoder.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/security/web/AuthenticationEntryPoint.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/security/web/DefaultSecurityFilterChain.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/security/web/FilterChainProxy.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/security/web/access/AccessDeniedHandler.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/security/web/access/AuthorizationManagerWebInvocationPrivilegeEvaluator$HttpServletRequestTransformer.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/security/web/access/ExceptionTranslationFilter.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/security/web/access/HandlerMappingIntrospectorRequestTransformer.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/security/web/access/RequestMatcherDelegatingWebInvocationPrivilegeEvaluator.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/security/web/access/intercept/AuthorizationFilter.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/security/web/access/intercept/RequestMatcherDelegatingAuthorizationManager.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/security/web/authentication/AuthenticationFailureHandler.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/security/web/authentication/AuthenticationSuccessHandler.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/security/web/authentication/logout/LogoutFilter.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/security/web/authentication/logout/LogoutSuccessEventPublishingLogoutHandler.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/security/web/authentication/logout/LogoutSuccessHandler.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/security/web/authentication/session/AbstractSessionFixationProtectionStrategy.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/security/web/authentication/session/ChangeSessionIdAuthenticationStrategy.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/security/web/authentication/session/CompositeSessionAuthenticationStrategy.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/security/web/context/SecurityContextHolderFilter.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/security/web/header/HeaderWriterFilter.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/security/web/savedrequest/RequestCacheAwareFilter.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/security/web/servlet/support/csrf/CsrfRequestDataValueProcessor.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/security/web/servlet/util/matcher/MvcRequestMatcher.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/security/web/servletapi/SecurityContextHolderAwareRequestFilter.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/security/web/session/SessionManagementFilter.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/transaction/ConfigurableTransactionManager.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/transaction/TransactionDefinition.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/transaction/annotation/AbstractTransactionManagementConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/transaction/annotation/AnnotationTransactionAttributeSource.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/transaction/annotation/EnableTransactionManagement.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/transaction/annotation/ProxyTransactionManagementConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/transaction/annotation/TransactionManagementConfigurationSelector.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/transaction/interceptor/AbstractFallbackTransactionAttributeSource.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/transaction/support/AbstractPlatformTransactionManager.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/transaction/support/DefaultTransactionDefinition.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/transaction/support/TransactionOperations.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/transaction/support/TransactionTemplate.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/util/AntPathMatcher.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/util/CustomizableThreadCreator.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/validation/SmartValidator.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/validation/Validator.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/validation/beanvalidation/LocalValidatorFactoryBean.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/validation/beanvalidation/SpringValidatorAdapter.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/web/accept/ContentNegotiationManager.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/web/bind/annotation/ControllerAdvice.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/web/bind/annotation/Mapping.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/web/bind/annotation/RequestMapping.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/web/bind/annotation/ResponseBody.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/web/bind/annotation/RestController.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/web/bind/annotation/RestControllerAdvice.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/web/context/ServletContextAware.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/web/context/support/WebApplicationObjectSupport.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/web/filter/CharacterEncodingFilter.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/web/filter/CorsFilter.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/web/filter/FormContentFilter.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/web/filter/GenericFilterBean$FilterConfigPropertyValues.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/web/filter/GenericFilterBean.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/web/filter/OncePerRequestFilter.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/web/filter/RequestContextFilter.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/web/method/support/CompositeUriComponentsContributor.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/web/multipart/support/StandardServletMultipartResolver.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/web/servlet/DispatcherServlet.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/web/servlet/FrameworkServlet.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/web/servlet/HandlerInterceptor.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/web/servlet/HandlerMapping.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/web/servlet/HttpServletBean.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/web/servlet/LocaleResolver.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/web/servlet/config/annotation/DelegatingWebMvcConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/web/servlet/config/annotation/WebMvcConfigurationSupport$NoOpValidator.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/web/servlet/config/annotation/WebMvcConfigurationSupport.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/web/servlet/config/annotation/WebMvcConfigurer.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/web/servlet/function/support/HandlerFunctionAdapter.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/web/servlet/function/support/RouterFunctionMapping.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/web/servlet/handler/AbstractDetectingUrlHandlerMapping.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/web/servlet/handler/AbstractHandlerMapping.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/web/servlet/handler/AbstractHandlerMethodMapping.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/web/servlet/handler/AbstractUrlHandlerMapping.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/web/servlet/handler/BeanNameUrlHandlerMapping.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/web/servlet/handler/HandlerExceptionResolverComposite.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/web/servlet/handler/HandlerMappingIntrospector$$Lambda/0x000001ed98a4b0c0.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/web/servlet/handler/HandlerMappingIntrospector.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/web/servlet/handler/MatchableHandlerMapping.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/web/servlet/handler/SimpleUrlHandlerMapping.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/web/servlet/mvc/HttpRequestHandlerAdapter.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/web/servlet/mvc/SimpleControllerHandlerAdapter.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/web/servlet/mvc/method/AbstractHandlerMethodAdapter.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/web/servlet/mvc/method/RequestMappingInfoHandlerMapping.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/web/servlet/mvc/method/annotation/RequestBodyAdvice.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/web/servlet/mvc/method/annotation/RequestMappingHandlerAdapter.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/web/servlet/mvc/method/annotation/RequestMappingHandlerMapping.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/web/servlet/mvc/method/annotation/ResponseBodyAdvice.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/web/servlet/resource/ResourceUrlProvider.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/web/servlet/support/AbstractFlashMapManager.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/web/servlet/support/SessionFlashMapManager.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/web/servlet/support/WebContentGenerator.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/web/servlet/theme/AbstractThemeResolver.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/web/servlet/theme/FixedThemeResolver.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/web/servlet/view/AbstractCachingViewResolver.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/web/servlet/view/BeanNameViewResolver.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/web/servlet/view/ContentNegotiatingViewResolver.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/web/servlet/view/DefaultRequestToViewNameTranslator.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/web/servlet/view/InternalResourceViewResolver.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/web/servlet/view/UrlBasedViewResolver.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/web/servlet/view/ViewResolverComposite.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/web/util/UrlPathHelper.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/web/util/pattern/PathPatternParser.class\\E"
+      },
+      {
+        "pattern": "\\Qproject.properties\\E"
+      },
+      {
+        "pattern": "\\Qpublic/index.html\\E"
+      },
+      {
+        "pattern": "\\Qresources/index.html\\E"
+      },
+      {
+        "pattern": "\\Qschema-all.sql\\E"
+      },
+      {
+        "pattern": "\\Qschema.sql\\E"
+      },
+      {
+        "pattern": "\\Qspring.properties\\E"
+      },
+      {
+        "pattern": "\\Qstatic/index.html\\E"
+      },
+      {
+        "pattern": "\\Qversioninfo.properties\\E"
+      },
+      {
+        "pattern": "java.base:\\Qjava/lang/Iterable.class\\E"
+      },
+      {
+        "pattern": "java.base:\\Qjava/lang/Object.class\\E"
+      },
+      {
+        "pattern": "java.base:\\Qjava/lang/reflect/Proxy.class\\E"
+      },
+      {
+        "pattern": "java.base:\\Qjava/util/concurrent/AbstractExecutorService.class\\E"
+      },
+      {
+        "pattern": "java.base:\\Qjava/util/concurrent/ExecutorService.class\\E"
+      },
+      {
+        "pattern": "java.base:\\Qjava/util/concurrent/ScheduledThreadPoolExecutor.class\\E"
+      },
+      {
+        "pattern": "java.base:\\Qjava/util/concurrent/ThreadPoolExecutor.class\\E"
+      },
+      {
+        "pattern": "java.base:\\Qjava/util/function/BiPredicate.class\\E"
+      },
+      {
+        "pattern": "java.base:\\Qjdk/internal/icu/impl/data/icudt72b/nfkc.nrm\\E"
+      },
+      {
+        "pattern": "java.base:\\Qjdk/internal/icu/impl/data/icudt72b/uprops.icu\\E"
+      },
+      {
+        "pattern": "java.base:\\Qsun/net/idn/uidna.spp\\E"
+      },
+      {
+        "pattern": "java.sql:\\Qjavax/sql/CommonDataSource.class\\E"
+      },
+      {
+        "pattern": "java.sql:\\Qjavax/sql/DataSource.class\\E"
+      },
+      {
+        "pattern": "jdk.jfr:\\Qjdk/jfr/internal/query/view.ini\\E"
+      }
+    ]
+  },
+  "bundles": [
+    {
+      "name": "com.mysql.cj.LocalizedErrorMessages",
+      "locales": [
+        ""
+      ]
+    },
+    {
+      "name": "common",
+      "locales": [
+        "",
+        "zh-CN"
+      ]
+    },
+    {
+      "name": "jakarta.servlet.LocalStrings",
+      "locales": [
+        ""
+      ]
+    },
+    {
+      "name": "jakarta.servlet.http.LocalStrings",
+      "locales": [
+        ""
+      ]
+    },
+    {
+      "name": "org.apache.catalina.authenticator.LocalStrings",
+      "locales": [
+        ""
+      ]
+    },
+    {
+      "name": "org.apache.catalina.authenticator.jaspic.LocalStrings",
+      "locales": [
+        ""
+      ]
+    },
+    {
+      "name": "org.apache.catalina.connector.LocalStrings",
+      "locales": [
+        ""
+      ]
+    },
+    {
+      "name": "org.apache.catalina.core.LocalStrings",
+      "locales": [
+        ""
+      ]
+    },
+    {
+      "name": "org.apache.catalina.deploy.LocalStrings",
+      "locales": [
+        ""
+      ]
+    },
+    {
+      "name": "org.apache.catalina.loader.LocalStrings",
+      "locales": [
+        ""
+      ]
+    },
+    {
+      "name": "org.apache.catalina.mapper.LocalStrings",
+      "locales": [
+        ""
+      ]
+    },
+    {
+      "name": "org.apache.catalina.mbeans.LocalStrings",
+      "locales": [
+        ""
+      ]
+    },
+    {
+      "name": "org.apache.catalina.realm.LocalStrings",
+      "locales": [
+        ""
+      ]
+    },
+    {
+      "name": "org.apache.catalina.security.LocalStrings",
+      "locales": [
+        ""
+      ]
+    },
+    {
+      "name": "org.apache.catalina.session.LocalStrings",
+      "locales": [
+        ""
+      ]
+    },
+    {
+      "name": "org.apache.catalina.startup.LocalStrings",
+      "locales": [
+        ""
+      ]
+    },
+    {
+      "name": "org.apache.catalina.util.LocalStrings",
+      "locales": [
+        ""
+      ]
+    },
+    {
+      "name": "org.apache.catalina.valves.LocalStrings",
+      "locales": [
+        ""
+      ]
+    },
+    {
+      "name": "org.apache.catalina.webresources.LocalStrings",
+      "locales": [
+        ""
+      ]
+    },
+    {
+      "name": "org.apache.coyote.LocalStrings",
+      "locales": [
+        ""
+      ]
+    },
+    {
+      "name": "org.apache.coyote.http11.LocalStrings",
+      "locales": [
+        ""
+      ]
+    },
+    {
+      "name": "org.apache.coyote.http11.filters.LocalStrings",
+      "locales": [
+        ""
+      ]
+    },
+    {
+      "name": "org.apache.naming.LocalStrings",
+      "locales": [
+        ""
+      ]
+    },
+    {
+      "name": "org.apache.tomcat.util.LocalStrings",
+      "locales": [
+        ""
+      ]
+    },
+    {
+      "name": "org.apache.tomcat.util.buf.LocalStrings",
+      "locales": [
+        ""
+      ]
+    },
+    {
+      "name": "org.apache.tomcat.util.compat.LocalStrings",
+      "locales": [
+        ""
+      ]
+    },
+    {
+      "name": "org.apache.tomcat.util.descriptor.web.LocalStrings",
+      "locales": [
+        ""
+      ]
+    },
+    {
+      "name": "org.apache.tomcat.util.http.LocalStrings",
+      "locales": [
+        ""
+      ]
+    },
+    {
+      "name": "org.apache.tomcat.util.http.parser.LocalStrings",
+      "locales": [
+        ""
+      ]
+    },
+    {
+      "name": "org.apache.tomcat.util.modeler.LocalStrings",
+      "locales": [
+        ""
+      ]
+    },
+    {
+      "name": "org.apache.tomcat.util.net.LocalStrings",
+      "locales": [
+        ""
+      ]
+    },
+    {
+      "name": "org.apache.tomcat.util.scan.LocalStrings",
+      "locales": [
+        ""
+      ]
+    },
+    {
+      "name": "org.apache.tomcat.util.threads.LocalStrings",
+      "locales": [
+        ""
+      ]
+    },
+    {
+      "name": "org.apache.tomcat.websocket.LocalStrings",
+      "locales": [
+        ""
+      ]
+    },
+    {
+      "name": "org.apache.tomcat.websocket.server.LocalStrings",
+      "locales": [
+        ""
+      ]
+    },
+    {
+      "name": "oss",
+      "locales": [
+        "",
+        "zh-CN"
+      ]
+    },
+    {
+      "name": "sun.awt.resources.awt",
+      "classNames": [
+        "sun.awt.resources.awt",
+        "sun.awt.resources.awt_zh_CN"
+      ]
+    }
+  ]
+}
