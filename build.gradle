@@ -130,26 +130,7 @@ dependencies {
 graalvmNative {
     binaries {
         main {
-//            buildArgs(
-//                    '-H:+UnlockExperimentalVMOptions',
-//                    '-H:+AddAllCharsets',
-//                    '--enable-url-protocols=http',
-//                    '--enable-url-protocols=https',
-//                    '--features=cn.projectan.strix.aot.LambdaRegistrationFeature',
-//                    '--features=cn.projectan.strix.aot.BouncyCastleFeature',
-//                    '--initialize-at-run-time=sun.net.dns.ResolverConfigurationImpl',
-//                    '--rerun-class-initialization-at-runtime=org.bouncycastle.crypto.prng.SP800SecureRandom',
-//                    '--rerun-class-initialization-at-runtime=org.bouncycastle.jcajce.provider.drbg.DRBG$Default',
-//                    '--rerun-class-initialization-at-runtime=org.bouncycastle.jcajce.provider.drbg.DRBG$NonceAndIV',
-//                    '-H:IncludeResources=".*/?.*properties$"',
-//                    '-H:IncludeResources=".*/?.*xml$"',
-//                    '-H:IncludeResources=".*/?.*json$"',
-//                    '-H:IncludeResources=".*/?.*xdb$"',
-//                    '-H:IncludeResources=".*/?.*types$"',
-//                    '-H:IncludeResources=".*/?.*png$"',
-//                    '-H:IncludeResources=".*/?.*jpg$"',
-//                    '-H:IncludeResources=".*/?.*jpeg$"',
-//            )
+            buildArgs.add('--verbose')
             buildArgs.add('--no-fallback')
             buildArgs.add('-H:+UnlockExperimentalVMOptions')
             buildArgs.add('-H:+AddAllCharsets')
