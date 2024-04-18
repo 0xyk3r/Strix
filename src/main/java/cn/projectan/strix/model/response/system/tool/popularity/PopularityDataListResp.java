@@ -38,7 +38,7 @@ public class PopularityDataListResp extends BasePageResp {
 
         private String dataId;
 
-        private Integer originalValue;
+        private Long originalValue;
 
     }
 

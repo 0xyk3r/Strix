@@ -24,7 +24,7 @@ public class PopularityJob {
      * 保存热度数据到数据库
      */
     public void saveToDatabase() {
-        popularityUtil.saveToDatabase();
+        popularityUtil.syncToDB();
     }
 
 }

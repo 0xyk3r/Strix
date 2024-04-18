@@ -22,7 +22,7 @@ public class PopularityConfigServiceImpl extends ServiceImpl<PopularityConfigMap
 
     @Override
     @Cacheable(value = "strix:popularity:config", key = "#key")
-    public PopularityConfig getPopularityConfig(String key) {
+    public PopularityConfig getCacheByKey(String key) {
         return getBaseMapper().selectOne(
                 new LambdaQueryWrapper<>(PopularityConfig.class)
                         .eq(PopularityConfig::getConfigKey, key)
