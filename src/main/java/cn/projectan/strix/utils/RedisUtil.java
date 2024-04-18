@@ -2,10 +2,12 @@ package cn.projectan.strix.utils;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.connection.DataType;
 import org.springframework.data.redis.connection.RedisConnectionCommands;
 import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ScanOptions;
+import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
@@ -71,6 +73,17 @@ public class RedisUtil {
     public boolean hasKey(String key) {
         Boolean hasKey = redisTemplate.hasKey(key);
         return hasKey != null ? hasKey : false;
+    }
+
+    /**
+     * 判断 Key 是否是指定类型
+     *
+     * @param key  键
+     * @param type 类型 {@link DataType}
+     * @return 是否是指定类型
+     */
+    public boolean isType(String key, DataType type) {
+        return redisTemplate.type(key) == type;
     }
 
     /**
@@ -600,6 +613,38 @@ public class RedisUtil {
             log.error("移除List中的某条数据失败", e);
             return 0;
         }
+    }
+
+    /**
+     * 从有序集合总获取指定元素的分数
+     *
+     * @param key  键
+     * @param item 项
+     * @return 分数
+     */
+    public Long zGet(String key, String item) {
+        Double result = redisTemplate.opsForZSet().score(key, item);
+        return result != null ? result.longValue() : null;
+    }
+
+    public Set<ZSetOperations.TypedTuple<Object>> zGet(String key) {
+        return redisTemplate.opsForZSet().rangeWithScores(key, 0, -1);
+    }
+
+    public void zSet(String key, String item, long score) {
+        redisTemplate.opsForZSet().add(key, item, score);
+    }
+
+    public void zSet(String key, Set<ZSetOperations.TypedTuple<Object>> tuples) {
+        redisTemplate.opsForZSet().add(key, tuples);
+    }
+
+    public void zIncr(String key, String item) {
+        redisTemplate.opsForZSet().incrementScore(key, item, 1);
+    }
+
+    public void zDel(String key, String item) {
+        redisTemplate.opsForZSet().remove(key, item);
     }
 
     public Set<String> scan(String pattern) {

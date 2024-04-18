@@ -17,6 +17,6 @@ public class PopularityDataUpdateReq {
     @NotNull(groups = {InsertGroup.class, UpdateGroup.class}, message = "数值不可为空")
     @Min(groups = {InsertGroup.class, UpdateGroup.class}, value = 0, message = "数值超出范围")
     @UpdateField
-    private Integer originalValue;
+    private Long originalValue;
 
 }

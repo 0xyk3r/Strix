@@ -34,7 +34,7 @@ public class PopularityData extends BaseModel {
 
     private String dataId;
 
-    private Integer originalValue;
+    private Long originalValue;
 
     public PopularityData(String createBy, String updateBy) {
         super(createBy, updateBy);
