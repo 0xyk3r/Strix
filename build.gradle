@@ -78,7 +78,7 @@ dependencies {
     annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
     // Redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-    implementation 'org.redisson:redisson-spring-boot-starter:3.27.2'
+    implementation 'org.redisson:redisson-spring-boot-starter:3.29.0'
     // Database - MySQL
     implementation 'p6spy:p6spy:3.9.1'
     runtimeOnly 'com.mysql:mysql-connector-j'
