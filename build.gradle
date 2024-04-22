@@ -102,7 +102,7 @@ dependencies {
     implementation 'com.squareup.okhttp3:okhttp'
     implementation 'cn.hutool:hutool-core:5.8.27'
     implementation 'cn.hutool:hutool-crypto:5.8.27'
-    implementation 'org.bouncycastle:bcprov-jdk18on:1.77'
+    implementation 'org.bouncycastle:bcprov-jdk18on:1.78.1'
     implementation 'org.lionsoul:ip2region:2.7.0'
     // Third Party
     implementation('com.aliyun:aliyun-java-sdk-dysmsapi:2.2.1') {
