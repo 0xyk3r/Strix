@@ -6,7 +6,7 @@ plugins {
 }
 
 group = 'cn.projectan'
-version = '2.2.0'
+version = '2.2.1'
 description = 'Strix'
 
 java {
@@ -43,22 +43,10 @@ bootJar {
     archiveFileName = "Strix.jar"
 }
 
-tasks.named('test') {
-    useJUnitPlatform()
-}
-
-tasks.named('bootBuildImage') {
-    imageName = 'projectan.cn/strix:latest'
-    builder = "paketobuildpacks/builder-jammy-base:latest"
-    environment = [
-            'BP_NATIVE_IMAGE'                : 'true',
-            'BP_NATIVE_IMAGE_BUILD_ARGUMENTS': '-H:+AddAllCharsets --enable-url-protocols=http --enable-url-protocols=https --features=cn.projectan.strix.aot.LambdaRegistrationFeature --features=cn.projectan.strix.aot.BouncyCastleFeature --initialize-at-run-time=sun.net.dns.ResolverConfigurationImpl --rerun-class-initialization-at-runtime=org.bouncycastle.crypto.prng.SP800SecureRandom --rerun-class-initialization-at-runtime=org.bouncycastle.jcajce.provider.drbg.DRBG$Default --rerun-class-initialization-at-runtime=org.bouncycastle.jcajce.provider.drbg.DRBG$NonceAndIV -H:IncludeResources=".*/?.*properties$" -H:IncludeResources=".*/?.*xml$" -H:IncludeResources=".*/?.*json$" -H:IncludeResources=".*/?.*xdb$" -H:IncludeResources=".*/?.*types$" -H:IncludeResources=".*/?.*png$" -H:IncludeResources=".*/?.*jpg$" -H:IncludeResources=".*/?.*jpeg$"',
-    ]
-    buildpacks = ["gcr.io/paketo-buildpacks/java-native-image:latest"]
-    docker {
-        host = 'tcp://192.168.31.188:2375'
-        tlsVerify = false
-    }
+// 屏蔽部分依赖传递
+configurations.all {
+    exclude group: 'commons-logging', module: 'commons-logging'
+    exclude group: 'org.bouncycastle', module: 'bcprov-jdk15on'
 }
 
 dependencies {
@@ -105,26 +93,34 @@ dependencies {
     implementation 'org.bouncycastle:bcprov-jdk18on:1.78.1'
     implementation 'org.lionsoul:ip2region:2.7.0'
     // Third Party
-    implementation('com.aliyun:aliyun-java-sdk-dysmsapi:2.2.1') {
-        exclude group: 'org.bouncycastle', module: 'bcprov-jdk15on'
-    }
-    implementation('com.aliyun.oss:aliyun-sdk-oss:3.17.4') {
-        exclude group: 'org.bouncycastle', module: 'bcprov-jdk15on'
-    }
-    implementation('com.github.javen205:IJPay-WxPay:2.9.10-17') {
-        exclude group: 'org.bouncycastle', module: 'bcprov-jdk15on'
-    }
-    implementation('com.alipay.sdk:alipay-sdk-java:4.39.48.ALL') {
-        exclude group: 'org.bouncycastle', module: 'bcprov-jdk15on'
-        exclude group: 'commons-logging', module: 'commons-logging'
-    }
+    implementation 'com.aliyun:aliyun-java-sdk-dysmsapi:2.2.1'
+    implementation 'com.aliyun.oss:aliyun-sdk-oss:3.17.4'
+    implementation 'com.github.javen205:IJPay-WxPay:2.9.10-17'
+    implementation 'com.alipay.sdk:alipay-sdk-java:4.39.48.ALL'
     implementation('com.github.javen205:IJPay-AliPay:2.9.10-17') {
-        exclude group: 'org.bouncycastle', module: 'bcprov-jdk15on'
         exclude group: 'com.alipay.sdk', module: 'alipay-sdk-java'
     }
 
     // GraalVM
     compileOnly 'org.graalvm.sdk:graal-sdk:24.0.1'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+tasks.named('bootBuildImage') {
+    imageName = 'projectan.cn/strix:latest'
+    builder = "paketobuildpacks/builder-jammy-base:latest"
+    environment = [
+            'BP_NATIVE_IMAGE'                : 'true',
+            'BP_NATIVE_IMAGE_BUILD_ARGUMENTS': '-H:+AddAllCharsets --enable-url-protocols=http --enable-url-protocols=https --features=cn.projectan.strix.aot.LambdaRegistrationFeature --features=cn.projectan.strix.aot.BouncyCastleFeature --initialize-at-run-time=sun.net.dns.ResolverConfigurationImpl --rerun-class-initialization-at-runtime=org.bouncycastle.crypto.prng.SP800SecureRandom --rerun-class-initialization-at-runtime=org.bouncycastle.jcajce.provider.drbg.DRBG$Default --rerun-class-initialization-at-runtime=org.bouncycastle.jcajce.provider.drbg.DRBG$NonceAndIV -H:IncludeResources=".*/?.*properties$" -H:IncludeResources=".*/?.*xml$" -H:IncludeResources=".*/?.*json$" -H:IncludeResources=".*/?.*xdb$" -H:IncludeResources=".*/?.*types$" -H:IncludeResources=".*/?.*png$" -H:IncludeResources=".*/?.*jpg$" -H:IncludeResources=".*/?.*jpeg$"',
+    ]
+    buildpacks = ["gcr.io/paketo-buildpacks/java-native-image:latest"]
+    docker {
+        host = 'tcp://192.168.31.188:2375'
+        tlsVerify = false
+    }
 }
 
 graalvmNative {

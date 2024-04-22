@@ -7,19 +7,19 @@
 
 使用最新的 Java 21 和 Spring Boot 3，享受最新的语言特性和框架特性。
 
-### 1.2 支持可选模块
+### 1.2 支持多种功能模块
 
-支持可选模块，Strix 提供了 SMS、OSS、AUTH、PUSH、PAYMENT、LOG 等模块，可以根据需要选择性的启用或禁用某些模块。
+支持多种功能模块，Strix 提供了 SMS、OSS、AUTH、PUSH、PAY、LOG、Captcha 等模块，可以根据需要选择性的启用或禁用某些模块。
 
 ### 1.3 提供丰富的工具类
 
 Strix 提供了多种工具类，包括但不限于常用的参数处理工具、便捷开发工具、网络请求工具、常见数据算法、基于反射的快速编码工具等。
 
-### 1.4 可扩展性
+### 1.4 具备高度可扩展性
 
 Strix 从设计之初就考虑到了可扩展性，例如 SMS、OSS 等模块，可以根据需求对多种不同的服务提供平台进行对接兼容。
 
-### 1.5 多语言支持
+### 1.5 提供多语言支持
 
 Strix 提供了多语言支持，可以根据需要对多种语言进行支持，例如中文、英文等。
 
@@ -27,7 +27,7 @@ Strix 提供了多语言支持，可以根据需要对多种语言进行支持�
 
 ### 2.1 打包构建
 
-使用 Gradle 进行构建，执行 `./gradlew build` 即可构建项目。
+Strix 使用 Gradle 进行构建，执行 `./gradlew build` 即可构建项目。
 
 ### 2.2 引入依赖
 
@@ -43,12 +43,22 @@ strix:
   module:
     sms: true
     oss: true
-    auth: false
-    push: false
-    payment: false
+    job: true
+    oauth: true
+    push: true
+    pay: true
+  # 控制台输出原始请求内容
+  show-request: false
+  # 控制台输出原始响应内容
+  show-response: false
+  security:
+    jwt:
+      secret-key: { your-secret-key }
+      expire-time: 86400000
+      refresh-expire-time: 604800000
   # log 持久化配置
   log:
-    enable: true
+    enable: false
   # strix 验证码配置
   captcha:
     type: blockPuzzle
@@ -72,9 +82,8 @@ strix:
   default-locale: zh_CN
   # 包扫描路径
   package-scan:
-    entity:
-    service:
-    constant:
+    job:
+    model:
 ```
 
 ## 三、详细使用说明
