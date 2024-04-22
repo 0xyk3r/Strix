@@ -15,7 +15,6 @@ import cn.projectan.strix.controller.system.tool.PopularityController;
 import cn.projectan.strix.core.ss.service.SystemManagerUserDetailsServiceImpl;
 import cn.projectan.strix.service.impl.*;
 import cn.projectan.strix.utils.PopularityUtil;
-import cn.projectan.strix.utils.WorkflowUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.graalvm.nativeimage.hosted.Feature;
 import org.graalvm.nativeimage.hosted.RuntimeSerialization;
@@ -57,7 +56,6 @@ public class LambdaRegistrationFeature implements Feature {
         RuntimeSerialization.registerLambdaCapturingClass(SmsTemplateServiceImpl.class);
 
         RuntimeSerialization.registerLambdaCapturingClass(PopularityUtil.class);
-        RuntimeSerialization.registerLambdaCapturingClass(WorkflowUtil.class);
     }
 
 }
