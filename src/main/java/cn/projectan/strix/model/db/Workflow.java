@@ -37,6 +37,11 @@ public class Workflow extends BaseModel {
     @TableField("`name`")
     private String name;
 
+    /**
+     * 最新配置版本编号
+     */
+    private Integer version;
+
     public Workflow(String createBy, String updateBy) {
         super(createBy, updateBy);
     }

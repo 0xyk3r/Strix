@@ -28,6 +28,7 @@ public class WorkflowListResp extends BasePageResp {
                         d.getName(),
                         extraData.stream()
                                 .filter(e -> e.getWorkflowId().equals(d.getId()))
+                                .sorted((a, b) -> b.getVersion().compareTo(a.getVersion()))
                                 .map(WorkflowConfigResp::new)
                                 .collect(Collectors.toList()),
                         d.getCreateTime()

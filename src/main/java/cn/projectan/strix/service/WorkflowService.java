@@ -16,4 +16,6 @@ public interface WorkflowService extends IService<Workflow> {
 
     CommonSelectDataResp getSelectData();
 
+    void saveConfig(String workflowId, String configJson);
+
 }
