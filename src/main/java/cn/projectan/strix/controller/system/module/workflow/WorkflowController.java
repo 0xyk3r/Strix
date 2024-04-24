@@ -1,0 +1,130 @@
+package cn.projectan.strix.controller.system.module.workflow;
+
+import cn.projectan.strix.controller.system.base.BaseSystemController;
+import cn.projectan.strix.core.ret.RetBuilder;
+import cn.projectan.strix.core.ret.RetResult;
+import cn.projectan.strix.core.validation.group.InsertGroup;
+import cn.projectan.strix.core.validation.group.UpdateGroup;
+import cn.projectan.strix.model.annotation.StrixLog;
+import cn.projectan.strix.model.db.Workflow;
+import cn.projectan.strix.model.db.WorkflowConfig;
+import cn.projectan.strix.model.db.WorkflowInstance;
+import cn.projectan.strix.model.dict.SysLogOperType;
+import cn.projectan.strix.model.request.module.workflow.WorkflowListReq;
+import cn.projectan.strix.model.request.module.workflow.WorkflowUpdateReq;
+import cn.projectan.strix.model.response.common.CommonSelectDataResp;
+import cn.projectan.strix.model.response.module.workflow.WorkflowListResp;
+import cn.projectan.strix.model.response.module.workflow.WorkflowResp;
+import cn.projectan.strix.service.WorkflowConfigService;
+import cn.projectan.strix.service.WorkflowInstanceService;
+import cn.projectan.strix.service.WorkflowService;
+import cn.projectan.strix.utils.UniqueDetectionTool;
+import cn.projectan.strix.utils.UpdateConditionBuilder;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+/**
+ * 工作流引擎
+ *
+ * @author ProjectAn
+ * @date 2024/4/24 下午12:50
+ */
+@Slf4j
+@RestController
+@RequestMapping("system/workflow")
+@RequiredArgsConstructor
+public class WorkflowController extends BaseSystemController {
+
+    private final WorkflowService workflowService;
+    private final WorkflowConfigService workflowConfigService;
+    private final WorkflowInstanceService workflowInstanceService;
+
+    @GetMapping("")
+    @PreAuthorize("@ss.hasPermission('system:module:workflow')")
+    @StrixLog(operationGroup = "工作流引擎", operationName = "查询工作流引擎列表")
+    public RetResult<WorkflowListResp> list(WorkflowListReq req) {
+        LambdaQueryWrapper<Workflow> queryWrapper = new LambdaQueryWrapper<>();
+        if (StringUtils.hasText(req.getKeyword())) {
+            queryWrapper.like(Workflow::getName, req.getKeyword());
+        }
+        Page<Workflow> page = workflowService.page(req.getPage(), queryWrapper);
+
+        List<String> workflowIdList = page.getRecords().stream().map(Workflow::getId).toList();
+        List<WorkflowConfig> workflowConfigList = workflowConfigService.lambdaQuery()
+                .in(WorkflowConfig::getWorkflowId, workflowIdList)
+                .list();
+
+        return RetBuilder.success(new WorkflowListResp(page.getRecords(), page.getTotal(), workflowConfigList));
+    }
+
+    @GetMapping("{id}")
+    @PreAuthorize("@ss.hasPermission('system:module:workflow')")
+    @StrixLog(operationGroup = "工作流引擎", operationName = "查询工作流引擎信息")
+    public RetResult<WorkflowResp> info(@PathVariable String id) {
+        Workflow workflow = workflowService.getById(id);
+        Assert.notNull(workflow, "工作流信息不存在");
+
+        return RetBuilder.success(new WorkflowResp(workflow));
+    }
+
+    @PostMapping("update")
+    @PreAuthorize("@ss.hasPermission('system:module:workflow:add')")
+    @StrixLog(operationGroup = "工作流引擎", operationName = "新增工作流引擎", operationType = SysLogOperType.ADD)
+    public RetResult<Object> update(@RequestBody @Validated(InsertGroup.class) WorkflowUpdateReq req) {
+        Workflow workflow = new Workflow();
+        workflow.setName(req.getName());
+
+        UniqueDetectionTool.check(workflow);
+
+        Assert.isTrue(workflowService.save(workflow), "保存失败");
+        return RetBuilder.success();
+    }
+
+    @PostMapping("update/{id}")
+    @PreAuthorize("@ss.hasPermission('system:module:workflow:update')")
+    @StrixLog(operationGroup = "工作流引擎", operationName = "修改工作流引擎", operationType = SysLogOperType.UPDATE)
+    public RetResult<Object> update(@PathVariable String id, @RequestBody @Validated(UpdateGroup.class) WorkflowUpdateReq req) {
+        Workflow workflow = workflowService.getById(id);
+        Assert.notNull(workflow, "原记录不存在");
+
+        UpdateWrapper<Workflow> updateWrapper = UpdateConditionBuilder.build(workflow, req);
+        UniqueDetectionTool.check(workflow);
+
+        Assert.isTrue(workflowService.update(updateWrapper), "保存失败");
+        return RetBuilder.success();
+    }
+
+    @PostMapping("remove/{id}")
+    @PreAuthorize("@ss.hasPermission('system:module:workflow:remove')")
+    @StrixLog(operationGroup = "工作流引擎", operationName = "删除工作流引擎", operationType = SysLogOperType.DELETE)
+    public RetResult<Object> remove(@PathVariable String id) {
+        Assert.hasText(id, "参数错误");
+
+        workflowService.removeById(id);
+        // 删除关联的配置信息、实例信息等
+        workflowConfigService.lambdaUpdate()
+                .eq(WorkflowConfig::getWorkflowId, id)
+                .remove();
+        workflowInstanceService.lambdaUpdate()
+                .eq(WorkflowInstance::getWorkflowId, id)
+                .remove();
+
+        return RetBuilder.success();
+    }
+
+    @GetMapping("select")
+    public RetResult<CommonSelectDataResp> getSmsConfigSelectList() {
+        return RetBuilder.success(workflowService.getSelectData());
+    }
+
+}
