@@ -10,6 +10,7 @@ import cn.projectan.strix.model.db.Workflow;
 import cn.projectan.strix.model.db.WorkflowConfig;
 import cn.projectan.strix.model.db.WorkflowInstance;
 import cn.projectan.strix.model.dict.SysLogOperType;
+import cn.projectan.strix.model.request.module.workflow.WorkflowConfigUpdateReq;
 import cn.projectan.strix.model.request.module.workflow.WorkflowListReq;
 import cn.projectan.strix.model.request.module.workflow.WorkflowUpdateReq;
 import cn.projectan.strix.model.response.common.CommonSelectDataResp;
@@ -125,6 +126,15 @@ public class WorkflowController extends BaseSystemController {
     @GetMapping("select")
     public RetResult<CommonSelectDataResp> getSmsConfigSelectList() {
         return RetBuilder.success(workflowService.getSelectData());
+    }
+
+    @PostMapping("update/{id}/config")
+    @PreAuthorize("@ss.hasPermission('system:module:workflow:update')")
+    @StrixLog(operationGroup = "工作流引擎", operationName = "添加工作流配置", operationType = SysLogOperType.ADD)
+    public RetResult<Object> updateConfig(@PathVariable String id, @RequestBody @Validated(UpdateGroup.class) WorkflowConfigUpdateReq req) {
+        workflowService.saveConfig(id, req.getContent());
+
+        return RetBuilder.success();
     }
 
 }

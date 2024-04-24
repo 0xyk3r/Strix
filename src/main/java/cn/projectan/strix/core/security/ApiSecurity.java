@@ -87,7 +87,7 @@ public class ApiSecurity {
                 content = aes.decryptStr(data, CharsetUtil.CHARSET_UTF_8);
             }
         } catch (Exception e) {
-            log.error("解密数据时出现异常：" + e.getMessage(), e);
+            log.error("解密数据时出现异常：" + body, e);
         }
         return content;
     }
