@@ -20,7 +20,7 @@ import org.graalvm.nativeimage.hosted.Feature;
 import org.graalvm.nativeimage.hosted.RuntimeSerialization;
 
 /**
- * 处理 Native 构建时 Lambda 表达式的使用问题
+ * Lambda 表达式注册特性
  *
  * @author ProjectAn
  * @date 2024/3/24 15:57

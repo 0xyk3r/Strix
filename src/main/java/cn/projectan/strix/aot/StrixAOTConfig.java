@@ -187,7 +187,7 @@ public class StrixAOTConfig {
             try {
                 hints.jni().registerType(Class.forName("sun.net.dns.ResolverConfigurationImpl", true, classLoader), MemberCategory.values());
             } catch (Exception e) {
-                log.warn("Register sun.net.dns.ResolverConfigurationImpl Error: " + e.getMessage());
+                log.warn("Register sun.net.dns.ResolverConfigurationImpl Error: {}", e.getMessage());
             }
 
             // STRIX JOB 扫描
@@ -198,7 +198,7 @@ public class StrixAOTConfig {
                     jobClazzSet.addAll(clazzSet);
                 }
             });
-            log.info("Scan Job Class Count: " + jobClazzSet.size());
+            log.info("Scan Job Class Count: {}", jobClazzSet.size());
             jobClazzSet.forEach(clazz -> hints.reflection().registerType(clazz, MemberCategory.values()));
 
             // ALL MODEL 扫描
@@ -209,7 +209,7 @@ public class StrixAOTConfig {
                     modelClazzSet.addAll(clazzSet);
                 }
             });
-            log.info("Scan Model Class Count: " + modelClazzSet.size());
+            log.info("Scan Model Class Count: {}", modelClazzSet.size());
             modelClazzSet.forEach(clazz -> hints.reflection().registerType(clazz, MemberCategory.values()));
 
         }

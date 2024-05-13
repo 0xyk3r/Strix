@@ -1,4 +1,4 @@
-package cn.projectan.strix.initialize;
+package cn.projectan.strix.initializer;
 
 import cn.projectan.strix.model.annotation.Anonymous;
 import cn.projectan.strix.model.db.SecurityUrl;
@@ -23,7 +23,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
- * 加载需要指定权限/角色的 URL
+ * 安全规则初始化器
  *
  * @author ProjectAn
  * @date 2023/5/26 17:38
@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @Getter
 @Component
-public class SecurityRuleInit {
+public class SecurityRuleInitializer {
 
     private static final String ASTERISK = "*";
     private static final Pattern PATTERN = Pattern.compile("\\{(.*?)\\}");
@@ -41,7 +41,7 @@ public class SecurityRuleInit {
     private final Map<String, String> urlAnyRoleMap;
     private final Set<String> anonymousUrlList;
 
-    public SecurityRuleInit(SecurityUrlService securityUrlService) {
+    public SecurityRuleInitializer(SecurityUrlService securityUrlService) {
         // 从数据库中获取允许匿名访问的URL列表
         anonymousUrlList = securityUrlService.list(
                         new QueryWrapper<SecurityUrl>()
@@ -83,7 +83,9 @@ public class SecurityRuleInit {
                 }
             }
         });
-        log.info("Strix Security: 初始化 URL 安全规则完成, 允许匿名访问 URL 数量: {}", anonymousUrlList.size());
+        log.info("Strix Security: 初始化匿名访问API安全规则完成, 扫描到 {} 个 URL.", anonymousUrlList.size());
+        log.info("Strix Security: 初始化角色访问API安全规则完成, 扫描到 {} 个 URL.", urlRoleMap.size());
+        log.info("Strix Security: 初始化任意角色访问API安全规则完成, 扫描到 {} 个 URL.", urlAnyRoleMap.size());
     }
 
 }

@@ -33,7 +33,7 @@ public class SystemPermissionCache {
     @PostConstruct
     private void init() {
         instance = systemPermissionService.list();
-        log.info(String.format("Strix Cache: 管理系统权限缓存加载完成, 缓存了 %s 个权限.", instance.size()));
+        log.info("Strix Cache: 管理系统权限缓存加载完成, 缓存了 {} 个权限.", instance.size());
     }
 
     public List<SystemPermission> getByIds(String... systemPermissionIds) {

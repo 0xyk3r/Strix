@@ -1,4 +1,4 @@
-package cn.projectan.strix.initialize;
+package cn.projectan.strix.initializer;
 
 import cn.projectan.strix.model.db.Job;
 import cn.projectan.strix.service.JobService;
@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 /**
- * 初始化定时任务
+ * 定时任务初始化器
  *
  * @author ProjectAn
  * @date 2023/7/30 16:22
@@ -25,7 +25,7 @@ import java.util.List;
 @Component
 @ConditionalOnProperty(prefix = "strix.module", name = "job", havingValue = "true")
 @RequiredArgsConstructor
-public class StrixJobInit implements ApplicationRunner {
+public class StrixJobInitializer implements ApplicationRunner {
 
     private final JobService jobService;
     private final Scheduler scheduler;

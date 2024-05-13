@@ -27,7 +27,7 @@ import java.lang.reflect.Parameter;
 import java.util.*;
 
 /**
- * Api 统一安全校验
+ * API 安全校验切面
  *
  * @author ProjectAn
  * @date 2021/5/7 18:20

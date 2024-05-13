@@ -30,6 +30,8 @@ import org.springframework.core.NamedThreadLocal;
 import org.springframework.stereotype.Component;
 
 /**
+ * 系统日志切面
+ *
  * @author ProjectAn
  * @date 2023/6/17 14:21
  */

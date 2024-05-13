@@ -1,4 +1,4 @@
-package cn.projectan.strix.initialize;
+package cn.projectan.strix.initializer;
 
 import cn.projectan.strix.core.module.oauth.StrixOAuthStore;
 import cn.projectan.strix.model.db.OauthConfig;
@@ -14,6 +14,8 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 /**
+ * OAuth 初始化器
+ *
  * @author ProjectAn
  * @date 2024/4/3 17:01
  */
@@ -22,7 +24,7 @@ import java.util.List;
 @Component
 @ConditionalOnBean(StrixOAuthStore.class)
 @RequiredArgsConstructor
-public class StrixOAuthInit implements ApplicationRunner {
+public class StrixOAuthInitializer implements ApplicationRunner {
 
     private final OauthConfigService oauthConfigService;
 

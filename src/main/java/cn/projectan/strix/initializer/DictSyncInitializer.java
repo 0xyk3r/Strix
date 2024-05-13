@@ -1,4 +1,4 @@
-package cn.projectan.strix.initialize;
+package cn.projectan.strix.initializer;
 
 import cn.projectan.strix.core.module.oss.StrixOssStore;
 import cn.projectan.strix.model.db.Dict;
@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * 同步字典常量至数据库
+ * 字典常量同步初始化器
  *
  * @author ProjectAn
  * @date 2023/6/9 15:18
@@ -42,7 +42,7 @@ import java.util.Set;
 @ConditionalOnBean(StrixOssStore.class)
 @RequiredArgsConstructor
 @EnableConfigurationProperties(StrixPackageScanProperties.class)
-public class DictSyncInit implements ApplicationRunner {
+public class DictSyncInitializer implements ApplicationRunner {
 
     private final DictService dictService;
 

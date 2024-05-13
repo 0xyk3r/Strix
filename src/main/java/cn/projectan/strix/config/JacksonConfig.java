@@ -18,6 +18,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
+import java.util.Set;
 import java.util.TimeZone;
 
 /**
@@ -28,6 +29,17 @@ import java.util.TimeZone;
  */
 @Configuration
 public class JacksonConfig {
+
+    /**
+     * 需要排除的字段
+     */
+    private final Set<String> excludeFields = Set.of(
+            "password",
+            "newPassword",
+            "oldPassword",
+            "confirmPassword",
+            "loginPassword"
+    );
 
     /**
      * Jackson 配置
@@ -42,8 +54,8 @@ public class JacksonConfig {
         objectMapper.setTimeZone(TimeZone.getTimeZone("GMT+8"));
 
         // 过滤字段
-        SimpleBeanPropertyFilter filter = SimpleBeanPropertyFilter.serializeAllExcept("password", "newPassword", "oldPassword", "confirmPassword", "loginPassword");
-        FilterProvider filterProvider = new SimpleFilterProvider().addFilter("passwordFilter", filter);
+        SimpleBeanPropertyFilter filter = SimpleBeanPropertyFilter.serializeAllExcept(excludeFields);
+        FilterProvider filterProvider = new SimpleFilterProvider().addFilter("strixFilter", filter);
         objectMapper.setFilterProvider(filterProvider);
 
         return objectMapper;

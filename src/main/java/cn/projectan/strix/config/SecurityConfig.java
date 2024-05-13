@@ -7,7 +7,7 @@ import cn.projectan.strix.core.ss.filter.SystemUserAuthenticationTokenFilter;
 import cn.projectan.strix.core.ss.handler.SystemManagerLogoutSuccessHandler;
 import cn.projectan.strix.core.ss.provider.SystemManagerAuthenticationProvider;
 import cn.projectan.strix.core.ss.provider.SystemUserAuthenticationProvider;
-import cn.projectan.strix.initialize.SecurityRuleInit;
+import cn.projectan.strix.initializer.SecurityRuleInitializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -46,7 +46,7 @@ public class SecurityConfig {
                                                    SystemUserAuthenticationTokenFilter systemUserAuthenticationTokenFilter,
                                                    AccessDeniedHandlerImpl accessDeniedHandler,
                                                    AuthenticationEntryPointImpl authenticationEntryPoint,
-                                                   SecurityRuleInit securityRuleInit,
+                                                   SecurityRuleInitializer securityRuleInitializer,
                                                    SystemManagerLogoutSuccessHandler logoutSuccessHandler) throws Exception {
         http
                 .cors(Customizer.withDefaults())
@@ -64,12 +64,12 @@ public class SecurityConfig {
                 // 无状态会话
                 .sessionManagement((sessionManagement) -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests((authorizeRequests) -> {
-                    // 加载匿名访问的URL (form DB & annotation)
-                    securityRuleInit.getAnonymousUrlList().forEach(url -> authorizeRequests.requestMatchers(url).permitAll());
-                    // 加载访问URL需要的角色 (form DB)
-                    securityRuleInit.getUrlRoleMap().forEach((url, role) -> authorizeRequests.requestMatchers(url).hasRole(role));
-                    securityRuleInit.getUrlAnyRoleMap().forEach((url, role) -> authorizeRequests.requestMatchers(url).hasAnyRole(role.split(",")));
-                    // 所有请求全部需要鉴权认证
+                    // 配置匿名访问的URL
+                    securityRuleInitializer.getAnonymousUrlList().forEach(url -> authorizeRequests.requestMatchers(url).permitAll());
+                    // 配置需要指定角色才可访问的URL
+                    securityRuleInitializer.getUrlRoleMap().forEach((url, role) -> authorizeRequests.requestMatchers(url).hasRole(role));
+                    securityRuleInitializer.getUrlAnyRoleMap().forEach((url, role) -> authorizeRequests.requestMatchers(url).hasAnyRole(role.split(",")));
+                    // 其他所有请求全部需要鉴权认证
                     authorizeRequests.anyRequest().authenticated();
                 })
                 .addFilterBefore(systemManagerAuthenticationTokenFilter, UsernamePasswordAuthenticationFilter.class)

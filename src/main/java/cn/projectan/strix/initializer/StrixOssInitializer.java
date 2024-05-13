@@ -1,4 +1,4 @@
-package cn.projectan.strix.initialize;
+package cn.projectan.strix.initializer;
 
 import cn.projectan.strix.core.module.oss.StrixOssStore;
 import cn.projectan.strix.model.db.OssConfig;
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 /**
- * Strix OSS 初始化
+ * Strix OSS 初始化器
  *
  * @author ProjectAn
  * @date 2021/5/2 17:20
@@ -24,7 +24,7 @@ import java.util.List;
 @Component
 @ConditionalOnBean(StrixOssStore.class)
 @RequiredArgsConstructor
-public class StrixOssInit implements ApplicationRunner {
+public class StrixOssInitializer implements ApplicationRunner {
 
     private final OssConfigService ossConfigService;
 

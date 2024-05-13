@@ -9,12 +9,14 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 /**
+ * String -> LocalDate 转换器
+ *
  * @author ProjectAn
  * @date 2022/3/9 15:51
  */
 @Slf4j
 @Configuration
-public class StrixStringToLocalDateConverter implements Converter<String, LocalDate> {
+public class StringToLocalDateConverter implements Converter<String, LocalDate> {
 
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
@@ -23,7 +25,7 @@ public class StrixStringToLocalDateConverter implements Converter<String, LocalD
         try {
             return LocalDate.parse(source, formatter);
         } catch (Exception e) {
-            log.warn("Strix - StrixStringToLocalDateConverter: 捕获到时间转换异常：", e);
+            log.warn("时间转换异常：", e);
         }
         return null;
     }

@@ -25,6 +25,7 @@ public class DynamicDictValueValidator implements ConstraintValidator<DynamicDic
 
     @Override
     public void initialize(DynamicDictValue constraintAnnotation) {
+        // FIXME 这里如果在系统运行时, 字典值被修改了, 会导致校验不准确
         DictService dictService = SpringUtil.getBean(DictService.class);
         CommonDictResp dictResp = dictService.getDictResp(constraintAnnotation.dictName());
         if (dictResp == null) {

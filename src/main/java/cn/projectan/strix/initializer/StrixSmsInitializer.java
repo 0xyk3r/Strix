@@ -1,4 +1,4 @@
-package cn.projectan.strix.initialize;
+package cn.projectan.strix.initializer;
 
 import cn.projectan.strix.core.module.sms.StrixSmsStore;
 import cn.projectan.strix.model.db.SmsConfig;
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 /**
- * 短信模块初始化
+ * Strix SMS 初始化器
  *
  * @author ProjectAn
  * @date 2021/5/2 17:46
@@ -24,7 +24,7 @@ import java.util.List;
 @Component
 @ConditionalOnBean(StrixSmsStore.class)
 @RequiredArgsConstructor
-public class StrixSmsInit implements ApplicationRunner {
+public class StrixSmsInitializer implements ApplicationRunner {
 
     private final SmsConfigService smsConfigService;
 

@@ -102,7 +102,7 @@ public abstract class AbstractCaptchaService implements CaptchaService {
                 limitHandler = new FrequencyLimitHandler.DefaultLimitHandler(config, getCacheService(cacheType));
             }
         }
-        log.info("Strix Captcha: 初始化验证码底图完成, 当前模式: " + CaptchaTypeEnum.getCodeDescByCodeValue(captchaType()));
+        log.info("Strix Captcha: 初始化 <{}> 验证码底图完成.", CaptchaTypeEnum.getCodeDescByCodeValue(captchaType()));
     }
 
     protected CaptchaCacheService getCacheService(String cacheType) {

@@ -1,4 +1,4 @@
-package cn.projectan.strix.initialize;
+package cn.projectan.strix.initializer;
 
 import cn.projectan.strix.core.module.pay.StrixPayStore;
 import cn.projectan.strix.model.db.PayConfig;
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 /**
- * Strix Pay 初始化
+ * Strix Pay 初始化器
  *
  * @author ProjectAn
  * @date 2021/8/24 12:58
@@ -24,7 +24,7 @@ import java.util.List;
 @Component
 @ConditionalOnBean(StrixPayStore.class)
 @RequiredArgsConstructor
-public class StrixPayInit implements ApplicationRunner {
+public class StrixPayInitializer implements ApplicationRunner {
 
     private final PayConfigService payConfigService;
 

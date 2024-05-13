@@ -13,6 +13,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * 系统菜单缓存类
+ *
  * @author ProjectAn
  * @date 2021/5/13 18:36
  */
@@ -31,7 +33,7 @@ public class SystemMenuCache {
         QueryWrapper<SystemMenu> systemMenuQueryWrapper = new QueryWrapper<>();
         systemMenuQueryWrapper.orderByAsc("sort_value");
         instance = systemMenuService.list(systemMenuQueryWrapper);
-        log.info(String.format("Strix Cache: 管理系统菜单缓存加载完成, 缓存了 %s 个菜单.", instance.size()));
+        log.info("Strix Cache: 管理系统菜单缓存加载完成, 缓存了 {} 个菜单.", instance.size());
     }
 
     public List<String> getIdListByParentMenu(String menuId) {
