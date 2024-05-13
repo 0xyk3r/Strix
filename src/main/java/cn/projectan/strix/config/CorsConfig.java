@@ -9,7 +9,7 @@ import org.springframework.web.filter.CorsFilter;
 import java.util.Collections;
 
 /**
- * CORS 跨域配置
+ * 跨域配置
  *
  * @author ProjectAn
  * @date 2021/05/02 17:11

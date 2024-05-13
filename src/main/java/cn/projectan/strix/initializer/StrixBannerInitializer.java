@@ -1,4 +1,4 @@
-package cn.projectan.strix.initialize;
+package cn.projectan.strix.initializer;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;
@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Order(Ordered.LOWEST_PRECEDENCE)
 @Component
-public class StrixBannerInit implements ApplicationRunner {
+public class StrixBannerInitializer implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) {

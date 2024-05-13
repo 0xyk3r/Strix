@@ -82,7 +82,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * MyBatis AOT configuration
+ * MyBatis AOT 配置
  *
  * @author ProjectAn
  * @date 2024/3/23 21:03

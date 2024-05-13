@@ -1,12 +1,12 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '3.2.4'
-    id 'io.spring.dependency-management' version '1.1.4'
+    id 'org.springframework.boot' version '3.2.5'
+    id 'io.spring.dependency-management' version '1.1.5'
     id 'org.graalvm.buildtools.native' version '0.10.1'
 }
 
 group = 'cn.projectan'
-version = '2.2.3'
+version = '2.2.3.1'
 description = 'Strix'
 
 java {
@@ -66,7 +66,7 @@ dependencies {
     annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
     // Redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-    implementation 'org.redisson:redisson-spring-boot-starter:3.29.0'
+    implementation 'org.redisson:redisson-spring-boot-starter:3.30.0'
     // Database - MySQL
     implementation 'p6spy:p6spy:3.9.1'
     runtimeOnly 'com.mysql:mysql-connector-j'
@@ -75,7 +75,7 @@ dependencies {
     implementation 'com.baomidou:dynamic-datasource-spring-boot3-starter:4.3.0'
     implementation 'org.apache.velocity:velocity-engine-core:2.3'
     // Database - ClickHouse
-    implementation 'com.clickhouse:clickhouse-jdbc:0.6.0-patch3'
+    implementation 'com.clickhouse:clickhouse-jdbc:0.6.0-patch4'
     implementation 'org.apache.httpcomponents.client5:httpclient5:5.3.1'
     implementation 'org.lz4:lz4-java:1.8.0'
     // Quartz
@@ -96,7 +96,7 @@ dependencies {
     implementation 'com.aliyun:aliyun-java-sdk-dysmsapi:2.2.1'
     implementation 'com.aliyun.oss:aliyun-sdk-oss:3.17.4'
     implementation 'com.github.javen205:IJPay-WxPay:2.9.10-17'
-    implementation 'com.alipay.sdk:alipay-sdk-java:4.39.48.ALL'
+    implementation 'com.alipay.sdk:alipay-sdk-java:4.39.70.ALL'
     implementation('com.github.javen205:IJPay-AliPay:2.9.10-17') {
         exclude group: 'com.alipay.sdk', module: 'alipay-sdk-java'
     }

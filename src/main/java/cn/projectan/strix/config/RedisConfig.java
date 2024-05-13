@@ -116,7 +116,7 @@ public class RedisConfig {
     }
 
     /**
-     * Jackson2JsonRedisSerializer 配置
+     * 设置 Redis 序列化方式为 Jackson
      */
     private Jackson2JsonRedisSerializer<Object> jackson2JsonRedisSerializer() {
         ObjectMapper objectMapper = new ObjectMapper();

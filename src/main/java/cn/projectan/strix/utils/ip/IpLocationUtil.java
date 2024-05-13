@@ -30,16 +30,16 @@ public class IpLocationUtil {
             FileWriter writer = new FileWriter(file);
             writer.writeFromStream(resource.getInputStream(), true);
         } catch (IOException e) {
-            log.error("Strix IP-Region: 数据库文件读取失败", e);
+            log.error("Strix IP-Region: 数据库文件读取失败.", e);
         }
         if (file != null) {
             byte[] cBuff;
             try (RandomAccessFile raf = new RandomAccessFile(file, "r")) {
                 cBuff = Searcher.loadContent(raf);
                 searcher = Searcher.newWithBuffer(cBuff);
-                log.info("Strix IP-Region: 初始化完成");
+                log.info("Strix IP-Region: 初始化完成.");
             } catch (Exception e) {
-                log.error("Strix IP-Region: 初始化失败", e);
+                log.error("Strix IP-Region: 初始化失败.", e);
             }
         }
     }
@@ -49,12 +49,12 @@ public class IpLocationUtil {
             return "empty";
         }
         if (searcher == null) {
-            throw new IllegalArgumentException("Strix IP-Region: 功能未初始化");
+            throw new IllegalArgumentException("Strix IP-Region: 功能未初始化.");
         }
         try {
             return searcher.search(ip).replaceAll("\\|", " ").replaceAll("0", "").replaceAll(" +", " ");
         } catch (Exception e) {
-            log.error("Strix IP-Region: 获取数据失败", e);
+            log.error("Strix IP-Region: 获取数据失败.", e);
             return "unknown";
         }
     }

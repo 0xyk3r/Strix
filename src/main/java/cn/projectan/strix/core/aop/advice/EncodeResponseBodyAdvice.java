@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 /**
- * 响应统一处理 用于响应加密
+ * 响应数据加密处理
  *
  * @author ProjectAn
  * @date 2021/5/2 19:06
