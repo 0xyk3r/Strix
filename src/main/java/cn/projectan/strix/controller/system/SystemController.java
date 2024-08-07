@@ -30,6 +30,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -91,19 +92,18 @@ public class SystemController extends BaseSystemController {
         redisUtil.set("strix:system:manager:login_token:login:id_" + systemManager.getId(), token, effectiveTime, TimeUnit.MINUTES);
         redisUtil.set("strix:system:manager:login_token:token:" + token, loginSystemManager, effectiveTime, TimeUnit.MINUTES);
 
-        return RetBuilder.success(new SystemLoginResp(
-                new SystemLoginResp.LoginManagerInfo(systemManager.getId(), systemManager.getNickname(), systemManager.getType()),
-                token, LocalDateTime.now().plusMinutes(effectiveTime)));
-    }
-
-    @PostMapping("checkToken")
-    public RetResult<SystemLoginResp> checkToken() {
-        SystemManager systemManager = loginManager();
-        long tokenTTL = redisUtil.getExpire("strix:system:manager:login_token:login:id_" + systemManager.getId());
+        // 合并菜单权限
+        List<String> permissionKeys = new ArrayList<>();
+        permissionKeys.addAll(loginSystemManager.getMenusKeys());
+        permissionKeys.addAll(loginSystemManager.getPermissionKeys());
 
         return RetBuilder.success(new SystemLoginResp(
-                new SystemLoginResp.LoginManagerInfo(systemManager.getId(), systemManager.getNickname(), systemManager.getType()),
-                "original token", LocalDateTime.now().plusMinutes(tokenTTL)));
+                new SystemLoginResp.LoginManagerInfo(
+                        systemManager.getId(), systemManager.getNickname(), systemManager.getType(), permissionKeys
+                ),
+                token,
+                LocalDateTime.now().plusMinutes(effectiveTime)
+        ));
     }
 
     @PostMapping("renewToken")
@@ -112,6 +112,11 @@ public class SystemController extends BaseSystemController {
         systemManager = systemManagerService.getById(systemManager.getId());
         Object oldTokenObj = redisUtil.get("strix:system:manager:login_token:login:id_" + systemManager.getId());
         Assert.notNull(oldTokenObj, "旧token已失效，请重新登陆");
+        Object oldTokenInfoObj = redisUtil.get("strix:system:manager:login_token:token:" + oldTokenObj);
+        Assert.notNull(oldTokenInfoObj, "旧token已失效，请重新登陆");
+        LoginSystemManager loginSystemManager = (LoginSystemManager) oldTokenInfoObj;
+        Assert.notNull(loginSystemManager, "旧token已失效，请重新登陆");
+
         long effectiveTime = 1440L;
         String et = systemConfigCache.get("SYSTEM_MANAGER_LOGIN_EFFECTIVE_TIME");
         if (StringUtils.hasText(et)) {
@@ -120,9 +125,18 @@ public class SystemController extends BaseSystemController {
         redisUtil.setExpire("strix:system:manager:login_token:login:id_" + systemManager.getId(), effectiveTime, TimeUnit.MINUTES);
         redisUtil.setExpire("strix:system:manager:login_token:token:" + oldTokenObj, effectiveTime, TimeUnit.MINUTES);
 
+        // 合并菜单权限
+        List<String> permissionKeys = new ArrayList<>();
+        permissionKeys.addAll(loginSystemManager.getMenusKeys());
+        permissionKeys.addAll(loginSystemManager.getPermissionKeys());
+
         return RetBuilder.success(new SystemLoginResp(
-                new SystemLoginResp.LoginManagerInfo(systemManager.getId(), systemManager.getNickname(), systemManager.getType()),
-                oldTokenObj.toString(), LocalDateTime.now().plusMinutes(effectiveTime)));
+                new SystemLoginResp.LoginManagerInfo(
+                        systemManager.getId(), systemManager.getNickname(), systemManager.getType(), permissionKeys
+                ),
+                oldTokenObj.toString(),
+                LocalDateTime.now().plusMinutes(effectiveTime)
+        ));
     }
 
     @GetMapping("menus")
