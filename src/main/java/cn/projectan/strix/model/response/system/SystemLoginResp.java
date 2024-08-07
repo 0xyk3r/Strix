@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * @author ProjectAn
@@ -32,6 +33,14 @@ public class SystemLoginResp {
 
         private Integer type;
 
+        // 存储的是菜单权限Key和按钮权限Key的集合
+        private List<String> permissionKeys;
+
+        public LoginManagerInfo(String id, String nickname, Integer type) {
+            this.id = id;
+            this.nickname = nickname;
+            this.type = type;
+        }
     }
 
 }
