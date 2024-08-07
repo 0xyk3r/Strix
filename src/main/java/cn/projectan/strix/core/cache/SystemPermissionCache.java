@@ -47,18 +47,18 @@ public class SystemPermissionCache {
 
     public void updateRedis() {
         redisUtil.delLike("strix:system:role:permission_by_rid:*");
-        redisUtil.delLike("strix:system:manager:permission_by_smid:*");
+        redisUtil.delLike("strix:system:manager:permission_by_mid:*");
     }
 
     public void updateRedisBySystemRoleId(String roleId) {
         redisUtil.delLike("strix:system:role:permission_by_rid::" + roleId);
         redisUtil.delLike("strix:system:role:select_data:*");
         // TODO 可优化为仅清除拥有该角色的管理用户缓存
-        redisUtil.delLike("strix:system:manager:permission_by_smid:*");
+        redisUtil.delLike("strix:system:manager:permission_by_mid:*");
     }
 
     public void updateRedisBySystemManageId(String managerId) {
-        redisUtil.delLike("strix:system:manager:permission_by_smid::" + managerId);
+        redisUtil.delLike("strix:system:manager:permission_by_mid::" + managerId);
 
         // TODO 暂不确定写在这里是否合适
         Object existToken = redisUtil.get("strix:system:manager:login_token:login:id_" + managerId);
