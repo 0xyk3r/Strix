@@ -1,9 +1,11 @@
 server:
   port: 80
-  undertow:
+  tomcat:
     threads:
-      io: 4
-      worker: 4
+      min-spare: 10
+      max: 100
+    connection-timeout: 5000
+    max-connections: 2048
 spring:
   datasource:
     dynamic:
