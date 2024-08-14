@@ -12,7 +12,6 @@ import cn.projectan.strix.controller.system.module.oss.OssController;
 import cn.projectan.strix.controller.system.module.sms.SmsController;
 import cn.projectan.strix.controller.system.monitor.LogController;
 import cn.projectan.strix.controller.system.tool.PopularityController;
-import cn.projectan.strix.core.ss.service.SystemManagerUserDetailsServiceImpl;
 import cn.projectan.strix.service.impl.*;
 import cn.projectan.strix.utils.PopularityUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -44,7 +43,6 @@ public class LambdaRegistrationFeature implements Feature {
         RuntimeSerialization.registerLambdaCapturingClass(SystemDictController.class);
 
         RuntimeSerialization.registerLambdaCapturingClass(ServiceImpl.class);
-        RuntimeSerialization.registerLambdaCapturingClass(SystemManagerUserDetailsServiceImpl.class);
         RuntimeSerialization.registerLambdaCapturingClass(SystemManagerServiceImpl.class);
         RuntimeSerialization.registerLambdaCapturingClass(SystemMenuServiceImpl.class);
         RuntimeSerialization.registerLambdaCapturingClass(DictServiceImpl.class);

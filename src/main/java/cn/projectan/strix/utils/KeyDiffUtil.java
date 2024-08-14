@@ -1,10 +1,12 @@
 package cn.projectan.strix.utils;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -18,11 +20,11 @@ public class KeyDiffUtil {
 
     /**
      * 获取关系Id列表差异 并返回差异Map
-     * @deprecated 更推荐使用 {@link #handle(Collection, Collection, HandleFunction, HandleFunction) handle} 方法
      *
      * @param oldKeys 旧的关系Id列表
      * @param newKeys 新的关系Id列表
      * @return 返回差异列表 包含remove和add两个key
+     * @deprecated 更推荐使用 {@link #handle(Collection, Collection, HandleFunction, HandleFunction) handle} 方法
      */
     @Deprecated
     public static Map<String, List<String>> handle(Collection<String> oldKeys, Collection<String> newKeys) {
@@ -44,11 +46,11 @@ public class KeyDiffUtil {
 
     /**
      * 处理关系Id列表差异 并执行处理函数
-     * @deprecated 更推荐使用 {@link #handle(Collection, Collection, HandleFunction, HandleFunction) handle} 方法
      *
      * @param oldKeys 旧的关系Id列表
      * @param newKeys 新的关系Id列表
      * @param func    处理函数 (removeKeys, addKeys)=>{ ... }
+     * @deprecated 更推荐使用 {@link #handle(Collection, Collection, HandleFunction, HandleFunction) handle} 方法
      */
     @Deprecated
     public static void handle(Collection<String> oldKeys, Collection<String> newKeys, FullHandleFunction func) {
@@ -83,12 +85,14 @@ public class KeyDiffUtil {
             List<String> removeKeys = CollectionDiffUtil.subList(oldKeys, newKeys);
             List<String> addKeys = CollectionDiffUtil.subList(newKeys, oldKeys);
 
-            Optional.ofNullable(removeKeys).filter(c -> !c.isEmpty()).ifPresent(removeFunc::apply);
-            Optional.ofNullable(addKeys).filter(c -> !c.isEmpty()).ifPresent(keys -> {
-                keys = keys.stream().filter(StringUtils::hasText).collect(Collectors.toList());
-                addFunc.apply(keys);
-            });
-
+            removeKeys = removeKeys.stream().filter(StringUtils::hasText).collect(Collectors.toList());
+            addKeys = addKeys.stream().filter(StringUtils::hasText).collect(Collectors.toList());
+            if (!removeKeys.isEmpty()) {
+                removeFunc.apply(removeKeys);
+            }
+            if (!addKeys.isEmpty()) {
+                addFunc.apply(addKeys);
+            }
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
@@ -110,13 +114,16 @@ public class KeyDiffUtil {
             List<String> removeKeys = CollectionDiffUtil.subList(oldKeys, newKeys);
             List<String> addKeys = CollectionDiffUtil.subList(newKeys, oldKeys);
 
-            Optional.ofNullable(removeKeys).filter(c -> !c.isEmpty()).ifPresent(removeFunc::apply);
-            Optional.ofNullable(addKeys).filter(c -> !c.isEmpty()).ifPresent(keys -> {
-                keys = keys.stream().filter(StringUtils::hasText).collect(Collectors.toList());
-                addFunc.apply(keys);
-            });
+            removeKeys = removeKeys.stream().filter(StringUtils::hasText).collect(Collectors.toList());
+            addKeys = addKeys.stream().filter(StringUtils::hasText).collect(Collectors.toList());
+            if (!removeKeys.isEmpty()) {
+                removeFunc.apply(removeKeys);
+            }
+            if (!addKeys.isEmpty()) {
+                addFunc.apply(addKeys);
+            }
 
-            if (!CollectionUtils.isEmpty(removeKeys) || !CollectionUtils.isEmpty(addKeys)) {
+            if (!removeKeys.isEmpty() || !addKeys.isEmpty()) {
                 updatedFunc.apply();
             }
         } catch (Exception e) {

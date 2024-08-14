@@ -52,18 +52,18 @@ public class SystemMenuCache {
     }
 
     public void updateRedis() {
-        redisUtil.delLike("strix:system:manager:menu_by_smid:*");
+        redisUtil.delLike("strix:system:manager:menu_by_mid:*");
         redisUtil.delLike("strix:system:role:menu_by_rid:*");
     }
 
     public void updateRedisBySystemRoleId(String roleId) {
         redisUtil.delLike("strix:system:role:menu_by_rid::" + roleId);
         // TODO 可优化为仅清除拥有该角色的管理用户缓存
-        redisUtil.delLike("strix:system:manager:menu_by_smid:*");
+        redisUtil.delLike("strix:system:manager:menu_by_mid:*");
     }
 
     public void updateRedisBySystemManageId(String managerId) {
-        redisUtil.delLike("strix:system:manager:menu_by_smid::" + managerId);
+        redisUtil.delLike("strix:system:manager:menu_by_mid::" + managerId);
     }
 
     public void updateRamAndRedis() {

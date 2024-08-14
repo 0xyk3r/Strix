@@ -26,12 +26,22 @@ import java.io.Serial;
 public class SystemRole extends BaseModel {
 
     @Serial
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 3L;
 
     /**
      * 系统角色名称
      */
     @UniqueDetection("角色名称")
     private String name;
+
+    /**
+     * 地区权限类型
+     */
+    private Byte regionPermissionType;
+
+    /**
+     * 是否系统内置角色
+     */
+    private Byte builtin;
 
 }

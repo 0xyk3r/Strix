@@ -21,7 +21,7 @@ public class SystemRoleListResp {
 
     public SystemRoleListResp(List<SystemRole> roles) {
         for (SystemRole sr : roles) {
-            SystemRoleItem item = new SystemRoleItem(sr.getId(), sr.getName());
+            SystemRoleItem item = new SystemRoleItem(sr.getId(), sr.getName(), sr.getRegionPermissionType(), sr.getBuiltin());
             systemRoleList.add(item);
         }
     }
@@ -34,6 +34,10 @@ public class SystemRoleListResp {
         private String id;
 
         private String name;
+
+        private Byte regionPermissionType;
+
+        private Byte builtin;
 
     }
 

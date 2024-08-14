@@ -13,9 +13,11 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
@@ -74,6 +76,23 @@ public class SystemManagerServiceImpl extends ServiceImpl<SystemManagerMapper, S
 
         SystemManager systemManager = proxy.getById(systemManagerId);
 
+        QueryWrapper<SystemManagerRole> systemManagerRoleQueryWrapper = new QueryWrapper<>();
+        systemManagerRoleQueryWrapper.select("system_role_id");
+        systemManagerRoleQueryWrapper.eq("system_manager_id", systemManagerId);
+        List<String> systemManagerRoleIdList = systemManagerRoleService.listObjs(systemManagerRoleQueryWrapper, Object::toString);
+
+        byte regionPermissionType = 0;
+        if (!CollectionUtils.isEmpty(systemManagerRoleIdList)) {
+            QueryWrapper<SystemRole> systemRoleQueryWrapper = new QueryWrapper<>();
+            systemRoleQueryWrapper.select("region_permission_type");
+            systemRoleQueryWrapper.in("id", systemManagerRoleIdList);
+            systemRoleQueryWrapper.orderByAsc("region_permission_type");
+            systemRoleQueryWrapper.last("limit 1");
+            regionPermissionType = Optional.ofNullable(systemRoleService.getOne(systemRoleQueryWrapper))
+                    .map(SystemRole::getRegionPermissionType)
+                    .orElse((byte) 0);
+        }
+
         List<String> menus;
         List<String> permissions;
         List<String> regionIds = null;
@@ -91,7 +110,16 @@ public class SystemManagerServiceImpl extends ServiceImpl<SystemManagerMapper, S
                 regionIds = systemRegionService.getChildrenIdList(systemManager.getRegionId());
             }
         }
-        return new LoginSystemManager(systemManager, menus, permissions, regionIds);
+        return new LoginSystemManager(systemManager, regionPermissionType, menus, permissions, regionIds);
+    }
+
+    @Override
+    public void refreshLoginInfoByManager(String systemManagerId) {
+        Object existToken = redisUtil.get("strix:system:manager:login_token:login:id_" + systemManagerId);
+        if (existToken != null) {
+            LoginSystemManager loginSystemManager = this.getLoginInfo(systemManagerId);
+            redisUtil.set("strix:system:manager:login_token:token:" + existToken, loginSystemManager);
+        }
     }
 
     @Override

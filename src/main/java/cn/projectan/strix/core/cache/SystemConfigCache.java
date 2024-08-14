@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 /**
  * 系统设置缓存类
@@ -33,6 +34,11 @@ public class SystemConfigCache {
         log.info("Strix Cache: 系统配置项加载完成, 加载了 {} 个配置项.", systemConfigList.size());
     }
 
+    /**
+     * 更新缓存
+     *
+     * @param key key
+     */
     public void update(String key) {
         SystemConfig systemConfig = systemConfigService.getByKey(key);
         if (systemConfig != null) {
@@ -46,18 +52,37 @@ public class SystemConfigCache {
         return instance.get(key);
     }
 
-    public String get(String key, boolean strict) {
-        String result = instance.get(key);
-        if (result == null || strict) {
-            return updateAndGet(key);
-        } else {
-            return result;
+    public String get(String key, String defaultValue) {
+        return instance.getOrDefault(key, defaultValue);
+
+    }
+
+    private <T> T get(String key, Function<String, T> parser, T defaultValue) {
+        String value = get(key);
+        if (value == null) {
+            return defaultValue;
+        }
+        try {
+            return parser.apply(value);
+        } catch (Exception e) {
+            return defaultValue;
         }
     }
 
-    public String updateAndGet(String key) {
-        update(key);
-        return get(key);
+    public Boolean getBoolean(String key) {
+        return get(key, Boolean::parseBoolean, null);
+    }
+
+    public Boolean getBoolean(String key, Boolean defaultValue) {
+        return get(key, Boolean::parseBoolean, defaultValue);
+    }
+
+    public Long getLong(String key) {
+        return get(key, Long::parseLong, null);
+    }
+
+    public Long getLong(String key, Long defaultValue) {
+        return get(key, Long::parseLong, defaultValue);
     }
 
 }

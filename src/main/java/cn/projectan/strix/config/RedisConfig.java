@@ -87,7 +87,7 @@ public class RedisConfig {
     private Map<String, RedisCacheConfiguration> getRedisCacheConfigurationMap() {
         Map<String, RedisCacheConfiguration> redisCacheConfigurationMap = new HashMap<>();
 //        redisCacheConfigurationMap.put("strix:system:manager:permission_by_mid:*", this.getRedisCacheConfigurationWithTtl(60 * 60 * 24));
-//        redisCacheConfigurationMap.put("strix:system:manager:menu_by_smid:*", this.getRedisCacheConfigurationWithTtl(60 * 60 * 24));
+//        redisCacheConfigurationMap.put("strix:system:manager:menu_by_mid:*", this.getRedisCacheConfigurationWithTtl(60 * 60 * 24));
 //        redisCacheConfigurationMap.put("strix:system:role:menu_by_rid:*", this.getRedisCacheConfigurationWithTtl(60 * 60 * 24));
 //        redisCacheConfigurationMap.put("strix:system:role:permission_by_rid:*", this.getRedisCacheConfigurationWithTtl(60 * 60 * 24));
 

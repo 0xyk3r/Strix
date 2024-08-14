@@ -31,12 +31,14 @@ public class LoginSystemManager implements UserDetails {
     private List<String> menusKeys;
     private List<String> permissionKeys;
     private List<String> regionIds;
+    private byte regionPermissionType;
 
     @JsonIgnore
     private List<GrantedAuthority> authorities;
 
-    public LoginSystemManager(SystemManager systemManager, List<String> menusKeys, List<String> permissionKeys, List<String> regionIds) {
+    public LoginSystemManager(SystemManager systemManager, byte regionPermissionType, List<String> menusKeys, List<String> permissionKeys, List<String> regionIds) {
         this.systemManager = systemManager;
+        this.regionPermissionType = regionPermissionType;
         this.menusKeys = menusKeys;
         this.permissionKeys = permissionKeys;
         this.regionIds = regionIds;

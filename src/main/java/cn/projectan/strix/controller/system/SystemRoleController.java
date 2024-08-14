@@ -8,6 +8,7 @@ import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.core.validation.group.InsertGroup;
 import cn.projectan.strix.core.validation.group.UpdateGroup;
 import cn.projectan.strix.model.annotation.StrixLog;
+import cn.projectan.strix.model.constant.BuiltinConstant;
 import cn.projectan.strix.model.db.*;
 import cn.projectan.strix.model.dict.SysLogOperType;
 import cn.projectan.strix.model.request.system.role.SystemRoleUpdateMenuReq;
@@ -75,7 +76,7 @@ public class SystemRoleController extends BaseSystemController {
         List<SystemPermission> systemPermissionByRoleId = systemRoleService.getSystemPermissionByRoleId(roleId);
         List<SystemMenuListResp.SystemMenuItem> menuItems = new SystemMenuListResp(menusByRoleId, systemPermissionByRoleId).getSystemMenuList();
         List<SystemPermissionListResp.SystemPermissionItem> permissionList = new SystemPermissionListResp(systemPermissionByRoleId).getSystemPermissionList();
-        return RetBuilder.success(new SystemRoleResp(systemRole.getId(), systemRole.getName(), menuItems, permissionList));
+        return RetBuilder.success(new SystemRoleResp(systemRole.getId(), systemRole.getName(), systemRole.getRegionPermissionType(), menuItems, permissionList));
     }
 
     @PostMapping("update")
@@ -85,10 +86,10 @@ public class SystemRoleController extends BaseSystemController {
         Assert.notNull(req, "参数错误");
 
         SystemRole systemRole = new SystemRole(
-                req.getName()
+                req.getName(),
+                req.getRegionPermissionType(),
+                BuiltinConstant.NO
         );
-        systemRole.setCreateBy(loginManagerId());
-        systemRole.setUpdateBy(loginManagerId());
 
         UniqueDetectionTool.check(systemRole);
 
@@ -105,10 +106,15 @@ public class SystemRoleController extends BaseSystemController {
         Assert.notNull(req, "参数错误");
         SystemRole systemRole = systemRoleService.getById(roleId);
         Assert.notNull(systemRole, "系统角色信息不存在");
+        Assert.isTrue(BuiltinConstant.NO == systemRole.getBuiltin(), "系统内置角色不支持修改");
 
         UpdateWrapper<SystemRole> updateWrapper = UpdateConditionBuilder.build(systemRole, req);
         UniqueDetectionTool.check(systemRole);
         Assert.isTrue(systemRoleService.update(updateWrapper), "保存失败");
+
+        // 刷新 redis 中的登录用户信息
+        SystemManagerService systemManagerService = SpringUtil.getBean(SystemManagerService.class);
+        systemManagerService.refreshLoginInfoByRole(roleId);
 
         return RetBuilder.success();
     }
@@ -119,6 +125,7 @@ public class SystemRoleController extends BaseSystemController {
     public RetResult<Object> updateMenu(@PathVariable String roleId, @RequestBody @Validated(UpdateGroup.class) SystemRoleUpdateMenuReq req) {
         SystemRole systemRole = systemRoleService.getById(roleId);
         Assert.notNull(systemRole, "系统角色信息不存在");
+        Assert.isTrue(BuiltinConstant.NO == systemRole.getBuiltin(), "系统内置角色不支持修改");
 
         // 修改角色的菜单权限
         QueryWrapper<SystemRoleMenu> systemRoleMenuQueryWrapper = new QueryWrapper<>();
@@ -188,7 +195,7 @@ public class SystemRoleController extends BaseSystemController {
         List<SystemPermission> systemPermissionByRoleId = systemRoleService.getSystemPermissionByRoleId(roleId);
         List<SystemMenuListResp.SystemMenuItem> menuItems = new SystemMenuListResp(menusByRoleId, systemPermissionByRoleId).getSystemMenuList();
         List<SystemPermissionListResp.SystemPermissionItem> permissionList = new SystemPermissionListResp(systemPermissionByRoleId).getSystemPermissionList();
-        return RetBuilder.success(new SystemRoleResp(systemRole.getId(), systemRole.getName(), menuItems, permissionList));
+        return RetBuilder.success(new SystemRoleResp(systemRole.getId(), systemRole.getName(), systemRole.getRegionPermissionType(), menuItems, permissionList));
     }
 
     @PostMapping("remove/{roleId}")
@@ -196,10 +203,9 @@ public class SystemRoleController extends BaseSystemController {
     @StrixLog(operationGroup = "系统角色", operationName = "删除角色", operationType = SysLogOperType.DELETE)
     public RetResult<Object> remove(@PathVariable String roleId) {
         Assert.hasText(roleId, "参数错误");
-        // TODO 改为lock字段
-        Assert.isTrue(!"SuperManager".equalsIgnoreCase(roleId), "该角色不支持删除");
         SystemRole systemRole = systemRoleService.getById(roleId);
         Assert.notNull(systemRole, "系统角色信息不存在");
+        Assert.isTrue(BuiltinConstant.NO == systemRole.getBuiltin(), "系统内置角色不支持删除");
 
         systemRoleService.removeById(systemRole);
 
@@ -231,9 +237,9 @@ public class SystemRoleController extends BaseSystemController {
     public RetResult<SystemRoleResp> removeRoleMenu(@PathVariable String roleId, @PathVariable String menuId) {
         Assert.hasText(roleId, "参数错误");
         Assert.hasText(menuId, "参数错误");
-        Assert.isTrue(!"SuperManager".equalsIgnoreCase(roleId), "该角色不支持进行该操作");
         SystemRole systemRole = systemRoleService.getById(roleId);
         Assert.notNull(systemRole, "系统角色信息不存在");
+        Assert.isTrue(BuiltinConstant.NO == systemRole.getBuiltin(), "系统内置角色不支持修改");
 
         // 查询该菜单和其子菜单的id 注意此处使用了ram缓存
         List<String> menuAndChildrenMenu = systemMenuCache.getIdListByParentMenu(menuId);
@@ -254,7 +260,7 @@ public class SystemRoleController extends BaseSystemController {
         List<SystemMenuListResp.SystemMenuItem> menuItems = new SystemMenuListResp(menusByRoleId, systemPermissionByRoleId).getSystemMenuList();
         // 需要删除
         List<SystemPermissionListResp.SystemPermissionItem> permissionList = new SystemPermissionListResp(systemPermissionByRoleId).getSystemPermissionList();
-        return RetBuilder.success(new SystemRoleResp(systemRole.getId(), systemRole.getName(), menuItems, permissionList));
+        return RetBuilder.success(new SystemRoleResp(systemRole.getId(), systemRole.getName(), systemRole.getRegionPermissionType(), menuItems, permissionList));
     }
 
     /**
@@ -269,9 +275,9 @@ public class SystemRoleController extends BaseSystemController {
     public RetResult<SystemRoleResp> removeRolePermission(@PathVariable String roleId, @PathVariable String permissionId) {
         Assert.hasText(roleId, "参数错误");
         Assert.hasText(permissionId, "参数错误");
-        Assert.isTrue(!"SuperManager".equalsIgnoreCase(roleId), "该角色不支持进行该操作");
         SystemRole systemRole = systemRoleService.getById(roleId);
         Assert.notNull(systemRole, "系统角色信息不存在");
+        Assert.isTrue(BuiltinConstant.NO == systemRole.getBuiltin(), "系统内置角色不支持修改");
 
         QueryWrapper<SystemRolePermission> systemRolePermissionQueryWrapper = new QueryWrapper<>();
         systemRolePermissionQueryWrapper.eq("system_role_id", roleId);
@@ -288,7 +294,7 @@ public class SystemRoleController extends BaseSystemController {
         List<SystemPermission> systemPermissionByRoleId = systemRoleService.getSystemPermissionByRoleId(roleId);
         List<SystemMenuListResp.SystemMenuItem> menuItems = new SystemMenuListResp(menusByRoleId, systemPermissionByRoleId).getSystemMenuList();
         List<SystemPermissionListResp.SystemPermissionItem> permissionList = new SystemPermissionListResp(systemPermissionByRoleId).getSystemPermissionList();
-        return RetBuilder.success(new SystemRoleResp(systemRole.getId(), systemRole.getName(), menuItems, permissionList));
+        return RetBuilder.success(new SystemRoleResp(systemRole.getId(), systemRole.getName(), systemRole.getRegionPermissionType(), menuItems, permissionList));
     }
 
     @GetMapping("select")
