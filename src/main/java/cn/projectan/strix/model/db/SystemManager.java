@@ -27,7 +27,7 @@ import java.io.Serial;
 public class SystemManager extends BaseModel {
 
     @Serial
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = 3L;
 
     /**
      * 显示昵称
@@ -53,7 +53,7 @@ public class SystemManager extends BaseModel {
     private Integer status;
 
     /**
-     * 管理人员类型 1超级账户 2平台账户
+     * 管理人员类型 1超级账户 2普通账户
      */
     private Integer type;
 
@@ -62,5 +62,9 @@ public class SystemManager extends BaseModel {
      */
     private String regionId;
 
+    /**
+     * 是否系统内置用户
+     */
+    private Byte builtin;
 
 }

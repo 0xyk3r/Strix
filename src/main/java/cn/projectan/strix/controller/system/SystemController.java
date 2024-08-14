@@ -70,27 +70,23 @@ public class SystemController extends BaseSystemController {
         Assert.isTrue(systemManager.getStatus() == SystemManagerStatus.NORMAL, "该管理用户已被禁止使用");
         Assert.isTrue(systemManager.getLoginPassword().equals(req.getLoginPassword()), "账号或密码错误");
 
-        if ("0".equals(systemConfigCache.get("SYSTEM_MANAGER_SUPPORT_MULTIPLE_LOGIN"))) {
-            // 检查该账号上次登录是否还没有超时
+        // 检查是否支持多点登录
+        Boolean supportMultipleLogin = systemConfigCache.getBoolean("SYSTEM_MANAGER_SUPPORT_MULTIPLE_LOGIN", false);
+        if (!supportMultipleLogin) {
+            // 使上次登录生成的Token失效
             Object existToken = redisUtil.get("strix:system:manager:login_token:login:id_" + systemManager.getId());
             if (existToken != null) {
-                // 使上次登录生成的Token失效
                 redisUtil.del("strix:system:manager:login_token:token:" + existToken);
                 redisUtil.del("strix:system:manager:login_token:login:id_" + systemManager.getId());
             }
-        }
-        // 获取存储时间并存储Token
-        long effectiveTime = 1440L;
-        String et = systemConfigCache.get("SYSTEM_MANAGER_LOGIN_EFFECTIVE_TIME");
-        if (StringUtils.hasText(et)) {
-            effectiveTime = Long.parseLong(et);
         }
 
         LoginSystemManager loginSystemManager = systemManagerService.getLoginInfo(systemManager.getId());
 
         String token = IdUtil.fastSimpleUUID();
-        redisUtil.set("strix:system:manager:login_token:login:id_" + systemManager.getId(), token, effectiveTime, TimeUnit.MINUTES);
-        redisUtil.set("strix:system:manager:login_token:token:" + token, loginSystemManager, effectiveTime, TimeUnit.MINUTES);
+        long tokenTTL = systemConfigCache.getLong("SYSTEM_MANAGER_LOGIN_EFFECTIVE_TIME", 1440L);
+        redisUtil.set("strix:system:manager:login_token:login:id_" + systemManager.getId(), token, tokenTTL, TimeUnit.MINUTES);
+        redisUtil.set("strix:system:manager:login_token:token:" + token, loginSystemManager, tokenTTL, TimeUnit.MINUTES);
 
         // 合并菜单权限
         List<String> permissionKeys = new ArrayList<>();
@@ -102,7 +98,7 @@ public class SystemController extends BaseSystemController {
                         systemManager.getId(), systemManager.getNickname(), systemManager.getType(), permissionKeys
                 ),
                 token,
-                LocalDateTime.now().plusMinutes(effectiveTime)
+                LocalDateTime.now().plusMinutes(tokenTTL)
         ));
     }
 

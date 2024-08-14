@@ -1,12 +1,12 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '3.3.0'
-    id 'io.spring.dependency-management' version '1.1.5'
+    id 'org.springframework.boot' version '3.3.2'
+    id 'io.spring.dependency-management' version '1.1.6'
     id 'org.graalvm.buildtools.native' version '0.10.2'
 }
 
 group = 'cn.projectan'
-version = '2.2.4.2'
+version = '2.3.0'
 description = 'Strix'
 
 java {
@@ -66,16 +66,16 @@ dependencies {
     annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
     // Redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-    implementation 'org.redisson:redisson-spring-boot-starter:3.31.0'
+    implementation 'org.redisson:redisson-spring-boot-starter:3.34.1'
     // Database - MySQL
     implementation 'p6spy:p6spy:3.9.1'
     runtimeOnly 'com.mysql:mysql-connector-j'
-    implementation 'com.baomidou:mybatis-plus-spring-boot3-starter:3.5.6'
-    implementation 'com.baomidou:mybatis-plus-generator:3.5.6'
-    implementation 'com.baomidou:dynamic-datasource-spring-boot3-starter:4.3.0'
+    implementation 'com.baomidou:mybatis-plus-spring-boot3-starter:3.5.7'
+    implementation 'com.baomidou:mybatis-plus-generator:3.5.7'
+    implementation 'com.baomidou:dynamic-datasource-spring-boot3-starter:4.3.1'
     implementation 'org.apache.velocity:velocity-engine-core:2.3'
     // Database - ClickHouse
-    implementation 'com.clickhouse:clickhouse-jdbc:0.6.0-patch5'
+    implementation 'com.clickhouse:clickhouse-jdbc:0.6.3'
     implementation 'org.apache.httpcomponents.client5:httpclient5:5.3.1'
     implementation 'org.lz4:lz4-java:1.8.0'
     // Quartz
@@ -88,8 +88,8 @@ dependencies {
     implementation 'io.jsonwebtoken:jjwt-jackson:0.12.5'
     // Other Tools
     implementation 'com.squareup.okhttp3:okhttp'
-    implementation 'cn.hutool:hutool-core:5.8.28'
-    implementation 'cn.hutool:hutool-crypto:5.8.28'
+    implementation 'cn.hutool:hutool-core:5.8.31'
+    implementation 'cn.hutool:hutool-crypto:5.8.31'
     implementation 'org.bouncycastle:bcprov-jdk18on:1.78.1'
     implementation 'org.lionsoul:ip2region:2.7.0'
     // Third Party
@@ -110,8 +110,10 @@ test {
 }
 
 // 仅在构建时执行 AOT 编译
-tasks.named('processAot').configure {
-    onlyIf { gradle.taskGraph.hasTask(':build') || gradle.taskGraph.hasTask(':assemble') }
+tasks.matching { task ->
+    task.name.toLowerCase().contains('aot')
+}.configureEach { task ->
+    task.onlyIf { gradle.taskGraph.hasTask(':build') || gradle.taskGraph.hasTask(':assemble') }
 }
 
 tasks.named('bootBuildImage') {

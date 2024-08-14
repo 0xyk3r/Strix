@@ -1,6 +1,5 @@
 package cn.projectan.strix.controller.system;
 
-import cn.hutool.core.util.ObjectUtil;
 import cn.projectan.strix.controller.system.base.BaseSystemController;
 import cn.projectan.strix.core.cache.SystemRegionCache;
 import cn.projectan.strix.core.listener.StrixCommonListener;
@@ -22,7 +21,7 @@ import cn.projectan.strix.model.response.system.region.SystemRegionListResp;
 import cn.projectan.strix.model.response.system.region.SystemRegionResp;
 import cn.projectan.strix.service.SystemManagerService;
 import cn.projectan.strix.service.SystemRegionService;
-import cn.projectan.strix.utils.StrixAssert;
+import cn.projectan.strix.utils.RegionPermissionTool;
 import cn.projectan.strix.utils.UniqueDetectionTool;
 import cn.projectan.strix.utils.UpdateConditionBuilder;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -36,8 +35,9 @@ import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * @author ProjectAn
@@ -65,32 +65,42 @@ public class SystemRegionController extends BaseSystemController {
     @PreAuthorize("@ss.hasPermission('system:region')")
     @StrixLog(operationGroup = "系统地区", operationName = "查询地区列表")
     public RetResult<SystemRegionListResp> getSystemRegionList(SystemRegionListReq req) {
+        int maxRegionLevel = 0;
+        if (notSuperManager()) {
+            // 需要获取当前可用的最大地区权限等级
+            QueryWrapper<SystemRegion> maxRegionLevelQW = new QueryWrapper<>();
+            RegionPermissionTool.appendRegionPermissionToQueryWrapper("id", maxRegionLevelQW);
+            maxRegionLevelQW.select("level");
+            maxRegionLevelQW.orderByAsc("level");
+            maxRegionLevelQW.last("limit 1");
+            maxRegionLevel = Optional.ofNullable(systemRegionService.getOne(maxRegionLevelQW)).map(SystemRegion::getLevel).orElse(0);
+        }
+
         QueryWrapper<SystemRegion> systemRegionQueryWrapper = new QueryWrapper<>();
+        RegionPermissionTool.appendRegionPermissionToQueryWrapper("id", systemRegionQueryWrapper);
         if (StringUtils.hasText(req.getKeyword())) {
             systemRegionQueryWrapper.like("name", req.getKeyword());
         } else {
-            systemRegionQueryWrapper.eq("parent_id", "0");
-        }
-        if (notSuperManager()) {
-            systemRegionQueryWrapper = new QueryWrapper<>();
-            systemRegionQueryWrapper.in("id", loginManagerRegionIdList());
-            if (StringUtils.hasText(req.getKeyword())) {
-                systemRegionQueryWrapper.like("name", req.getKeyword());
+            if (notSuperManager()) {
+                systemRegionQueryWrapper.eq("level", maxRegionLevel);
+            } else {
+                systemRegionQueryWrapper.eq("parent_id", "0");
             }
         }
         Page<SystemRegion> page = systemRegionService.page(req.getPage(), systemRegionQueryWrapper);
-        if (StringUtils.hasText(req.getKeyword())) {
-            // 深拷贝
-            List<SystemRegion> records = ObjectUtil.clone(page.getRecords());
-            records.forEach(r -> {
-                String[] parentIds = r.getFullPath().split(",");
-                List<SystemRegion> parents = systemRegionService.listByIds(Arrays.asList(parentIds));
-                page.getRecords().addAll(parents);
-            });
-            // 去重
-            page.setRecords(new ArrayList<>(page.getRecords().stream().filter(r -> r.getLevel() == 1)
-                    .collect(Collectors.toMap(SystemRegion::getId, a -> a, (o1, o2) -> o1)).values()));
-        }
+        // 这里是搜索子节点时, 完整查询从根节点开始的所有地区, 暂时注释掉.
+//        if (StringUtils.hasText(req.getKeyword())) {
+//            // 深拷贝
+//            List<SystemRegion> records = ObjectUtil.clone(page.getRecords());
+//            records.forEach(r -> {
+//                String[] parentIds = r.getFullPath().split(",");
+//                List<SystemRegion> parents = systemRegionService.listByIds(Arrays.asList(parentIds));
+//                page.getRecords().addAll(parents);
+//            });
+//            // 去重
+//            page.setRecords(new ArrayList<>(page.getRecords().stream().filter(r -> r.getLevel() == 1)
+//                    .collect(Collectors.toMap(SystemRegion::getId, a -> a, (o1, o2) -> o1)).values()));
+//        }
 
         SystemRegionListResp resp = new SystemRegionListResp(page.getRecords(), page.getTotal());
 
@@ -104,6 +114,7 @@ public class SystemRegionController extends BaseSystemController {
         Assert.notNull(id, "参数错误");
         SystemRegion systemRegion = systemRegionService.getById(id);
         Assert.notNull(systemRegion, "系统地区信息不存在");
+        RegionPermissionTool.check(id);
 
         return RetBuilder.success(new SystemRegionResp(systemRegion.getId(), systemRegion.getName(), systemRegion.getLevel(), systemRegion.getParentId(), systemRegion.getFullPath(), systemRegion.getFullName(), systemRegion.getRemarks()));
     }
@@ -114,19 +125,12 @@ public class SystemRegionController extends BaseSystemController {
         Assert.notNull(id, "参数错误");
         SystemRegion systemRegion = systemRegionService.getById(id);
         Assert.notNull(systemRegion, "系统地区信息不存在");
+        RegionPermissionTool.check(id);
 
         QueryWrapper<SystemRegion> systemRegionQueryWrapper = new QueryWrapper<>();
+        RegionPermissionTool.appendRegionPermissionToQueryWrapper("id", systemRegionQueryWrapper);
         systemRegionQueryWrapper.eq("parent_id", systemRegion.getId());
         List<SystemRegion> childrenList = systemRegionService.list(systemRegionQueryWrapper);
-        if (notSuperManager()) {
-            Set<SystemRegion> resultList = new HashSet<>();
-            loginManagerRegionIdList().forEach(lmr -> childrenList.forEach(c -> {
-                if (c.getId().equals(lmr)) {
-                    resultList.add(c);
-                }
-            }));
-            return RetBuilder.success(new SystemRegionChildrenListResp(resultList));
-        }
 
         return RetBuilder.success(new SystemRegionChildrenListResp(childrenList));
     }
@@ -138,10 +142,7 @@ public class SystemRegionController extends BaseSystemController {
         SystemRegion systemRegion = systemRegionService.getById(id);
         Assert.notNull(systemRegion, "系统地区信息不存在");
         Assert.hasText(singleFieldModifyReq.getField(), "参数错误");
-
-        if (notSuperManager()) {
-            StrixAssert.in(id, "没有相应的地区权限", loginManagerRegionIdListExcludeCurrent().toArray(new String[0]));
-        }
+        RegionPermissionTool.check(id);
 
         UpdateWrapper<SystemRegion> systemRegionUpdateWrapper = new UpdateWrapper<>();
         systemRegionUpdateWrapper.eq("id", id);
@@ -168,12 +169,13 @@ public class SystemRegionController extends BaseSystemController {
     public RetResult<Object> update(@RequestBody @Validated(InsertGroup.class) SystemRegionUpdateReq req) {
         Assert.notNull(req, "参数错误");
         if (!StringUtils.hasText(req.getParentId())) {
-            req.setParentId("0");
+            if (notSuperManager()) {
+                req.setParentId(loginManagerRegionId());
+            } else {
+                req.setParentId("0");
+            }
         }
-
-        if (notSuperManager()) {
-            StrixAssert.in(req.getParentId(), "没有相应的地区权限", loginManagerRegionIdListExcludeCurrent().toArray(new String[0]));
-        }
+        RegionPermissionTool.check(req.getParentId());
 
         SystemRegion systemRegion = new SystemRegion(
                 req.getName(),
@@ -211,13 +213,15 @@ public class SystemRegionController extends BaseSystemController {
         SystemRegion systemRegion = systemRegionService.getById(id);
         Assert.notNull(systemRegion, "系统地区信息不存在");
         if (!StringUtils.hasText(req.getParentId())) {
-            req.setParentId("0");
+            if (notSuperManager()) {
+                req.setParentId(loginManagerRegionId());
+            } else {
+                req.setParentId("0");
+            }
         }
-        boolean parentChanged = !systemRegion.getParentId().equals(req.getParentId());
+        RegionPermissionTool.check(req.getParentId());
 
-        if (notSuperManager()) {
-            StrixAssert.in(id, "没有相应的地区权限", loginManagerRegionIdListExcludeCurrent().toArray(new String[0]));
-        }
+        boolean parentChanged = !systemRegion.getParentId().equals(req.getParentId());
 
         UpdateWrapper<SystemRegion> updateWrapper = UpdateConditionBuilder.build(systemRegion, req);
         UniqueDetectionTool.check(systemRegion);
@@ -236,10 +240,7 @@ public class SystemRegionController extends BaseSystemController {
     @StrixLog(operationGroup = "系统地区", operationName = "删除地区", operationType = SysLogOperType.DELETE)
     public RetResult<Object> remove(@PathVariable String id) {
         Assert.hasText(id, "参数错误");
-
-        if (notSuperManager()) {
-            StrixAssert.in(id, "没有相应的地区权限", loginManagerRegionIdListExcludeCurrent().toArray(new String[0]));
-        }
+        RegionPermissionTool.check(id);
 
         SystemRegion systemRegion = systemRegionService.getById(id);
         Assert.notNull(systemRegion, "系统地区信息不存在");
@@ -274,43 +275,17 @@ public class SystemRegionController extends BaseSystemController {
 
     @GetMapping("cascader")
     public RetResult<CommonCascaderDataResp> getCascaderData() {
-        List<SystemRegion> systemRegionList = systemRegionService.list();
-        if (notSuperManager()) {
-            List<SystemRegion> resultList = new ArrayList<>();
-            Set<String> returnIdList = new HashSet<>();
-            systemRegionList.forEach(r -> loginManagerRegionIdList().forEach(id -> {
-                if (r.getFullPath().contains("," + id + ",")) {
-                    returnIdList.addAll(Arrays.asList(r.getFullPath().split(",")));
-                }
-            }));
-            returnIdList.forEach(r -> systemRegionList.forEach(region -> {
-                if (region.getId().equals(r)) {
-                    resultList.add(region);
-                }
-            }));
-            return RetBuilder.success(new CommonCascaderDataResp(resultList));
-        }
+        QueryWrapper<SystemRegion> systemRegionQueryWrapper = new QueryWrapper<>();
+        RegionPermissionTool.appendRegionPermissionToQueryWrapper("id", systemRegionQueryWrapper);
+        List<SystemRegion> systemRegionList = systemRegionService.list(systemRegionQueryWrapper);
         return RetBuilder.success(new CommonCascaderDataResp(systemRegionList));
     }
 
     @GetMapping("tree")
     public RetResult<CommonTreeDataResp> getTreeData() {
-        List<SystemRegion> systemRegionList = systemRegionService.list();
-        if (notSuperManager()) {
-            List<SystemRegion> resultList = new ArrayList<>();
-            Set<String> returnIdList = new HashSet<>();
-            systemRegionList.forEach(r -> loginManagerRegionIdList().forEach(id -> {
-                if (r.getFullPath().contains("," + id + ",")) {
-                    returnIdList.addAll(Arrays.asList(r.getFullPath().split(",")));
-                }
-            }));
-            returnIdList.forEach(r -> systemRegionList.forEach(region -> {
-                if (region.getId().equals(r)) {
-                    resultList.add(region);
-                }
-            }));
-            return RetBuilder.success(new CommonTreeDataResp(resultList));
-        }
+        QueryWrapper<SystemRegion> systemRegionQueryWrapper = new QueryWrapper<>();
+        RegionPermissionTool.appendRegionPermissionToQueryWrapper("id", systemRegionQueryWrapper);
+        List<SystemRegion> systemRegionList = systemRegionService.list(systemRegionQueryWrapper);
         return RetBuilder.success(new CommonTreeDataResp(systemRegionList));
     }
 

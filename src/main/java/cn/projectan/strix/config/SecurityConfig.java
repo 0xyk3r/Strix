@@ -5,8 +5,6 @@ import cn.projectan.strix.core.ss.error.AuthenticationEntryPointImpl;
 import cn.projectan.strix.core.ss.filter.SystemManagerAuthenticationTokenFilter;
 import cn.projectan.strix.core.ss.filter.SystemUserAuthenticationTokenFilter;
 import cn.projectan.strix.core.ss.handler.SystemManagerLogoutSuccessHandler;
-import cn.projectan.strix.core.ss.provider.SystemManagerAuthenticationProvider;
-import cn.projectan.strix.core.ss.provider.SystemUserAuthenticationProvider;
 import cn.projectan.strix.initializer.SecurityRuleInitializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,8 +14,10 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -39,9 +39,12 @@ public class SecurityConfig {
     }
 
     @Bean
+    public UserDetailsService userDetailsService() {
+        return new InMemoryUserDetailsManager();
+    }
+
+    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http,
-                                                   SystemManagerAuthenticationProvider systemManagerAuthenticationProvider,
-                                                   SystemUserAuthenticationProvider systemUserAuthenticationProvider,
                                                    SystemManagerAuthenticationTokenFilter systemManagerAuthenticationTokenFilter,
                                                    SystemUserAuthenticationTokenFilter systemUserAuthenticationTokenFilter,
                                                    AccessDeniedHandlerImpl accessDeniedHandler,
@@ -54,13 +57,6 @@ public class SecurityConfig {
                 // 禁用内置登录
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
-//                .formLogin((formLogin) -> formLogin
-//                        .loginProcessingUrl("/system/login")
-//                        .usernameParameter("username")
-//                        .passwordParameter("password")
-//                        .successHandler(loginSuccessHandler)
-//                        .failureHandler(loginFailureHandler)
-//                )
                 // 无状态会话
                 .sessionManagement((sessionManagement) -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests((authorizeRequests) -> {
@@ -74,8 +70,6 @@ public class SecurityConfig {
                 })
                 .addFilterBefore(systemManagerAuthenticationTokenFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(systemUserAuthenticationTokenFilter, UsernamePasswordAuthenticationFilter.class)
-                .authenticationProvider(systemManagerAuthenticationProvider)
-                .authenticationProvider(systemUserAuthenticationProvider)
                 .exceptionHandling((exceptionHandling) -> exceptionHandling
                         // 异常处理
                         .accessDeniedHandler(accessDeniedHandler)

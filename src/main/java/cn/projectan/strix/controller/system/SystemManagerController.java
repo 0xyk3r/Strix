@@ -9,6 +9,7 @@ import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.core.validation.group.InsertGroup;
 import cn.projectan.strix.core.validation.group.UpdateGroup;
 import cn.projectan.strix.model.annotation.StrixLog;
+import cn.projectan.strix.model.constant.BuiltinConstant;
 import cn.projectan.strix.model.db.SystemManager;
 import cn.projectan.strix.model.db.SystemManagerRole;
 import cn.projectan.strix.model.dict.SysLogOperType;
@@ -22,10 +23,7 @@ import cn.projectan.strix.model.response.system.manager.SystemManagerListResp;
 import cn.projectan.strix.model.response.system.manager.SystemManagerResp;
 import cn.projectan.strix.service.SystemManagerRoleService;
 import cn.projectan.strix.service.SystemManagerService;
-import cn.projectan.strix.utils.KeyDiffUtil;
-import cn.projectan.strix.utils.NumUtil;
-import cn.projectan.strix.utils.UniqueDetectionTool;
-import cn.projectan.strix.utils.UpdateConditionBuilder;
+import cn.projectan.strix.utils.*;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -57,17 +55,14 @@ public class SystemManagerController extends BaseSystemController {
     private final SystemMenuCache systemMenuCache;
     private final SystemPermissionCache systemPermissionCache;
     private final SystemRegionCache systemRegionCache;
+    private final RedisUtil redisUtil;
 
     @GetMapping("")
     @PreAuthorize("@ss.hasPermission('system:manager')")
     @StrixLog(operationGroup = "系统人员", operationName = "查询人员列表")
     public RetResult<SystemManagerListResp> getSystemManagerList(SystemManagerListReq req) {
         QueryWrapper<SystemManager> systemManagerQueryWrapper = new QueryWrapper<>();
-        if (notSuperManager()) {
-            // 非超级管理员用户 根据地区权限查询
-            systemManagerQueryWrapper.eq("type", SystemManagerType.NORMAL_ACCOUNT);
-            systemManagerQueryWrapper.in("region_id", loginManagerRegionIdList());
-        }
+        RegionPermissionTool.appendRegionPermissionToQueryWrapper("region_id", systemManagerQueryWrapper);
         if (StringUtils.hasText(req.getKeyword())) {
             systemManagerQueryWrapper.like("nickname", req.getKeyword())
                     .or(q -> q.like("login_name", req.getKeyword()));
@@ -94,6 +89,7 @@ public class SystemManagerController extends BaseSystemController {
         Assert.notNull(managerId, "参数错误");
         SystemManager systemManager = systemManagerService.getById(managerId);
         Assert.notNull(systemManager, "系统人员信息不存在");
+        RegionPermissionTool.check(systemManager.getRegionId());
 
         QueryWrapper<SystemManagerRole> systemManagerRoleQueryWrapper = new QueryWrapper<>();
         systemManagerRoleQueryWrapper.select("system_role_id");
@@ -108,11 +104,10 @@ public class SystemManagerController extends BaseSystemController {
     @StrixLog(operationGroup = "系统人员", operationName = "更改人员信息", operationType = SysLogOperType.UPDATE)
     public RetResult<Object> modifyField(@PathVariable String managerId, @RequestBody SingleFieldModifyReq req) {
         Assert.hasText(req.getField(), "参数错误");
-        if (!"region".equals(req.getField())) {
-            Assert.isTrue(!"anjiongyi".equals(managerId), "该用户不允许编辑或删除");
-        }
         SystemManager systemManager = systemManagerService.getById(managerId);
         Assert.notNull(systemManager, "系统人员信息不存在");
+        Assert.isTrue(BuiltinConstant.NO == systemManager.getBuiltin(), "内置用户不允许修改");
+        RegionPermissionTool.check(systemManager.getRegionId());
 
         UpdateWrapper<SystemManager> systemManagerUpdateWrapper = new UpdateWrapper<>();
         systemManagerUpdateWrapper.eq("id", managerId);
@@ -185,6 +180,7 @@ public class SystemManagerController extends BaseSystemController {
     @StrixLog(operationGroup = "系统人员", operationName = "新增人员", operationType = SysLogOperType.ADD)
     public RetResult<Object> update(@RequestBody @Validated(InsertGroup.class) SystemManagerUpdateReq req) {
         Assert.notNull(req, "参数错误");
+        RegionPermissionTool.check(req.getRegionId());
 
         SystemManager systemManager = new SystemManager(
                 req.getNickname(),
@@ -192,10 +188,9 @@ public class SystemManagerController extends BaseSystemController {
                 req.getLoginPassword(),
                 req.getStatus(),
                 req.getType(),
-                req.getRegionId()
+                req.getRegionId(),
+                BuiltinConstant.NO
         );
-        systemManager.setCreateBy(loginManagerId());
-        systemManager.setUpdateBy(loginManagerId());
 
         UniqueDetectionTool.check(systemManager);
 
@@ -209,14 +204,17 @@ public class SystemManagerController extends BaseSystemController {
     @StrixLog(operationGroup = "系统人员", operationName = "修改人员", operationType = SysLogOperType.UPDATE)
     public RetResult<Object> update(@PathVariable String managerId, @RequestBody @Validated(UpdateGroup.class) SystemManagerUpdateReq req) {
         Assert.hasText(managerId, "参数错误");
-        Assert.isTrue(!"anjiongyi".equals(managerId), "该用户不允许编辑或删除");
         Assert.notNull(req, "参数错误");
         SystemManager systemManager = systemManagerService.getById(managerId);
         Assert.notNull(systemManager, "系统人员信息不存在");
+        Assert.isTrue(BuiltinConstant.NO == systemManager.getBuiltin(), "内置用户不允许修改");
+        RegionPermissionTool.check(systemManager.getRegionId());
 
         UpdateWrapper<SystemManager> updateWrapper = UpdateConditionBuilder.build(systemManager, req);
         UniqueDetectionTool.check(systemManager);
         Assert.isTrue(systemManagerService.update(updateWrapper), "保存失败");
+
+        systemManagerService.refreshLoginInfoByManager(managerId);
 
         return RetBuilder.success();
     }
@@ -226,16 +224,24 @@ public class SystemManagerController extends BaseSystemController {
     @StrixLog(operationGroup = "系统人员", operationName = "删除人员", operationType = SysLogOperType.DELETE)
     public RetResult<Object> remove(@PathVariable String managerId) {
         Assert.hasText(managerId, "参数错误");
-        Assert.isTrue(!"anjiongyi".equals(managerId), "该用户不允许编辑或删除");
         SystemManager systemManager = systemManagerService.getById(managerId);
         Assert.notNull(systemManager, "系统人员信息不存在");
-        // TODO 权限验证
+        Assert.isTrue(BuiltinConstant.NO == systemManager.getBuiltin(), "内置用户不允许修改");
+        RegionPermissionTool.check(systemManager.getRegionId());
+
         systemManagerService.removeById(systemManager);
 
         // 删除管理人员和角色间关系
         QueryWrapper<SystemManagerRole> deleteManagerRoleRelationQueryWrapper = new QueryWrapper<>();
         deleteManagerRoleRelationQueryWrapper.eq("system_manager_id", systemManager.getId());
         systemManagerRoleService.remove(deleteManagerRoleRelationQueryWrapper);
+
+        // 使登录Token失效
+        Object existToken = redisUtil.get("strix:system:manager:login_token:login:id_" + systemManager.getId());
+        if (existToken != null) {
+            redisUtil.del("strix:system:manager:login_token:token:" + existToken);
+            redisUtil.del("strix:system:manager:login_token:login:id_" + systemManager.getId());
+        }
 
         return RetBuilder.success();
     }
