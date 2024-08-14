@@ -6,7 +6,7 @@ plugins {
 }
 
 group = 'cn.projectan'
-version = '2.2.4'
+version = '2.2.4.1'
 description = 'Strix'
 
 java {
@@ -107,6 +107,11 @@ dependencies {
 
 test {
     useJUnitPlatform()
+}
+
+// 仅在构建时执行 AOT 编译
+tasks.named('processAot').configure {
+    onlyIf { gradle.taskGraph.hasTask(':build') || gradle.taskGraph.hasTask(':assemble') }
 }
 
 tasks.named('bootBuildImage') {
