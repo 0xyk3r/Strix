@@ -6,7 +6,7 @@ plugins {
 }
 
 group = 'cn.projectan'
-version = '2.2.4.1'
+version = '2.2.4.2'
 description = 'Strix'
 
 java {

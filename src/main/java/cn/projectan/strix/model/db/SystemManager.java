@@ -3,6 +3,7 @@ package cn.projectan.strix.model.db;
 import cn.projectan.strix.model.annotation.UniqueDetection;
 import cn.projectan.strix.model.db.base.BaseModel;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -43,6 +44,7 @@ public class SystemManager extends BaseModel {
     /**
      * 登录密码
      */
+    @JsonIgnore
     private String loginPassword;
 
     /**
