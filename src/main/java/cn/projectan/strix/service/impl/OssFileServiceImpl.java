@@ -139,6 +139,9 @@ public class OssFileServiceImpl extends ServiceImpl<OssFileMapper, OssFile> impl
             String data = matcher.group(2);
 
             String ext = MimeUtil.mime2Ext(mimeType);
+            if (StringUtils.hasText(ext) && !ext.startsWith(".")) {
+                ext = "." + ext;
+            }
             Assert.isTrue(allowExtSet.contains(ext), "上传文件失败, 不支持的文件格式.");
 
             byte[] imageByte = Base64.getDecoder().decode(data);
@@ -187,7 +190,7 @@ public class OssFileServiceImpl extends ServiceImpl<OssFileMapper, OssFile> impl
     @Override
     public File download(OssFile ossFile, OssFileGroup ossFileGroup, String saveFile) {
         StrixOssClient client = strixOssStore.getInstance(ossFileGroup.getConfigKey());
-        Assert.notNull(client, "上传文件失败. OSS服务实例不存在");
+        Assert.notNull(client, "下载文件失败. OSS服务实例不存在");
 
         return client.downloadPrivate(ossFileGroup.getBucketName(), ossFile.getPath(), saveFile);
     }

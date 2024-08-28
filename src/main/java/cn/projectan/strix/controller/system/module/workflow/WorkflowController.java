@@ -128,6 +128,16 @@ public class WorkflowController extends BaseSystemController {
         return RetBuilder.success(workflowService.getSelectData());
     }
 
+    @GetMapping("config/{configId}")
+    @PreAuthorize("@ss.hasPermission('system:module:workflow')")
+    @StrixLog(operationGroup = "工作流引擎", operationName = "获取工作流配置")
+    public RetResult<Object> getConfig(@PathVariable String configId) {
+        WorkflowConfig workflowConfig = workflowConfigService.getById(configId);
+        Assert.notNull(workflowConfig, "配置信息不存在");
+
+        return RetBuilder.success(workflowConfig);
+    }
+
     @PostMapping("update/{id}/config")
     @PreAuthorize("@ss.hasPermission('system:module:workflow:update')")
     @StrixLog(operationGroup = "工作流引擎", operationName = "添加工作流配置", operationType = SysLogOperType.ADD)

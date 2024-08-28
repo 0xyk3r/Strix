@@ -1,12 +1,12 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '3.3.2'
+    id 'org.springframework.boot' version '3.3.3'
     id 'io.spring.dependency-management' version '1.1.6'
     id 'org.graalvm.buildtools.native' version '0.10.2'
 }
 
 group = 'cn.projectan'
-version = '2.3.0'
+version = '2.4.0'
 description = 'Strix'
 
 java {
@@ -66,7 +66,7 @@ dependencies {
     annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
     // Redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-    implementation 'org.redisson:redisson-spring-boot-starter:3.34.1'
+    implementation 'org.redisson:redisson-spring-boot-starter:3.35.0'
     // Database - MySQL
     implementation 'p6spy:p6spy:3.9.1'
     runtimeOnly 'com.mysql:mysql-connector-j'
@@ -89,14 +89,17 @@ dependencies {
     // Other Tools
     implementation 'com.squareup.okhttp3:okhttp'
     implementation 'cn.hutool:hutool-core:5.8.31'
+    implementation 'cn.hutool:hutool-json:5.8.31'
     implementation 'cn.hutool:hutool-crypto:5.8.31'
     implementation 'org.bouncycastle:bcprov-jdk18on:1.78.1'
     implementation 'org.lionsoul:ip2region:2.7.0'
     // Third Party
     implementation 'com.aliyun:aliyun-java-sdk-dysmsapi:2.2.1'
     implementation 'com.aliyun.oss:aliyun-sdk-oss:3.17.4'
-    implementation 'com.github.javen205:IJPay-WxPay:2.9.10-17'
-    implementation 'com.alipay.sdk:alipay-sdk-java:4.39.70.ALL'
+    implementation('com.github.javen205:IJPay-WxPay:2.9.10-17') {
+        exclude group: 'cn.hutool', module: 'hutool-json'
+    }
+    implementation 'com.alipay.sdk:alipay-sdk-java:4.39.188.ALL'
     implementation('com.github.javen205:IJPay-AliPay:2.9.10-17') {
         exclude group: 'com.alipay.sdk', module: 'alipay-sdk-java'
     }

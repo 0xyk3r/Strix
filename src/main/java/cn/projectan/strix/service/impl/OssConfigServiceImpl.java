@@ -2,6 +2,7 @@ package cn.projectan.strix.service.impl;
 
 import cn.projectan.strix.core.exception.StrixException;
 import cn.projectan.strix.core.module.oss.AliyunOssClient;
+import cn.projectan.strix.core.module.oss.LocalOssClient;
 import cn.projectan.strix.core.module.oss.StrixOssStore;
 import cn.projectan.strix.mapper.OssConfigMapper;
 import cn.projectan.strix.model.db.OssConfig;
@@ -10,11 +11,13 @@ import cn.projectan.strix.model.response.common.CommonSelectDataResp;
 import cn.projectan.strix.service.OssConfigService;
 import cn.projectan.strix.task.StrixOssTask;
 import cn.projectan.strix.utils.SpringUtil;
+import cn.projectan.strix.utils.tempurl.TempUrlUtil;
 import com.aliyun.oss.ClientBuilderConfiguration;
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -32,10 +35,13 @@ import java.util.List;
  */
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class OssConfigServiceImpl extends ServiceImpl<OssConfigMapper, OssConfig> implements OssConfigService {
 
     @Value("${spring.profiles.active}")
     private String profiles;
+
+    private final TempUrlUtil tempUrlUtil;
 
     @Override
     public void createInstance(List<OssConfig> ossConfigList) {
@@ -61,6 +67,8 @@ public class OssConfigServiceImpl extends ServiceImpl<OssConfigMapper, OssConfig
                     }
                     case StrixOssPlatform.TENCENT ->
                             throw new StrixException("Strix OSS: 初始化对象存储服务实例 <" + ossConfig.getKey() + "> 失败. (暂不支持腾讯云对象存储服务)");
+                    case StrixOssPlatform.LOCAL ->
+                            strixOssStore.addInstance(ossConfig.getKey(), new LocalOssClient(ossConfig.getPublicEndpoint(), ossConfig.getPrivateEndpoint(), tempUrlUtil));
                     default ->
                             throw new StrixException("Strix OSS: 初始化对象存储服务实例 <" + ossConfig.getKey() + "> 失败. (暂不支持该对象存储服务平台)");
                 }

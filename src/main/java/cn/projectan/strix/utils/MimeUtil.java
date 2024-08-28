@@ -62,6 +62,9 @@ public final class MimeUtil {
      * @return MIME 类型
      */
     public static String ext2Mime(String ext) {
+        if (StringUtils.hasText(ext) && ext.startsWith(".")) {
+            ext = ext.substring(1);
+        }
         return ext2MimeMap.get(ext.toLowerCase(Locale.ENGLISH));
     }
 
