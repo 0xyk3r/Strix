@@ -21,8 +21,12 @@ public class StrixOssPlatform implements BaseDict {
     public static final
     int TENCENT = 2;
 
+    @DictData(label = "本地存储", sort = 3, style = DictDataStyle.DEFAULT)
+    public static final
+    int LOCAL = 3;
+
     public static boolean valid(int platform) {
-        return platform == ALIYUN || platform == TENCENT;
+        return platform == ALIYUN || platform == TENCENT || platform == LOCAL;
     }
 
 }

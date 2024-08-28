@@ -14,4 +14,8 @@ public class RedisKeyConstants {
 
     public static final String HASH_POPULARITY_DATA_PREFIX = "strix:popularity:data:";
 
+    public static final String STR_TEMP_URL_PUBLIC_PREFIX = "strix:util:temp-url:public::";
+
+    public static final String STR_TEMP_URL_PRIVATE_PREFIX = "strix:util:temp-url:private::";
+
 }
