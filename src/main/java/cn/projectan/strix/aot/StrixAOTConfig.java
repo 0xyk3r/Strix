@@ -4,6 +4,8 @@ import cn.hutool.core.util.ClassUtil;
 import cn.projectan.strix.core.ss.SystemManagerSecurityService;
 import cn.projectan.strix.core.ss.details.LoginSystemManager;
 import cn.projectan.strix.core.ss.details.LoginSystemUser;
+import cn.projectan.strix.core.validation.validator.ConstantDictValueValidator;
+import cn.projectan.strix.core.validation.validator.DynamicDictValueValidator;
 import cn.projectan.strix.mapper.SystemLogMapper;
 import cn.projectan.strix.model.properties.StrixPackageScanProperties;
 import cn.projectan.strix.utils.SpringUtil;
@@ -24,6 +26,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.jcajce.provider.asymmetric.RSA;
 import org.bouncycastle.jcajce.provider.asymmetric.X509;
+import org.bouncycastle.jcajce.provider.asymmetric.edec.KeyAgreementSpi;
 import org.bouncycastle.jcajce.provider.asymmetric.rsa.KeyFactorySpi;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.springframework.aot.hint.MemberCategory;
@@ -52,6 +55,10 @@ public class StrixAOTConfig {
         public void registerHints(RuntimeHints hints, ClassLoader classLoader) {
             // 获取 Strix Package 配置
             StrixPackageScanProperties packageProperties = SpringUtil.getBean(StrixPackageScanProperties.class);
+
+            // Strix
+            hints.reflection().registerType(DynamicDictValueValidator.class, MemberCategory.values());
+            hints.reflection().registerType(ConstantDictValueValidator.class, MemberCategory.values());
 
             // HikariCP
             hints.reflection().registerType(HikariConfig.class, MemberCategory.values());
@@ -160,6 +167,7 @@ public class StrixAOTConfig {
             hints.reflection().registerType(RSA.Mappings.class, MemberCategory.values());
             hints.reflection().registerType(X509.class, MemberCategory.values());
             hints.reflection().registerType(X509.Mappings.class, MemberCategory.values());
+            hints.reflection().registerType(KeyAgreementSpi.class, MemberCategory.values());
 
             // JWT
             hints.reflection().registerType(DefaultKeyOperationPolicyBuilder.class, MemberCategory.values());

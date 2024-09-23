@@ -1,5 +1,6 @@
 package cn.projectan.strix.controller.pay;
 
+import cn.projectan.strix.controller.BaseController;
 import cn.projectan.strix.core.module.pay.StrixPayClient;
 import cn.projectan.strix.core.module.pay.StrixPayStore;
 import cn.projectan.strix.model.annotation.Anonymous;
@@ -27,7 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("pay/{configId}")
 @ConditionalOnProperty(prefix = "strix.module", name = "pay", havingValue = "true")
 @RequiredArgsConstructor
-public class PayNotifyController {
+public class PayNotifyController extends BaseController {
 
     private final PayOrderService payOrderService;
     private final StrixPayStore strixPayStore;

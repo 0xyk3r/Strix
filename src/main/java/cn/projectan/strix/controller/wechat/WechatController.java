@@ -1,6 +1,7 @@
 package cn.projectan.strix.controller.wechat;
 
 import cn.hutool.core.util.IdUtil;
+import cn.projectan.strix.controller.wechat.base.BaseWechatController;
 import cn.projectan.strix.core.exception.StrixException;
 import cn.projectan.strix.core.module.oauth.StrixOAuthStore;
 import cn.projectan.strix.core.module.oauth.WechatOAuthClient;
@@ -46,7 +47,7 @@ import java.util.Map;
 @Controller
 @RequestMapping("wechat/{configId}")
 @RequiredArgsConstructor
-public class WechatController {
+public class WechatController extends BaseWechatController {
 
     @Value("${spring.profiles.active}")
     private String env;
