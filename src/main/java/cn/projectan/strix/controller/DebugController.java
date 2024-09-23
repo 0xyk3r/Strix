@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("debug")
 @ConditionalOnProperty(prefix = "spring.profiles", name = "active", havingValue = "dev")
 @RequiredArgsConstructor
-public class DebugController {
+public class DebugController extends BaseController {
 
     private final SystemManagerService systemManagerService;
     private final ObjectMapper objectMapper;

@@ -87,6 +87,9 @@ public class I18nUtil {
     }
 
     public static Locale convertLocale(String locale) {
+        if (!StringUtils.hasText(locale)) {
+            return convertLocale(defaultLocale);
+        }
         try {
             String[] split = locale.split("_");
             return new Locale.Builder()

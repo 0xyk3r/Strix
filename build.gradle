@@ -2,11 +2,11 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.3.3'
     id 'io.spring.dependency-management' version '1.1.6'
-    id 'org.graalvm.buildtools.native' version '0.10.2'
+    id 'org.graalvm.buildtools.native' version '0.10.3'
 }
 
 group = 'cn.projectan'
-version = '2.4.0'
+version = '2.4.1'
 description = 'Strix'
 
 java {
@@ -105,57 +105,72 @@ dependencies {
     }
 
     // GraalVM
-    compileOnly 'org.graalvm.sdk:graal-sdk:24.0.1'
+    compileOnly 'org.graalvm.sdk:graal-sdk:24.0.2'
 }
 
 test {
     useJUnitPlatform()
 }
 
-// 仅在构建时执行 AOT 编译
-tasks.matching { task ->
-    task.name.toLowerCase().contains('aot')
-}.configureEach { task ->
-    task.onlyIf { gradle.taskGraph.hasTask(':build') || gradle.taskGraph.hasTask(':assemble') }
+// 直接运行时, 跳过 AOT 编译
+gradle.taskGraph.whenReady { taskGraph ->
+    if (taskGraph.hasTask(':cn.projectan.strix.StrixApplication.main()')) {
+        taskGraph.allTasks.each { task ->
+            if (task.name.toLowerCase().contains('aot')) {
+                task.enabled = false
+                println "[Strix] 当前非构建任务, 已跳过任务链 ${task.path}"
+            }
+        }
+    }
 }
+
+def nativeImageBuildArgs = [
+        '-H:+AddAllCharsets',
+        '--enable-url-protocols=http',
+        '--enable-url-protocols=https',
+        '--features=cn.projectan.strix.aot.LambdaRegistrationFeature',
+        '--features=cn.projectan.strix.aot.BouncyCastleFeature',
+        '--initialize-at-build-time=cn.hutool.core.util.CharsetUtil',
+        '--initialize-at-build-time=cn.hutool.core.convert.BasicType',
+        '--initialize-at-build-time=cn.hutool.core.util.ClassLoaderUtil',
+        '--initialize-at-run-time=sun.net.dns.ResolverConfigurationImpl',
+        '--initialize-at-run-time=org.bouncycastle.crypto.prng.SP800SecureRandom',
+        '--initialize-at-run-time=org.bouncycastle.jcajce.provider.drbg.DRBG$Default',
+        '--initialize-at-run-time=org.bouncycastle.jcajce.provider.drbg.DRBG$NonceAndIV',
+        '-H:IncludeResources="logback.xml"',
+//        '-H:IncludeResources=".*/?.*properties$"',
+//        '-H:IncludeResources=".*/?.*xml$"',
+//        '-H:IncludeResources=".*/?.*json$"',
+//        '-H:IncludeResources=".*/?.*xdb$"',
+//        '-H:IncludeResources=".*/?.*types$"',
+//        '-H:IncludeResources=".*/?.*png$"',
+//        '-H:IncludeResources=".*/?.*jpg$"',
+//        '-H:IncludeResources=".*/?.*jpeg$"'
+]
 
 tasks.named('bootBuildImage') {
     imageName = 'projectan.cn/strix:latest'
     builder = "paketobuildpacks/builder-jammy-base:latest"
-    environment = [
-            'BP_NATIVE_IMAGE'                : 'true',
-            'BP_NATIVE_IMAGE_BUILD_ARGUMENTS': '-H:+AddAllCharsets --enable-url-protocols=http --enable-url-protocols=https --features=cn.projectan.strix.aot.LambdaRegistrationFeature --features=cn.projectan.strix.aot.BouncyCastleFeature --initialize-at-run-time=sun.net.dns.ResolverConfigurationImpl --rerun-class-initialization-at-runtime=org.bouncycastle.crypto.prng.SP800SecureRandom --rerun-class-initialization-at-runtime=org.bouncycastle.jcajce.provider.drbg.DRBG$Default --rerun-class-initialization-at-runtime=org.bouncycastle.jcajce.provider.drbg.DRBG$NonceAndIV -H:IncludeResources=".*/?.*properties$" -H:IncludeResources=".*/?.*xml$" -H:IncludeResources=".*/?.*json$" -H:IncludeResources=".*/?.*xdb$" -H:IncludeResources=".*/?.*types$" -H:IncludeResources=".*/?.*png$" -H:IncludeResources=".*/?.*jpg$" -H:IncludeResources=".*/?.*jpeg$"',
-    ]
     buildpacks = ["gcr.io/paketo-buildpacks/java-native-image:latest"]
     docker {
         host = 'tcp://192.168.31.188:2375'
         tlsVerify = false
     }
+    environment = [
+            'BP_NATIVE_IMAGE'                : 'true',
+            'BP_NATIVE_IMAGE_BUILD_ARGUMENTS': nativeImageBuildArgs.join(' ')
+//            'BP_NATIVE_IMAGE_BUILD_ARGUMENTS': '-H:+AddAllCharsets --enable-url-protocols=http --enable-url-protocols=https --features=cn.projectan.strix.aot.LambdaRegistrationFeature --features=cn.projectan.strix.aot.BouncyCastleFeature  --initialize-at-build-time=cn.hutool.core.util.CharsetUtil --initialize-at-build-time=cn.hutool.core.convert.BasicType --initialize-at-build-time=cn.hutool.core.util.ClassLoaderUtil --initialize-at-run-time=sun.net.dns.ResolverConfigurationImpl --rerun-class-initialization-at-runtime=org.bouncycastle.crypto.prng.SP800SecureRandom --rerun-class-initialization-at-runtime=org.bouncycastle.jcajce.provider.drbg.DRBG$Default --rerun-class-initialization-at-runtime=org.bouncycastle.jcajce.provider.drbg.DRBG$NonceAndIV -H:IncludeResources=".*/?.*properties$" -H:IncludeResources=".*/?.*xml$" -H:IncludeResources=".*/?.*json$" -H:IncludeResources=".*/?.*xdb$" -H:IncludeResources=".*/?.*types$" -H:IncludeResources=".*/?.*png$" -H:IncludeResources=".*/?.*jpg$" -H:IncludeResources=".*/?.*jpeg$"',
+    ]
 }
 
 graalvmNative {
     binaries {
         main {
-            buildArgs.add('--verbose')
+//            buildArgs.add('--verbose')
             buildArgs.add('--no-fallback')
+//            buildArgs.add('-H:Log=registerResource:1')
             buildArgs.add('-H:+UnlockExperimentalVMOptions')
-            buildArgs.add('-H:+AddAllCharsets')
-            buildArgs.add('--enable-url-protocols=http')
-            buildArgs.add('--enable-url-protocols=https')
-            buildArgs.add('--features=cn.projectan.strix.aot.LambdaRegistrationFeature')
-            buildArgs.add('--features=cn.projectan.strix.aot.BouncyCastleFeature')
-            buildArgs.add('--initialize-at-run-time=sun.net.dns.ResolverConfigurationImpl')
-            buildArgs.add('--rerun-class-initialization-at-runtime=org.bouncycastle.crypto.prng.SP800SecureRandom')
-            buildArgs.add('--rerun-class-initialization-at-runtime=org.bouncycastle.jcajce.provider.drbg.DRBG$Default')
-            buildArgs.add('--rerun-class-initialization-at-runtime=org.bouncycastle.jcajce.provider.drbg.DRBG$NonceAndIV')
-            buildArgs.add('-H:IncludeResources=".*/?.*properties$"')
-            buildArgs.add('-H:IncludeResources=".*/?.*xml$"')
-            buildArgs.add('-H:IncludeResources=".*/?.*json$"')
-            buildArgs.add('-H:IncludeResources=".*/?.*xdb$"')
-            buildArgs.add('-H:IncludeResources=".*/?.*types$"')
-            buildArgs.add('-H:IncludeResources=".*/?.*png$"')
-            buildArgs.add('-H:IncludeResources=".*/?.*jpg$"')
-            buildArgs.add('-H:IncludeResources=".*/?.*jpeg$"')
+            buildArgs.addAll(nativeImageBuildArgs)
         }
     }
 }

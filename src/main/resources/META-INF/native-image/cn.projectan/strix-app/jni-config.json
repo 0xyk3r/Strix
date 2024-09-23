@@ -381,6 +381,14 @@
     ]
   },
   {
+    "name": "java.lang.SecurityManager",
+    "fields": [
+      {
+        "name": "initialized"
+      }
+    ]
+  },
+  {
     "name": "java.util.Arrays",
     "methods": [
       {

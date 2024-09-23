@@ -179,22 +179,7 @@
   },
   {
     "interfaces": [
-      "cn.projectan.strix.mapper.WorkflowInvokeMapper"
-    ]
-  },
-  {
-    "interfaces": [
-      "cn.projectan.strix.mapper.WorkflowParamMapper"
-    ]
-  },
-  {
-    "interfaces": [
-      "cn.projectan.strix.mapper.WorkflowStepMapper"
-    ]
-  },
-  {
-    "interfaces": [
-      "cn.projectan.strix.mapper.WorkflowStepRouteMapper"
+      "cn.projectan.strix.mapper.WorkflowMapper"
     ]
   },
   {

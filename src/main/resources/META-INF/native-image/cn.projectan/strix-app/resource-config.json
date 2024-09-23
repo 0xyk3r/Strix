@@ -83,6 +83,9 @@
         "pattern": "\\QMETA-INF/services/javax.xml.parsers.SAXParserFactory\\E"
       },
       {
+        "pattern": "\\QMETA-INF/services/javax.xml.transform.TransformerFactory\\E"
+      },
+      {
         "pattern": "\\QMETA-INF/services/javax.xml.xpath.XPathFactory\\E"
       },
       {
@@ -236,6 +239,9 @@
         "pattern": "\\Qcn/projectan/strix/config/CorsConfig.class\\E"
       },
       {
+        "pattern": "\\Qcn/projectan/strix/config/JacksonConfig$$Lambda/0x00000195999069a0.class\\E"
+      },
+      {
         "pattern": "\\Qcn/projectan/strix/config/JacksonConfig$$Lambda/0x000001ed988be1a8.class\\E"
       },
       {
@@ -278,19 +284,22 @@
         "pattern": "\\Qcn/projectan/strix/config/StrixLocaleResolver.class\\E"
       },
       {
-        "pattern": "\\Qcn/projectan/strix/config/converter/StrixStringToLocalDateConverter$$SpringCGLIB$$0.class\\E"
+        "pattern": "\\Qcn/projectan/strix/config/converter/StringToLocalDateConverter$$SpringCGLIB$$0.class\\E"
       },
       {
-        "pattern": "\\Qcn/projectan/strix/config/converter/StrixStringToLocalDateConverter.class\\E"
+        "pattern": "\\Qcn/projectan/strix/config/converter/StringToLocalDateConverter.class\\E"
       },
       {
-        "pattern": "\\Qcn/projectan/strix/config/converter/StrixStringToLocalDateTimeConverter$$SpringCGLIB$$0.class\\E"
+        "pattern": "\\Qcn/projectan/strix/config/converter/StringToLocalDateTimeConverter$$SpringCGLIB$$0.class\\E"
       },
       {
-        "pattern": "\\Qcn/projectan/strix/config/converter/StrixStringToLocalDateTimeConverter.class\\E"
+        "pattern": "\\Qcn/projectan/strix/config/converter/StringToLocalDateTimeConverter.class\\E"
       },
       {
         "pattern": "\\Qcn/projectan/strix/controller/BaseController.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/controller/DebugController.class\\E"
       },
       {
         "pattern": "\\Qcn/projectan/strix/controller/api/base/BaseApiController.class\\E"
@@ -341,6 +350,9 @@
         "pattern": "\\Qcn/projectan/strix/controller/system/common/FileController.class\\E"
       },
       {
+        "pattern": "\\Qcn/projectan/strix/controller/system/common/TempUrlController.class\\E"
+      },
+      {
         "pattern": "\\Qcn/projectan/strix/controller/system/module/job/JobController.class\\E"
       },
       {
@@ -354,6 +366,9 @@
       },
       {
         "pattern": "\\Qcn/projectan/strix/controller/system/module/sms/SmsController.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/controller/system/module/workflow/WorkflowController.class\\E"
       },
       {
         "pattern": "\\Qcn/projectan/strix/controller/system/monitor/CacheController.class\\E"
@@ -509,6 +524,9 @@
         "pattern": "\\Qcn/projectan/strix/core/threadpool/StrixLogThreadPoolConfig.class\\E"
       },
       {
+        "pattern": "\\Qcn/projectan/strix/core/validation/validator/DynamicDictValueValidator.class\\E"
+      },
+      {
         "pattern": "\\Qcn/projectan/strix/initialize/DictSyncInit.class\\E"
       },
       {
@@ -534,6 +552,33 @@
       },
       {
         "pattern": "\\Qcn/projectan/strix/initialize/StrixSmsInit.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/initializer/DictSyncInitializer.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/initializer/OtherInitializer.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/initializer/SecurityRuleInitializer.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/initializer/StrixBannerInitializer.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/initializer/StrixJobInitializer.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/initializer/StrixOAuthInitializer.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/initializer/StrixOssInitializer.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/initializer/StrixPayInitializer.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/initializer/StrixSmsInitializer.class\\E"
       },
       {
         "pattern": "\\Qcn/projectan/strix/job/PopularityJob.class\\E"
@@ -633,6 +678,9 @@
       },
       {
         "pattern": "\\Qcn/projectan/strix/model/dict/SystemManagerType.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/model/dict/SystemRoleRegionPermissionType.class\\E"
       },
       {
         "pattern": "\\Qcn/projectan/strix/model/dict/SystemUserStatus.class\\E"
@@ -797,6 +845,9 @@
         "pattern": "\\Qcn/projectan/strix/service/WorkflowParamService.class\\E"
       },
       {
+        "pattern": "\\Qcn/projectan/strix/service/WorkflowService.class\\E"
+      },
+      {
         "pattern": "\\Qcn/projectan/strix/service/WorkflowStepRouteService.class\\E"
       },
       {
@@ -911,6 +962,9 @@
         "pattern": "\\Qcn/projectan/strix/service/impl/WorkflowParamServiceImpl.class\\E"
       },
       {
+        "pattern": "\\Qcn/projectan/strix/service/impl/WorkflowServiceImpl.class\\E"
+      },
+      {
         "pattern": "\\Qcn/projectan/strix/service/impl/WorkflowStepRouteServiceImpl.class\\E"
       },
       {
@@ -960,6 +1014,9 @@
       },
       {
         "pattern": "\\Qcn/projectan/strix/utils/job/AbstractQuartzJob.class\\E"
+      },
+      {
+        "pattern": "\\Qcn/projectan/strix/utils/tempurl/TempUrlUtil.class\\E"
       },
       {
         "pattern": "\\Qcom/alibaba/druid/spring/boot/autoconfigure$DruidDataSourceAutoConfigure.class\\E"
@@ -1059,6 +1116,9 @@
       },
       {
         "pattern": "\\Qcom/baomidou/mybatisplus/autoconfigure/DdlApplicationRunner.class\\E"
+      },
+      {
+        "pattern": "\\Qcom/baomidou/mybatisplus/autoconfigure/DdlAutoConfiguration.class\\E"
       },
       {
         "pattern": "\\Qcom/baomidou/mybatisplus/autoconfigure/MybatisPlusAutoConfiguration$AutoConfiguredMapperScannerRegistrar.class\\E"
@@ -1238,6 +1298,18 @@
         "pattern": "\\Qi18n/strix.properties\\E"
       },
       {
+        "pattern": "\\Qi18n/strix_zh.properties\\E"
+      },
+      {
+        "pattern": "\\Qi18n/strix_zh.xml\\E"
+      },
+      {
+        "pattern": "\\Qi18n/strix_zh_CN.properties\\E"
+      },
+      {
+        "pattern": "\\Qi18n/strix_en_US.properties\\E"
+      },
+      {
         "pattern": "\\Qio/lettuce/core/metrics/MicrometerOptions.class\\E"
       },
       {
@@ -1343,6 +1415,9 @@
         "pattern": "\\Qjava/lang/Object.class\\E"
       },
       {
+        "pattern": "\\Qjava/lang/Record.class\\E"
+      },
+      {
         "pattern": "\\Qjava/lang/reflect/Proxy.class\\E"
       },
       {
@@ -1373,6 +1448,9 @@
         "pattern": "\\Qjdk/proxy2/$Proxy123.class\\E"
       },
       {
+        "pattern": "\\Qjdk/proxy2/$Proxy125.class\\E"
+      },
+      {
         "pattern": "\\Qjdk/proxy2/$Proxy127.class\\E"
       },
       {
@@ -1385,7 +1463,16 @@
         "pattern": "\\Qjdk/proxy2/$Proxy130.class\\E"
       },
       {
+        "pattern": "\\Qjdk/proxy2/$Proxy131.class\\E"
+      },
+      {
+        "pattern": "\\Qjdk/proxy2/$Proxy132.class\\E"
+      },
+      {
         "pattern": "\\Qjdk/proxy2/$Proxy133.class\\E"
+      },
+      {
+        "pattern": "\\Qjdk/proxy2/$Proxy134.class\\E"
       },
       {
         "pattern": "\\Qjdk/proxy2/$Proxy135.class\\E"
@@ -1412,6 +1499,9 @@
         "pattern": "\\Qjdk/proxy2/$Proxy142.class\\E"
       },
       {
+        "pattern": "\\Qjdk/proxy2/$Proxy143.class\\E"
+      },
+      {
         "pattern": "\\Qjdk/proxy2/$Proxy145.class\\E"
       },
       {
@@ -1433,7 +1523,19 @@
         "pattern": "\\Qjdk/proxy2/$Proxy152.class\\E"
       },
       {
+        "pattern": "\\Qjdk/proxy2/$Proxy154.class\\E"
+      },
+      {
         "pattern": "\\Qjdk/proxy2/$Proxy155.class\\E"
+      },
+      {
+        "pattern": "\\Qjdk/proxy2/$Proxy157.class\\E"
+      },
+      {
+        "pattern": "\\Qjdk/proxy2/$Proxy158.class\\E"
+      },
+      {
+        "pattern": "\\Qjdk/proxy2/$Proxy159.class\\E"
       },
       {
         "pattern": "\\Qjdk/proxy2/$Proxy160.class\\E"
@@ -1452,6 +1554,18 @@
       },
       {
         "pattern": "\\Qjdk/proxy2/$Proxy167.class\\E"
+      },
+      {
+        "pattern": "\\Qjdk/proxy2/$Proxy168.class\\E"
+      },
+      {
+        "pattern": "\\Qjdk/proxy2/$Proxy169.class\\E"
+      },
+      {
+        "pattern": "\\Qjdk/proxy2/$Proxy170.class\\E"
+      },
+      {
+        "pattern": "\\Qjdk/proxy2/$Proxy172.class\\E"
       },
       {
         "pattern": "\\Qjdk/proxy2/$Proxy173.class\\E"
@@ -1476,6 +1590,9 @@
       },
       {
         "pattern": "\\Qjdk/proxy2/$Proxy180.class\\E"
+      },
+      {
+        "pattern": "\\Qjdk/proxy2/$Proxy181.class\\E"
       },
       {
         "pattern": "\\Qjdk/proxy2/$Proxy182.class\\E"
@@ -1559,6 +1676,30 @@
         "pattern": "\\Qorg/graalvm/nativeimage/hosted/Feature.class\\E"
       },
       {
+        "pattern": "\\Qorg/hibernate/validator/internal/constraintvalidators/bv/NotNullValidator.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/hibernate/validator/internal/constraintvalidators/bv/notempty/NotEmptyValidatorForCharSequence.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/hibernate/validator/internal/constraintvalidators/bv/number/bound/AbstractMaxValidator.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/hibernate/validator/internal/constraintvalidators/bv/number/bound/AbstractMinValidator.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/hibernate/validator/internal/constraintvalidators/bv/number/bound/MaxValidatorForInteger.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/hibernate/validator/internal/constraintvalidators/bv/number/bound/MinValidatorForInteger.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/hibernate/validator/internal/constraintvalidators/bv/number/bound/MinValidatorForLong.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/hibernate/validator/internal/constraintvalidators/bv/size/SizeValidatorForCharSequence.class\\E"
+      },
+      {
         "pattern": "\\Qorg/mybatis/spring/SqlSessionTemplate.class\\E"
       },
       {
@@ -1593,6 +1734,9 @@
       },
       {
         "pattern": "\\Qorg/springframework/aop/aspectj/annotation/AnnotationAwareAspectJAutoProxyCreator.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/aop/framework/AopInfrastructureBean.class\\E"
       },
       {
         "pattern": "\\Qorg/springframework/aot/hint/RuntimeHintsRegistrar.class\\E"
@@ -1649,6 +1793,9 @@
         "pattern": "\\Qorg/springframework/boot/ApplicationRunner.class\\E"
       },
       {
+        "pattern": "\\Qorg/springframework/boot/LazyInitializationExcludeFilter$$Lambda/0x0000019599aa8218.class\\E"
+      },
+      {
         "pattern": "\\Qorg/springframework/boot/LazyInitializationExcludeFilter$$Lambda/0x000001ed98a9fbf0.class\\E"
       },
       {
@@ -1701,6 +1848,9 @@
       },
       {
         "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/endpoint/expose/IncludeExcludeEndpointFilter.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/endpoint/jackson/JacksonEndpointAutoConfiguration$$Lambda/0x00000195999afd70.class\\E"
       },
       {
         "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/endpoint/jackson/JacksonEndpointAutoConfiguration$$Lambda/0x000001ed9899faa0.class\\E"
@@ -1970,6 +2120,9 @@
         "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/metrics/jdbc/DataSourcePoolMetricsAutoConfiguration.class\\E"
       },
       {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/metrics/redis/LettuceMetricsAutoConfiguration$$Lambda/0x0000019599a7c800.class\\E"
+      },
+      {
         "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/metrics/redis/LettuceMetricsAutoConfiguration$$Lambda/0x000001ed98a76d48.class\\E"
       },
       {
@@ -2043,6 +2196,9 @@
       },
       {
         "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/quartz/QuartzEndpointAutoConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/sbom/SbomEndpointAutoConfiguration.class\\E"
       },
       {
         "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/scheduling/ScheduledTasksEndpointAutoConfiguration.class\\E"
@@ -2130,6 +2286,9 @@
       },
       {
         "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/web/servlet/ServletManagementChildContextConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/web/servlet/ServletManagementContextAutoConfiguration$$Lambda/0x0000019599a973f8.class\\E"
       },
       {
         "pattern": "\\Qorg/springframework/boot/actuate/autoconfigure/web/servlet/ServletManagementContextAutoConfiguration$$Lambda/0x000001ed98a8c8f0.class\\E"
@@ -2441,6 +2600,12 @@
         "pattern": "\\Qorg/springframework/boot/autoconfigure/data/redis/RedisRepositoriesRegistrar.class\\E"
       },
       {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/data/web/SpringDataWebAutoConfiguration$$Lambda/0x0000019599a62c90.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/data/web/SpringDataWebAutoConfiguration$$Lambda/0x0000019599a639f0.class\\E"
+      },
+      {
         "pattern": "\\Qorg/springframework/boot/autoconfigure/data/web/SpringDataWebAutoConfiguration$$Lambda/0x000001ed98a5a308.class\\E"
       },
       {
@@ -2631,6 +2796,9 @@
       },
       {
         "pattern": "\\Qorg/springframework/boot/autoconfigure/jdbc/metadata/DataSourcePoolMetadataProvidersConfiguration$CommonsDbcp2PoolDataSourceMetadataProviderConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/boot/autoconfigure/jdbc/metadata/DataSourcePoolMetadataProvidersConfiguration$HikariPoolDataSourceMetadataProviderConfiguration$$Lambda/0x0000019599a2fca0.class\\E"
       },
       {
         "pattern": "\\Qorg/springframework/boot/autoconfigure/jdbc/metadata/DataSourcePoolMetadataProvidersConfiguration$HikariPoolDataSourceMetadataProviderConfiguration$$Lambda/0x000001ed98a22a30.class\\E"
@@ -3407,6 +3575,9 @@
         "pattern": "\\Qorg/springframework/data/web/config/EnableSpringDataWebSupport$SpringDataWebConfigurationImportSelector.class\\E"
       },
       {
+        "pattern": "\\Qorg/springframework/data/web/config/EnableSpringDataWebSupport$SpringDataWebSettingsRegistar.class\\E"
+      },
+      {
         "pattern": "\\Qorg/springframework/data/web/config/EnableSpringDataWebSupport.class\\E"
       },
       {
@@ -3426,6 +3597,9 @@
       },
       {
         "pattern": "\\Qorg/springframework/data/web/config/SpringDataWebConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/data/web/config/SpringDataWebSettings.class\\E"
       },
       {
         "pattern": "\\Qorg/springframework/format/support/DefaultFormattingConversionService.class\\E"
@@ -3539,6 +3713,9 @@
         "pattern": "\\Qorg/springframework/security/authorization/AuthorizationManager.class\\E"
       },
       {
+        "pattern": "\\Qorg/springframework/security/authorization/method/AuthorizationAdvisorProxyFactory.class\\E"
+      },
+      {
         "pattern": "\\Qorg/springframework/security/config/annotation/AbstractConfiguredSecurityBuilder.class\\E"
       },
       {
@@ -3579,6 +3756,9 @@
       },
       {
         "pattern": "\\Qorg/springframework/security/config/annotation/configuration/ObjectPostProcessorConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/security/config/annotation/method/configuration/AuthorizationProxyConfiguration.class\\E"
       },
       {
         "pattern": "\\Qorg/springframework/security/config/annotation/method/configuration/EnableMethodSecurity.class\\E"
@@ -3657,6 +3837,9 @@
       },
       {
         "pattern": "\\Qorg/springframework/security/crypto/password/PasswordEncoder.class\\E"
+      },
+      {
+        "pattern": "\\Qorg/springframework/security/provisioning/InMemoryUserDetailsManager.class\\E"
       },
       {
         "pattern": "\\Qorg/springframework/security/web/AuthenticationEntryPoint.class\\E"
@@ -3896,6 +4079,9 @@
         "pattern": "\\Qorg/springframework/web/servlet/handler/HandlerExceptionResolverComposite.class\\E"
       },
       {
+        "pattern": "\\Qorg/springframework/web/servlet/handler/HandlerMappingIntrospector$$Lambda/0x0000019599a56b10.class\\E"
+      },
+      {
         "pattern": "\\Qorg/springframework/web/servlet/handler/HandlerMappingIntrospector$$Lambda/0x000001ed98a4b0c0.class\\E"
       },
       {
@@ -4007,6 +4193,9 @@
         "pattern": "java.base:\\Qjava/lang/Object.class\\E"
       },
       {
+        "pattern": "java.base:\\Qjava/lang/Record.class\\E"
+      },
+      {
         "pattern": "java.base:\\Qjava/lang/reflect/Proxy.class\\E"
       },
       {
@@ -4048,11 +4237,20 @@
     {
       "name": "com.mysql.cj.LocalizedErrorMessages",
       "locales": [
-        ""
+        "",
+        "und"
       ]
     },
     {
       "name": "common",
+      "locales": [
+        "",
+        "und",
+        "zh-CN"
+      ]
+    },
+    {
+      "name": "i18n/strix",
       "locales": [
         "",
         "zh-CN"
@@ -4061,205 +4259,246 @@
     {
       "name": "jakarta.servlet.LocalStrings",
       "locales": [
-        ""
+        "",
+        "und"
       ]
     },
     {
       "name": "jakarta.servlet.http.LocalStrings",
       "locales": [
-        ""
+        "",
+        "und"
       ]
     },
     {
       "name": "org.apache.catalina.authenticator.LocalStrings",
       "locales": [
-        ""
+        "",
+        "und"
       ]
     },
     {
       "name": "org.apache.catalina.authenticator.jaspic.LocalStrings",
       "locales": [
-        ""
+        "",
+        "und"
       ]
     },
     {
       "name": "org.apache.catalina.connector.LocalStrings",
       "locales": [
-        ""
+        "",
+        "und"
       ]
     },
     {
       "name": "org.apache.catalina.core.LocalStrings",
       "locales": [
-        ""
+        "",
+        "und"
       ]
     },
     {
       "name": "org.apache.catalina.deploy.LocalStrings",
       "locales": [
-        ""
+        "",
+        "und"
       ]
     },
     {
       "name": "org.apache.catalina.loader.LocalStrings",
       "locales": [
-        ""
+        "",
+        "und"
       ]
     },
     {
       "name": "org.apache.catalina.mapper.LocalStrings",
       "locales": [
-        ""
+        "",
+        "und"
       ]
     },
     {
       "name": "org.apache.catalina.mbeans.LocalStrings",
       "locales": [
-        ""
+        "",
+        "und"
       ]
     },
     {
       "name": "org.apache.catalina.realm.LocalStrings",
       "locales": [
-        ""
+        "",
+        "und"
       ]
     },
     {
       "name": "org.apache.catalina.security.LocalStrings",
       "locales": [
-        ""
+        "",
+        "und"
       ]
     },
     {
       "name": "org.apache.catalina.session.LocalStrings",
       "locales": [
-        ""
+        "",
+        "und"
       ]
     },
     {
       "name": "org.apache.catalina.startup.LocalStrings",
       "locales": [
-        ""
+        "",
+        "und"
       ]
     },
     {
       "name": "org.apache.catalina.util.LocalStrings",
       "locales": [
-        ""
+        "",
+        "und"
       ]
     },
     {
       "name": "org.apache.catalina.valves.LocalStrings",
       "locales": [
-        ""
+        "",
+        "und"
       ]
     },
     {
       "name": "org.apache.catalina.webresources.LocalStrings",
       "locales": [
-        ""
+        "",
+        "und"
       ]
     },
     {
       "name": "org.apache.coyote.LocalStrings",
       "locales": [
-        ""
+        "",
+        "und"
       ]
     },
     {
       "name": "org.apache.coyote.http11.LocalStrings",
       "locales": [
-        ""
+        "",
+        "und"
       ]
     },
     {
       "name": "org.apache.coyote.http11.filters.LocalStrings",
       "locales": [
-        ""
+        "",
+        "und"
       ]
     },
     {
       "name": "org.apache.naming.LocalStrings",
       "locales": [
-        ""
+        "",
+        "und"
       ]
     },
     {
       "name": "org.apache.tomcat.util.LocalStrings",
       "locales": [
-        ""
+        "",
+        "und"
       ]
     },
     {
       "name": "org.apache.tomcat.util.buf.LocalStrings",
       "locales": [
-        ""
+        "",
+        "und"
       ]
     },
     {
       "name": "org.apache.tomcat.util.compat.LocalStrings",
       "locales": [
-        ""
+        "",
+        "und"
       ]
     },
     {
       "name": "org.apache.tomcat.util.descriptor.web.LocalStrings",
       "locales": [
-        ""
+        "",
+        "und"
       ]
     },
     {
       "name": "org.apache.tomcat.util.http.LocalStrings",
       "locales": [
-        ""
+        "",
+        "und"
       ]
     },
     {
       "name": "org.apache.tomcat.util.http.parser.LocalStrings",
       "locales": [
-        ""
+        "",
+        "und"
       ]
     },
     {
       "name": "org.apache.tomcat.util.modeler.LocalStrings",
       "locales": [
-        ""
+        "",
+        "und"
       ]
     },
     {
       "name": "org.apache.tomcat.util.net.LocalStrings",
       "locales": [
-        ""
+        "",
+        "und"
       ]
     },
     {
       "name": "org.apache.tomcat.util.scan.LocalStrings",
       "locales": [
-        ""
+        "",
+        "und"
       ]
     },
     {
       "name": "org.apache.tomcat.util.threads.LocalStrings",
       "locales": [
-        ""
+        "",
+        "und"
       ]
     },
     {
       "name": "org.apache.tomcat.websocket.LocalStrings",
       "locales": [
-        ""
+        "",
+        "und"
       ]
     },
     {
       "name": "org.apache.tomcat.websocket.server.LocalStrings",
       "locales": [
-        ""
+        "",
+        "und"
+      ]
+    },
+    {
+      "name": "org.springframework.security.messages",
+      "locales": [
+        "",
+        "zh-CN"
       ]
     },
     {
       "name": "oss",
       "locales": [
         "",
+        "und",
         "zh-CN"
       ]
     },
