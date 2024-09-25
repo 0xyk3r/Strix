@@ -34,6 +34,7 @@ public class UniqueDetectionTool {
      * @param obj 需要检查的对象，需为数据库bean
      * @param <T> 对象类型
      */
+    @SuppressWarnings("unchecked")
     public static <T> void check(T obj) {
         try {
             Class<?> clazz = obj.getClass();

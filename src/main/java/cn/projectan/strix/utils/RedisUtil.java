@@ -141,7 +141,6 @@ public class RedisUtil {
      *
      * @param key   键
      * @param value 值
-     * @return 是否设置成功
      */
     public void set(String key, Object value) {
         Assert.hasText(key, "key 不能为空");
@@ -155,7 +154,6 @@ public class RedisUtil {
      * @param key   键
      * @param value 值
      * @param time  时间(秒) time要大于0 如果time小于等于0 将设置无限期
-     * @return 是否设置成功
      */
     public void set(String key, Object value, long time) {
         set(key, value, time, TimeUnit.SECONDS);
@@ -168,7 +166,6 @@ public class RedisUtil {
      * @param value    值
      * @param time     时间
      * @param timeUnit 时间单位
-     * @return 是否设置成功
      */
     public void set(String key, Object value, long time, TimeUnit timeUnit) {
         Assert.hasText(key, "key 不能为空");

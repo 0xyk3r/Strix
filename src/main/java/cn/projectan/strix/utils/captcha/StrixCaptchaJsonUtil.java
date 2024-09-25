@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 
 /**
@@ -45,6 +46,7 @@ public class StrixCaptchaJsonUtil {
         return null;
     }
 
+    @SuppressWarnings("unchecked")
     public static String toJSONString(Object object) {
         if (object == null) {
             return "{}";
@@ -54,12 +56,12 @@ public class StrixCaptchaJsonUtil {
         }
         if (object instanceof List) {
             List<CaptchaPointVO> list = (List<CaptchaPointVO>) object;
-            StringBuilder buf = new StringBuilder("[");
-            list.forEach(t -> buf.append(t.toJsonString()).append(","));
-            return buf.deleteCharAt(buf.lastIndexOf(",")).append("]").toString();
+            return "[" + list.stream()
+                    .map(CaptchaPointVO::toJsonString)
+                    .collect(Collectors.joining(",")) + "]";
         }
         if (object instanceof Map) {
-            return ((Map) object).entrySet().toString();
+            return ((Map<?, ?>) object).entrySet().toString();
         }
         throw new UnsupportedOperationException("不支持的输入类型:"
                 + object.getClass().getSimpleName());

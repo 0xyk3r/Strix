@@ -6,7 +6,7 @@ plugins {
 }
 
 group = 'cn.projectan'
-version = '2.4.2'
+version = '2.4.3'
 description = 'Strix'
 
 java {
@@ -164,6 +164,7 @@ graalvmNative {
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
+//    options.compilerArgs << "-Xlint:unchecked"
 }
 
 tasks.withType(Javadoc).configureEach {
