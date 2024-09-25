@@ -131,6 +131,7 @@ public class TokenUtil {
      * @param token Token
      * @return Token 信息
      */
+    @SuppressWarnings("unchecked")
     public BaseTokenInfo parseToken(String token) {
         Jws<Claims> claimsJws = parseJWT(token);
         Claims claims = claimsJws.getPayload();

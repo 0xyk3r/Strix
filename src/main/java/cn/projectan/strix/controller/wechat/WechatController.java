@@ -100,7 +100,7 @@ public class WechatController extends BaseWechatController {
             oauthUserQueryWrapper.eq("app_id", oAuthUserInfo.getAppId());
             oauthUserQueryWrapper.eq("open_id", oAuthUserInfo.getOpenId());
             OauthUser oauthUser = oauthUserService.getOne(oauthUserQueryWrapper);
-            SystemUser systemUser = null;
+            SystemUser systemUser;
             if (oauthUser == null) {
                 // 如果数据库中没有 OAuth 用户信息, 则创建
                 systemUser = oauthUserService.createSystemUser(oAuthUserInfo, instance.getPlatform());

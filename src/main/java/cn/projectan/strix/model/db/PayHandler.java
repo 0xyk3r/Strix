@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
+import java.io.Serial;
+
 /**
  * <p>
  * Strix Pay 订单处理器
@@ -21,6 +23,7 @@ import lombok.experimental.Accessors;
 @TableName("sys_pay_handler")
 public class PayHandler extends BaseModel {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /**
