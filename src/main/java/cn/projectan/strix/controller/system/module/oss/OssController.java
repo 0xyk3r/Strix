@@ -25,8 +25,6 @@ import cn.projectan.strix.task.StrixOssTask;
 import cn.projectan.strix.utils.SpringUtil;
 import cn.projectan.strix.utils.UniqueDetectionTool;
 import cn.projectan.strix.utils.UpdateConditionBuilder;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
@@ -41,6 +39,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
+ * 存储配置管理
+ *
  * @author ProjectAn
  * @date 2023/5/23 11:46
  */
@@ -56,20 +56,23 @@ public class OssController extends BaseSystemController {
     private final OssFileService ossFileService;
     private final OssFileGroupService ossFileGroupService;
 
+    /**
+     * 查询存储配置列表
+     */
     @GetMapping("")
     @PreAuthorize("@ss.hasPermission('system:module:oss:config')")
     @StrixLog(operationGroup = "系统存储", operationName = "查询存储配置列表")
     public RetResult<OssConfigListResp> getList(OssConfigListReq req) {
-        QueryWrapper<OssConfig> queryWrapper = new QueryWrapper<>();
-        if (StringUtils.hasText(req.getKeyword())) {
-            queryWrapper.like("`key`", req.getKeyword())
-                    .or(q -> q.like("`name`", req.getKeyword()));
-        }
-
-        Page<OssConfig> page = ossConfigService.page(req.getPage(), queryWrapper);
+        Page<OssConfig> page = ossConfigService.lambdaQuery()
+                .like(StringUtils.hasText(req.getKeyword()), OssConfig::getKey, req.getKeyword())
+                .or(StringUtils.hasText(req.getKeyword()), q -> q.like(OssConfig::getName, req.getKeyword()))
+                .page(req.getPage());
         return RetBuilder.success(new OssConfigListResp(page.getRecords(), page.getTotal()));
     }
 
+    /**
+     * 查询存储配置信息
+     */
     @GetMapping("{id}")
     @PreAuthorize("@ss.hasPermission('system:module:oss:config')")
     @StrixLog(operationGroup = "系统存储", operationName = "查询存储配置信息")
@@ -77,10 +80,14 @@ public class OssController extends BaseSystemController {
         OssConfig ossConfig = ossConfigService.getById(id);
         Assert.notNull(ossConfig, "配置不存在");
 
-        List<OssBucket> buckets = ossBucketService.lambdaQuery().eq(OssBucket::getConfigKey, ossConfig.getKey()).list();
+        List<OssBucket> buckets = ossBucketService.lambdaQuery()
+                .eq(OssBucket::getConfigKey, ossConfig.getKey())
+                .list();
         List<OssBucketListResp.OssBucketItem> bucketItems = new OssBucketListResp(buckets, (long) buckets.size()).getBuckets();
 
-        List<OssFileGroup> fileGroups = ossFileGroupService.lambdaQuery().eq(OssFileGroup::getConfigKey, ossConfig.getKey()).list();
+        List<OssFileGroup> fileGroups = ossFileGroupService.lambdaQuery()
+                .eq(OssFileGroup::getConfigKey, ossConfig.getKey())
+                .list();
         List<OssFileGroupListResp.OssFileGroupItem> fileGroupItems = new OssFileGroupListResp(fileGroups, (long) fileGroups.size()).getFileGroups();
 
         return RetBuilder.success(
@@ -100,6 +107,9 @@ public class OssController extends BaseSystemController {
         );
     }
 
+    /**
+     * 新增存储配置
+     */
     @PostMapping("update")
     @PreAuthorize("@ss.hasPermission('system:module:oss:config:add')")
     @StrixLog(operationGroup = "系统存储", operationName = "新增存储配置", operationType = SysLogOperType.ADD)
@@ -114,8 +124,6 @@ public class OssController extends BaseSystemController {
                 req.getAccessSecret(),
                 req.getRemark()
         );
-        ossConfig.setCreateBy(loginManagerId());
-        ossConfig.setUpdateBy(loginManagerId());
 
         UniqueDetectionTool.check(ossConfig);
 
@@ -127,6 +135,9 @@ public class OssController extends BaseSystemController {
         return RetBuilder.success();
     }
 
+    /**
+     * 修改存储配置
+     */
     @PostMapping("update/{id}")
     @PreAuthorize("@ss.hasPermission('system:module:oss:config:update')")
     @StrixLog(operationGroup = "系统存储", operationName = "修改存储配置", operationType = SysLogOperType.UPDATE)
@@ -146,50 +157,54 @@ public class OssController extends BaseSystemController {
         return RetBuilder.success();
     }
 
+    /**
+     * 删除存储配置
+     */
     @PostMapping("remove/{id}")
     @PreAuthorize("@ss.hasPermission('system:module:oss:config:remove')")
     @StrixLog(operationGroup = "系统存储", operationName = "删除存储配置", operationType = SysLogOperType.DELETE)
     public RetResult<Object> remove(@PathVariable String id) {
-        Assert.hasText(id, "参数错误");
-
         OssConfig ossConfig = ossConfigService.getById(id);
         Assert.notNull(ossConfig, "原记录不存在");
         String key = ossConfig.getKey();
 
         ossConfigService.removeById(id);
 
-        // 删除 Bucket 配置   但不删除 文件组 和 文件
-        ossBucketService.remove(new LambdaQueryWrapper<>(OssBucket.class).eq(OssBucket::getConfigKey, key));
+        // 删除Bucket配置, 但不删除文件组和文件
+        ossBucketService.lambdaUpdate()
+                .eq(OssBucket::getConfigKey, key)
+                .remove();
 
         return RetBuilder.success();
     }
 
+    /**
+     * 查询存储配置下拉列表
+     */
     @GetMapping("config/select")
     public RetResult<CommonSelectDataResp> getOssConfigSelectList() {
         return RetBuilder.success(ossConfigService.getSelectData());
     }
 
+    /**
+     * 查询存储文件列表
+     */
     @GetMapping("file")
     @PreAuthorize("@ss.hasPermission('system:module:oss:file')")
     @StrixLog(operationGroup = "系统存储", operationName = "查询存储文件列表")
     public RetResult<OssFileListResp> getOssFileList(OssFileListReq req) {
-        QueryWrapper<OssFile> queryWrapper = new QueryWrapper<>();
-
-        if (StringUtils.hasText(req.getKeyword())) {
-            queryWrapper.like("name", req.getKeyword());
-        }
-        if (StringUtils.hasText(req.getConfigKey())) {
-            queryWrapper.eq("config_key", req.getConfigKey());
-        }
-        if (StringUtils.hasText(req.getGroupKey())) {
-            queryWrapper.eq("group_key", req.getGroupKey());
-        }
-
-        Page<OssFile> page = ossFileService.page(req.getPage(), queryWrapper);
+        Page<OssFile> page = ossFileService.lambdaQuery()
+                .like(StringUtils.hasText(req.getKeyword()), OssFile::getPath, req.getKeyword())
+                .eq(StringUtils.hasText(req.getConfigKey()), OssFile::getConfigKey, req.getConfigKey())
+                .eq(StringUtils.hasText(req.getGroupKey()), OssFile::getGroupKey, req.getGroupKey())
+                .page(req.getPage());
 
         return RetBuilder.success(new OssFileListResp(page.getRecords(), page.getTotal()));
     }
 
+    /**
+     * 删除存储文件
+     */
     @PostMapping("file/remove/{id}")
     @PreAuthorize("@ss.hasPermission('system:module:oss:file:remove')")
     @StrixLog(operationGroup = "系统存储", operationName = "删除存储文件", operationType = SysLogOperType.DELETE)

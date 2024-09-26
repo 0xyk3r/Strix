@@ -21,7 +21,6 @@ import cn.projectan.strix.service.WorkflowInstanceService;
 import cn.projectan.strix.service.WorkflowService;
 import cn.projectan.strix.utils.UniqueDetectionTool;
 import cn.projectan.strix.utils.UpdateConditionBuilder;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +34,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * 工作流引擎
+ * 工作流管理
  *
  * @author ProjectAn
  * @date 2024/4/24 下午12:50
@@ -50,15 +49,16 @@ public class WorkflowController extends BaseSystemController {
     private final WorkflowConfigService workflowConfigService;
     private final WorkflowInstanceService workflowInstanceService;
 
+    /**
+     * 查询工作流引擎列表
+     */
     @GetMapping("")
     @PreAuthorize("@ss.hasPermission('system:module:workflow')")
     @StrixLog(operationGroup = "工作流引擎", operationName = "查询工作流引擎列表")
     public RetResult<WorkflowListResp> list(WorkflowListReq req) {
-        LambdaQueryWrapper<Workflow> queryWrapper = new LambdaQueryWrapper<>();
-        if (StringUtils.hasText(req.getKeyword())) {
-            queryWrapper.like(Workflow::getName, req.getKeyword());
-        }
-        Page<Workflow> page = workflowService.page(req.getPage(), queryWrapper);
+        Page<Workflow> page = workflowService.lambdaQuery()
+                .like(StringUtils.hasText(req.getKeyword()), Workflow::getName, req.getKeyword())
+                .page(req.getPage());
 
         List<String> workflowIdList = page.getRecords().stream().map(Workflow::getId).toList();
         List<WorkflowConfig> workflowConfigList = workflowConfigService.lambdaQuery()
@@ -68,6 +68,9 @@ public class WorkflowController extends BaseSystemController {
         return RetBuilder.success(new WorkflowListResp(page.getRecords(), page.getTotal(), workflowConfigList));
     }
 
+    /**
+     * 查询工作流引擎信息
+     */
     @GetMapping("{id}")
     @PreAuthorize("@ss.hasPermission('system:module:workflow')")
     @StrixLog(operationGroup = "工作流引擎", operationName = "查询工作流引擎信息")
@@ -78,6 +81,9 @@ public class WorkflowController extends BaseSystemController {
         return RetBuilder.success(new WorkflowResp(workflow));
     }
 
+    /**
+     * 新增工作流引擎
+     */
     @PostMapping("update")
     @PreAuthorize("@ss.hasPermission('system:module:workflow:add')")
     @StrixLog(operationGroup = "工作流引擎", operationName = "新增工作流引擎", operationType = SysLogOperType.ADD)
@@ -91,6 +97,9 @@ public class WorkflowController extends BaseSystemController {
         return RetBuilder.success();
     }
 
+    /**
+     * 修改工作流引擎
+     */
     @PostMapping("update/{id}")
     @PreAuthorize("@ss.hasPermission('system:module:workflow:update')")
     @StrixLog(operationGroup = "工作流引擎", operationName = "修改工作流引擎", operationType = SysLogOperType.UPDATE)
@@ -105,12 +114,13 @@ public class WorkflowController extends BaseSystemController {
         return RetBuilder.success();
     }
 
+    /**
+     * 删除工作流引擎
+     */
     @PostMapping("remove/{id}")
     @PreAuthorize("@ss.hasPermission('system:module:workflow:remove')")
     @StrixLog(operationGroup = "工作流引擎", operationName = "删除工作流引擎", operationType = SysLogOperType.DELETE)
     public RetResult<Object> remove(@PathVariable String id) {
-        Assert.hasText(id, "参数错误");
-
         workflowService.removeById(id);
         // 删除关联的配置信息、实例信息等
         workflowConfigService.lambdaUpdate()
@@ -123,11 +133,17 @@ public class WorkflowController extends BaseSystemController {
         return RetBuilder.success();
     }
 
+    /**
+     * 获取工作流引擎下拉列表
+     */
     @GetMapping("select")
     public RetResult<CommonSelectDataResp> getSmsConfigSelectList() {
         return RetBuilder.success(workflowService.getSelectData());
     }
 
+    /**
+     * 获取工作流配置
+     */
     @GetMapping("config/{configId}")
     @PreAuthorize("@ss.hasPermission('system:module:workflow')")
     @StrixLog(operationGroup = "工作流引擎", operationName = "获取工作流配置")
@@ -138,6 +154,9 @@ public class WorkflowController extends BaseSystemController {
         return RetBuilder.success(workflowConfig);
     }
 
+    /**
+     * 添加工作流配置
+     */
     @PostMapping("update/{id}/config")
     @PreAuthorize("@ss.hasPermission('system:module:workflow:update')")
     @StrixLog(operationGroup = "工作流引擎", operationName = "添加工作流配置", operationType = SysLogOperType.ADD)

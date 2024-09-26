@@ -8,8 +8,6 @@ import cn.projectan.strix.model.other.module.oss.StrixOssBucket;
 import cn.projectan.strix.service.OssBucketService;
 import cn.projectan.strix.utils.KeyDiffUtil;
 import cn.projectan.strix.utils.SpringUtil;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,17 +30,21 @@ public class OssBucketServiceImpl extends ServiceImpl<OssBucketMapper, OssBucket
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void syncBucketList(String configKey, List<StrixOssBucket> bucketList) {
-        List<OssBucket> dbBucketList = this.list(new LambdaQueryWrapper<>(OssBucket.class).eq(OssBucket::getConfigKey, configKey));
+        List<OssBucket> dbBucketList = lambdaQuery()
+                .eq(OssBucket::getConfigKey, configKey)
+                .list();
 
         List<String> dbBucketNameList = dbBucketList.stream().map(OssBucket::getName).collect(Collectors.toList());
         List<String> bucketNameList = bucketList.stream().map(StrixOssBucket::getName).collect(Collectors.toList());
 
         KeyDiffUtil.handle(dbBucketNameList, bucketNameList,
                 (removeKeys) -> removeKeys.forEach(key -> {
-                    QueryWrapper<OssBucket> removeQueryWrapper = new QueryWrapper<>();
-                    removeQueryWrapper.eq("config_key", configKey);
-                    removeQueryWrapper.in("name", removeKeys);
-                    Assert.isTrue(remove(removeQueryWrapper), "Strix OSS: 同步删除存储空间失败.");
+                    Assert.isTrue(
+                            this.lambdaUpdate()
+                                    .eq(OssBucket::getConfigKey, configKey)
+                                    .in(OssBucket::getName, removeKeys)
+                                    .remove(),
+                            "Strix OSS: 同步删除存储空间失败.");
                 }),
                 (addKeys) -> {
                     List<OssBucket> ossBucketList = bucketList.stream()

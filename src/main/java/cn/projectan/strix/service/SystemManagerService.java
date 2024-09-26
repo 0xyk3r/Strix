@@ -17,6 +17,16 @@ import java.util.List;
 public interface SystemManagerService extends IService<SystemManager> {
 
     /**
+     * 根据角色ID获取人员ID列表
+     */
+    List<String> getManagerIdListByRoleId(String roleId);
+
+    /**
+     * 根据人员ID获取角色ID列表
+     */
+    List<String> getRoleIdListByManagerId(String managerId);
+
+    /**
      * 获取管理用户的所有菜单权限
      */
     List<String> getMenuKeyList(String systemManagerId);

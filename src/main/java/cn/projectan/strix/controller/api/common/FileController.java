@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
+ * 文件
+ *
  * @author ProjectAn
  * @date 2023/5/26 21:57
  */
@@ -24,6 +26,9 @@ public class FileController extends BaseApiController {
 
     private final OssFileService ossFileService;
 
+    /**
+     * 获取图片
+     */
     @Anonymous
     @GetMapping("{fileId}")
     @IgnoreDataEncryption

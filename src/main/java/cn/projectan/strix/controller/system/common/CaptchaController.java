@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * 系统管理端基础控制器
+ * 系统验证码
  *
  * @author ProjectAn
  * @date 2024/03/31 01:35:00
@@ -31,15 +31,21 @@ public class CaptchaController extends BaseSystemController {
 
     private final CaptchaService captchaService;
 
+    /**
+     * 获取验证码
+     */
     @PostMapping("get")
     public RetResult<StrixCaptchaResp> get(@RequestBody GetCaptchaReq req, HttpServletRequest request) {
-        Assert.notNull(request.getRemoteHost(), "unknown client");
+        Assert.notNull(request.getRemoteHost(), "请求无效");
         CaptchaInfoVO data = new CaptchaInfoVO();
         data.setCaptchaType(req.getCaptchaType());
         data.setBrowserInfo(getRemoteId(request));
         return captchaService.get(data).toRetResult();
     }
 
+    /**
+     * 校验验证码
+     */
     @PostMapping("check")
     public RetResult<StrixCaptchaResp> check(@RequestBody CheckCaptchaReq req, HttpServletRequest request) {
         CaptchaInfoVO data = new CaptchaInfoVO();
@@ -55,7 +61,7 @@ public class CaptchaController extends BaseSystemController {
         return captchaService.verification(data).toRetResult();
     }
 
-    public static String getRemoteId(HttpServletRequest request) {
+    private static String getRemoteId(HttpServletRequest request) {
         String xForwardedFor = request.getHeader("X-Forwarded-For");
         String ip = getRemoteIpFromXForwardedFor(xForwardedFor);
         String ua = request.getHeader("user-agent");

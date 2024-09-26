@@ -13,7 +13,6 @@ import cn.projectan.strix.service.DictDataService;
 import cn.projectan.strix.service.DictService;
 import cn.projectan.strix.utils.UniqueDetectionTool;
 import cn.projectan.strix.utils.UpdateConditionBuilder;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +22,7 @@ import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
@@ -44,26 +44,28 @@ public class DictServiceImpl extends ServiceImpl<DictMapper, Dict> implements Di
     @Override
     @Cacheable(value = "strix:dict:versionMap")
     public CommonDictVersionResp getDictVersionMapResp() {
-        List<Dict> dictList = list(new LambdaQueryWrapper<>(Dict.class)
+        List<Dict> dictList = lambdaQuery()
                 .select(Dict::getKey, Dict::getVersion)
                 .eq(Dict::getStatus, DictStatus.ENABLE)
-        );
+                .list();
         return new CommonDictVersionResp(dictList);
     }
 
     @Override
     @Cacheable(value = "strix:dict:dictResp", key = "#key")
     public CommonDictResp getDictResp(String key) {
-        Dict dict = getOne(new LambdaQueryWrapper<>(Dict.class)
+        Dict dict = lambdaQuery()
                 .eq(Dict::getKey, key)
-                .eq(Dict::getStatus, DictStatus.ENABLE));
+                .eq(Dict::getStatus, DictStatus.ENABLE)
+                .one();
 
-        List<DictData> dictDataList = dictDataService.list(new LambdaQueryWrapper<>(DictData.class)
+        List<DictData> dictDataList = dictDataService.lambdaQuery()
                 .eq(DictData::getKey, key)
                 .eq(DictData::getStatus, DictStatus.ENABLE)
-                .orderByAsc(DictData::getSort));
+                .orderByAsc(DictData::getSort)
+                .list();
 
-        if (dict == null || dictDataList == null || dictDataList.isEmpty()) {
+        if (dict == null || CollectionUtils.isEmpty(dictDataList)) {
             return null;
         }
 

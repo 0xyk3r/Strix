@@ -13,8 +13,10 @@ import cn.projectan.strix.model.other.module.pay.BasePayParam;
 import cn.projectan.strix.model.other.module.pay.BasePayResult;
 import cn.projectan.strix.service.PayHandlerService;
 import cn.projectan.strix.service.PayOrderService;
-import cn.projectan.strix.utils.*;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import cn.projectan.strix.utils.DelayedQueueUtil;
+import cn.projectan.strix.utils.SpringUtil;
+import cn.projectan.strix.utils.StrixAssert;
+import cn.projectan.strix.utils.SynchronizedUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -74,8 +76,6 @@ public class PayOrderServiceImpl extends ServiceImpl<PayOrderMapper, PayOrder> i
         payOrder.setTotalAmount(amount);
         payOrder.setTotalPayAmount(0);
         payOrder.setTotalRefundAmount(0);
-        payOrder.setCreateBy(SecurityUtils.getManagerId());
-        payOrder.setUpdateBy(SecurityUtils.getManagerId());
         Assert.isTrue(save(payOrder), "创建订单失败");
 
         delayedQueueUtil.offer(DelayedQueueConst.PAY_ORDER_EXPIRE, payOrder.getId(), expireMin, TimeUnit.MINUTES);
@@ -126,12 +126,12 @@ public class PayOrderServiceImpl extends ServiceImpl<PayOrderMapper, PayOrder> i
     public void handleExpired(String orderId) {
         Assert.hasText(orderId, "订单号为空");
         synchronizedUtil.exec("PayOrder" + orderId, () -> {
-            UpdateWrapper<PayOrder> updateWrapper = new UpdateWrapper<>();
-            updateWrapper.eq("id", orderId);
             // 只处理未支付的订单 防止处理到已支付的订单
-            updateWrapper.eq("status", PayOrderStatus.UNPAID);
-            updateWrapper.set("status", PayOrderStatus.EXPIRED);
-            this.update(updateWrapper);
+            lambdaUpdate()
+                    .eq(PayOrder::getId, orderId)
+                    .eq(PayOrder::getStatus, PayOrderStatus.UNPAID)
+                    .set(PayOrder::getStatus, PayOrderStatus.EXPIRED)
+                    .update();
         });
     }
 

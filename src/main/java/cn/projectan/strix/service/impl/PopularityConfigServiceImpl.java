@@ -3,7 +3,6 @@ package cn.projectan.strix.service.impl;
 import cn.projectan.strix.mapper.PopularityConfigMapper;
 import cn.projectan.strix.model.db.PopularityConfig;
 import cn.projectan.strix.service.PopularityConfigService;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -23,11 +22,9 @@ public class PopularityConfigServiceImpl extends ServiceImpl<PopularityConfigMap
     @Override
     @Cacheable(value = "strix:popularity:config", key = "#key")
     public PopularityConfig getCacheByKey(String key) {
-        return getBaseMapper().selectOne(
-                new LambdaQueryWrapper<>(PopularityConfig.class)
-                        .eq(PopularityConfig::getConfigKey, key)
-        );
-
+        return lambdaQuery()
+                .eq(PopularityConfig::getConfigKey, key)
+                .one();
     }
 
     @Override

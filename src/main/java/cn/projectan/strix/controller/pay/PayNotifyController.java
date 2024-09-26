@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
+ * 支付回调
+ *
  * @author ProjectAn
  * @date 2024/4/10 下午4:12
  */
@@ -33,6 +35,9 @@ public class PayNotifyController extends BaseController {
     private final PayOrderService payOrderService;
     private final StrixPayStore strixPayStore;
 
+    /**
+     * 支付回调
+     */
     @RequestMapping("notify")
     public void payNotify(@PathVariable String configId, HttpServletRequest request, HttpServletResponse response) {
         StrixPayClient client = strixPayStore.getInstance(configId);
@@ -48,7 +53,7 @@ public class PayNotifyController extends BaseController {
 
             client.respondNotify(true, response);
         } catch (Exception e) {
-            log.error("支付回调: 处理异常", e);
+            log.error("支付回调异常", e);
             client.respondNotify(false, response);
         }
     }

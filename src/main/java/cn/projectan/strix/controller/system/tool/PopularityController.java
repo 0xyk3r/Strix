@@ -31,6 +31,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
+ * 热度工具
+ *
  * @author ProjectAn
  * @date 2023/10/5 21:24
  */
@@ -43,6 +45,9 @@ public class PopularityController extends BaseSystemController {
     private final PopularityConfigService popularityConfigService;
     private final PopularityDataService popularityDataService;
 
+    /**
+     * 查询配置列表
+     */
     @GetMapping("")
     @PreAuthorize("@ss.hasPermission('system:tool:popularity')")
     @StrixLog(operationGroup = "系统工具-热度工具", operationName = "查询配置列表")
@@ -50,23 +55,24 @@ public class PopularityController extends BaseSystemController {
         List<PopularityConfig> list = popularityConfigService.lambdaQuery()
                 .select(PopularityConfig::getId, PopularityConfig::getName)
                 .list();
-        return RetBuilder.success(
-                new PopularityConfigListResp(list)
-        );
+        return RetBuilder.success(new PopularityConfigListResp(list));
     }
 
+    /**
+     * 查询配置信息
+     */
     @GetMapping("{id}")
     @PreAuthorize("@ss.hasPermission('system:tool:popularity')")
     @StrixLog(operationGroup = "系统工具-热度工具", operationName = "查询配置信息")
     public RetResult<PopularityConfigResp> info(@PathVariable String id) {
         PopularityConfig data = popularityConfigService.getById(id);
         Assert.notNull(data, "数据不存在");
-
-        return RetBuilder.success(
-                new PopularityConfigResp(data)
-        );
+        return RetBuilder.success(new PopularityConfigResp(data));
     }
 
+    /**
+     * 新增配置
+     */
     @PostMapping("update")
     @PreAuthorize("@ss.hasPermission('system:tool:popularity:add')")
     @StrixLog(operationGroup = "系统工具-热度工具", operationName = "新增配置", operationType = SysLogOperType.ADD)
@@ -83,10 +89,12 @@ public class PopularityController extends BaseSystemController {
         UniqueDetectionTool.check(popularityConfig);
 
         Assert.isTrue(popularityConfigService.save(popularityConfig), "保存失败");
-
         return RetBuilder.success();
     }
 
+    /**
+     * 修改配置
+     */
     @PostMapping("update/{id}")
     @PreAuthorize("@ss.hasPermission('system:tool:popularity:update')")
     @StrixLog(operationGroup = "系统工具-热度工具", operationName = "修改配置", operationType = SysLogOperType.UPDATE)
@@ -101,6 +109,9 @@ public class PopularityController extends BaseSystemController {
         return RetBuilder.success();
     }
 
+    /**
+     * 删除配置
+     */
     @PostMapping("remove/{id}")
     @PreAuthorize("@ss.hasPermission('system:tool:popularity:remove')")
     @StrixLog(operationGroup = "系统工具-热度工具", operationName = "删除配置", operationType = SysLogOperType.DELETE)
@@ -119,6 +130,9 @@ public class PopularityController extends BaseSystemController {
         return RetBuilder.success();
     }
 
+    /**
+     * 查询数据列表
+     */
     @GetMapping("{id}/data")
     @PreAuthorize("@ss.hasPermission('system:tool:popularity:data')")
     @StrixLog(operationGroup = "系统工具-热度工具", operationName = "查询数据列表")
@@ -129,11 +143,12 @@ public class PopularityController extends BaseSystemController {
         Page<PopularityData> list = popularityDataService.lambdaQuery()
                 .eq(PopularityData::getConfigKey, config.getConfigKey())
                 .page(req.getPage());
-        return RetBuilder.success(
-                new PopularityDataListResp(list)
-        );
+        return RetBuilder.success(new PopularityDataListResp(list));
     }
 
+    /**
+     * 修改热度数据
+     */
     @PostMapping("{id}/data/update/{dataId}")
     @PreAuthorize("@ss.hasPermission('system:tool:popularity:data')")
     @StrixLog(operationGroup = "系统工具-热度工具", operationName = "修改热度数据", operationType = SysLogOperType.UPDATE)
@@ -146,10 +161,12 @@ public class PopularityController extends BaseSystemController {
                 .eq(PopularityData::getId, dataId)
                 .set(PopularityData::getOriginalValue, req.getOriginalValue())
                 .update();
-
         return RetBuilder.success();
     }
 
+    /**
+     * 删除热度数据
+     */
     @PostMapping("{id}/data/remove/{dataId}")
     @PreAuthorize("@ss.hasPermission('system:tool:popularity:data')")
     @StrixLog(operationGroup = "系统工具-热度工具", operationName = "删除热度数据", operationType = SysLogOperType.DELETE)
@@ -161,7 +178,6 @@ public class PopularityController extends BaseSystemController {
                 .eq(PopularityData::getConfigKey, config.getConfigKey())
                 .eq(PopularityData::getId, dataId)
                 .remove();
-
         return RetBuilder.success();
     }
 

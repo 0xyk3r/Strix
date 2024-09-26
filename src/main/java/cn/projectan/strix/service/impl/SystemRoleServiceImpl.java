@@ -4,7 +4,6 @@ import cn.projectan.strix.mapper.SystemRoleMapper;
 import cn.projectan.strix.model.db.*;
 import cn.projectan.strix.model.response.common.CommonSelectDataResp;
 import cn.projectan.strix.service.*;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -54,17 +54,20 @@ public class SystemRoleServiceImpl extends ServiceImpl<SystemRoleMapper, SystemR
         if (roleId.isEmpty()) {
             return new ArrayList<>();
         }
-        QueryWrapper<SystemRoleMenu> systemRoleMenuQueryWrapper = new QueryWrapper<>();
-        systemRoleMenuQueryWrapper.select("system_menu_id");
-        systemRoleMenuQueryWrapper.in("system_role_id", roleId);
-        List<String> systemRoleMenuIds = systemRoleMenuService.listObjs(systemRoleMenuQueryWrapper, Object::toString);
+        List<String> systemRoleMenuIds = systemRoleMenuService.lambdaQuery()
+                .select(SystemRoleMenu::getSystemMenuId)
+                .in(SystemRoleMenu::getSystemRoleId, roleId)
+                .list()
+                .stream()
+                .map(SystemRoleMenu::getSystemMenuId)
+                .collect(Collectors.toList());
         if (systemRoleMenuIds.isEmpty()) {
             return new ArrayList<>();
         }
-        QueryWrapper<SystemMenu> systemMenuQueryWrapper = new QueryWrapper<>();
-        systemMenuQueryWrapper.in("id", systemRoleMenuIds);
-        systemMenuQueryWrapper.orderByAsc("sort_value");
-        return systemMenuService.list(systemMenuQueryWrapper);
+        return systemMenuService.lambdaQuery()
+                .in(SystemMenu::getId, systemRoleMenuIds)
+                .orderByAsc(SystemMenu::getSortValue)
+                .list();
     }
 
     @Cacheable(value = "strix:system:role:permission_by_rid", key = "#roleId")
@@ -81,16 +84,19 @@ public class SystemRoleServiceImpl extends ServiceImpl<SystemRoleMapper, SystemR
         if (roleId.isEmpty()) {
             return new ArrayList<>();
         }
-        QueryWrapper<SystemRolePermission> systemRolePermissionQueryWrapper = new QueryWrapper<>();
-        systemRolePermissionQueryWrapper.select("system_permission_id");
-        systemRolePermissionQueryWrapper.in("system_role_id", roleId);
-        List<String> systemPermissionIdList = systemRolePermissionService.listObjs(systemRolePermissionQueryWrapper, Object::toString);
+        List<String> systemPermissionIdList = systemRolePermissionService.lambdaQuery()
+                .select(SystemRolePermission::getSystemPermissionId)
+                .in(SystemRolePermission::getSystemRoleId, roleId)
+                .list()
+                .stream()
+                .map(SystemRolePermission::getSystemPermissionId)
+                .collect(Collectors.toList());
         if (systemPermissionIdList.isEmpty()) {
             return new ArrayList<>();
         }
-        QueryWrapper<SystemPermission> systemPermissionQueryWrapper = new QueryWrapper<>();
-        systemPermissionQueryWrapper.in("id", systemPermissionIdList);
-        return systemPermissionService.list(systemPermissionQueryWrapper);
+        return systemPermissionService.lambdaQuery()
+                .in(SystemPermission::getId, systemPermissionIdList)
+                .list();
     }
 
 }

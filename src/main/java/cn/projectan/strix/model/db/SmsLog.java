@@ -3,8 +3,11 @@ package cn.projectan.strix.model.db;
 import cn.projectan.strix.model.db.base.BaseModel;
 import cn.projectan.strix.model.dict.StrixSmsPlatform;
 import com.baomidou.mybatisplus.annotation.TableName;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 
 import java.io.Serial;
 
@@ -16,8 +19,11 @@ import java.io.Serial;
  * @author ProjectAn
  * @since 2021-08-30
  */
-@Data
-@EqualsAndHashCode(callSuper = true)
+@Getter
+@Setter
+@Accessors(chain = true)
+@NoArgsConstructor
+@AllArgsConstructor
 @TableName("sys_sms_log")
 public class SmsLog extends BaseModel {
 

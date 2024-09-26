@@ -17,9 +17,9 @@ public class ContextHolder {
         Map<String, Object> map = context.get();
         if (map == null) {
             map = new HashMap<>();
-            context.set(map);
         }
         map.put(key, value);
+        context.set(map);
     }
 
     public static Object get(String key) {

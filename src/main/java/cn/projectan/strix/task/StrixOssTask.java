@@ -43,7 +43,9 @@ public class StrixOssTask {
     @Scheduled(cron = "0 0/5 * * * ?")
     public void refreshConfig() {
         List<OssConfig> ossConfigList = ossConfigService.list();
-        List<String> ossConfigKeyList = ossConfigList.stream().map(OssConfig::getKey).collect(Collectors.toList());
+        List<String> ossConfigKeyList = ossConfigList.stream()
+                .map(OssConfig::getKey)
+                .collect(Collectors.toList());
         Set<String> instanceKeySet = strixOssStore.getInstanceKeySet();
 
         KeyDiffUtil.handle(instanceKeySet, ossConfigKeyList,

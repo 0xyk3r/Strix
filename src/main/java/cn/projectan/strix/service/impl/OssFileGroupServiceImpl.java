@@ -4,8 +4,6 @@ import cn.projectan.strix.mapper.OssFileGroupMapper;
 import cn.projectan.strix.model.db.OssFileGroup;
 import cn.projectan.strix.model.response.common.CommonSelectDataResp;
 import cn.projectan.strix.service.OssFileGroupService;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -25,7 +23,9 @@ public class OssFileGroupServiceImpl extends ServiceImpl<OssFileGroupMapper, Oss
 
     @Override
     public OssFileGroup getGroupByKey(String key) {
-        return getOne(new LambdaQueryWrapper<>(OssFileGroup.class).eq(OssFileGroup::getKey, key));
+        return lambdaQuery()
+                .eq(OssFileGroup::getKey, key)
+                .one();
     }
 
     @Override
@@ -35,11 +35,9 @@ public class OssFileGroupServiceImpl extends ServiceImpl<OssFileGroupMapper, Oss
 
     @Override
     public CommonSelectDataResp getSelectData(String configKey) {
-        QueryWrapper<OssFileGroup> queryWrapper = new QueryWrapper<>();
-        if (StringUtils.hasText(configKey)) {
-            queryWrapper.eq("config_key", configKey);
-        }
-        List<OssFileGroup> ossFileGroupList = getBaseMapper().selectList(queryWrapper);
+        List<OssFileGroup> ossFileGroupList = lambdaQuery()
+                .eq(StringUtils.hasText(configKey), OssFileGroup::getConfigKey, configKey)
+                .list();
         return new CommonSelectDataResp(ossFileGroupList, "key", "name", null);
     }
 

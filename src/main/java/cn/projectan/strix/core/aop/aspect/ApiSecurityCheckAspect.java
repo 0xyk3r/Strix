@@ -60,7 +60,8 @@ public class ApiSecurityCheckAspect {
         MethodSignature signature = (MethodSignature) pjp.getSignature();
 
         // 非加密接口直接放行
-        if (signature.getMethod().isAnnotationPresent(IgnoreDataEncryption.class) || signature.getMethod().getDeclaringClass().isAnnotationPresent(IgnoreDataEncryption.class)) {
+        if (signature.getMethod().isAnnotationPresent(IgnoreDataEncryption.class) ||
+                signature.getMethod().getDeclaringClass().isAnnotationPresent(IgnoreDataEncryption.class)) {
             return pjp.proceed();
         }
 
@@ -71,12 +72,16 @@ public class ApiSecurityCheckAspect {
         for (int i = 0; i < parameters.length; i++) {
             if (parameters[i].isAnnotationPresent(RequestBody.class)) {
                 bodyObj = pjpArgs[i];
+                break;
             }
         }
 
         // 判断请求是否已经过 DecodeRequestBodyAdvice 处理
         // 这里由于不是所有方法都经过 DecodeRequestBodyAdvice 处理，所以默认为 True
-        boolean security = Optional.ofNullable(request.getAttribute("Strix-Security")).map(String::valueOf).map(Boolean::parseBoolean).orElse(true);
+        boolean security = Optional.ofNullable(request.getAttribute("Strix-Security"))
+                .map(String::valueOf)
+                .map(Boolean::parseBoolean)
+                .orElse(true);
         if (!security) {
             return RetBuilder.error(RetCode.BAT_REQUEST, I18nUtil.getMessage("error.bad_request") + "1");
         }
@@ -97,12 +102,10 @@ public class ApiSecurityCheckAspect {
         paramsMap.put("_timestamp", timestamp);
 
         if ("GET".equalsIgnoreCase(request.getMethod())) {
-            // 处理 GET 请求
-            // 将 QueryString 中的参数放入 paramsMap
+            // GET请求 将QueryString中的参数放入paramsMap
             paramsMap.putAll(ServletUtils.getRequestParams(request));
         } else {
-            // 处理 POST 请求
-            // 将 RequestBody 中的参数放入 paramsMap
+            // POST请求 将RequestBody中的参数放入paramsMap
             Optional.ofNullable(bodyObj).ifPresent(o -> paramsMap.putAll(objectMapper.convertValue(o, new TypeReference<SortedMap<String, Object>>() {
             })));
         }

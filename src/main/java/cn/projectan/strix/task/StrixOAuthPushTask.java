@@ -5,7 +5,6 @@ import cn.projectan.strix.core.module.oauth.StrixOAuthStore;
 import cn.projectan.strix.model.db.OauthPush;
 import cn.projectan.strix.model.dict.OAuthPushStatus;
 import cn.projectan.strix.service.OauthPushService;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,9 +33,9 @@ public class StrixOAuthPushTask {
     @Scheduled(cron = "0/10 * * * * ?")
     public void sendTask() {
         try {
-            QueryWrapper<OauthPush> qw = new QueryWrapper<>();
-            qw.eq("`status`", OAuthPushStatus.WAITING);
-            List<OauthPush> pushList = oauthPushService.list(qw);
+            List<OauthPush> pushList = oauthPushService.lambdaQuery()
+                    .eq(OauthPush::getStatus, OAuthPushStatus.WAITING)
+                    .list();
 
             for (OauthPush op : pushList) {
                 StrixOAuthClient client = strixOAuthStore.getInstance(op.getConfigId());

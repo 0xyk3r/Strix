@@ -8,7 +8,6 @@ import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.model.annotation.IgnoreDataEncryption;
 import cn.projectan.strix.model.db.OssFile;
 import cn.projectan.strix.model.dict.StrixOssFileGroupSecretType;
-import cn.projectan.strix.service.OssFileGroupService;
 import cn.projectan.strix.service.OssFileService;
 import cn.projectan.strix.utils.MimeUtil;
 import jakarta.servlet.http.HttpServletResponse;
@@ -22,6 +21,8 @@ import java.io.File;
 import java.util.Map;
 
 /**
+ * 系统文件
+ *
  * @author ProjectAn
  * @date 2023/5/26 21:57
  */
@@ -32,8 +33,10 @@ import java.util.Map;
 public class FileController extends BaseSystemController {
 
     private final OssFileService ossFileService;
-    private final OssFileGroupService ossFileGroupService;
 
+    /**
+     * 获取文件
+     */
     @GetMapping("{fileId}")
     public void getFile(@PathVariable String fileId, HttpServletResponse response) throws Exception {
         OssFile ossFile = ossFileService.getById(fileId);
@@ -43,6 +46,9 @@ public class FileController extends BaseSystemController {
         response.sendRedirect(ossFileService.getUrl(fileId, StrixOssFileGroupSecretType.MANAGER, loginManagerId(), "https://oss.huiboche.cn/System/404.png"));
     }
 
+    /**
+     * 上传文件
+     */
     @PostMapping("{groupId}/upload")
     @IgnoreDataEncryption
     public RetResult<Object> uploadImage(@PathVariable String groupId, MultipartFile file) {
@@ -51,7 +57,6 @@ public class FileController extends BaseSystemController {
 
         try {
             File tempFile = File.createTempFile("temp", file.getOriginalFilename());
-//            FileUtils.copyInputStreamToFile(file.getInputStream(), tempFile);
             IoUtil.copy(file.getInputStream(), FileUtil.getOutputStream(tempFile));
 
             OssFile ossFile = ossFileService.upload(groupId, tempFile, loginManagerId());

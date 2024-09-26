@@ -15,8 +15,6 @@ import cn.projectan.strix.model.response.module.job.JobResp;
 import cn.projectan.strix.service.JobService;
 import cn.projectan.strix.utils.UniqueDetectionTool;
 import cn.projectan.strix.utils.UpdateConditionBuilder;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +26,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 /**
+ * 系统定时任务
+ *
  * @author ProjectAn
  * @date 2023/7/30 16:45
  */
@@ -40,19 +40,22 @@ public class JobController extends BaseSystemController {
 
     private final JobService jobService;
 
+    /**
+     * 查询定时任务列表
+     */
     @GetMapping("")
     @PreAuthorize("@ss.hasPermission('system:module:job')")
     @StrixLog(operationGroup = "系统定时任务", operationName = "查询定时任务列表")
     public RetResult<JobListResp> getList(JobListReq req) {
-        LambdaQueryWrapper<Job> queryWrapper = new LambdaQueryWrapper<>();
-        if (StringUtils.hasText(req.getKeyword())) {
-            queryWrapper.like(Job::getName, req.getKeyword());
-        }
-
-        Page<Job> page = jobService.page(req.getPage(), queryWrapper);
+        Page<Job> page = jobService.lambdaQuery()
+                .like(StringUtils.hasText(req.getKeyword()), Job::getName, req.getKeyword())
+                .page(req.getPage());
         return RetBuilder.success(new JobListResp(page.getRecords(), page.getTotal()));
     }
 
+    /**
+     * 查询定时任务信息
+     */
     @GetMapping("{id}")
     @PreAuthorize("@ss.hasPermission('system:module:job')")
     @StrixLog(operationGroup = "系统定时任务", operationName = "查询定时任务信息")
@@ -74,6 +77,9 @@ public class JobController extends BaseSystemController {
         );
     }
 
+    /**
+     * 新增定时任务
+     */
     @PostMapping("update")
     @PreAuthorize("@ss.hasPermission('system:module:job:add')")
     @StrixLog(operationGroup = "系统定时任务", operationName = "新增定时任务", operationType = SysLogOperType.ADD)
@@ -87,8 +93,6 @@ public class JobController extends BaseSystemController {
                 req.getConcurrent(),
                 req.getStatus()
         );
-        job.setCreateBy(loginManagerId());
-        job.setUpdateBy(loginManagerId());
 
         UniqueDetectionTool.check(job);
 
@@ -101,6 +105,9 @@ public class JobController extends BaseSystemController {
         return RetBuilder.success();
     }
 
+    /**
+     * 修改定时任务
+     */
     @PostMapping("update/{id}")
     @PreAuthorize("@ss.hasPermission('system:module:job:update')")
     @StrixLog(operationGroup = "系统定时任务", operationName = "修改定时任务", operationType = SysLogOperType.UPDATE)
@@ -108,7 +115,7 @@ public class JobController extends BaseSystemController {
         Job job = jobService.getById(id);
         Assert.notNull(job, "原记录不存在");
 
-        UpdateWrapper<Job> updateWrapper = UpdateConditionBuilder.build(job, req);
+        UpdateConditionBuilder.build(job, req);
         UniqueDetectionTool.check(job);
 
         try {
@@ -120,12 +127,13 @@ public class JobController extends BaseSystemController {
         return RetBuilder.success();
     }
 
+    /**
+     * 删除定时任务
+     */
     @PostMapping("remove/{id}")
     @PreAuthorize("@ss.hasPermission('system:module:job:remove')")
     @StrixLog(operationGroup = "系统定时任务", operationName = "删除定时任务", operationType = SysLogOperType.DELETE)
     public RetResult<Object> remove(@PathVariable String id) {
-        Assert.hasText(id, "参数错误");
-
         Job job = jobService.getById(id);
         Assert.notNull(job, "原记录不存在");
 
@@ -138,12 +146,13 @@ public class JobController extends BaseSystemController {
         return RetBuilder.success();
     }
 
+    /**
+     * 运行定时任务
+     */
     @PostMapping("run/{id}")
     @PreAuthorize("@ss.hasPermission('system:module:job:run')")
     @StrixLog(operationGroup = "系统定时任务", operationName = "运行定时任务", operationType = SysLogOperType.OTHER)
     public RetResult<Object> run(@PathVariable String id) {
-        Assert.hasText(id, "参数错误");
-
         try {
             jobService.run(id);
         } catch (Exception e) {

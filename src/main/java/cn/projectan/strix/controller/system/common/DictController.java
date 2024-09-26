@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
+ * 字典数据
+ *
  * @author ProjectAn
  * @date 2023/5/30 10:43
  */
@@ -26,14 +28,19 @@ public class DictController extends BaseSystemController {
 
     private final DictService dictService;
 
+    /**
+     * 获取字典版本列表
+     */
     @GetMapping("_version")
     public RetResult<CommonDictVersionResp> getVersionList() {
         return RetBuilder.success(dictService.getDictVersionMapResp());
     }
 
+    /**
+     * 获取字典数据
+     */
     @GetMapping("{dictKey}")
     public RetResult<CommonDictResp> getDictData(@PathVariable String dictKey) {
-        Assert.hasText(dictKey, "参数错误");
         CommonDictResp commonDictResp = dictService.getDictResp(dictKey);
         Assert.notNull(commonDictResp, "字典未找到");
 

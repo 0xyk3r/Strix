@@ -2,7 +2,9 @@ package cn.projectan.strix.model.db;
 
 import cn.projectan.strix.model.db.base.BaseModel;
 import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
@@ -19,6 +21,8 @@ import java.io.Serial;
 @Getter
 @Setter
 @Accessors(chain = true)
+@NoArgsConstructor
+@AllArgsConstructor
 @TableName("sys_security_url")
 public class SecurityUrl extends BaseModel {
 
