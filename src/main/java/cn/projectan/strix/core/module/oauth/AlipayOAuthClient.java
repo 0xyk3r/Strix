@@ -4,14 +4,12 @@ import cn.projectan.strix.model.db.OauthPush;
 import cn.projectan.strix.model.other.module.oauth.AlipayOAuthConfig;
 import cn.projectan.strix.model.other.module.oauth.BaseOAuthConfig;
 import cn.projectan.strix.model.other.module.oauth.BaseOAuthUserInfo;
-import cn.projectan.strix.utils.SpringUtil;
 import com.alipay.api.CertAlipayRequest;
 import com.alipay.api.DefaultAlipayClient;
 import com.alipay.api.request.AlipaySystemOauthTokenRequest;
 import com.alipay.api.request.AlipayUserInfoShareRequest;
 import com.alipay.api.response.AlipaySystemOauthTokenResponse;
 import com.alipay.api.response.AlipayUserInfoShareResponse;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
 
@@ -26,13 +24,11 @@ public class AlipayOAuthClient extends StrixOAuthClient {
 
     protected final AlipayOAuthConfig config;
     protected final DefaultAlipayClient client;
-    private final ObjectMapper objectMapper;
 
     public AlipayOAuthClient(AlipayOAuthConfig config) {
         super();
         Assert.notNull(config, "Strix OAuth: 初始化支付宝 OAuth 服务实例失败. (配置信息为空)");
         this.config = config;
-        this.objectMapper = SpringUtil.getBean(ObjectMapper.class);
         try {
             CertAlipayRequest certAlipayRequest = new CertAlipayRequest();
             certAlipayRequest.setServerUrl(config.getServerUrl());

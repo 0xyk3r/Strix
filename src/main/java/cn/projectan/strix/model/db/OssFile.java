@@ -3,9 +3,10 @@ package cn.projectan.strix.model.db;
 import cn.projectan.strix.model.db.base.BaseModel;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 
 import java.io.Serial;
 
@@ -17,10 +18,11 @@ import java.io.Serial;
  * @author ProjectAn
  * @since 2022-03-09
  */
-@Data
+@Getter
+@Setter
+@Accessors(chain = true)
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper = true)
 @TableName("sys_oss_file")
 public class OssFile extends BaseModel {
 

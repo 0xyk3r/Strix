@@ -57,7 +57,11 @@ public class DictSyncInitializer implements ApplicationRunner {
                 }
         );
 
-        log.info("Strix Dict: 扫描完成, 扫描了 {} 个字典类.", dictClassSet.size());
+        // 查询数据库中的字典缓存备用
+        List<Dict> dictList = dictService.lambdaQuery()
+                .eq(Dict::getProvided, DictProvided.YES)
+                .list();
+
         dictClassSet.forEach(clazz -> {
             cn.projectan.strix.model.annotation.Dict annotationDict = clazz.getAnnotation(cn.projectan.strix.model.annotation.Dict.class);
             String key = StringUtils.hasText(annotationDict.key()) ? annotationDict.key() : clazz.getSimpleName();
@@ -90,36 +94,21 @@ public class DictSyncInitializer implements ApplicationRunner {
                     dictData.setUpdateBy("SYSTEM");
                     dictDataList.add(dictData);
                 }
-                syncToDb(dict, dictDataList);
+                Dict dbDict = dictList.stream().filter(d -> d.getKey().equals(dict.getKey())).findFirst().orElse(null);
+                syncToDb(dict, dbDict, dictDataList);
             } catch (Exception e) {
                 log.error("Strix Dict: 同步字典常量至数据库失败", e);
             }
-
         });
-
+        log.info("Strix Dict: 同步完成, 同步了 {} 个字典.", dictClassSet.size());
     }
 
-    private int convertTypeName(String typeName) {
-        return switch (typeName) {
-            case "java.lang.String" -> 1;
-            case "java.lang.Integer", "int" -> 2;
-            case "java.lang.Long", "long" -> 3;
-            case "java.lang.Float", "float" -> 4;
-            case "java.lang.Double", "double" -> 5;
-            case "java.lang.Boolean", "boolean" -> 6;
-            case "java.lang.Byte", "byte" -> 7;
-            default -> 0;
-        };
-    }
-
-    private void syncToDb(Dict dict, List<DictData> dictDataList) {
+    private void syncToDb(Dict dict, Dict dbDict, List<DictData> dictDataList) {
         CommonDictResp dictResp = dictService.getDictResp(dict.getKey());
-
-        if (dictResp == null) {
+        if (dbDict == null || dictResp == null) {
             dictService.saveDict(dict);
             dictDataList.forEach(dictService::saveDictData);
         } else {
-            Dict dbDict = dictService.getById(dictResp.getId());
             try {
                 dictService.updateDict(dbDict, new DictUpdateReq(dict.getKey(), dict.getName(), dict.getDataType(), null, null));
             } catch (Exception ignore) {
@@ -150,7 +139,19 @@ public class DictSyncInitializer implements ApplicationRunner {
                 }
             });
         }
+    }
 
+    private int convertTypeName(String typeName) {
+        return switch (typeName) {
+            case "java.lang.String" -> 1;
+            case "java.lang.Integer", "int" -> 2;
+            case "java.lang.Long", "long" -> 3;
+            case "java.lang.Float", "float" -> 4;
+            case "java.lang.Double", "double" -> 5;
+            case "java.lang.Boolean", "boolean" -> 6;
+            case "java.lang.Byte", "byte" -> 7;
+            default -> 0;
+        };
     }
 
 }

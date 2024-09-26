@@ -21,7 +21,7 @@ import cn.projectan.strix.service.SystemUserService;
 import cn.projectan.strix.utils.NumUtil;
 import cn.projectan.strix.utils.UniqueDetectionTool;
 import cn.projectan.strix.utils.UpdateConditionBuilder;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +33,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 /**
+ * 系统用户
+ *
  * @author ProjectAn
  * @date 2021/8/27 14:20
  */
@@ -45,65 +47,72 @@ public class SystemUserController extends BaseSystemController {
     private final SystemUserService systemUserService;
     private final SystemUserRelationService systemUserRelationService;
 
+    /**
+     * 查询用户列表
+     */
     @GetMapping("")
     @PreAuthorize("@ss.hasPermission('system:user')")
     @StrixLog(operationGroup = "系统用户", operationName = "查询用户列表")
     public RetResult<SystemUserListResp> getSystemUserList(SystemUserListReq req) {
-        QueryWrapper<SystemUser> systemUserQueryWrapper = new QueryWrapper<>();
-        if (StringUtils.hasText(req.getKeyword())) {
-            systemUserQueryWrapper.like("nickname", req.getKeyword())
-                    .or(q -> q.like("phone_number", req.getKeyword()));
-        }
-        if (NumUtil.checkCategory(req.getStatus(), NumCategory.NON_NEGATIVE)) {
-            systemUserQueryWrapper.eq("status", req.getStatus());
-        }
-        systemUserQueryWrapper.orderByAsc("create_time");
+        Page<SystemUser> page = systemUserService.lambdaQuery()
+                .like(StringUtils.hasText(req.getKeyword()), SystemUser::getNickname, req.getKeyword())
+                .or(StringUtils.hasText(req.getKeyword()), q -> q.like(SystemUser::getPhoneNumber, req.getKeyword()))
+                .eq(NumUtil.checkCategory(req.getStatus(), NumCategory.NON_NEGATIVE), SystemUser::getStatus, req.getStatus())
+                .orderByAsc(SystemUser::getCreateTime)
+                .page(req.getPage());
 
-        Page<SystemUser> page = systemUserService.page(req.getPage(), systemUserQueryWrapper);
         SystemUserListResp resp = new SystemUserListResp(page.getRecords(), page.getTotal());
 
         return RetBuilder.success(resp);
     }
 
+    /**
+     * 查询用户信息
+     */
     @GetMapping("{userId}")
     @PreAuthorize("@ss.hasPermission('system:user')")
     @StrixLog(operationGroup = "系统用户", operationName = "查询用户信息")
     public RetResult<SystemUserResp> getSystemUser(@PathVariable String userId) {
-        Assert.notNull(userId, "参数错误");
         SystemUser systemUser = systemUserService.getById(userId);
         Assert.notNull(systemUser, "系统用户信息不存在");
 
         return RetBuilder.success(new SystemUserResp(systemUser));
     }
 
+    /**
+     * 修改用户信息
+     */
     @PostMapping("modify/{userId}")
     @PreAuthorize("@ss.hasPermission('system:user:update')")
     @StrixLog(operationGroup = "系统用户", operationName = "更改用户信息", operationType = SysLogOperType.UPDATE)
     public RetResult<Object> modifyField(@PathVariable String userId, @RequestBody SingleFieldModifyReq req) {
+        Assert.hasText(req.getField(), "参数错误");
         SystemUser systemUser = systemUserService.getById(userId);
         Assert.notNull(systemUser, "系统用户信息不存在");
-        Assert.hasText(req.getField(), "参数错误");
 
-        UpdateWrapper<SystemUser> systemUserUpdateWrapper = new UpdateWrapper<>();
-        systemUserUpdateWrapper.eq("id", userId);
+        LambdaUpdateWrapper<SystemUser> queryWrapper = new LambdaUpdateWrapper<>();
+        queryWrapper.eq(SystemUser::getId, userId);
 
         switch (req.getField()) {
-            case "nickname" -> systemUserUpdateWrapper.set("nickname", req.getValue());
+            case "nickname" -> queryWrapper.set(SystemUser::getNickname, req.getValue());
             case "status" -> {
                 Assert.isTrue(SystemUserStatus.valid(Integer.parseInt(req.getValue())), "参数错误");
-                systemUserUpdateWrapper.set("status", req.getValue());
+                queryWrapper.set(SystemUser::getStatus, req.getValue());
             }
-            case "phoneNumber" -> systemUserUpdateWrapper.set("phone_number", req.getValue());
+            case "phoneNumber" -> queryWrapper.set(SystemUser::getPhoneNumber, req.getValue());
             default -> {
                 return RetBuilder.error("参数错误");
             }
         }
 
-        Assert.isTrue(systemUserService.update(systemUserUpdateWrapper), "修改失败");
+        Assert.isTrue(systemUserService.update(queryWrapper), "修改失败");
 
         return RetBuilder.success();
     }
 
+    /**
+     * 新增用户
+     */
     @PostMapping("update")
     @PreAuthorize("@ss.hasPermission('system:user:add')")
     @StrixLog(operationGroup = "系统用户", operationName = "新增用户", operationType = SysLogOperType.ADD)
@@ -117,8 +126,6 @@ public class SystemUserController extends BaseSystemController {
                 null,
                 null
         );
-        systemUser.setCreateBy(loginManagerId());
-        systemUser.setUpdateBy(loginManagerId());
 
         UniqueDetectionTool.check(systemUser);
 
@@ -127,11 +134,13 @@ public class SystemUserController extends BaseSystemController {
         return RetBuilder.success();
     }
 
+    /**
+     * 修改用户
+     */
     @PostMapping("update/{userId}")
     @PreAuthorize("@ss.hasPermission('system:user:update')")
     @StrixLog(operationGroup = "系统用户", operationName = "修改用户", operationType = SysLogOperType.UPDATE)
     public RetResult<Object> update(@PathVariable String userId, @RequestBody @Validated(UpdateGroup.class) SystemUserUpdateReq req) {
-        Assert.hasText(userId, "参数错误");
         Assert.notNull(req, "参数错误");
         SystemUser systemUser = systemUserService.getById(userId);
         Assert.notNull(systemUser, "系统用户信息不存在");
@@ -143,21 +152,22 @@ public class SystemUserController extends BaseSystemController {
         return RetBuilder.success();
     }
 
+    /**
+     * 删除用户
+     */
     @PostMapping("remove/{userId}")
     @PreAuthorize("@ss.hasPermission('system:user:remove')")
     @StrixLog(operationGroup = "系统用户", operationName = "删除用户", operationType = SysLogOperType.DELETE)
     public RetResult<Object> remove(@PathVariable String userId) {
-        Assert.hasText(userId, "参数错误");
-        Assert.isTrue(!"1".equalsIgnoreCase(userId), "该用户不支持删除");
         SystemUser systemUser = systemUserService.getById(userId);
         Assert.notNull(systemUser, "系统角色信息不存在");
 
         systemUserService.removeById(systemUser);
 
         // 删除角色的第三方账号绑定关系
-        QueryWrapper<SystemUserRelation> systemUserRelationQueryWrapper = new QueryWrapper<>();
-        systemUserRelationQueryWrapper.eq("system_user_id", systemUser.getId());
-        systemUserRelationService.remove(systemUserRelationQueryWrapper);
+        systemUserRelationService.lambdaUpdate()
+                .eq(SystemUserRelation::getSystemUserId, systemUser.getId())
+                .remove();
 
         return RetBuilder.success();
     }

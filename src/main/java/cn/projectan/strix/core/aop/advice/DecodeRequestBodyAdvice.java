@@ -45,11 +45,10 @@ public class DecodeRequestBodyAdvice implements RequestBodyAdvice {
     @Override
     public boolean supports(MethodParameter methodParameter, @NotNull Type type, @NotNull Class<? extends HttpMessageConverter<?>> aClass) {
         String className = methodParameter.getContainingClass().getName();
-        boolean isSecurityAspect = "cn.projectan.strix.core.aop.aspect.ApiSecurityCheckAspect".equals(className);
-        boolean isExceptionHandler = "cn.projectan.strix.core.aop.advice.GlobalExceptionHandler".equals(className);
-        boolean ignoreDataEncryptionByClass = methodParameter.getContainingClass().isAnnotationPresent(IgnoreDataEncryption.class);
-        boolean ignoreDataEncryptionByMethod = methodParameter.hasMethodAnnotation(IgnoreDataEncryption.class);
-        return !isSecurityAspect && !isExceptionHandler && !ignoreDataEncryptionByClass && !ignoreDataEncryptionByMethod;
+        return !className.equals("cn.projectan.strix.core.aop.aspect.ApiSecurityCheckAspect") &&
+                !className.equals("cn.projectan.strix.core.aop.advice.GlobalExceptionHandler") &&
+                !methodParameter.getContainingClass().isAnnotationPresent(IgnoreDataEncryption.class) &&
+                !methodParameter.hasMethodAnnotation(IgnoreDataEncryption.class);
     }
 
     @NotNull
@@ -59,11 +58,8 @@ public class DecodeRequestBodyAdvice implements RequestBodyAdvice {
             return new HttpInputMessageHandler(inputMessage, methodParameter);
         } catch (Exception e) {
             Method method = methodParameter.getMethod();
-            if (method != null) {
-                log.error("对方法: 【" + method.getDeclaringClass().getName() + "." + method.getName() + "】请求数据进行解密时异常", e);
-            } else {
-                log.error("对unknown方法请求数据进行解密时异常", e);
-            }
+            String methodName = (method != null) ? method.getDeclaringClass().getName() + "." + method.getName() : "unknown";
+            log.error("对方法: 【{}】请求数据进行解密时异常", methodName, e);
             return inputMessage;
         }
     }
@@ -92,8 +88,9 @@ public class DecodeRequestBodyAdvice implements RequestBodyAdvice {
 
             String decryptBodyStr = handleSecurity(originalBody);
 
-            if (showRequest) {
-                String fullMethodName = methodParameter.getContainingClass().getName() + "." + methodParameter.getMethod().getName();
+            Method method = methodParameter.getMethod();
+            if (showRequest && method != null) {
+                String fullMethodName = methodParameter.getContainingClass().getName() + "." + method.getName();
                 log.info("\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n" +
                         "请求数据: " + fullMethodName + "\n" +
                         decryptBodyStr +

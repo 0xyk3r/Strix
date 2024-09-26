@@ -4,7 +4,6 @@ import cn.projectan.strix.mapper.SystemMenuMapper;
 import cn.projectan.strix.model.db.SystemMenu;
 import cn.projectan.strix.model.response.common.CommonTreeDataResp;
 import cn.projectan.strix.service.SystemMenuService;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 
@@ -23,10 +22,9 @@ public class SystemMenuServiceImpl extends ServiceImpl<SystemMenuMapper, SystemM
 
     @Override
     public CommonTreeDataResp getTreeData() {
-        List<SystemMenu> systemMenuList = getBaseMapper().selectList(
-                new LambdaQueryWrapper<SystemMenu>()
-                        .orderByAsc(SystemMenu::getSortValue)
-        );
+        List<SystemMenu> systemMenuList = lambdaQuery()
+                .orderByAsc(SystemMenu::getSortValue)
+                .list();
         return new CommonTreeDataResp(systemMenuList, "id", "name", "parentId", "0");
     }
 

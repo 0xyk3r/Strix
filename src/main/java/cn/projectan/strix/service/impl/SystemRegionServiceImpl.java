@@ -5,7 +5,6 @@ import cn.projectan.strix.mapper.SystemRegionMapper;
 import cn.projectan.strix.model.db.SystemRegion;
 import cn.projectan.strix.service.SystemRegionService;
 import cn.projectan.strix.utils.SpringUtil;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +15,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -73,11 +73,13 @@ public class SystemRegionServiceImpl extends ServiceImpl<SystemRegionMapper, Sys
     @Override
     public List<String> getChildrenIdList(String id) {
         SystemRegion systemRegion = getBaseMapper().selectById(id);
-
-        QueryWrapper<SystemRegion> systemRegionQueryWrapper = new QueryWrapper<>();
-        systemRegionQueryWrapper.select("id");
-        systemRegionQueryWrapper.likeRight("full_path", systemRegion.getFullPath());
-        return this.listObjs(systemRegionQueryWrapper, Object::toString);
+        return lambdaQuery()
+                .select(SystemRegion::getId)
+                .likeRight(SystemRegion::getFullPath, systemRegion.getFullPath())
+                .list()
+                .stream()
+                .map(SystemRegion::getId)
+                .collect(Collectors.toList());
     }
 
     @Override

@@ -22,11 +22,9 @@ import cn.projectan.strix.service.SystemManagerService;
 import cn.projectan.strix.service.SystemMenuService;
 import cn.projectan.strix.utils.RedisUtil;
 import cn.projectan.strix.utils.SecurityUtils;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -35,6 +33,8 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
+ * 系统基础接口
+ *
  * @author ProjectAn
  * @date 2021/5/12 18:39
  */
@@ -50,6 +50,9 @@ public class SystemController extends BaseSystemController {
     private final SystemConfigCache systemConfigCache;
     private final RedisUtil redisUtil;
 
+    /**
+     * 系统登录
+     */
     @Anonymous
     @PostMapping("login")
     @StrixLog(operationGroup = "系统登录", operationName = "系统登录", operationType = SysLogOperType.LOGIN)
@@ -59,16 +62,14 @@ public class SystemController extends BaseSystemController {
         CaptchaInfoVO captchaInfoVO = new CaptchaInfoVO();
         captchaInfoVO.setCaptchaVerification(req.getCaptchaVerification());
         StrixCaptchaResp strixCaptchaResp = captchaService.verification(captchaInfoVO);
-        if (!strixCaptchaResp.isSuccess()) {
-            return RetBuilder.error("行为验证不通过，请重新验证");
-        }
+        Assert.isTrue(strixCaptchaResp.isSuccess(), "行为验证不通过，请重新验证");
 
-        QueryWrapper<SystemManager> loginQueryWrapper = new QueryWrapper<>();
-        loginQueryWrapper.eq("login_name", req.getLoginName());
-        SystemManager systemManager = systemManagerService.getOne(loginQueryWrapper);
+        SystemManager systemManager = systemManagerService.lambdaQuery()
+                .eq(SystemManager::getLoginName, req.getLoginName())
+                .one();
         Assert.notNull(systemManager, "账号或密码错误");
-        Assert.isTrue(systemManager.getStatus() == SystemManagerStatus.NORMAL, "该管理用户已被禁止使用");
         Assert.isTrue(systemManager.getLoginPassword().equals(req.getLoginPassword()), "账号或密码错误");
+        Assert.isTrue(systemManager.getStatus() == SystemManagerStatus.NORMAL, "该管理用户已停用");
 
         // 检查是否支持多点登录
         Boolean supportMultipleLogin = systemConfigCache.getBoolean("SYSTEM_MANAGER_SUPPORT_MULTIPLE_LOGIN", false);
@@ -93,19 +94,25 @@ public class SystemController extends BaseSystemController {
         permissionKeys.addAll(loginSystemManager.getMenusKeys());
         permissionKeys.addAll(loginSystemManager.getPermissionKeys());
 
-        return RetBuilder.success(new SystemLoginResp(
-                new SystemLoginResp.LoginManagerInfo(
-                        systemManager.getId(), systemManager.getNickname(), systemManager.getType(), permissionKeys
-                ),
-                token,
-                LocalDateTime.now().plusMinutes(tokenTTL)
-        ));
+        return RetBuilder.success(
+                new SystemLoginResp(
+                        new SystemLoginResp.LoginManagerInfo(
+                                systemManager.getId(), systemManager.getNickname(), systemManager.getType(), permissionKeys
+                        ),
+                        token,
+                        LocalDateTime.now().plusMinutes(tokenTTL)
+                ));
     }
 
+    /**
+     * 重新获取Token
+     */
     @PostMapping("renewToken")
     public RetResult<SystemLoginResp> renewToken() {
-        SystemManager systemManager = loginManager();
-        systemManager = systemManagerService.getById(systemManager.getId());
+        String loginSystemManagerId = loginManagerId();
+        Assert.hasText(loginSystemManagerId, "请重新登陆");
+        SystemManager systemManager = systemManagerService.getById(loginSystemManagerId);
+
         Object oldTokenObj = redisUtil.get("strix:system:manager:login_token:login:id_" + systemManager.getId());
         Assert.notNull(oldTokenObj, "旧token已失效，请重新登陆");
         Object oldTokenInfoObj = redisUtil.get("strix:system:manager:login_token:token:" + oldTokenObj);
@@ -113,11 +120,7 @@ public class SystemController extends BaseSystemController {
         LoginSystemManager loginSystemManager = (LoginSystemManager) oldTokenInfoObj;
         Assert.notNull(loginSystemManager, "旧token已失效，请重新登陆");
 
-        long effectiveTime = 1440L;
-        String et = systemConfigCache.get("SYSTEM_MANAGER_LOGIN_EFFECTIVE_TIME");
-        if (StringUtils.hasText(et)) {
-            effectiveTime = Long.parseLong(et);
-        }
+        long effectiveTime = systemConfigCache.getLong("SYSTEM_MANAGER_LOGIN_EFFECTIVE_TIME", 525600L);
         redisUtil.setExpire("strix:system:manager:login_token:login:id_" + systemManager.getId(), effectiveTime, TimeUnit.MINUTES);
         redisUtil.setExpire("strix:system:manager:login_token:token:" + oldTokenObj, effectiveTime, TimeUnit.MINUTES);
 
@@ -126,24 +129,28 @@ public class SystemController extends BaseSystemController {
         permissionKeys.addAll(loginSystemManager.getMenusKeys());
         permissionKeys.addAll(loginSystemManager.getPermissionKeys());
 
-        return RetBuilder.success(new SystemLoginResp(
-                new SystemLoginResp.LoginManagerInfo(
-                        systemManager.getId(), systemManager.getNickname(), systemManager.getType(), permissionKeys
-                ),
-                oldTokenObj.toString(),
-                LocalDateTime.now().plusMinutes(effectiveTime)
-        ));
+        return RetBuilder.success(
+                new SystemLoginResp(
+                        new SystemLoginResp.LoginManagerInfo(
+                                systemManager.getId(), systemManager.getNickname(), systemManager.getType(), permissionKeys
+                        ),
+                        oldTokenObj.toString(),
+                        LocalDateTime.now().plusMinutes(effectiveTime)
+                ));
     }
 
+    /**
+     * 获取系统菜单
+     */
     @GetMapping("menus")
     public RetResult<SystemMenuResp> getMenuList() {
         List<String> systemMenuKeys = SecurityUtils.getManagerMenuKeys();
         Assert.notEmpty(systemMenuKeys, "当前账号无菜单权限");
 
-        QueryWrapper<SystemMenu> qw = new QueryWrapper<>();
-        qw.in("`key`", systemMenuKeys);
-        qw.orderByAsc("sort_value");
-        List<SystemMenu> systemMenus = systemMenusService.list(qw);
+        List<SystemMenu> systemMenus = systemMenusService.lambdaQuery()
+                .in(SystemMenu::getKey, systemMenuKeys)
+                .orderByAsc(SystemMenu::getSortValue)
+                .list();
         Assert.notEmpty(systemMenus, "当前账号无可用菜单权限");
 
         return RetBuilder.success(new SystemMenuResp(systemMenus));

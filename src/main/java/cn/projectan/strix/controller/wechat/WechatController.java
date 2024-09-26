@@ -17,7 +17,6 @@ import cn.projectan.strix.model.other.module.oauth.WechatOAuthConfig;
 import cn.projectan.strix.service.OauthUserService;
 import cn.projectan.strix.service.SystemUserService;
 import cn.projectan.strix.utils.RedisUtil;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -94,12 +93,12 @@ public class WechatController extends BaseWechatController {
 
             // 获取 OAuth 用户信息
             BaseOAuthUserInfo oAuthUserInfo = instance.grantBaseUserInfo(code);
-
             // 保存 OAuth 用户信息至数据库
-            QueryWrapper<OauthUser> oauthUserQueryWrapper = new QueryWrapper<>();
-            oauthUserQueryWrapper.eq("app_id", oAuthUserInfo.getAppId());
-            oauthUserQueryWrapper.eq("open_id", oAuthUserInfo.getOpenId());
-            OauthUser oauthUser = oauthUserService.getOne(oauthUserQueryWrapper);
+            OauthUser oauthUser = oauthUserService.lambdaQuery()
+                    .eq(OauthUser::getAppId, oAuthUserInfo.getAppId())
+                    .eq(OauthUser::getOpenId, oAuthUserInfo.getOpenId())
+                    .one();
+
             SystemUser systemUser;
             if (oauthUser == null) {
                 // 如果数据库中没有 OAuth 用户信息, 则创建
@@ -171,24 +170,27 @@ public class WechatController extends BaseWechatController {
         if ("dev".equals(env)) {
             log.warn("通过api获取微信Token...");
 
-//            SystemUser systemUser = systemUserService.getById("1629392552362844162");
-//
-//            // 检查之前该账号是否存在token
-//            Object existToken = redisUtil.get("strix:system:user:login_token:login:id_" + systemUser.getId());
-//            if (existToken != null) {
-//                // 使旧数据失效
-//                redisUtil.del("strix:system:user:login_token:token:" + existToken);
-//                redisUtil.del("strix:system:user:login_token:login:id_" + systemUser.getId());
-//            }
-//            // 生成并保存Token 有效期30天
-//            String token = IdUtil.simpleUUID();
-//            redisUtil.set("strix:system:user:login_token:login:id_" + systemUser.getId(), token, 60 * 60 * 24 * 30);
-//            redisUtil.set("strix:system:user:login_token:token:" + token, systemUser, 60 * 60 * 24 * 30);
-//
-//            response.sendRedirect("http://localhost:8080/?token=" + token + "&cfid=" + configId);
+            SystemUser systemUser = systemUserService.getById("1775599867535130625");
+
+            // 检查之前该账号是否存在token
+            Object existToken = redisUtil.get("strix:system:user:login_token:login:id_" + systemUser.getId());
+            if (existToken != null) {
+                // 使旧数据失效
+                redisUtil.del("strix:system:user:login_token:token:" + existToken);
+                redisUtil.del("strix:system:user:login_token:login:id_" + systemUser.getId());
+            }
+            // 生成并保存Token 有效期30天
+            String token = IdUtil.simpleUUID();
+            redisUtil.set("strix:system:user:login_token:login:id_" + systemUser.getId(), token, 60 * 60 * 24 * 30);
+            redisUtil.set("strix:system:user:login_token:token:" + token, systemUser, 60 * 60 * 24 * 30);
+
+            response.sendRedirect("http://localhost:8080/?token=" + token + "&cfid=" + configId);
         }
     }
 
+    /**
+     * 检查Token是否有效
+     */
     @ResponseBody
     @RequestMapping("checkToken")
     public RetResult<Object> checkToken() {

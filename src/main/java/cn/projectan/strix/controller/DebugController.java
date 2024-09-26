@@ -4,7 +4,7 @@ import cn.projectan.strix.model.annotation.Anonymous;
 import cn.projectan.strix.model.annotation.IgnoreDataEncryption;
 import cn.projectan.strix.model.dict.PayType;
 import cn.projectan.strix.service.PayOrderService;
-import cn.projectan.strix.service.SystemManagerService;
+import cn.projectan.strix.service.SystemUserService;
 import cn.projectan.strix.utils.PopularityUtil;
 import cn.projectan.strix.utils.RedisUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -29,16 +29,20 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class DebugController extends BaseController {
 
-    private final SystemManagerService systemManagerService;
+    private final SystemUserService systemUserService;
     private final ObjectMapper objectMapper;
     private final PayOrderService payOrderService;
     private final RedisUtil redisUtil;
     private final PopularityUtil popularityUtil;
 
+    @GetMapping("test")
+    public void test0() {
+        systemUserService.bindThirdUser("1", 1, "test");
+    }
+
     @GetMapping("pay1")
     public void test1() {
         payOrderService.createOrder("AliPaySandbox", "testorder", null, "toatt", 1, 1, "test", PayType.WAP);
-
     }
 
     @GetMapping("pay2")

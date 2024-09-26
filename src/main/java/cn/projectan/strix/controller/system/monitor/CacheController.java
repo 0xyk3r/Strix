@@ -15,9 +15,15 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Properties;
+import java.util.stream.Collectors;
 
 /**
+ * 系统缓存信息
+ *
  * @author ProjectAn
  * @date 2022/9/30 22:13
  */
@@ -29,6 +35,9 @@ public class CacheController extends BaseSystemController {
 
     private final RedisTemplate<String, Object> redisTemplate;
 
+    /**
+     * 查询系统缓存信息
+     */
     @GetMapping()
     @PreAuthorize("@ss.hasPermission('system:monitor:cache')")
     @StrixLog(operationGroup = "系统缓存信息", operationName = "查询系统缓存信息")
@@ -37,21 +46,18 @@ public class CacheController extends BaseSystemController {
         Properties commandStats = (Properties) redisTemplate.execute((RedisCallback<Object>) connection -> connection.serverCommands().info("commandstats"));
         Object dbSize = redisTemplate.execute((RedisCallback<Object>) RedisServerCommands::dbSize);
 
-        Map<String, Object> result = new HashMap<>(3);
-        result.put("info", info);
-        result.put("dbSize", dbSize);
-
-        List<Map<String, String>> pieList = new ArrayList<>();
-        if (commandStats != null) {
-            commandStats.stringPropertyNames().forEach(key -> {
-                Map<String, String> data = new HashMap<>(2);
-                String property = commandStats.getProperty(key);
-                data.put("name", StringUtils.removeStart(key, "cmdstat_"));
-                data.put("value", StringUtils.substringBetween(property, "calls=", ",usec"));
-                pieList.add(data);
-            });
-        }
-        result.put("commandStats", pieList);
+        Map<String, Object> result = Map.of(
+                "info", info,
+                "dbSize", dbSize,
+                "commandStats", Optional.ofNullable(commandStats)
+                        .map(stats -> stats.stringPropertyNames().stream()
+                                .map(key -> Map.of(
+                                        "name", StringUtils.removeStart(key, "cmdstat_"),
+                                        "value", StringUtils.substringBetween(stats.getProperty(key), "calls=", ",usec")
+                                ))
+                                .collect(Collectors.toList()))
+                        .orElse(Collections.emptyList())
+        );
         return RetBuilder.success(result);
     }
 

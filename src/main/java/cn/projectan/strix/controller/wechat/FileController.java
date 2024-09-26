@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 /**
+ * 文件
+ *
  * @author ProjectAn
  * @date 2022/3/9 11:05
  */
@@ -27,6 +29,9 @@ public class FileController extends BaseWechatController {
 
     private final OssFileService ossFileService;
 
+    /**
+     * 上传图片
+     */
     @IgnoreDataEncryption
     @PostMapping("upload")
     public RetResult<Object> uploadImage(String imageBase64) {
@@ -36,6 +41,9 @@ public class FileController extends BaseWechatController {
         return RetBuilder.success(Map.of("fileId", ossFile.getId()));
     }
 
+    /**
+     * 获取图片
+     */
     @Anonymous
     @IgnoreDataEncryption
     @GetMapping("{fileId}")

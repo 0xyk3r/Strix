@@ -17,7 +17,6 @@ import cn.projectan.strix.model.response.module.oss.OssFileGroupResp;
 import cn.projectan.strix.service.OssFileGroupService;
 import cn.projectan.strix.utils.UniqueDetectionTool;
 import cn.projectan.strix.utils.UpdateConditionBuilder;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +29,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 /**
+ * 系统存储分组
+ *
  * @author ProjectAn
  * @date 2023/5/27 22:13
  */
@@ -42,24 +43,24 @@ public class OssFileGroupController extends BaseSystemController {
 
     private final OssFileGroupService ossFileGroupService;
 
+    /**
+     * 查询存储分组列表
+     */
     @GetMapping("")
     @PreAuthorize("@ss.hasPermission('system:module:oss:filegroup')")
     @StrixLog(operationGroup = "系统存储分组", operationName = "查询存储分组列表")
     public RetResult<OssFileGroupListResp> getOssFileGroupList(OssFileGroupListReq req) {
-        QueryWrapper<OssFileGroup> queryWrapper = new QueryWrapper<>();
-
-        if (StringUtils.hasText(req.getKeyword())) {
-            queryWrapper.like("name", req.getKeyword());
-        }
-        if (StringUtils.hasText(req.getConfigKey())) {
-            queryWrapper.eq("config_key", req.getConfigKey());
-        }
-
-        Page<OssFileGroup> page = ossFileGroupService.page(req.getPage(), queryWrapper);
+        Page<OssFileGroup> page = ossFileGroupService.lambdaQuery()
+                .like(StringUtils.hasText(req.getKeyword()), OssFileGroup::getName, req.getKeyword())
+                .eq(StringUtils.hasText(req.getConfigKey()), OssFileGroup::getConfigKey, req.getConfigKey())
+                .page(req.getPage());
 
         return RetBuilder.success(new OssFileGroupListResp(page.getRecords(), page.getTotal()));
     }
 
+    /**
+     * 查询存储分组信息
+     */
     @GetMapping("{id}")
     @PreAuthorize("@ss.hasPermission('system:module:oss:filegroup')")
     @StrixLog(operationGroup = "系统存储分组", operationName = "查询存储分组信息")
@@ -83,6 +84,9 @@ public class OssFileGroupController extends BaseSystemController {
         ));
     }
 
+    /**
+     * 新增存储分组
+     */
     @PostMapping("update")
     @PreAuthorize("@ss.hasPermission('system:module:oss:filegroup:add')")
     @StrixLog(operationGroup = "系统存储分组", operationName = "新增存储分组", operationType = SysLogOperType.ADD)
@@ -99,8 +103,6 @@ public class OssFileGroupController extends BaseSystemController {
                 req.getSecretLevel(),
                 req.getRemark()
         );
-        ossFileGroup.setCreateBy(loginManagerId());
-        ossFileGroup.setUpdateBy(loginManagerId());
 
         UniqueDetectionTool.check(ossFileGroup);
 
@@ -109,6 +111,9 @@ public class OssFileGroupController extends BaseSystemController {
         return RetBuilder.success();
     }
 
+    /**
+     * 修改存储分组
+     */
     @PostMapping("update/{id}")
     @PreAuthorize("@ss.hasPermission('system:module:oss:filegroup:update')")
     @StrixLog(operationGroup = "系统存储分组", operationName = "修改存储分组", operationType = SysLogOperType.UPDATE)
@@ -123,17 +128,20 @@ public class OssFileGroupController extends BaseSystemController {
         return RetBuilder.success();
     }
 
+    /**
+     * 删除存储分组
+     */
     @PostMapping("remove/{id}")
     @PreAuthorize("@ss.hasPermission('system:module:oss:filegroup:remove')")
     @StrixLog(operationGroup = "系统存储分组", operationName = "删除存储分组", operationType = SysLogOperType.DELETE)
     public RetResult<Object> remove(@PathVariable String id) {
-        Assert.hasText(id, "参数错误");
-
         ossFileGroupService.removeById(id);
-
         return RetBuilder.success();
     }
 
+    /**
+     * 获取存储分组下拉列表
+     */
     @GetMapping(value = {"select", "select/{configKey}"})
     public RetResult<CommonSelectDataResp> getOssFileGroupSelectList(@PathVariable(required = false) String configKey) {
         return RetBuilder.success(ossFileGroupService.getSelectData(configKey));

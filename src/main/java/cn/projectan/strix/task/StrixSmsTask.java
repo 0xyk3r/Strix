@@ -42,7 +42,9 @@ public class StrixSmsTask {
     @Scheduled(cron = "0 0/5 * * * ?")
     public void refreshConfig() {
         List<SmsConfig> smsConfigList = smsConfigService.list();
-        List<String> smsConfigKeyList = smsConfigList.stream().map(SmsConfig::getKey).collect(Collectors.toList());
+        List<String> smsConfigKeyList = smsConfigList.stream()
+                .map(SmsConfig::getKey)
+                .collect(Collectors.toList());
         Set<String> instanceKeySet = strixSmsStore.getInstanceKeySet();
 
         KeyDiffUtil.handle(instanceKeySet, smsConfigKeyList,

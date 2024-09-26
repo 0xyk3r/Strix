@@ -6,9 +6,10 @@ import cn.projectan.strix.model.dict.StrixSmsPlatform;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 
 import java.io.Serial;
 
@@ -20,10 +21,11 @@ import java.io.Serial;
  * @author ProjectAn
  * @since 2023/5/22 11:59
  */
-@Data
+@Getter
+@Setter
+@Accessors(chain = true)
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper = true)
 @TableName("sys_sms_config")
 public class SmsConfig extends BaseModel {
 

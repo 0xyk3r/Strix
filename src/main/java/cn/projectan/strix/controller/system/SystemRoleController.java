@@ -23,7 +23,6 @@ import cn.projectan.strix.utils.KeyDiffUtil;
 import cn.projectan.strix.utils.SpringUtil;
 import cn.projectan.strix.utils.UniqueDetectionTool;
 import cn.projectan.strix.utils.UpdateConditionBuilder;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,11 +31,13 @@ import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
+ * 系统角色
+ *
  * @author ProjectAn
  * @date 2021/7/1 16:35
  */
@@ -53,22 +54,27 @@ public class SystemRoleController extends BaseSystemController {
     private final SystemMenuCache systemMenuCache;
     private final SystemPermissionCache systemPermissionCache;
 
+    /**
+     * 查询角色列表
+     */
     @GetMapping("")
     @PreAuthorize("@ss.hasPermission('system:role')")
     @StrixLog(operationGroup = "系统角色", operationName = "查询角色列表")
     public RetResult<SystemRoleListResp> getSystemRoleList() {
-        QueryWrapper<SystemRole> systemRoleQueryWrapper = new QueryWrapper<>();
-        systemRoleQueryWrapper.orderByAsc("create_time");
-        List<SystemRole> systemRoleList = systemRoleService.list(systemRoleQueryWrapper);
+        List<SystemRole> systemRoleList = systemRoleService.lambdaQuery()
+                .orderByAsc(SystemRole::getCreateTime)
+                .list();
 
         return RetBuilder.success(new SystemRoleListResp(systemRoleList));
     }
 
+    /**
+     * 查询角色信息
+     */
     @GetMapping("{roleId}")
     @PreAuthorize("@ss.hasPermission('system:role')")
     @StrixLog(operationGroup = "系统角色", operationName = "查询角色信息")
     public RetResult<SystemRoleResp> getSystemRole(@PathVariable String roleId) {
-        Assert.notNull(roleId, "参数错误");
         SystemRole systemRole = systemRoleService.getById(roleId);
         Assert.notNull(systemRole, "系统角色信息不存在");
 
@@ -79,6 +85,9 @@ public class SystemRoleController extends BaseSystemController {
         return RetBuilder.success(new SystemRoleResp(systemRole.getId(), systemRole.getName(), systemRole.getRegionPermissionType(), menuItems, permissionList));
     }
 
+    /**
+     * 新增角色
+     */
     @PostMapping("update")
     @PreAuthorize("@ss.hasPermission('system:role:add')")
     @StrixLog(operationGroup = "系统角色", operationName = "新增角色", operationType = SysLogOperType.ADD)
@@ -98,11 +107,13 @@ public class SystemRoleController extends BaseSystemController {
         return RetBuilder.success();
     }
 
+    /**
+     * 修改角色
+     */
     @PostMapping("update/{roleId}")
     @PreAuthorize("@ss.hasPermission('system:role:update')")
     @StrixLog(operationGroup = "系统角色", operationName = "修改角色", operationType = SysLogOperType.UPDATE)
     public RetResult<Object> update(@PathVariable String roleId, @RequestBody @Validated(UpdateGroup.class) SystemRoleUpdateReq req) {
-        Assert.hasText(roleId, "参数错误");
         Assert.notNull(req, "参数错误");
         SystemRole systemRole = systemRoleService.getById(roleId);
         Assert.notNull(systemRole, "系统角色信息不存在");
@@ -119,6 +130,9 @@ public class SystemRoleController extends BaseSystemController {
         return RetBuilder.success();
     }
 
+    /**
+     * 修改角色的菜单权限
+     */
     @PostMapping("update/{roleId}/menu")
     @PreAuthorize("@ss.hasPermission('system:role:update')")
     @StrixLog(operationGroup = "系统角色", operationName = "修改角色菜单权限", operationType = SysLogOperType.UPDATE)
@@ -128,27 +142,27 @@ public class SystemRoleController extends BaseSystemController {
         Assert.isTrue(BuiltinConstant.NO == systemRole.getBuiltin(), "系统内置角色不支持修改");
 
         // 修改角色的菜单权限
-        QueryWrapper<SystemRoleMenu> systemRoleMenuQueryWrapper = new QueryWrapper<>();
-        systemRoleMenuQueryWrapper.select("system_menu_id");
-        systemRoleMenuQueryWrapper.eq("system_role_id", roleId);
-        List<String> systemRoleMenuIds = systemRoleMenuService.listObjs(systemRoleMenuQueryWrapper, Object::toString);
+        List<String> systemRoleMenuIds = systemRoleMenuService.lambdaQuery()
+                .select(SystemRoleMenu::getSystemMenuId)
+                .eq(SystemRoleMenu::getSystemRoleId, roleId)
+                .list()
+                .stream()
+                .map(SystemRoleMenu::getSystemMenuId)
+                .collect(Collectors.toList());
+
         KeyDiffUtil.handle(systemRoleMenuIds, Arrays.asList(req.getMenuIds().split(",")),
                 (removeKeys) -> {
-                    QueryWrapper<SystemRoleMenu> removeQueryWrapper = new QueryWrapper<>();
-                    removeQueryWrapper.eq("system_role_id", roleId);
-                    removeQueryWrapper.in("system_menu_id", removeKeys);
-                    Assert.isTrue(systemRoleMenuService.remove(removeQueryWrapper), "移除该角色的菜单权限失败");
+                    Assert.isTrue(
+                            systemRoleMenuService.lambdaUpdate()
+                                    .eq(SystemRoleMenu::getSystemRoleId, roleId)
+                                    .in(SystemRoleMenu::getSystemMenuId, removeKeys)
+                                    .remove(),
+                            "移除该角色的菜单权限失败");
                 },
                 (addKeys) -> {
-                    List<SystemRoleMenu> systemRoleMenuList = new ArrayList<>();
-                    addKeys.forEach(k -> {
-                        SystemRoleMenu systemRoleMenu = new SystemRoleMenu();
-                        systemRoleMenu.setSystemRoleId(roleId);
-                        systemRoleMenu.setSystemMenuId(k);
-                        systemRoleMenu.setCreateBy(loginManagerId());
-                        systemRoleMenu.setUpdateBy(loginManagerId());
-                        systemRoleMenuList.add(systemRoleMenu);
-                    });
+                    List<SystemRoleMenu> systemRoleMenuList = addKeys.stream()
+                            .map(k -> new SystemRoleMenu(roleId, k))
+                            .collect(Collectors.toList());
                     Assert.isTrue(systemRoleMenuService.saveBatch(systemRoleMenuList), "增加该角色的菜单权限失败");
                 },
                 () -> {
@@ -157,28 +171,28 @@ public class SystemRoleController extends BaseSystemController {
                 }
         );
         // 修改角色的系统权限
-        QueryWrapper<SystemRolePermission> systemRolePermissionQueryWrapper = new QueryWrapper<>();
-        systemRolePermissionQueryWrapper.select("system_permission_id");
-        systemRolePermissionQueryWrapper.eq("system_role_id", roleId);
-        List<String> systemRolePermissionIds = systemRolePermissionService.listObjs(systemRolePermissionQueryWrapper, Object::toString);
+        List<String> systemRolePermissionIds = systemRolePermissionService.lambdaQuery()
+                .select(SystemRolePermission::getSystemPermissionId)
+                .eq(SystemRolePermission::getSystemRoleId, roleId)
+                .list()
+                .stream()
+                .map(SystemRolePermission::getSystemPermissionId)
+                .collect(Collectors.toList());
+
         KeyDiffUtil.handle(systemRolePermissionIds, Arrays.asList(req.getPermissionIds().split(",")),
                 (removeKeys) -> {
-                    QueryWrapper<SystemRolePermission> removeQueryWrapper = new QueryWrapper<>();
-                    removeQueryWrapper.eq("system_role_id", roleId);
-                    removeQueryWrapper.in("system_permission_id", removeKeys);
-                    Assert.isTrue(systemRolePermissionService.remove(removeQueryWrapper), "移除该角色的菜单权限失败");
+                    Assert.isTrue(
+                            systemRolePermissionService.lambdaUpdate()
+                                    .eq(SystemRolePermission::getSystemRoleId, roleId)
+                                    .in(SystemRolePermission::getSystemPermissionId, removeKeys)
+                                    .remove(),
+                            "移除该角色的菜单权限失败");
                 },
                 (addKeys) -> {
-                    List<SystemRolePermission> systemRoleMenuList = new ArrayList<>();
-                    addKeys.forEach(k -> {
-                        SystemRolePermission systemRolePermission = new SystemRolePermission();
-                        systemRolePermission.setSystemRoleId(roleId);
-                        systemRolePermission.setSystemPermissionId(k);
-                        systemRolePermission.setCreateBy(loginManagerId());
-                        systemRolePermission.setUpdateBy(loginManagerId());
-                        systemRoleMenuList.add(systemRolePermission);
-                    });
-                    Assert.isTrue(systemRolePermissionService.saveBatch(systemRoleMenuList), "增加该角色的菜单权限失败");
+                    List<SystemRolePermission> systemRolePermissionList = addKeys.stream()
+                            .map(k -> new SystemRolePermission(roleId, k))
+                            .collect(Collectors.toList());
+                    Assert.isTrue(systemRolePermissionService.saveBatch(systemRolePermissionList), "增加该角色的菜单权限失败");
                 },
                 () -> {
                     // 刷新 redis 缓存
@@ -198,11 +212,13 @@ public class SystemRoleController extends BaseSystemController {
         return RetBuilder.success(new SystemRoleResp(systemRole.getId(), systemRole.getName(), systemRole.getRegionPermissionType(), menuItems, permissionList));
     }
 
+    /**
+     * 删除角色
+     */
     @PostMapping("remove/{roleId}")
     @PreAuthorize("@ss.hasPermission('system:role:remove')")
     @StrixLog(operationGroup = "系统角色", operationName = "删除角色", operationType = SysLogOperType.DELETE)
     public RetResult<Object> remove(@PathVariable String roleId) {
-        Assert.hasText(roleId, "参数错误");
         SystemRole systemRole = systemRoleService.getById(roleId);
         Assert.notNull(systemRole, "系统角色信息不存在");
         Assert.isTrue(BuiltinConstant.NO == systemRole.getBuiltin(), "系统内置角色不支持删除");
@@ -210,17 +226,17 @@ public class SystemRoleController extends BaseSystemController {
         systemRoleService.removeById(systemRole);
 
         // 删除管理人员和角色间关系
-        QueryWrapper<SystemManagerRole> deleteManagerRoleRelationQueryWrapper = new QueryWrapper<>();
-        deleteManagerRoleRelationQueryWrapper.eq("system_role_id", systemRole.getId());
-        systemManagerRoleService.remove(deleteManagerRoleRelationQueryWrapper);
+        systemManagerRoleService.lambdaUpdate()
+                .eq(SystemManagerRole::getSystemRoleId, systemRole.getId())
+                .remove();
         // 删除角色和菜单间关系
-        QueryWrapper<SystemRoleMenu> deleteRoleMenuRelationQueryWrapper = new QueryWrapper<>();
-        deleteRoleMenuRelationQueryWrapper.eq("system_role_id", systemRole.getId());
-        systemRoleMenuService.remove(deleteRoleMenuRelationQueryWrapper);
+        systemRoleMenuService.lambdaUpdate()
+                .eq(SystemRoleMenu::getSystemRoleId, systemRole.getId())
+                .remove();
         // 删除角色和系统权限间关系
-        QueryWrapper<SystemRolePermission> deleteRolePermissionRelationQueryWrapper = new QueryWrapper<>();
-        deleteRolePermissionRelationQueryWrapper.eq("system_role_id", systemRole.getId());
-        systemRolePermissionService.remove(deleteRolePermissionRelationQueryWrapper);
+        systemRolePermissionService.lambdaUpdate()
+                .eq(SystemRolePermission::getSystemRoleId, systemRole.getId())
+                .remove();
 
         return RetBuilder.success();
     }
@@ -235,8 +251,6 @@ public class SystemRoleController extends BaseSystemController {
     @PreAuthorize("@ss.hasPermission('system:role:modifyPermission')")
     @StrixLog(operationGroup = "系统角色", operationName = "移除角色的菜单权限", operationType = SysLogOperType.UPDATE)
     public RetResult<SystemRoleResp> removeRoleMenu(@PathVariable String roleId, @PathVariable String menuId) {
-        Assert.hasText(roleId, "参数错误");
-        Assert.hasText(menuId, "参数错误");
         SystemRole systemRole = systemRoleService.getById(roleId);
         Assert.notNull(systemRole, "系统角色信息不存在");
         Assert.isTrue(BuiltinConstant.NO == systemRole.getBuiltin(), "系统内置角色不支持修改");
@@ -244,10 +258,11 @@ public class SystemRoleController extends BaseSystemController {
         // 查询该菜单和其子菜单的id 注意此处使用了ram缓存
         List<String> menuAndChildrenMenu = systemMenuCache.getIdListByParentMenu(menuId);
 
-        QueryWrapper<SystemRoleMenu> systemRoleMenuQueryWrapper = new QueryWrapper<>();
-        systemRoleMenuQueryWrapper.eq("system_role_id", roleId);
-        systemRoleMenuQueryWrapper.in("system_menu_id", menuAndChildrenMenu);
-        systemRoleMenuService.remove(systemRoleMenuQueryWrapper);
+        systemRoleMenuService.lambdaUpdate()
+                .eq(SystemRoleMenu::getSystemRoleId, roleId)
+                .in(SystemRoleMenu::getSystemMenuId, menuAndChildrenMenu)
+                .remove();
+
         // 刷新redis缓存
         systemMenuCache.updateRedisBySystemRoleId(roleId);
         // 刷新 redis 中的登录用户信息
@@ -273,16 +288,15 @@ public class SystemRoleController extends BaseSystemController {
     @PreAuthorize("@ss.hasPermission('system:role:modifyPermission')")
     @StrixLog(operationGroup = "系统角色", operationName = "移除角色的系统权限", operationType = SysLogOperType.UPDATE)
     public RetResult<SystemRoleResp> removeRolePermission(@PathVariable String roleId, @PathVariable String permissionId) {
-        Assert.hasText(roleId, "参数错误");
-        Assert.hasText(permissionId, "参数错误");
         SystemRole systemRole = systemRoleService.getById(roleId);
         Assert.notNull(systemRole, "系统角色信息不存在");
         Assert.isTrue(BuiltinConstant.NO == systemRole.getBuiltin(), "系统内置角色不支持修改");
 
-        QueryWrapper<SystemRolePermission> systemRolePermissionQueryWrapper = new QueryWrapper<>();
-        systemRolePermissionQueryWrapper.eq("system_role_id", roleId);
-        systemRolePermissionQueryWrapper.eq("system_permission_id", permissionId);
-        systemRolePermissionService.remove(systemRolePermissionQueryWrapper);
+        systemRolePermissionService.lambdaUpdate()
+                .eq(SystemRolePermission::getSystemRoleId, roleId)
+                .eq(SystemRolePermission::getSystemPermissionId, permissionId)
+                .remove();
+
         // 刷新redis缓存
         systemPermissionCache.updateRedisBySystemRoleId(roleId);
         // 刷新 redis 中的登录用户信息
@@ -297,6 +311,9 @@ public class SystemRoleController extends BaseSystemController {
         return RetBuilder.success(new SystemRoleResp(systemRole.getId(), systemRole.getName(), systemRole.getRegionPermissionType(), menuItems, permissionList));
     }
 
+    /**
+     * 获取系统角色下拉列表
+     */
     @GetMapping("select")
     public RetResult<CommonSelectDataResp> getSystemRoleSelectList() {
         return RetBuilder.success(systemRoleService.getSelectData());

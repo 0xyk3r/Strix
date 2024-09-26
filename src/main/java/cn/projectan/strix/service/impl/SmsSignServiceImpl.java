@@ -5,8 +5,6 @@ import cn.projectan.strix.model.db.SmsSign;
 import cn.projectan.strix.model.other.module.sms.StrixSmsSign;
 import cn.projectan.strix.service.SmsSignService;
 import cn.projectan.strix.utils.KeyDiffUtil;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,17 +27,21 @@ public class SmsSignServiceImpl extends ServiceImpl<SmsSignMapper, SmsSign> impl
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void syncSignList(String configKey, List<StrixSmsSign> signList) {
-        List<SmsSign> dbSignList = this.list(new LambdaQueryWrapper<>(SmsSign.class).eq(SmsSign::getConfigKey, configKey));
+        List<SmsSign> dbSignList = lambdaQuery()
+                .eq(SmsSign::getConfigKey, configKey)
+                .list();
 
         List<String> dbSignNameList = dbSignList.stream().map(SmsSign::getName).collect(Collectors.toList());
         List<String> signNameList = signList.stream().map(StrixSmsSign::getName).collect(Collectors.toList());
 
         KeyDiffUtil.handle(dbSignNameList, signNameList,
                 (removeKeys) -> {
-                    QueryWrapper<SmsSign> removeQueryWrapper = new QueryWrapper<>();
-                    removeQueryWrapper.eq("config_key", configKey);
-                    removeQueryWrapper.in("name", removeKeys);
-                    Assert.isTrue(remove(removeQueryWrapper), "Strix SMS: 同步删除签名失败.");
+                    Assert.isTrue(
+                            this.lambdaUpdate()
+                                    .eq(SmsSign::getConfigKey, configKey)
+                                    .in(SmsSign::getName, removeKeys)
+                                    .remove(),
+                            "Strix SMS: 同步删除签名失败.");
                 },
                 (addKeys) -> {
                     List<SmsSign> smsSignList = signList.stream()

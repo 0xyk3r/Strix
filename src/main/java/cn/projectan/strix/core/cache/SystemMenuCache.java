@@ -3,7 +3,6 @@ package cn.projectan.strix.core.cache;
 import cn.projectan.strix.model.db.SystemMenu;
 import cn.projectan.strix.service.SystemMenuService;
 import cn.projectan.strix.utils.RedisUtil;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,9 +29,9 @@ public class SystemMenuCache {
 
     @PostConstruct
     private void init() {
-        QueryWrapper<SystemMenu> systemMenuQueryWrapper = new QueryWrapper<>();
-        systemMenuQueryWrapper.orderByAsc("sort_value");
-        instance = systemMenuService.list(systemMenuQueryWrapper);
+        instance = systemMenuService.lambdaQuery()
+                .orderByAsc(SystemMenu::getSortValue)
+                .list();
         log.info("Strix Cache: 管理系统菜单缓存加载完成, 缓存了 {} 个菜单.", instance.size());
     }
 

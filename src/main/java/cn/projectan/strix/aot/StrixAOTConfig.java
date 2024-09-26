@@ -98,7 +98,7 @@ public class StrixAOTConfig {
             ijpayModelClazzSet.forEach(clazz -> hints.reflection().registerType(clazz, MemberCategory.values()));
 
             // Alipay 支付宝SDK 请求/响应类
-            // FIXME 这几个包下有TM两万多个个类, 扫NM, 只注册常用的
+            // 这几个包下有TM两万多个个类, 扫NM, 只注册常用的
 //            Set<Class<?>> alipayDomainClazzSet = ClassUtil.scanPackage("com.alipay.api", AlipayObject.class::isAssignableFrom);
 //            log.info("Scan Alipay Domain Class Count: " + alipayDomainClazzSet.size());
 //            alipayDomainClazzSet.forEach(clazz -> hints.reflection().registerType(clazz, MemberCategory.values()));

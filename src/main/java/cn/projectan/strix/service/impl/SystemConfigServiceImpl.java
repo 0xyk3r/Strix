@@ -3,7 +3,6 @@ package cn.projectan.strix.service.impl;
 import cn.projectan.strix.mapper.SystemConfigMapper;
 import cn.projectan.strix.model.db.SystemConfig;
 import cn.projectan.strix.service.SystemConfigService;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 
@@ -20,8 +19,8 @@ public class SystemConfigServiceImpl extends ServiceImpl<SystemConfigMapper, Sys
 
     @Override
     public SystemConfig getByKey(String key) {
-        QueryWrapper<SystemConfig> systemSettingQueryWrapper = new QueryWrapper<>();
-        systemSettingQueryWrapper.eq("key", key);
-        return getBaseMapper().selectOne(systemSettingQueryWrapper);
+        return lambdaQuery()
+                .eq(SystemConfig::getKey, key)
+                .one();
     }
 }

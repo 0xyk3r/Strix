@@ -10,7 +10,6 @@ import cn.projectan.strix.model.request.system.monitor.log.SystemLogListReq;
 import cn.projectan.strix.model.response.system.monitor.log.SystemLogListResp;
 import cn.projectan.strix.service.SystemLogService;
 import cn.projectan.strix.utils.NumUtil;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +20,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
+ * 系统操作日志
+ *
  * @author ProjectAn
  * @date 2023/6/17 22:21
  */
@@ -32,29 +33,21 @@ public class LogController extends BaseSystemController {
 
     private final SystemLogService systemLogService;
 
+    /**
+     * 查询系统操作日志
+     */
     @GetMapping()
     @PreAuthorize("@ss.hasPermission('system:monitor:log')")
     @StrixLog(operationGroup = "系统操作日志", operationName = "查询系统操作日志")
     public RetResult<Object> list(SystemLogListReq req) {
-        LambdaQueryWrapper<SystemLog> queryWrapper = new LambdaQueryWrapper<>();
-
-        if (StringUtils.hasText(req.getOperationType())) {
-            queryWrapper.eq(SystemLog::getOperationType, req.getOperationType());
-        }
-        if (StringUtils.hasText(req.getOperationGroup())) {
-            queryWrapper.eq(SystemLog::getOperationGroup, req.getOperationGroup());
-        }
-        if (StringUtils.hasText(req.getKeyword())) {
-            queryWrapper.eq(SystemLog::getOperationName, req.getKeyword());
-        }
-        if (NumUtil.checkCategory(req.getResponseCode(), NumCategory.POSITIVE)) {
-            queryWrapper.eq(SystemLog::getResponseCode, req.getResponseCode());
-        }
-
-        queryWrapper.orderByDesc(SystemLog::getOperationTime);
-
         try {
-            Page<SystemLog> page = systemLogService.page(req.getPage(), queryWrapper);
+            Page<SystemLog> page = systemLogService.lambdaQuery()
+                    .eq(StringUtils.hasText(req.getOperationType()), SystemLog::getOperationType, req.getOperationType())
+                    .eq(StringUtils.hasText(req.getOperationGroup()), SystemLog::getOperationGroup, req.getOperationGroup())
+                    .eq(StringUtils.hasText(req.getKeyword()), SystemLog::getOperationName, req.getKeyword())
+                    .eq(NumUtil.checkCategory(req.getResponseCode(), NumCategory.POSITIVE), SystemLog::getResponseCode, req.getResponseCode())
+                    .orderByDesc(SystemLog::getOperationTime)
+                    .page(req.getPage());
             return RetBuilder.success(new SystemLogListResp(page.getRecords(), page.getTotal()));
         } catch (Exception e) {
             return RetBuilder.error("Strix 日志服务未开启，无法查询日志");

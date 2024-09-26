@@ -7,13 +7,11 @@ import cn.projectan.strix.model.dict.SystemUserStatus;
 import cn.projectan.strix.service.SystemUserRelationService;
 import cn.projectan.strix.service.SystemUserService;
 import cn.projectan.strix.utils.RedisUtil;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
 
 /**
  * <p>
@@ -32,12 +30,12 @@ public class SystemUserServiceImpl extends ServiceImpl<SystemUserMapper, SystemU
 
     @Override
     public SystemUser createSystemUser(String nickname, String phoneNumber) {
-        QueryWrapper<SystemUser> checkOneQueryWrapper = new QueryWrapper<>();
-        checkOneQueryWrapper.eq("nickname", nickname);
-        if (StringUtils.hasText(phoneNumber)) {
-            checkOneQueryWrapper.or(qw -> qw.eq("phone_number", phoneNumber));
-        }
-        Assert.isTrue(getBaseMapper().selectCount(checkOneQueryWrapper) == 0, "昵称或手机号码已被使用，请更换后重试");
+        Assert.isTrue(
+                !lambdaQuery()
+                        .eq(SystemUser::getNickname, nickname)
+                        .or(q -> q.eq(SystemUser::getPhoneNumber, phoneNumber))
+                        .exists(),
+                "昵称或手机号码已被使用，请更换后重试");
 
         SystemUser systemUser = new SystemUser();
         systemUser.setNickname(nickname);
@@ -51,14 +49,16 @@ public class SystemUserServiceImpl extends ServiceImpl<SystemUserMapper, SystemU
 
     @Override
     public void bindThirdUser(String systemUserId, Integer relationType, String oauthUserId) {
-        QueryWrapper<SystemUserRelation> checkOneQueryWrapper = new QueryWrapper<>();
-        checkOneQueryWrapper.eq("relation_type", relationType);
-        checkOneQueryWrapper.eq("system_user_id", systemUserId);
-        Assert.isTrue(systemUserRelationService.count(checkOneQueryWrapper) == 0, "已经绑定过该平台账号了，不能重复绑定");
-        QueryWrapper<SystemUserRelation> checkTwoQueryWrapper = new QueryWrapper<>();
-        checkTwoQueryWrapper.eq("relation_type", relationType);
-        checkTwoQueryWrapper.eq("relation_id", oauthUserId);
-        Assert.isTrue(systemUserRelationService.count(checkTwoQueryWrapper) == 0, "该平台账号已被其他用户绑定，不能重复绑定");
+        Assert.isTrue(
+                !systemUserRelationService.lambdaQuery()
+                        .and(q -> q
+                                .eq(SystemUserRelation::getRelationType, relationType)
+                                .eq(SystemUserRelation::getSystemUserId, systemUserId))
+                        .or(q -> q
+                                .eq(SystemUserRelation::getRelationType, relationType)
+                                .eq(SystemUserRelation::getRelationId, oauthUserId))
+                        .exists(),
+                "已绑定过或账号已被其他用户绑定，不能重复绑定");
 
         SystemUserRelation systemUserRelation = new SystemUserRelation();
         systemUserRelation.setRelationType(relationType);
@@ -75,14 +75,13 @@ public class SystemUserServiceImpl extends ServiceImpl<SystemUserMapper, SystemU
     @Cacheable(value = "strix:system:user:userRelation", key = "#relationType+'-'+#oauthUserId")
     @Override
     public SystemUser getSystemUser(Integer relationType, String oauthUserId) {
-        QueryWrapper<SystemUserRelation> systemUserRelationQueryWrapper = new QueryWrapper<>();
-        systemUserRelationQueryWrapper.eq("relation_type", relationType);
-        systemUserRelationQueryWrapper.eq("relation_id", oauthUserId);
-        SystemUserRelation systemUserRelation = systemUserRelationService.getOne(systemUserRelationQueryWrapper);
+        SystemUserRelation systemUserRelation = systemUserRelationService.lambdaQuery()
+                .eq(SystemUserRelation::getRelationType, relationType)
+                .eq(SystemUserRelation::getRelationId, oauthUserId)
+                .one();
         if (systemUserRelation != null) {
             return getBaseMapper().selectById(systemUserRelation.getSystemUserId());
         }
-
         return null;
     }
 

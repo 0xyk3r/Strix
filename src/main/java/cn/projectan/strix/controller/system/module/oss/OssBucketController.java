@@ -16,7 +16,6 @@ import cn.projectan.strix.service.OssBucketService;
 import cn.projectan.strix.task.StrixOssTask;
 import cn.projectan.strix.utils.UniqueDetectionTool;
 import cn.projectan.strix.utils.UpdateConditionBuilder;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +28,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 /**
+ * 存储空间管理
+ *
  * @author ProjectAn
  * @date 2023/5/27 22:43
  */
@@ -42,24 +43,24 @@ public class OssBucketController extends BaseSystemController {
     private final OssBucketService ossBucketService;
     private final StrixOssTask strixOssTask;
 
+    /**
+     * 查询存储空间列表
+     */
     @GetMapping("")
     @PreAuthorize("@ss.hasPermission('system:module:oss:bucket')")
     @StrixLog(operationGroup = "系统存储空间", operationName = "查询存储空间列表")
     public RetResult<OssBucketListResp> getOssBucketList(OssBucketListReq req) {
-        QueryWrapper<OssBucket> queryWrapper = new QueryWrapper<>();
-
-        if (StringUtils.hasText(req.getKeyword())) {
-            queryWrapper.like("name", req.getKeyword());
-        }
-        if (StringUtils.hasText(req.getConfigKey())) {
-            queryWrapper.eq("config_key", req.getConfigKey());
-        }
-
-        Page<OssBucket> page = ossBucketService.page(req.getPage(), queryWrapper);
+        Page<OssBucket> page = ossBucketService.lambdaQuery()
+                .like(StringUtils.hasText(req.getKeyword()), OssBucket::getName, req.getKeyword())
+                .eq(StringUtils.hasText(req.getConfigKey()), OssBucket::getConfigKey, req.getConfigKey())
+                .page(req.getPage());
 
         return RetBuilder.success(new OssBucketListResp(page.getRecords(), page.getTotal()));
     }
 
+    /**
+     * 新增存储空间
+     */
     @PostMapping("update")
     @PreAuthorize("@ss.hasPermission('system:module:oss:bucket:add')")
     @StrixLog(operationGroup = "系统存储空间", operationName = "新增存储空间", operationType = SysLogOperType.ADD)
@@ -73,8 +74,6 @@ public class OssBucketController extends BaseSystemController {
                 req.getStorageClass(),
                 null
         );
-        ossBucket.setCreateBy(loginManagerId());
-        ossBucket.setUpdateBy(loginManagerId());
 
         UniqueDetectionTool.check(ossBucket);
 
@@ -86,6 +85,9 @@ public class OssBucketController extends BaseSystemController {
         return RetBuilder.success();
     }
 
+    /**
+     * 修改存储空间
+     */
     @PostMapping("update/{id}")
     @PreAuthorize("@ss.hasPermission('system:module:oss:bucket:update')")
     @StrixLog(operationGroup = "系统存储空间", operationName = "修改存储空间", operationType = SysLogOperType.UPDATE)
@@ -100,14 +102,14 @@ public class OssBucketController extends BaseSystemController {
         return RetBuilder.success();
     }
 
+    /**
+     * 删除存储空间
+     */
     @PostMapping("remove/{id}")
     @PreAuthorize("@ss.hasPermission('system:module:oss:bucket:remove')")
     @StrixLog(operationGroup = "系统存储空间", operationName = "删除存储空间", operationType = SysLogOperType.DELETE)
     public RetResult<Object> remove(@PathVariable String id) {
-        Assert.hasText(id, "参数错误");
-
         ossBucketService.removeById(id);
-
         return RetBuilder.success();
     }
 

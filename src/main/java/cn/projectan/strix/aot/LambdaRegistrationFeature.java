@@ -3,6 +3,10 @@ package cn.projectan.strix.aot;
 
 import cn.hutool.core.util.ClassUtil;
 import cn.projectan.strix.StrixApplication;
+import cn.projectan.strix.core.cache.SystemMenuCache;
+import cn.projectan.strix.initializer.DictSyncInitializer;
+import cn.projectan.strix.initializer.SecurityRuleInitializer;
+import cn.projectan.strix.task.StrixOAuthPushTask;
 import cn.projectan.strix.utils.PopularityUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.graalvm.nativeimage.hosted.Feature;
@@ -38,7 +42,11 @@ public class LambdaRegistrationFeature implements Feature {
         serviceImplClazzSet.forEach(RuntimeSerialization::registerLambdaCapturingClass);
 
         // TODO 在此补充其他使用了 Lambda 表达式的类
+        RuntimeSerialization.registerLambdaCapturingClass(DictSyncInitializer.class);
+        RuntimeSerialization.registerLambdaCapturingClass(SecurityRuleInitializer.class);
+        RuntimeSerialization.registerLambdaCapturingClass(SystemMenuCache.class);
         RuntimeSerialization.registerLambdaCapturingClass(PopularityUtil.class);
+        RuntimeSerialization.registerLambdaCapturingClass(StrixOAuthPushTask.class);
     }
 
 }

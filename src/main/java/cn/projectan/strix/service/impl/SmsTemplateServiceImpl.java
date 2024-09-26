@@ -5,8 +5,6 @@ import cn.projectan.strix.model.db.SmsTemplate;
 import cn.projectan.strix.model.other.module.sms.StrixSmsTemplate;
 import cn.projectan.strix.service.SmsTemplateService;
 import cn.projectan.strix.utils.KeyDiffUtil;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,17 +27,21 @@ public class SmsTemplateServiceImpl extends ServiceImpl<SmsTemplateMapper, SmsTe
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void syncTemplateList(String configKey, List<StrixSmsTemplate> templateList) {
-        List<SmsTemplate> dbTemplateList = this.list(new LambdaQueryWrapper<>(SmsTemplate.class).eq(SmsTemplate::getConfigKey, configKey));
+        List<SmsTemplate> dbTemplateList = lambdaQuery()
+                .eq(SmsTemplate::getConfigKey, configKey)
+                .list();
 
         List<String> dbTemplateCodeList = dbTemplateList.stream().map(SmsTemplate::getCode).collect(Collectors.toList());
         List<String> templateCodeList = templateList.stream().map(StrixSmsTemplate::getCode).collect(Collectors.toList());
 
         KeyDiffUtil.handle(dbTemplateCodeList, templateCodeList,
                 (removeKeys) -> {
-                    QueryWrapper<SmsTemplate> removeQueryWrapper = new QueryWrapper<>();
-                    removeQueryWrapper.eq("config_key", configKey);
-                    removeQueryWrapper.in("code", removeKeys);
-                    Assert.isTrue(remove(removeQueryWrapper), "Strix SMS: 同步删除模板失败.");
+                    Assert.isTrue(
+                            this.lambdaUpdate()
+                                    .eq(SmsTemplate::getConfigKey, configKey)
+                                    .in(SmsTemplate::getCode, removeKeys)
+                                    .remove(),
+                            "Strix SMS: 同步删除模板失败.");
                 },
                 (addKeys) -> {
                     List<SmsTemplate> smsTemplateList = templateList.stream()
