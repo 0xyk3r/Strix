@@ -7,6 +7,7 @@ import cn.projectan.strix.model.annotation.Anonymous;
 import cn.projectan.strix.model.annotation.IgnoreDataEncryption;
 import cn.projectan.strix.model.other.module.pay.BasePayResult;
 import cn.projectan.strix.service.PayOrderService;
+import cn.projectan.strix.utils.I18nUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -44,16 +45,16 @@ public class PayNotifyController extends BaseController {
 
         boolean verified = client.verifyNotify(request);
         try {
-            Assert.isTrue(verified, "支付回调: 验签失败");
+            Assert.isTrue(verified, I18nUtil.get("error.pay.invalidSign"));
             BasePayResult payResult = client.resolveResult(request);
-            Assert.isTrue(payResult.getSuccess(), "支付回调: 支付状态非成功");
-            Assert.hasText(payResult.getOrderId(), "支付回调: 订单号为空");
+            Assert.isTrue(payResult.getSuccess(), I18nUtil.get("error.pay.badStatus"));
+            Assert.hasText(payResult.getOrderId(), I18nUtil.get("error.pay.badOrderId"));
 
             payOrderService.handlePayResult(payResult);
 
             client.respondNotify(true, response);
         } catch (Exception e) {
-            log.error("支付回调异常", e);
+            log.error("Bad Pay Callback", e);
             client.respondNotify(false, response);
         }
     }

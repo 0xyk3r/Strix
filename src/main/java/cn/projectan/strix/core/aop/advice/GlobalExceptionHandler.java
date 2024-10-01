@@ -45,27 +45,27 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public RetResult<Object> handleHttpMessageNotReadableException(HttpMessageNotReadableException e) {
         log.error(e.getMessage(), e);
-        return RetBuilder.error(I18nUtil.getMessage("error.params_not_allow"));
+        return RetBuilder.error(I18nUtil.get("error.paramsNotAllow"));
     }
 
     @ExceptionHandler(NoHandlerFoundException.class)
     public RetResult<Object> handleNoHandlerFoundException(NoHandlerFoundException e) {
-        return RetBuilder.build(RetCode.NOT_FOUND, I18nUtil.getMessage("error.api_not_found"));
+        return RetBuilder.build(RetCode.NOT_FOUND, I18nUtil.get("error.apiNotFound"));
     }
 
     @ExceptionHandler(NoResourceFoundException.class)
     public RetResult<Object> handleNoResourceFoundException(NoResourceFoundException e) {
-        return RetBuilder.build(RetCode.NOT_FOUND, I18nUtil.getMessage("error.api_not_found"));
+        return RetBuilder.build(RetCode.NOT_FOUND, I18nUtil.get("error.apiNotFound"));
     }
 
     @ExceptionHandler(StrixNoAuthException.class)
     public RetResult<Object> handleStrixNoAuthException(StrixNoAuthException e) {
-        return RetBuilder.build(RetCode.NOT_LOGIN, I18nUtil.getMessage("error.not_login"));
+        return RetBuilder.build(RetCode.NOT_LOGIN, I18nUtil.get("error.notLogin"));
     }
 
     @ExceptionHandler(AccessDeniedException.class)
     public RetResult<Object> handleAccessDeniedException(AccessDeniedException e) {
-        return RetBuilder.build(RetCode.NOT_PERMISSION, I18nUtil.getMessage("error.not_permission"));
+        return RetBuilder.build(RetCode.NOT_PERMISSION, I18nUtil.get("error.notPermission"));
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
@@ -81,14 +81,14 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public RetResult<Object> handleException(Exception e) {
         if (e instanceof NoHandlerFoundException) {
-            return RetBuilder.build(RetCode.NOT_FOUND, I18nUtil.getMessage("error.api_not_found"));
+            return RetBuilder.build(RetCode.NOT_FOUND, I18nUtil.get("error.apiNotFound"));
         } else if (e instanceof NoResourceFoundException) {
-            return RetBuilder.build(RetCode.NOT_FOUND, I18nUtil.getMessage("error.api_not_found"));
+            return RetBuilder.build(RetCode.NOT_FOUND, I18nUtil.get("error.apiNotFound"));
         } else if (e instanceof HttpRequestMethodNotSupportedException) {
-            return RetBuilder.build(RetCode.METHOD_ERROR, I18nUtil.getMessage("error.api_method_unsupported"));
+            return RetBuilder.build(RetCode.METHOD_ERROR, I18nUtil.get("error.apiMethodUnsupported"));
         }
         log.error(e.getMessage(), e);
-        return RetBuilder.error(I18nUtil.getMessage("error.other"));
+        return RetBuilder.error(I18nUtil.get("error.otherError"));
     }
 
 }

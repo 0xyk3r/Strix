@@ -83,18 +83,18 @@ public class ApiSecurityCheckAspect {
                 .map(Boolean::parseBoolean)
                 .orElse(true);
         if (!security) {
-            return RetBuilder.error(RetCode.BAT_REQUEST, I18nUtil.getMessage("error.bad_request") + "1");
+            return RetBuilder.error(RetCode.BAT_REQUEST, I18nUtil.get("error.badRequest") + "1");
         }
 
         String url = request.getRequestURI();
         String timestamp = request.getHeader("timestamp");
         String sign = request.getHeader("sign");
         if (!StringUtils.hasText(sign) || !StringUtils.hasText(timestamp)) {
-            return RetBuilder.error(RetCode.BAT_REQUEST, I18nUtil.getMessage("error.bad_request") + "2");
+            return RetBuilder.error(RetCode.BAT_REQUEST, I18nUtil.get("error.badRequest") + "2");
         }
         // 校验时间戳 30s 内有效
         if (System.currentTimeMillis() - Long.parseLong(timestamp) > 1000 * 30) {
-            return RetBuilder.error(RetCode.BAT_REQUEST, I18nUtil.getMessage("error.bad_request") + "3");
+            return RetBuilder.error(RetCode.BAT_REQUEST, I18nUtil.get("error.badRequest") + "3");
         }
 
         final Map<String, Object> paramsMap = new TreeMap<>();
@@ -112,7 +112,7 @@ public class ApiSecurityCheckAspect {
 
         // 校验签名
         if (!ApiSignUtil.verifySign(paramsMap, sign)) {
-            return RetBuilder.error(RetCode.BAT_REQUEST, I18nUtil.getMessage("error.bad_request") + "4");
+            return RetBuilder.error(RetCode.BAT_REQUEST, I18nUtil.get("error.badRequest") + "4");
         }
 
         return pjp.proceed();

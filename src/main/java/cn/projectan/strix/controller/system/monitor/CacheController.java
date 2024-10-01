@@ -51,10 +51,13 @@ public class CacheController extends BaseSystemController {
                 "dbSize", dbSize,
                 "commandStats", Optional.ofNullable(commandStats)
                         .map(stats -> stats.stringPropertyNames().stream()
+                                .filter(key -> !key.equals("cmdstat_ping"))
                                 .map(key -> Map.of(
                                         "name", StringUtils.removeStart(key, "cmdstat_"),
                                         "value", StringUtils.substringBetween(stats.getProperty(key), "calls=", ",usec")
                                 ))
+                                .sorted((a, b) -> Integer.parseInt(b.get("value")) - Integer.parseInt(a.get("value")))
+                                .limit(10)
                                 .collect(Collectors.toList()))
                         .orElse(Collections.emptyList())
         );

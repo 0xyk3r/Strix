@@ -2,6 +2,7 @@ package cn.projectan.strix.controller.api.base;
 
 import cn.projectan.strix.controller.BaseController;
 import cn.projectan.strix.model.db.SystemUser;
+import cn.projectan.strix.utils.I18nUtil;
 import cn.projectan.strix.utils.SecurityUtils;
 import org.springframework.util.Assert;
 
@@ -18,7 +19,7 @@ public class BaseApiController extends BaseController {
      */
     protected SystemUser getLoginUser() {
         SystemUser systemUser = (SystemUser) SecurityUtils.getAuthentication().getPrincipal();
-        Assert.notNull(systemUser, "获取登录信息失败");
+        Assert.notNull(systemUser, I18nUtil.get("error.noLoginInfo"));
         return systemUser;
     }
 

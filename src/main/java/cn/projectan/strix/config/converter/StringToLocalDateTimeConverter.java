@@ -25,7 +25,7 @@ public class StringToLocalDateTimeConverter implements Converter<String, LocalDa
         try {
             return LocalDateTime.parse(source, formatter);
         } catch (Exception e) {
-            log.warn("时间转换异常：", e);
+            log.warn("Date Convert Error", e);
         }
         return null;
     }

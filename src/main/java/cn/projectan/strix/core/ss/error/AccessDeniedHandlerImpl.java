@@ -28,7 +28,7 @@ public class AccessDeniedHandlerImpl implements AccessDeniedHandler {
     public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) throws IOException {
         response.setContentType("application/json;charset=utf-8");
         response.setStatus(HttpServletResponse.SC_OK);
-        ServletUtils.write(response, objectMapper.writeValueAsString(RetBuilder.error(RetCode.NOT_PERMISSION, I18nUtil.getMessage("error.not_permission"))));
+        ServletUtils.write(response, objectMapper.writeValueAsString(RetBuilder.error(RetCode.NOT_PERMISSION, I18nUtil.get("error.notPermission"))));
     }
 
 }
