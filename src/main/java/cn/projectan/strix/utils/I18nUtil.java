@@ -41,8 +41,8 @@ public class I18nUtil {
      * @param code 国际化key
      * @return 国际化后内容信息
      */
-    public static String getMessage(String code) {
-        return getMessage(code, null, code, resolver.getLocal());
+    public static String get(String code) {
+        return get(code, null, code, resolver.getLocal());
     }
 
     /**
@@ -52,12 +52,12 @@ public class I18nUtil {
      * @param lang 语言参数
      * @return 国际化后内容信息
      */
-    public static String getMessage(String code, String lang) {
+    public static String get(String code, String lang) {
         Locale locale = convertLocale(lang);
-        return getMessage(code, null, code, locale);
+        return get(code, null, code, locale);
     }
 
-    public static String getMessage(String code, Object[] args, String defaultMessage, Locale locale) {
+    public static String get(String code, Object[] args, String defaultMessage, Locale locale) {
         ReloadableResourceBundleMessageSource messageSource = new ReloadableResourceBundleMessageSource();
         messageSource.setDefaultEncoding(StandardCharsets.UTF_8.toString());
         messageSource.setFallbackToSystemLocale(false);
