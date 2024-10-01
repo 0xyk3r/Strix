@@ -16,8 +16,18 @@ import java.util.List;
  */
 public interface OssConfigService extends IService<OssConfig> {
 
+    /**
+     * 创建实例
+     *
+     * @param ossConfigList 阿里云OSS配置列表
+     */
     void createInstance(List<OssConfig> ossConfigList);
 
+    /**
+     * 获取下拉数据
+     *
+     * @return 下拉数据
+     */
     CommonSelectDataResp getSelectData();
 
 }

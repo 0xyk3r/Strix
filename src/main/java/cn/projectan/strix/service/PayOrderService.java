@@ -40,6 +40,11 @@ public interface PayOrderService extends IService<PayOrder> {
      */
     void handlePayResult(BasePayResult payResult);
 
+    /**
+     * 处理订单过期
+     *
+     * @param orderId 订单id
+     */
     void handleExpired(String orderId);
 
 }

@@ -25,7 +25,7 @@ import cn.projectan.strix.task.StrixOssTask;
 import cn.projectan.strix.utils.SpringUtil;
 import cn.projectan.strix.utils.UniqueDetectionTool;
 import cn.projectan.strix.utils.UpdateConditionBuilder;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -146,7 +146,7 @@ public class OssController extends BaseSystemController {
         Assert.notNull(ossConfig, "原记录不存在");
         String originKey = ossConfig.getKey();
 
-        UpdateWrapper<OssConfig> updateWrapper = UpdateConditionBuilder.build(ossConfig, req);
+        LambdaUpdateWrapper<OssConfig> updateWrapper = UpdateConditionBuilder.build(ossConfig, req);
         UniqueDetectionTool.check(ossConfig);
         Assert.isTrue(ossConfigService.update(updateWrapper), "保存失败");
 

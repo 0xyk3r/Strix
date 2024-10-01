@@ -25,7 +25,7 @@ import cn.projectan.strix.utils.NumUtil;
 import cn.projectan.strix.utils.SpringUtil;
 import cn.projectan.strix.utils.UniqueDetectionTool;
 import cn.projectan.strix.utils.UpdateConditionBuilder;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -146,7 +146,7 @@ public class SmsController extends BaseSystemController {
         Assert.notNull(smsConfig, "原记录不存在");
         String originKey = smsConfig.getKey();
 
-        UpdateWrapper<SmsConfig> updateWrapper = UpdateConditionBuilder.build(smsConfig, req);
+        LambdaUpdateWrapper<SmsConfig> updateWrapper = UpdateConditionBuilder.build(smsConfig, req);
         UniqueDetectionTool.check(smsConfig);
         Assert.isTrue(smsConfigService.update(updateWrapper), "保存失败");
 

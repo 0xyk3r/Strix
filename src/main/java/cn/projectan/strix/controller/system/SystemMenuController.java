@@ -23,7 +23,7 @@ import cn.projectan.strix.service.SystemRoleMenuService;
 import cn.projectan.strix.utils.SpringUtil;
 import cn.projectan.strix.utils.UniqueDetectionTool;
 import cn.projectan.strix.utils.UpdateConditionBuilder;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -142,7 +142,7 @@ public class SystemMenuController extends BaseSystemController {
         SystemMenu systemMenu = systemMenuService.getById(menuId);
         Assert.notNull(systemMenu, "系统菜单信息不存在");
 
-        UpdateWrapper<SystemMenu> updateWrapper = UpdateConditionBuilder.build(systemMenu, req);
+        LambdaUpdateWrapper<SystemMenu> updateWrapper = UpdateConditionBuilder.build(systemMenu, req);
         UniqueDetectionTool.check(systemMenu);
         Assert.isTrue(systemMenuService.update(updateWrapper), "保存失败");
         // 更新缓存

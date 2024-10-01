@@ -19,7 +19,7 @@ import cn.projectan.strix.service.PopularityConfigService;
 import cn.projectan.strix.service.PopularityDataService;
 import cn.projectan.strix.utils.UniqueDetectionTool;
 import cn.projectan.strix.utils.UpdateConditionBuilder;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -102,7 +102,7 @@ public class PopularityController extends BaseSystemController {
         PopularityConfig data = popularityConfigService.getById(id);
         Assert.notNull(data, "数据不存在");
 
-        UpdateWrapper<PopularityConfig> updateWrapper = UpdateConditionBuilder.build(data, req);
+        LambdaUpdateWrapper<PopularityConfig> updateWrapper = UpdateConditionBuilder.build(data, req);
         UniqueDetectionTool.check(data);
         Assert.isTrue(popularityConfigService.update(updateWrapper), "保存失败");
 

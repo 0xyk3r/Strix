@@ -23,7 +23,7 @@ import cn.projectan.strix.service.SystemManagerService;
 import cn.projectan.strix.service.SystemRegionService;
 import cn.projectan.strix.utils.UniqueDetectionTool;
 import cn.projectan.strix.utils.UpdateConditionBuilder;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -241,7 +241,7 @@ public class SystemRegionController extends BaseSystemController {
 
         boolean parentChanged = !systemRegion.getParentId().equals(req.getParentId());
 
-        UpdateWrapper<SystemRegion> updateWrapper = UpdateConditionBuilder.build(systemRegion, req);
+        LambdaUpdateWrapper<SystemRegion> updateWrapper = UpdateConditionBuilder.build(systemRegion, req);
         UniqueDetectionTool.check(systemRegion);
 
         if (parentChanged) {
