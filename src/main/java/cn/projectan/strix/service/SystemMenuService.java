@@ -14,6 +14,11 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface SystemMenuService extends IService<SystemMenu> {
 
+    /**
+     * 获取树形数据
+     *
+     * @return 树形数据
+     */
     CommonTreeDataResp getTreeData();
 
 }

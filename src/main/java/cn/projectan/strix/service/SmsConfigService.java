@@ -16,8 +16,18 @@ import java.util.List;
  */
 public interface SmsConfigService extends IService<SmsConfig> {
 
+    /**
+     * 创建实例
+     *
+     * @param smsConfigList 短信配置列表
+     */
     void createInstance(List<SmsConfig> smsConfigList);
 
+    /**
+     * 获取下拉数据
+     *
+     * @return 下拉数据
+     */
     CommonSelectDataResp getSelectData();
 
 }

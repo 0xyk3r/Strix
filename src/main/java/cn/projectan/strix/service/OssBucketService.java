@@ -16,8 +16,21 @@ import java.util.List;
  */
 public interface OssBucketService extends IService<OssBucket> {
 
+    /**
+     * 同步bucket列表
+     *
+     * @param configKey  配置key
+     * @param bucketList bucket列表
+     */
     void syncBucketList(String configKey, List<StrixOssBucket> bucketList);
 
+    /**
+     * 创建bucket
+     *
+     * @param configKey    配置key
+     * @param bucketName   bucket名称
+     * @param storageClass 存储类型
+     */
     void createBucket(String configKey, String bucketName, String storageClass);
 
 }

@@ -4,6 +4,7 @@ import cn.hutool.core.convert.Convert;
 import cn.hutool.core.util.StrUtil;
 import cn.projectan.strix.core.exception.StrixException;
 import cn.projectan.strix.model.annotation.UpdateField;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
@@ -31,7 +32,7 @@ public class UpdateConditionBuilder {
      * @param <V>  请求体类型
      * @return 用于执行update操作的UpdateWrapper
      */
-    public static <T, V> UpdateWrapper<T> build(T bean, V req) {
+    public static <T, V> LambdaUpdateWrapper<T> build(T bean, V req) {
         UpdateWrapper<T> updateWrapper = new UpdateWrapper<>();
         // 设置要修改的数据 ID
         String id = ReflectUtil.getString(bean, "id");
@@ -71,7 +72,7 @@ public class UpdateConditionBuilder {
             }
         }
         Assert.isTrue(setCount.get() > 0, "未修改任何数据");
-        return updateWrapper;
+        return updateWrapper.lambda();
     }
 
 }

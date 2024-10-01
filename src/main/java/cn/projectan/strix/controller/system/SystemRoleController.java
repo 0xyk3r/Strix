@@ -23,7 +23,7 @@ import cn.projectan.strix.utils.KeyDiffUtil;
 import cn.projectan.strix.utils.SpringUtil;
 import cn.projectan.strix.utils.UniqueDetectionTool;
 import cn.projectan.strix.utils.UpdateConditionBuilder;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -119,7 +119,7 @@ public class SystemRoleController extends BaseSystemController {
         Assert.notNull(systemRole, "系统角色信息不存在");
         Assert.isTrue(BuiltinConstant.NO == systemRole.getBuiltin(), "系统内置角色不支持修改");
 
-        UpdateWrapper<SystemRole> updateWrapper = UpdateConditionBuilder.build(systemRole, req);
+        LambdaUpdateWrapper<SystemRole> updateWrapper = UpdateConditionBuilder.build(systemRole, req);
         UniqueDetectionTool.check(systemRole);
         Assert.isTrue(systemRoleService.update(updateWrapper), "保存失败");
 

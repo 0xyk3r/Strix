@@ -22,7 +22,6 @@ import cn.projectan.strix.utils.NumUtil;
 import cn.projectan.strix.utils.UniqueDetectionTool;
 import cn.projectan.strix.utils.UpdateConditionBuilder;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -145,7 +144,7 @@ public class SystemUserController extends BaseSystemController {
         SystemUser systemUser = systemUserService.getById(userId);
         Assert.notNull(systemUser, "系统用户信息不存在");
 
-        UpdateWrapper<SystemUser> updateWrapper = UpdateConditionBuilder.build(systemUser, req);
+        LambdaUpdateWrapper<SystemUser> updateWrapper = UpdateConditionBuilder.build(systemUser, req);
         UniqueDetectionTool.check(systemUser);
         Assert.isTrue(systemUserService.update(updateWrapper), "保存失败");
 

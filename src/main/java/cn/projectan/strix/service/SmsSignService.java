@@ -16,6 +16,12 @@ import java.util.List;
  */
 public interface SmsSignService extends IService<SmsSign> {
 
+    /**
+     * 同步签名列表
+     *
+     * @param configKey 短信配置key
+     * @param signList  签名列表
+     */
     void syncSignList(String configKey, List<StrixSmsSign> signList);
 
 }

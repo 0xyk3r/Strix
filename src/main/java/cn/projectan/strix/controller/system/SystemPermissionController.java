@@ -20,7 +20,7 @@ import cn.projectan.strix.service.SystemRolePermissionService;
 import cn.projectan.strix.utils.SpringUtil;
 import cn.projectan.strix.utils.UniqueDetectionTool;
 import cn.projectan.strix.utils.UpdateConditionBuilder;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -107,7 +107,7 @@ public class SystemPermissionController extends BaseSystemController {
         SystemPermission systemPermission = systemPermissionService.getById(permissionId);
         Assert.notNull(systemPermission, "系统权限信息不存在");
 
-        UpdateWrapper<SystemPermission> updateWrapper = UpdateConditionBuilder.build(systemPermission, req);
+        LambdaUpdateWrapper<SystemPermission> updateWrapper = UpdateConditionBuilder.build(systemPermission, req);
         UniqueDetectionTool.check(systemPermission);
         Assert.isTrue(systemPermissionService.update(updateWrapper), "保存失败");
         // 更新缓存

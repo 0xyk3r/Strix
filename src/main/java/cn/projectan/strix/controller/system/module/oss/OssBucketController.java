@@ -16,7 +16,7 @@ import cn.projectan.strix.service.OssBucketService;
 import cn.projectan.strix.task.StrixOssTask;
 import cn.projectan.strix.utils.UniqueDetectionTool;
 import cn.projectan.strix.utils.UpdateConditionBuilder;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -95,7 +95,7 @@ public class OssBucketController extends BaseSystemController {
         OssBucket ossBucket = ossBucketService.getById(id);
         Assert.notNull(ossBucket, "原记录不存在");
 
-        UpdateWrapper<OssBucket> updateWrapper = UpdateConditionBuilder.build(ossBucket, req);
+        LambdaUpdateWrapper<OssBucket> updateWrapper = UpdateConditionBuilder.build(ossBucket, req);
         UniqueDetectionTool.check(ossBucket);
         Assert.isTrue(ossBucketService.update(updateWrapper), "保存失败");
 

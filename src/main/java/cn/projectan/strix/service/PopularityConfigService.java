@@ -13,8 +13,19 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface PopularityConfigService extends IService<PopularityConfig> {
 
+    /**
+     * 获取缓存
+     *
+     * @param key 缓存key
+     * @return 缓存
+     */
     PopularityConfig getCacheByKey(String key);
 
+    /**
+     * 清除缓存
+     *
+     * @param key 缓存key
+     */
     void clearCache(String key);
 
 }

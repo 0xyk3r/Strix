@@ -5,7 +5,7 @@ import cn.projectan.strix.mapper.SystemRegionMapper;
 import cn.projectan.strix.model.db.SystemRegion;
 import cn.projectan.strix.service.SystemRegionService;
 import cn.projectan.strix.utils.SpringUtil;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
@@ -58,8 +58,7 @@ public class SystemRegionServiceImpl extends ServiceImpl<SystemRegionMapper, Sys
             level++;
         }
 
-        String fullPath = String.join(",", fullPathList);
-        fullPath = "," + fullPath + ",";
+        String fullPath = "," + String.join(",", fullPathList) + ",";
         String fullName = String.join("-", fullNameList);
 
         result.put("path", fullPath);
@@ -69,7 +68,7 @@ public class SystemRegionServiceImpl extends ServiceImpl<SystemRegionMapper, Sys
         return result;
     }
 
-    @Cacheable(value = "strix:system:region:getChildrenIdList", key = "'r_'.concat(#id)")
+    @Cacheable(value = "strix:system:region:getChildrenIdList", key = "#id")
     @Override
     public List<String> getChildrenIdList(String id) {
         SystemRegion systemRegion = getBaseMapper().selectById(id);
@@ -84,13 +83,12 @@ public class SystemRegionServiceImpl extends ServiceImpl<SystemRegionMapper, Sys
 
     @Override
     public List<SystemRegion> getMatchChildren(String parentFullName) {
-        parentFullName = "+\"" + parentFullName + "\"";
-        return getBaseMapper().getMatchChildren(parentFullName);
+        return getBaseMapper().getMatchChildren("+\"" + parentFullName + "\"");
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public void updateRelevantRegion(SystemRegion systemRegion, String newParentId, UpdateWrapper<SystemRegion> updateWrapper) {
+    public void updateRelevantRegion(SystemRegion systemRegion, String newParentId, LambdaUpdateWrapper<SystemRegion> updateWrapper) {
         SystemRegionService systemRegionService = SpringUtil.getBean(SystemRegionService.class);
         // 查询新父级节点的信息
         SystemRegion newParentRegion = systemRegionService.getById(newParentId);

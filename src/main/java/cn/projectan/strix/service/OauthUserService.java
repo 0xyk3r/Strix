@@ -15,6 +15,13 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface OauthUserService extends IService<OauthUser> {
 
+    /**
+     * 根据第三方用户信息创建系统用户
+     *
+     * @param oauthUserInfo 第三方用户信息
+     * @param platform      平台
+     * @return 系统用户
+     */
     SystemUser createSystemUser(BaseOAuthUserInfo oauthUserInfo, Integer platform);
 
 }

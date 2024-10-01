@@ -14,10 +14,27 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface OssFileGroupService extends IService<OssFileGroup> {
 
+    /**
+     * 根据groupKey获取文件组
+     *
+     * @param groupKey groupKey
+     * @return 文件组
+     */
     OssFileGroup getGroupByKey(String groupKey);
 
+    /**
+     * 获取下拉数据
+     *
+     * @return 下拉数据
+     */
     CommonSelectDataResp getSelectData();
 
+    /**
+     * 根据groupKey获取下拉数据
+     *
+     * @param configKey 配置key
+     * @return 下拉数据
+     */
     CommonSelectDataResp getSelectData(String configKey);
 
 }

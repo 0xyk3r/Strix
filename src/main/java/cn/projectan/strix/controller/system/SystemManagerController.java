@@ -24,7 +24,6 @@ import cn.projectan.strix.service.SystemManagerRoleService;
 import cn.projectan.strix.service.SystemManagerService;
 import cn.projectan.strix.utils.*;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -204,7 +203,7 @@ public class SystemManagerController extends BaseSystemController {
         Assert.isTrue(BuiltinConstant.NO == systemManager.getBuiltin(), "内置用户不允许修改");
         checkLoginManagerRegionPermission(systemManager.getRegionId());
 
-        UpdateWrapper<SystemManager> updateWrapper = UpdateConditionBuilder.build(systemManager, req);
+        LambdaUpdateWrapper<SystemManager> updateWrapper = UpdateConditionBuilder.build(systemManager, req);
         UniqueDetectionTool.check(systemManager);
         Assert.isTrue(systemManagerService.update(updateWrapper), "保存失败");
 
