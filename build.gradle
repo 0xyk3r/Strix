@@ -83,7 +83,7 @@ dependencies {
     implementation 'org.apache.commons:commons-lang3:3.17.0'
     // Third Party
     implementation 'com.aliyun:aliyun-java-sdk-dysmsapi:2.2.1'
-    implementation 'com.aliyun.oss:aliyun-sdk-oss:3.17.4'
+    implementation 'com.aliyun.oss:aliyun-sdk-oss:3.18.1'
     implementation('com.github.javen205:IJPay-WxPay:2.9.10-17') {
         exclude group: 'cn.hutool', module: 'hutool-json'
     }
