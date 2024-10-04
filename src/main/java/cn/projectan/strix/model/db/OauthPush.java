@@ -10,11 +10,10 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 
 import java.io.Serial;
-import java.time.LocalDateTime;
 
 /**
  * <p>
- *
+ * Strix OAuth 消息推送记录
  * </p>
  *
  * @author ProjectAn
@@ -26,7 +25,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @TableName("sys_oauth_push")
-public class OauthPush extends BaseModel {
+public class OauthPush extends BaseModel<OauthPush> {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -61,13 +60,5 @@ public class OauthPush extends BaseModel {
      * 第三方服务返回结果
      */
     private String result;
-
-    public OauthPush(String createBy, String updateBy) {
-        super(createBy, updateBy);
-    }
-
-    public OauthPush(LocalDateTime createTime, String createBy, LocalDateTime updateTime, String updateBy) {
-        super(createTime, createBy, updateTime, updateBy);
-    }
 
 }

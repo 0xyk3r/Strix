@@ -14,7 +14,7 @@ import java.io.Serial;
 
 /**
  * <p>
- *
+ * Strix 系统管理人员
  * </p>
  *
  * @author ProjectAn
@@ -26,7 +26,7 @@ import java.io.Serial;
 @NoArgsConstructor
 @AllArgsConstructor
 @TableName("sys_system_manager")
-public class SystemManager extends BaseModel {
+public class SystemManager extends BaseModel<SystemManager> {
 
     @Serial
     private static final long serialVersionUID = 3L;

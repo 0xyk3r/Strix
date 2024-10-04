@@ -2,7 +2,7 @@ package cn.projectan.strix.model.constant;
 
 /**
  * @author ProjectAn
- * @date 2024/8/21 16:49
+ * @since 2024/8/21 16:49
  */
 public class TempUrlType {
 

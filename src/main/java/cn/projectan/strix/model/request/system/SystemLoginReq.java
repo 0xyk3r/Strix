@@ -5,7 +5,7 @@ import lombok.Data;
 
 /**
  * @author ProjectAn
- * @date 2021/5/12 18:42
+ * @since 2021/5/12 18:42
  */
 @Data
 public class SystemLoginReq {

@@ -22,7 +22,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
  * 响应数据加密处理
  *
  * @author ProjectAn
- * @date 2021/5/2 19:06
+ * @since 2021/5/2 19:06
  */
 @Slf4j
 @RestControllerAdvice

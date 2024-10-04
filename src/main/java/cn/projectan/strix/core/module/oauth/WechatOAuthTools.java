@@ -10,8 +10,10 @@ import java.util.Random;
 import java.util.Set;
 
 /**
+ * 微信 OAuth 工具类
+ *
  * @author ProjectAn
- * @date 2024/4/4 2:27
+ * @since 2024/4/4 2:27
  */
 @Slf4j
 public class WechatOAuthTools {

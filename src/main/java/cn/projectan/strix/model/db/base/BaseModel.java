@@ -2,19 +2,19 @@ package cn.projectan.strix.model.db.base;
 
 import com.baomidou.mybatisplus.annotation.*;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
 /**
  * @author ProjectAn
- * @date 2021/5/2 16:54
+ * @since 2021/5/2 16:54
  */
-@Data
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class BaseModel implements java.io.Serializable {
+public class BaseModel<T extends BaseModel<T>> implements java.io.Serializable {
 
     /**
      * 主键
@@ -53,15 +53,40 @@ public class BaseModel implements java.io.Serializable {
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private String updateBy;
 
-    public BaseModel(String createBy, String updateBy) {
-        this.createBy = createBy;
-        this.updateBy = updateBy;
+    @SuppressWarnings("unchecked")
+    public T setId(String id) {
+        this.id = id;
+        return (T) this;
     }
 
-    public BaseModel(LocalDateTime createTime, String createBy, LocalDateTime updateTime, String updateBy) {
-        this.createTime = createTime;
-        this.createBy = createBy;
-        this.updateTime = updateTime;
-        this.updateBy = updateBy;
+    @SuppressWarnings("unchecked")
+    public T setDeletedStatus(Integer deletedStatus) {
+        this.deletedStatus = deletedStatus;
+        return (T) this;
     }
+
+    @SuppressWarnings("unchecked")
+    public T setCreateTime(LocalDateTime createTime) {
+        this.createTime = createTime;
+        return (T) this;
+    }
+
+    @SuppressWarnings("unchecked")
+    public T setCreateBy(String createBy) {
+        this.createBy = createBy;
+        return (T) this;
+    }
+
+    @SuppressWarnings("unchecked")
+    public T setUpdateTime(LocalDateTime updateTime) {
+        this.updateTime = updateTime;
+        return (T) this;
+    }
+
+    @SuppressWarnings("unchecked")
+    public T setUpdateBy(String updateBy) {
+        this.updateBy = updateBy;
+        return (T) this;
+    }
+
 }

@@ -13,10 +13,10 @@ import java.util.Map;
 import java.util.function.Function;
 
 /**
- * 系统设置缓存类
+ * 系统设置缓存
  *
  * @author ProjectAn
- * @date 2021/5/13 14:18
+ * @since 2021/5/13 14:18
  */
 @Slf4j
 @Component

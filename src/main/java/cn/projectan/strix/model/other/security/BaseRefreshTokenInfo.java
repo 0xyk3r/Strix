@@ -4,7 +4,7 @@ import lombok.Data;
 
 /**
  * @author ProjectAn
- * @date 2024/4/5 下午11:04
+ * @since 2024/4/5 下午11:04
  */
 @Data
 public class BaseRefreshTokenInfo {

@@ -8,10 +8,10 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Strix SMS 短信服务
+ * Strix SMS 客户端容器
  *
  * @author ProjectAn
- * @date 2021/05/02 17:41
+ * @since 2021/05/02 17:41
  */
 @Component
 @ConditionalOnProperty(prefix = "strix.module", name = "sms", havingValue = "true")

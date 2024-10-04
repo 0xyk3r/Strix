@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 
 /**
  * @author ProjectAn
- * @date 2023/5/23 11:48
+ * @since 2023/5/23 11:48
  */
 @Getter
 public class OssConfigListResp extends BasePageResp {

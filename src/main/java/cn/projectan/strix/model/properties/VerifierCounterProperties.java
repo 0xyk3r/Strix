@@ -8,7 +8,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
  * @author ProjectAn
- * @date 2023/5/18 15:21
+ * @since 2023/5/18 15:21
  */
 @Getter
 @ConfigurationProperties(prefix = "strix.verifier-counter")

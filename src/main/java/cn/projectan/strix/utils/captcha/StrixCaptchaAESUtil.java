@@ -14,7 +14,7 @@ import java.util.Base64;
  * Strix Captcha AES 加密工具类
  *
  * @author ProjectAn
- * @date 2024/3/30 13:00
+ * @since 2024/3/30 13:00
  */
 public class StrixCaptchaAESUtil {
 

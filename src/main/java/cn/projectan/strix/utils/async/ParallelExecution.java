@@ -12,7 +12,7 @@ import java.util.concurrent.CompletableFuture;
  * 用于并行执行多个任务
  *
  * @author ProjectAn
- * @date 2023/9/29 18:07
+ * @since 2023/9/29 18:07
  */
 public class ParallelExecution {
 

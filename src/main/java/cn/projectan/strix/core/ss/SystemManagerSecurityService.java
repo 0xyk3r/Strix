@@ -10,8 +10,10 @@ import java.util.List;
 import java.util.Set;
 
 /**
+ * Strix Security Service
+ *
  * @author ProjectAn
- * @date 2023/2/25 16:40
+ * @since 2023/2/25 16:40
  */
 @Service("ss")
 public class SystemManagerSecurityService {

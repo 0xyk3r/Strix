@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
  * 热度工具类
  *
  * @author ProjectAn
- * @date 2023/9/15 16:59
+ * @since 2023/9/15 16:59
  */
 @Slf4j
 @Component
@@ -123,12 +123,14 @@ public class PopularityUtil {
                 },
                 (addKeys) -> {
                     List<PopularityConfig> addConfigList = addKeys.stream().map(key ->
-                            new PopularityConfig("SYNC", "SYNC")
+                            new PopularityConfig()
                                     .setConfigKey(key)
                                     .setName(key)
                                     .setInitialValue(0)
                                     .setMagValue(BigDecimal.ONE)
                                     .setExtraValue(0)
+                                    .setCreateBy("SYNC")
+                                    .setUpdateBy("SYNC")
                     ).toList();
                     popularityConfigService.saveBatch(addConfigList);
                 }
@@ -144,10 +146,12 @@ public class PopularityUtil {
                         if (typedTuple == null || typedTuple.getValue() == null || typedTuple.getScore() == null) {
                             return null;
                         }
-                        return new PopularityData("SYNC", "SYNC")
+                        return new PopularityData()
                                 .setConfigKey(key)
                                 .setDataId(typedTuple.getValue().toString())
-                                .setOriginalValue(typedTuple.getScore().longValue());
+                                .setOriginalValue(typedTuple.getScore().longValue())
+                                .setCreateBy("SYNC")
+                                .setUpdateBy("SYNC");
                     }).toList();
             // 数据差异处理
             addDataList.addAll(

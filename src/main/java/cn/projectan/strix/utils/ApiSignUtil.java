@@ -12,7 +12,7 @@ import java.util.Map;
  * API 签名工具类
  *
  * @author ProjectAn
- * @date 2021/6/10 16:20
+ * @since 2021/6/10 16:20
  */
 @Slf4j
 public class ApiSignUtil {

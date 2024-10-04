@@ -46,10 +46,13 @@ public class SmsSignServiceImpl extends ServiceImpl<SmsSignMapper, SmsSign> impl
                 (addKeys) -> {
                     List<SmsSign> smsSignList = signList.stream()
                             .filter(s -> addKeys.contains(s.getName()))
-                            .map(s -> new SmsSign(s.getCreateTime(), "System", null, "System")
+                            .map(s -> new SmsSign()
                                     .setConfigKey(configKey)
                                     .setName(s.getName())
                                     .setStatus(s.getStatus())
+                                    .setCreateTime(s.getCreateTime())
+                                    .setCreateBy("SYSTEM")
+                                    .setUpdateBy("SYSTEM")
                             )
                             .collect(Collectors.toList());
                     Assert.isTrue(saveBatch(smsSignList), "Strix SMS: 同步增加签名失败.");

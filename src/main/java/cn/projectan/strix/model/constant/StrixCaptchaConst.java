@@ -4,7 +4,7 @@ package cn.projectan.strix.model.constant;
  * Strix 验证码常量
  *
  * @author ProjectAn
- * @date 2024/3/26 16:49
+ * @since 2024/3/26 16:49
  */
 public interface StrixCaptchaConst {
 

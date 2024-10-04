@@ -9,7 +9,6 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 
 import java.io.Serial;
-import java.time.LocalDateTime;
 
 /**
  * <p>
@@ -25,7 +24,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @TableName("sys_oauth_user")
-public class OauthUser extends BaseModel {
+public class OauthUser extends BaseModel<OauthUser> {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -54,13 +53,5 @@ public class OauthUser extends BaseModel {
      * 所属平台
      */
     private Integer platform;
-
-    public OauthUser(String createBy, String updateBy) {
-        super(createBy, updateBy);
-    }
-
-    public OauthUser(LocalDateTime createTime, String createBy, LocalDateTime updateTime, String updateBy) {
-        super(createTime, createBy, updateTime, updateBy);
-    }
 
 }

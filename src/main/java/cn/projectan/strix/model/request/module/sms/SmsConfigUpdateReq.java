@@ -12,7 +12,7 @@ import lombok.Data;
 
 /**
  * @author ProjectAn
- * @date 2023/5/22 11:59
+ * @since 2023/5/22 11:59
  */
 @Data
 public class SmsConfigUpdateReq {

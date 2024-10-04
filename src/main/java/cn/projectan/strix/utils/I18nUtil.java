@@ -13,8 +13,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 
 /**
+ * 国际化工具类
+ *
  * @author ProjectAn
- * @date 2023/4/17 12:25
+ * @since 2023/4/17 12:25
  */
 @Slf4j
 @Component

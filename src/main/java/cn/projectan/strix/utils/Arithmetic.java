@@ -7,7 +7,7 @@ import java.math.RoundingMode;
  * 使用 BigDecimal 实现精确的浮点数运算
  *
  * @author ProjectAn
- * @date 2022/9/30 21:54
+ * @since 2022/9/30 21:54
  */
 public class Arithmetic {
 

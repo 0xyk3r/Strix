@@ -26,8 +26,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * 支付宝 Pay 客户端
+ *
  * @author ProjectAn
- * @date 2024/4/3 2:18
+ * @since 2024/4/3 2:18
  */
 @Slf4j
 public class AlipayPayClient extends StrixPayClient {

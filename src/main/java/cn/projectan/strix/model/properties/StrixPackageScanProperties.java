@@ -6,7 +6,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
  * @author ProjectAn
- * @date 2023/6/18 15:27
+ * @since 2023/6/18 15:27
  */
 @Getter
 @Setter

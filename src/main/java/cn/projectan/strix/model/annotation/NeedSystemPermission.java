@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
  * 后台功能标记所需权限注解
  *
  * @author ProjectAn
- * @date 2021/5/13 13:23
+ * @since 2021/5/13 13:23
  * @deprecated 已使用 Spring Security 替代
  */
 @Target({ElementType.METHOD, ElementType.TYPE})

@@ -15,7 +15,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * 静态字典值校验器
  *
  * @author ProjectAn
- * @date 2023/9/6 16:45
+ * @since 2023/9/6 16:45
  */
 @Documented
 @Constraint(validatedBy = {ConstantDictValueValidator.class})

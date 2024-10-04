@@ -12,7 +12,7 @@ import java.io.Serial;
 
 /**
  * <p>
- *
+ * Strix Pay 配置
  * </p>
  *
  * @author ProjectAn
@@ -24,7 +24,7 @@ import java.io.Serial;
 @NoArgsConstructor
 @AllArgsConstructor
 @TableName("sys_pay_config")
-public class PayConfig extends BaseModel {
+public class PayConfig extends BaseModel<PayConfig> {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -43,6 +43,5 @@ public class PayConfig extends BaseModel {
      * 序列化后的配置信息
      */
     private String configData;
-
 
 }

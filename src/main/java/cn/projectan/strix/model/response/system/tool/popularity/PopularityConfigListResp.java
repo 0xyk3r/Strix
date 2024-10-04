@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 
 /**
  * @author ProjectAn
- * @date 2023/10/5 21:41
+ * @since 2023/10/5 21:41
  */
 @Getter
 public class PopularityConfigListResp {

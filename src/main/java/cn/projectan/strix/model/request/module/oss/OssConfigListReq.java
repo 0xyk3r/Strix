@@ -6,7 +6,7 @@ import lombok.Data;
 
 /**
  * @author ProjectAn
- * @date 2023/5/23 11:57
+ * @since 2023/5/23 11:57
  */
 @Data
 public class OssConfigListReq extends BasePageReq<OssConfig> {

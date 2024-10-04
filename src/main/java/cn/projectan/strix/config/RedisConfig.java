@@ -40,7 +40,7 @@ import java.util.TimeZone;
  * Redis 配置类
  *
  * @author ProjectAn
- * @date 2021/05/02 16:41
+ * @since 2021/05/02 16:41
  */
 @Configuration
 @AutoConfigureAfter(RedisAutoConfiguration.class)

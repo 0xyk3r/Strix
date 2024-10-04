@@ -6,7 +6,7 @@ import lombok.Data;
 
 /**
  * @author ProjectAn
- * @date 2023/7/30 17:14
+ * @since 2023/7/30 17:14
  */
 @Data
 public class JobListReq extends BasePageReq<Job> {

@@ -85,7 +85,7 @@ import java.util.stream.Stream;
  * MyBatis AOT 配置
  *
  * @author ProjectAn
- * @date 2024/3/23 21:03
+ * @since 2024/3/23 21:03
  */
 @Configuration(proxyBeanMethods = false)
 @ImportRuntimeHints(MyBatisAOTConfig.MyBaitsRuntimeHintsRegistrar.class)

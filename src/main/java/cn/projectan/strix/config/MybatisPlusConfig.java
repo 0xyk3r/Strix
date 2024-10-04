@@ -19,7 +19,7 @@ import java.util.Optional;
  * MybatisPlus 配置类
  *
  * @author ProjectAn
- * @date 2021/05/02 17:53
+ * @since 2021/05/02 17:53
  */
 @Configuration
 @EnableTransactionManagement
@@ -49,7 +49,7 @@ public class MybatisPlusConfig {
      * MyBatisPlus 字段自动填充配置
      *
      * @author ProjectAn
-     * @date 2022/7/15 18:42
+     * @since 2022/7/15 18:42
      */
     @Component
     public static class MybatisMetaObjectConfig implements MetaObjectHandler {

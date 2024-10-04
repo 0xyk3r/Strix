@@ -5,7 +5,7 @@ import lombok.Data;
 
 /**
  * @author ProjectAn
- * @date 2021/8/24 19:10
+ * @since 2021/8/24 19:10
  */
 @Data
 public class WechatPayConfig extends BasePayConfig {

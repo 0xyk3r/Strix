@@ -13,7 +13,7 @@ import java.io.Serial;
 
 /**
  * <p>
- *
+ * Strix 系统角色
  * </p>
  *
  * @author ProjectAn
@@ -25,7 +25,7 @@ import java.io.Serial;
 @NoArgsConstructor
 @AllArgsConstructor
 @TableName("sys_system_role")
-public class SystemRole extends BaseModel {
+public class SystemRole extends BaseModel<SystemRole> {
 
     @Serial
     private static final long serialVersionUID = 3L;

@@ -9,7 +9,7 @@ import lombok.Data;
 
 /**
  * @author ProjectAn
- * @date 2023/10/6 11:25
+ * @since 2023/10/6 11:25
  */
 @Data
 public class PopularityDataUpdateReq {

@@ -9,7 +9,7 @@ import java.text.MessageFormat;
  * Strix 验证码服务响应码枚举
  *
  * @author ProjectAn
- * @date 2024/3/30 13:00
+ * @since 2024/3/30 13:00
  */
 @Getter
 public enum CaptchaRepCodeEnum {

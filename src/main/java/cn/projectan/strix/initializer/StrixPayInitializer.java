@@ -17,7 +17,7 @@ import java.util.List;
  * Strix Pay 初始化器
  *
  * @author ProjectAn
- * @date 2021/8/24 12:58
+ * @since 2021/8/24 12:58
  */
 @Slf4j
 @Order(11)

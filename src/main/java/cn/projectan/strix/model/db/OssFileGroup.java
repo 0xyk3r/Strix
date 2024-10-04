@@ -11,11 +11,10 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 
 import java.io.Serial;
-import java.time.LocalDateTime;
 
 /**
  * <p>
- *
+ * Strix OSS 文件组
  * </p>
  *
  * @author ProjectAn
@@ -27,7 +26,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @TableName("sys_oss_file_group")
-public class OssFileGroup extends BaseModel {
+public class OssFileGroup extends BaseModel<OssFileGroup> {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -84,13 +83,5 @@ public class OssFileGroup extends BaseModel {
      * 备注
      */
     private String remark;
-
-    public OssFileGroup(String createBy, String updateBy) {
-        super(createBy, updateBy);
-    }
-
-    public OssFileGroup(LocalDateTime createTime, String createBy, LocalDateTime updateTime, String updateBy) {
-        super(createTime, createBy, updateTime, updateBy);
-    }
 
 }

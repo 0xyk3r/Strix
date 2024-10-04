@@ -6,7 +6,7 @@ import lombok.Data;
 
 /**
  * @author ProjectAn
- * @date 2021/9/29 17:56
+ * @since 2021/9/29 17:56
  */
 @Data
 public class SystemRegionListReq extends BasePageReq<SystemRegion> {

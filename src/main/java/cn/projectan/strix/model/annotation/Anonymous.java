@@ -6,7 +6,7 @@ import java.lang.annotation.*;
  * 可以匿名访问的接口
  *
  * @author ProjectAn
- * @date 2023/4/6 16:23
+ * @since 2023/4/6 16:23
  */
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)

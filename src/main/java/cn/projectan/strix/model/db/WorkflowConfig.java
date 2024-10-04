@@ -9,7 +9,6 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 
 import java.io.Serial;
-import java.time.LocalDateTime;
 
 /**
  * <p>
@@ -25,7 +24,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @TableName("sys_workflow_config")
-public class WorkflowConfig extends BaseModel {
+public class WorkflowConfig extends BaseModel<WorkflowConfig> {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -44,13 +43,5 @@ public class WorkflowConfig extends BaseModel {
      * 工作流配置JSON
      */
     private String content;
-
-    public WorkflowConfig(String createBy, String updateBy) {
-        super(createBy, updateBy);
-    }
-
-    public WorkflowConfig(LocalDateTime createTime, String createBy, LocalDateTime updateTime, String updateBy) {
-        super(createTime, createBy, updateTime, updateBy);
-    }
 
 }

@@ -8,8 +8,10 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.util.Map;
 
 /**
+ * Strix Pay 客户端
+ *
  * @author ProjectAn
- * @date 2024/4/2 17:14
+ * @since 2024/4/2 17:14
  */
 public abstract class StrixPayClient {
 

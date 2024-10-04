@@ -12,7 +12,7 @@ import java.io.Serial;
 
 /**
  * <p>
- *
+ * Strix OSS 文件
  * </p>
  *
  * @author ProjectAn
@@ -24,7 +24,7 @@ import java.io.Serial;
 @NoArgsConstructor
 @AllArgsConstructor
 @TableName("sys_oss_file")
-public class OssFile extends BaseModel {
+public class OssFile extends BaseModel<OssFile> {
 
     @Serial
     private static final long serialVersionUID = 1L;

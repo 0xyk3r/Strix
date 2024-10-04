@@ -12,7 +12,7 @@ import java.io.Serial;
 
 /**
  * <p>
- *
+ * Strix 系统管理人员 角色关系
  * </p>
  *
  * @author ProjectAn
@@ -24,7 +24,7 @@ import java.io.Serial;
 @NoArgsConstructor
 @AllArgsConstructor
 @TableName("sys_system_manager_role")
-public class SystemManagerRole extends BaseModel {
+public class SystemManagerRole extends BaseModel<SystemManagerRole> {
 
     @Serial
     private static final long serialVersionUID = 2L;
@@ -38,6 +38,5 @@ public class SystemManagerRole extends BaseModel {
      * 系统管理员角色ID
      */
     private String systemRoleId;
-
 
 }

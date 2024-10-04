@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
  * OAuth推送状态
  *
  * @author ProjectAn
- * @date 2024/4/8 下午5:37
+ * @since 2024/4/8 下午5:37
  */
 @Component
 @Dict(key = "OAuthPushStatus", value = "OAuth推送状态")

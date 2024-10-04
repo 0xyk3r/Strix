@@ -17,7 +17,7 @@ import java.util.Optional;
  * Strix I18n 语言解析器
  *
  * @author ProjectAn
- * @date 2023/4/17 12:22
+ * @since 2023/4/17 12:22
  */
 @Configuration
 public class StrixLocaleResolver implements LocaleResolver {

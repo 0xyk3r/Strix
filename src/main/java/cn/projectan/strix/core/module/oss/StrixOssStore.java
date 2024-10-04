@@ -8,10 +8,10 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Strix OSS 对象存储服务
+ * Strix OSS 客户端容器
  *
  * @author ProjectAn
- * @date 2021/05/02 17:23
+ * @since 2021/05/02 17:23
  */
 @Component
 @ConditionalOnProperty(prefix = "strix.module", name = "oss", havingValue = "true")

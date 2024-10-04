@@ -47,7 +47,7 @@ import java.io.Serial;
 @ApiModel(value = "${entity}对象" , description = "$!{table.comment}")
 #end
 #if(${superEntityClass})
-public class ${entity} extends ${superEntityClass}#if(${activeRecord})<${entity}>#end {
+public class ${entity} extends ${superEntityClass}<${entity}>#if(${activeRecord})<${entity}>#end {
 #elseif(${activeRecord})
 public class ${entity} extends Model<${entity}> {
 #elseif(${entitySerialVersionUID})
@@ -166,13 +166,5 @@ public class ${entity} {
         "}";
     }
 #end
-
-    public ${entity}(String createBy,String updateBy){
-        super(createBy,updateBy);
-    }
-
-    public ${entity}(LocalDateTime createTime,String createBy,LocalDateTime updateTime,String updateBy){
-        super(createTime,createBy,updateTime,updateBy);
-    }
 
 }

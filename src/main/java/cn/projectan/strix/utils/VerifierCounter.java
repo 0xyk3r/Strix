@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
  * 验证码计数器
  *
  * @author ProjectAn
- * @date 2023/5/15 22:29
+ * @since 2023/5/15 22:29
  */
 @Component
 @EnableConfigurationProperties(VerifierCounterProperties.class)

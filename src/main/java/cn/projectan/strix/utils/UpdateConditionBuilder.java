@@ -18,7 +18,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Strix UpdateWrapper构造器
  *
  * @author ProjectAn
- * @date 2021/6/17 17:20
+ * @since 2021/6/17 17:20
  */
 @Slf4j
 public class UpdateConditionBuilder {

@@ -24,10 +24,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 /**
- * 微信 OAuth 服务实例
+ * 微信 OAuth 客户端
  *
  * @author ProjectAn
- * @date 2024/4/3 17:34
+ * @since 2024/4/3 17:34
  */
 @Slf4j
 public class WechatOAuthClient extends StrixOAuthClient {

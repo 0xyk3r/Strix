@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 
 /**
  * <p>
- *
+ * Strix Pay 订单
  * </p>
  *
  * @author ProjectAn
@@ -26,7 +26,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @TableName("sys_pay_order")
-public class PayOrder extends BaseModel {
+public class PayOrder extends BaseModel<PayOrder> {
 
     @Serial
     private static final long serialVersionUID = 2L;

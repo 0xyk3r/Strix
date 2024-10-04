@@ -25,7 +25,7 @@ import java.util.Properties;
  * AbstractCaptchaService
  *
  * @author ProjectAn
- * @date 2024-03-26
+ * @since 2024-03-26
  */
 @Slf4j
 public abstract class AbstractCaptchaService implements CaptchaService {

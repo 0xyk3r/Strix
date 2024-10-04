@@ -6,7 +6,7 @@ import lombok.Getter;
  * Strix 验证码类型枚举
  *
  * @author ProjectAn
- * @date 2024/3/30 13:00
+ * @since 2024/3/30 13:00
  */
 @Getter
 public enum CaptchaTypeEnum {

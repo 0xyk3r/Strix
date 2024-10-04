@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 /**
  * @author ProjectAn
- * @date 2023/5/23 8:53
+ * @since 2023/5/23 8:53
  */
 @Component
 @Dict(key = "StrixOssFileGroupSecretType", value = "存储服务-文件组-权限类型")

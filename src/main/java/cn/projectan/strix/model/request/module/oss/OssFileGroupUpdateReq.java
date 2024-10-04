@@ -8,7 +8,7 @@ import lombok.Data;
 
 /**
  * @author ProjectAn
- * @date 2023/5/27 22:16
+ * @since 2023/5/27 22:16
  */
 @Data
 public class OssFileGroupUpdateReq {

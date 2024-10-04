@@ -6,7 +6,7 @@ import cn.hutool.core.lang.Snowflake;
  * 雪花算法工具类
  *
  * @author ProjectAn
- * @date 2023/5/23 9:39
+ * @since 2023/5/23 9:39
  */
 public class SnowflakeUtil {
 

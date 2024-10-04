@@ -13,7 +13,7 @@ import java.io.Serial;
 
 /**
  * <p>
- *
+ * Strix SMS 日志
  * </p>
  *
  * @author ProjectAn
@@ -25,7 +25,7 @@ import java.io.Serial;
 @NoArgsConstructor
 @AllArgsConstructor
 @TableName("sys_sms_log")
-public class SmsLog extends BaseModel {
+public class SmsLog extends BaseModel<SmsLog> {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -76,6 +76,5 @@ public class SmsLog extends BaseModel {
      * 短信平台返回结果
      */
     private String platformResponse;
-
 
 }

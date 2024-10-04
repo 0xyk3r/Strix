@@ -6,7 +6,7 @@ plugins {
 }
 
 group = 'cn.projectan'
-version = '2.5.2'
+version = '2.6.0'
 description = 'Strix'
 
 java {
@@ -40,6 +40,7 @@ dependencies {
     // Lombok
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
+    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
     // Spring Boot
     implementation 'org.springframework.boot:spring-boot-starter'
     implementation 'org.springframework.boot:spring-boot-starter-web'
@@ -50,7 +51,6 @@ dependencies {
     // Spring Boot - Test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
-    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
     // Redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'org.redisson:redisson-spring-boot-starter:3.36.0'
@@ -60,11 +60,11 @@ dependencies {
     implementation 'com.baomidou:mybatis-plus-spring-boot3-starter:3.5.8'
     implementation 'com.baomidou:mybatis-plus-generator:3.5.8'
     implementation 'com.baomidou:dynamic-datasource-spring-boot3-starter:4.3.1'
-    implementation 'org.apache.velocity:velocity-engine-core:2.3'
+    developmentOnly 'org.apache.velocity:velocity-engine-core:2.3'
     // Database - ClickHouse
     implementation 'com.clickhouse:clickhouse-jdbc:0.6.5'
-    implementation 'org.apache.httpcomponents.client5:httpclient5:5.4'
-    implementation 'org.lz4:lz4-java:1.8.0'
+    implementation 'org.apache.httpcomponents.client5:httpclient5:5.3.1'
+    runtimeOnly 'org.lz4:lz4-java:1.8.0'
     // Quartz
     implementation('org.quartz-scheduler:quartz') {
         exclude group: 'com.mchange', module: 'c3p0'
@@ -80,6 +80,7 @@ dependencies {
     implementation 'cn.hutool:hutool-crypto:5.8.32'
     implementation 'org.bouncycastle:bcprov-jdk18on:1.78.1'
     implementation 'org.lionsoul:ip2region:2.7.0'
+    implementation 'org.apache.commons:commons-lang3:3.17.0'
     // Third Party
     implementation 'com.aliyun:aliyun-java-sdk-dysmsapi:2.2.1'
     implementation 'com.aliyun.oss:aliyun-sdk-oss:3.17.4'
@@ -101,7 +102,10 @@ test {
 
 // 直接运行时, 跳过 AOT 编译
 gradle.taskGraph.whenReady { taskGraph ->
-    if (taskGraph.hasTask(':cn.projectan.strix.StrixApplication.main()')) {
+    if (taskGraph.hasTask(':cn.projectan.strix.StrixApplication.main()')
+            || taskGraph.hasTask(':cn.projectan.strix.MysqlGenerator.main()')
+            || taskGraph.hasTask(':cn.projectan.strix.ClickHouseGenerator.main()')
+    ) {
         taskGraph.allTasks.each { task ->
             if (task.name.toLowerCase().contains('aot')) {
                 task.enabled = false

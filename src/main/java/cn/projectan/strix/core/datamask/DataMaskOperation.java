@@ -1,8 +1,10 @@
 package cn.projectan.strix.core.datamask;
 
 /**
+ * 数据脱敏操作
+ *
  * @author ProjectAn
- * @date 2023/2/22 14:29
+ * @since 2023/2/22 14:29
  */
 public interface DataMaskOperation {
 

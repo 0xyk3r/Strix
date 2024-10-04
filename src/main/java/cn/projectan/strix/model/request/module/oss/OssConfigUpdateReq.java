@@ -12,7 +12,7 @@ import lombok.Data;
 
 /**
  * @author ProjectAn
- * @date 2023/5/23 12:20
+ * @since 2023/5/23 12:20
  */
 @Data
 public class OssConfigUpdateReq {

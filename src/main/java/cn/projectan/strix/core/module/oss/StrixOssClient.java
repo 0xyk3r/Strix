@@ -8,8 +8,10 @@ import java.io.File;
 import java.util.List;
 
 /**
+ * Strix OSS 客户端
+ *
  * @author ProjectAn
- * @date 2023/5/22 15:21
+ * @since 2023/5/22 15:21
  */
 @Getter
 @Setter

@@ -17,7 +17,7 @@ import java.util.List;
  * Strix OSS 初始化器
  *
  * @author ProjectAn
- * @date 2021/5/2 17:20
+ * @since 2021/5/2 17:20
  */
 @Slf4j
 @Order(10)

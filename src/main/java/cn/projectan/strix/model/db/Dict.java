@@ -14,7 +14,7 @@ import java.io.Serial;
 
 /**
  * <p>
- *
+ * Strix 字典
  * </p>
  *
  * @author ProjectAn
@@ -26,7 +26,7 @@ import java.io.Serial;
 @NoArgsConstructor
 @AllArgsConstructor
 @TableName("sys_dict")
-public class Dict extends BaseModel {
+public class Dict extends BaseModel<Dict> {
 
     @Serial
     private static final long serialVersionUID = 3L;

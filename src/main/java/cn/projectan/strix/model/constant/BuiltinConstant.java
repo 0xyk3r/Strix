@@ -2,7 +2,7 @@ package cn.projectan.strix.model.constant;
 
 /**
  * @author ProjectAn
- * @date 2024/8/14 12:00
+ * @since 2024/8/14 12:00
  */
 public class BuiltinConstant {
 

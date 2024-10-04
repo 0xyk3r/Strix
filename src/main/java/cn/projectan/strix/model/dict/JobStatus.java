@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 /**
  * @author ProjectAn
- * @date 2023/8/1 14:41
+ * @since 2023/8/1 14:41
  */
 @Component
 @Dict(key = "JobStatus", value = "系统定时任务-状态")

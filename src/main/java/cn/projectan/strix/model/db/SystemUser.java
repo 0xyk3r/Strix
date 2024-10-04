@@ -13,7 +13,7 @@ import java.io.Serial;
 
 /**
  * <p>
- *
+ * Strix 系统用户
  * </p>
  *
  * @author ProjectAn
@@ -25,7 +25,7 @@ import java.io.Serial;
 @NoArgsConstructor
 @AllArgsConstructor
 @TableName("sys_system_user")
-public class SystemUser extends BaseModel {
+public class SystemUser extends BaseModel<SystemUser> {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -56,6 +56,5 @@ public class SystemUser extends BaseModel {
      * 密码
      */
     private String loginPass;
-
 
 }

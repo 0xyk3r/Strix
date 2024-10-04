@@ -8,10 +8,10 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Strix Pay 支付服务
+ * Strix Pay 客户端容器
  *
  * @author ProjectAn
- * @date 2024/4/2 17:13
+ * @since 2024/4/2 17:13
  */
 @Component
 @ConditionalOnProperty(prefix = "strix.module", name = "pay", havingValue = "true")

@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
  * 系统管理用户 类型
  *
  * @author ProjectAn
- * @date 2021/6/16 15:32
+ * @since 2021/6/16 15:32
  */
 @Component
 @Dict(key = "SystemRoleRegionPermissionType", value = "系统角色-地区权限类型")

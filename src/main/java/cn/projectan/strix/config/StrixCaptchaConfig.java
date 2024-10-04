@@ -25,7 +25,7 @@ import java.util.Properties;
  * Strix 验证码配置
  *
  * @author ProjectAn
- * @date 2024/3/26 16:44
+ * @since 2024/3/26 16:44
  */
 @Slf4j
 @Configuration

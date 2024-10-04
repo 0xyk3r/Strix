@@ -11,7 +11,7 @@ import java.util.concurrent.ThreadLocalRandom;
  * Strix Captcha 随机工具类
  *
  * @author ProjectAn
- * @date 2024/3/30 13:00
+ * @since 2024/3/30 13:00
  */
 @Slf4j
 public class StrixCaptchaRandomUtils {

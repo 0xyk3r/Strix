@@ -9,7 +9,7 @@ import java.util.Collection;
  * 系统用户认证Token
  *
  * @author ProjectAn
- * @date 2023/2/25 14:27
+ * @since 2023/2/25 14:27
  */
 public class SystemUserAuthenticationToken extends UsernamePasswordAuthenticationToken {
 

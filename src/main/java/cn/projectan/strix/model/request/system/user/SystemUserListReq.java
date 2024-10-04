@@ -6,7 +6,7 @@ import lombok.Data;
 
 /**
  * @author ProjectAn
- * @date 2021/8/27 15:44
+ * @since 2021/8/27 15:44
  */
 @Data
 public class SystemUserListReq extends BasePageReq<SystemUser> {

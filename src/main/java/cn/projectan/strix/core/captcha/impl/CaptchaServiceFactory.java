@@ -13,7 +13,7 @@ import java.util.Properties;
  * 验证码服务工厂
  *
  * @author ProjectAn
- * @date 2024-03-26
+ * @since 2024-03-26
  */
 public class CaptchaServiceFactory {
 

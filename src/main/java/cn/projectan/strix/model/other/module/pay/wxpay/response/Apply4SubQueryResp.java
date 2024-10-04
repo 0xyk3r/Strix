@@ -9,7 +9,7 @@ import java.util.List;
  * 特约商户进件-查询申请单状态 响应
  *
  * @author ProjectAn
- * @date 2022/7/29 10:47
+ * @since 2022/7/29 10:47
  */
 @Data
 @Accessors(chain = true)

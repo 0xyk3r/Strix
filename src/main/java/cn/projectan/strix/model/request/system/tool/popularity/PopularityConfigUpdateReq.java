@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 
 /**
  * @author ProjectAn
- * @date 2023/10/5 21:48
+ * @since 2023/10/5 21:48
  */
 @Data
 public class PopularityConfigUpdateReq {

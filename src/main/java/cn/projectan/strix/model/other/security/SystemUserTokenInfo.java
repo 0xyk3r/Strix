@@ -4,7 +4,7 @@ import lombok.Data;
 
 /**
  * @author ProjectAn
- * @date 2024/4/5 下午10:51
+ * @since 2024/4/5 下午10:51
  */
 @Data
 public class SystemUserTokenInfo extends BaseTokenInfo {

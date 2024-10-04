@@ -6,7 +6,7 @@ import lombok.Data;
 
 /**
  * @author ProjectAn
- * @date 2023/5/22 13:24
+ * @since 2023/5/22 13:24
  */
 @Data
 public class SmsLogListReq extends BasePageReq<SmsLog> {

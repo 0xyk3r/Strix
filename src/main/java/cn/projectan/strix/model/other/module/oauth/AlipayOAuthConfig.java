@@ -4,7 +4,7 @@ import lombok.Data;
 
 /**
  * @author ProjectAn
- * @date 2024/4/3 16:52
+ * @since 2024/4/3 16:52
  */
 @Data
 public class AlipayOAuthConfig extends BaseOAuthConfig {

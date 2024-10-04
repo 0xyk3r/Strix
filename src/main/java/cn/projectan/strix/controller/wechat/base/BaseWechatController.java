@@ -9,7 +9,7 @@ import org.springframework.util.Assert;
  * 微信端基础控制器
  *
  * @author ProjectAn
- * @date 2021/8/31 13:58
+ * @since 2021/8/31 13:58
  */
 public class BaseWechatController extends BaseController {
 

@@ -49,8 +49,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * 微信 Pay 客户端
+ *
  * @author ProjectAn
- * @date 2024/4/2 17:46
+ * @since 2024/4/2 17:46
  */
 @Slf4j
 public class WechatPayClient extends StrixPayClient {

@@ -11,7 +11,7 @@ import lombok.Data;
 
 /**
  * @author ProjectAn
- * @date 2021/6/16 17:35
+ * @since 2021/6/16 17:35
  */
 @Data
 public class SystemManagerUpdateReq {

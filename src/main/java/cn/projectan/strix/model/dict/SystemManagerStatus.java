@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
  * 系统管理用户 状态
  *
  * @author ProjectAn
- * @date 2021/5/12 18:52
+ * @since 2021/5/12 18:52
  */
 @Component
 @Dict(key = "SystemManagerStatus", value = "系统人员-状态")

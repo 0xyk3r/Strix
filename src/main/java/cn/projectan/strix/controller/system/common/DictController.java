@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
  * 字典数据
  *
  * @author ProjectAn
- * @date 2023/5/30 10:43
+ * @since 2023/5/30 10:43
  */
 @Slf4j
 @RestController("SystemCommonDictController")

@@ -9,8 +9,10 @@ import lombok.Setter;
 import java.util.List;
 
 /**
+ * Strix SMS 客户端
+ *
  * @author ProjectAn
- * @date 2023/5/20 15:00
+ * @since 2023/5/20 15:00
  */
 @Getter
 @Setter

@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
  * 系统验证码
  *
  * @author ProjectAn
- * @date 2024/03/31 01:35:00
+ * @since 2024/03/31 01:35:00
  */
 @Anonymous
 @RestController("SystemCaptchaController")

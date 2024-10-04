@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
  * Redis 工具类
  *
  * @author ProjectAn
- * @date 2021/05/12 19:36
+ * @since 2021/05/12 19:36
  */
 @Slf4j
 @Component

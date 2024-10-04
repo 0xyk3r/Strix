@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 /**
  * @author ProjectAn
- * @date 2023/11/29 16:08
+ * @since 2023/11/29 16:08
  */
 @Component
 @Dict(key = "CommonFlag", value = "通用是否标识")

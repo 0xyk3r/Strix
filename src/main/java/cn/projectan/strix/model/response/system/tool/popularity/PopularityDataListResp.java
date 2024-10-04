@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 
 /**
  * @author ProjectAn
- * @date 2023/10/5 22:48
+ * @since 2023/10/5 22:48
  */
 @Getter
 public class PopularityDataListResp extends BasePageResp {

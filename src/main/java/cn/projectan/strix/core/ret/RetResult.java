@@ -7,7 +7,7 @@ import lombok.Data;
  * 响应信息
  *
  * @author ProjectAn
- * @date 2021/1/31 18:22
+ * @since 2021/1/31 18:22
  */
 @Data
 public class RetResult<T> implements java.io.Serializable {

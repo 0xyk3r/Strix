@@ -46,13 +46,16 @@ public class SmsTemplateServiceImpl extends ServiceImpl<SmsTemplateMapper, SmsTe
                 (addKeys) -> {
                     List<SmsTemplate> smsTemplateList = templateList.stream()
                             .filter(t -> addKeys.contains(t.getCode()))
-                            .map(t -> new SmsTemplate(t.getCreateTime(), "System", null, "System")
+                            .map(t -> new SmsTemplate()
                                     .setConfigKey(configKey)
                                     .setCode(t.getCode())
                                     .setName(t.getName())
                                     .setType(t.getType())
                                     .setStatus(t.getStatus())
                                     .setContent(t.getContent())
+                                    .setCreateTime(t.getCreateTime())
+                                    .setCreateBy("SYSTEM")
+                                    .setUpdateBy("SYSTEM")
                             )
                             .collect(Collectors.toList());
                     Assert.isTrue(saveBatch(smsTemplateList), "Strix SMS: 同步增加模板失败.");
