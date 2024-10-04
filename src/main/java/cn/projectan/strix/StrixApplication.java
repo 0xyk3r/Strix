@@ -13,7 +13,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
  * Application 启动类
  *
  * @author ProjectAn
- * @date 2021-05-02
+ * @since 2021-05-02
  */
 @EnableAsync
 @EnableCaching

@@ -34,7 +34,7 @@ import java.util.List;
  * 热度工具
  *
  * @author ProjectAn
- * @date 2023/10/5 21:24
+ * @since 2023/10/5 21:24
  */
 @Slf4j
 @RestController

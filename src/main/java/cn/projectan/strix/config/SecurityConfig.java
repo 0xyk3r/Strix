@@ -25,7 +25,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
  * Spring Security 配置类
  *
  * @author ProjectAn
- * @date 2023/2/24 23:17
+ * @since 2023/2/24 23:17
  */
 @Configuration
 @EnableWebSecurity

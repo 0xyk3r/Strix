@@ -4,7 +4,7 @@ import lombok.Data;
 
 /**
  * @author ProjectAn
- * @date 2024/3/27 1:17
+ * @since 2024/3/27 1:17
  */
 @Data
 public class GetCaptchaReq {

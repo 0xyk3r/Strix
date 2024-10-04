@@ -14,7 +14,7 @@ import java.io.Serial;
 
 /**
  * <p>
- * 阿里云OSS配置
+ * Strix OSS 配置
  * </p>
  *
  * @author ProjectAn
@@ -26,7 +26,7 @@ import java.io.Serial;
 @NoArgsConstructor
 @AllArgsConstructor
 @TableName("sys_oss_config")
-public class OssConfig extends BaseModel {
+public class OssConfig extends BaseModel<OssConfig> {
 
     @Serial
     private static final long serialVersionUID = 1L;

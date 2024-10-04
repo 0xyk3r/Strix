@@ -7,7 +7,7 @@ import java.io.Serializable;
  * User-Agent 信息对象
  *
  * @author ProjectAn
- * @date 2024/3/31 02:56
+ * @since 2024/3/31 02:56
  */
 public class UserAgent implements Serializable {
 

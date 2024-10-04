@@ -6,8 +6,10 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
+ * WebConfig
+ *
  * @author ProjectAn
- * @date 2023/12/9 16:24
+ * @since 2023/12/9 16:24
  */
 @Configuration
 public class WebConfig implements WebMvcConfigurer {

@@ -6,7 +6,7 @@ import cn.projectan.strix.model.other.ua.UserAgent;
  * User-Agent 工具类
  *
  * @author ProjectAn
- * @date 2024/3/31 02:56
+ * @since 2024/3/31 02:56
  */
 public class UserAgentUtil {
 

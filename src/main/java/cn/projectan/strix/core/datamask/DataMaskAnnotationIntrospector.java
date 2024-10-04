@@ -4,8 +4,10 @@ import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.NopAnnotationIntrospector;
 
 /**
+ * 数据脱敏注解解析器
+ *
  * @author ProjectAn
- * @date 2023/2/22 14:55
+ * @since 2023/2/22 14:55
  */
 public class DataMaskAnnotationIntrospector extends NopAnnotationIntrospector {
 

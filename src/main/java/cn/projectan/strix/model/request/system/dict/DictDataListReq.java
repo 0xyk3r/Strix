@@ -6,7 +6,7 @@ import lombok.Data;
 
 /**
  * @author ProjectAn
- * @date 2023/5/30 12:07
+ * @since 2023/5/30 12:07
  */
 @Data
 public class DictDataListReq extends BasePageReq<DictData> {

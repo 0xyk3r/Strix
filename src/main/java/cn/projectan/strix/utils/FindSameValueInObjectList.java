@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
  * <p>备注：如果性能要求较高，建议参照本工具类自行实现，因为本工具类使用了反射机制，性能较差
  *
  * @author ProjectAn
- * @date 2022/10/27 17:48
+ * @since 2022/10/27 17:48
  */
 @Slf4j
 public class FindSameValueInObjectList {

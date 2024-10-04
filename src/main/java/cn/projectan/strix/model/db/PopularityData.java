@@ -9,11 +9,10 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 
 import java.io.Serial;
-import java.time.LocalDateTime;
 
 /**
  * <p>
- *
+ * Strix 热度工具 数据
  * </p>
  *
  * @author ProjectAn
@@ -25,7 +24,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @TableName("sys_popularity_data")
-public class PopularityData extends BaseModel {
+public class PopularityData extends BaseModel<PopularityData> {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -35,13 +34,5 @@ public class PopularityData extends BaseModel {
     private String dataId;
 
     private Long originalValue;
-
-    public PopularityData(String createBy, String updateBy) {
-        super(createBy, updateBy);
-    }
-
-    public PopularityData(LocalDateTime createTime, String createBy, LocalDateTime updateTime, String updateBy) {
-        super(createTime, createBy, updateTime, updateBy);
-    }
 
 }

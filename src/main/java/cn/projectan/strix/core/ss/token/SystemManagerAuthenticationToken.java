@@ -8,7 +8,7 @@ import java.util.Collection;
 /**
  * 系统管理员认证Token
  * @author ProjectAn
- * @date 2023/2/25 14:26
+ * @since 2023/2/25 14:26
  */
 public class SystemManagerAuthenticationToken extends UsernamePasswordAuthenticationToken {
 

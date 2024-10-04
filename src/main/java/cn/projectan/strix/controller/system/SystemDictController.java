@@ -37,7 +37,7 @@ import java.util.List;
  * 系统字典
  *
  * @author ProjectAn
- * @date 2022/4/4 23:43
+ * @since 2022/4/4 23:43
  */
 @Slf4j
 @RestController

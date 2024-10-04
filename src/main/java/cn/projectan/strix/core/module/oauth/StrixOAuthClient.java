@@ -7,8 +7,10 @@ import cn.projectan.strix.model.other.module.oauth.BaseOAuthUserInfo;
 import java.util.Map;
 
 /**
+ * Strix OAuth 客户端
+ *
  * @author ProjectAn
- * @date 2024/4/3 16:39
+ * @since 2024/4/3 16:39
  */
 public abstract class StrixOAuthClient {
 

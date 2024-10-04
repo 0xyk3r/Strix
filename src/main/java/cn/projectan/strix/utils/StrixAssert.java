@@ -9,7 +9,7 @@ import java.util.stream.Stream;
  * 断言工具类
  *
  * @author ProjectAn
- * @date 2021/6/16 15:34
+ * @since 2021/6/16 15:34
  */
 public class StrixAssert {
 

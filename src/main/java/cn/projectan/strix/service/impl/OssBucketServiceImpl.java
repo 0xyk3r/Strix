@@ -49,13 +49,16 @@ public class OssBucketServiceImpl extends ServiceImpl<OssBucketMapper, OssBucket
                 (addKeys) -> {
                     List<OssBucket> ossBucketList = bucketList.stream()
                             .filter(b -> addKeys.contains(b.getName()))
-                            .map(b -> new OssBucket(b.getCreateTime(), "System", null, "System")
+                            .map(b -> new OssBucket()
                                     .setConfigKey(configKey)
                                     .setName(b.getName())
                                     .setPublicEndpoint(b.getPublicEndpoint())
                                     .setPrivateEndpoint(b.getPrivateEndpoint())
                                     .setRegion(b.getRegion())
                                     .setStorageClass(b.getStorageClass())
+                                    .setCreateTime(b.getCreateTime())
+                                    .setCreateBy("SYSTEM")
+                                    .setUpdateBy("SYSTEM")
                             )
                             .collect(Collectors.toList());
                     Assert.isTrue(saveBatch(ossBucketList), "Strix OSS: 同步增加存储空间失败.");

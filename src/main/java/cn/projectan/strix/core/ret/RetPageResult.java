@@ -6,7 +6,7 @@ import java.util.List;
  * 分页响应信息
  *
  * @author ProjectAn
- * @date 2021/1/31 18:22
+ * @since 2021/1/31 18:22
  */
 public class RetPageResult<T> extends RetResult<T> {
 

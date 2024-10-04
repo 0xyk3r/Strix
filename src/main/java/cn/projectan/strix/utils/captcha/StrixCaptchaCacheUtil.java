@@ -9,7 +9,7 @@ import java.util.concurrent.*;
  * Strix Captcha 缓存工具类
  *
  * @author ProjectAn
- * @date 2024/3/30 13:00
+ * @since 2024/3/30 13:00
  */
 @Slf4j
 public final class StrixCaptchaCacheUtil {

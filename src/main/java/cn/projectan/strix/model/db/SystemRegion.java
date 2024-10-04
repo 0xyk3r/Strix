@@ -13,7 +13,7 @@ import java.io.Serial;
 
 /**
  * <p>
- *
+ * Strix 系统地区
  * </p>
  *
  * @author ProjectAn
@@ -25,7 +25,7 @@ import java.io.Serial;
 @NoArgsConstructor
 @AllArgsConstructor
 @TableName("sys_system_region")
-public class SystemRegion extends BaseModel {
+public class SystemRegion extends BaseModel<SystemRegion> {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -61,6 +61,5 @@ public class SystemRegion extends BaseModel {
      * 备注信息
      */
     private String remarks;
-
 
 }

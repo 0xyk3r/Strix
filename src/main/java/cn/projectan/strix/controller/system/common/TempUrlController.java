@@ -25,7 +25,7 @@ import java.nio.charset.StandardCharsets;
  * 临时URL
  *
  * @author ProjectAn
- * @date 2024/8/15 18:42
+ * @since 2024/8/15 18:42
  */
 @Slf4j
 @RestController("SystemCommonTempUrlController")

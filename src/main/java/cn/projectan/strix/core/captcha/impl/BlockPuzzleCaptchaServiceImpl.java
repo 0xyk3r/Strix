@@ -28,7 +28,7 @@ import java.util.Random;
  * 滑动验证码
  *
  * @author ProjectAn
- * @date 2024/3/30 13:00
+ * @since 2024/3/30 13:00
  */
 @Slf4j
 @Service

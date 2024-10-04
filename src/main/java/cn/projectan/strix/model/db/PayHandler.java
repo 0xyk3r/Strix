@@ -25,7 +25,7 @@ import java.io.Serial;
 @NoArgsConstructor
 @AllArgsConstructor
 @TableName("sys_pay_handler")
-public class PayHandler extends BaseModel {
+public class PayHandler extends BaseModel<PayHandler> {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -50,4 +50,5 @@ public class PayHandler extends BaseModel {
      * 支付超时处理器
      */
     private String timeoutHandler;
+
 }

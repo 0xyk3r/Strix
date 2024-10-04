@@ -14,11 +14,10 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 
 import java.io.Serial;
-import java.time.LocalDateTime;
 
 /**
  * <p>
- *
+ * Strix 定时任务
  * </p>
  *
  * @author ProjectAn
@@ -30,7 +29,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @TableName("sys_job")
-public class Job extends BaseModel {
+public class Job extends BaseModel<Job> {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -80,13 +79,5 @@ public class Job extends BaseModel {
      */
     @TableField("`status`")
     private Integer status;
-
-    public Job(String createBy, String updateBy) {
-        super(createBy, updateBy);
-    }
-
-    public Job(LocalDateTime createTime, String createBy, LocalDateTime updateTime, String updateBy) {
-        super(createTime, createBy, updateTime, updateBy);
-    }
 
 }

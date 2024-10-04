@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 /**
  * @author ProjectAn
- * @date 2024/4/3 17:04
+ * @since 2024/4/3 17:04
  */
 @Component
 @Dict(key = "OAuthPlatform", value = "OAuth平台")

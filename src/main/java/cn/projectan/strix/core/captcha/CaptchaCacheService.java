@@ -4,7 +4,7 @@ package cn.projectan.strix.core.captcha;
  * 验证码缓存接口
  *
  * @author ProjectAn
- * @date 2024-03-26
+ * @since 2024-03-26
  */
 public interface CaptchaCacheService {
 

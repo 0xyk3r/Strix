@@ -26,7 +26,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @TableName("sys_workflow_instance")
-public class WorkflowInstance extends BaseModel {
+public class WorkflowInstance extends BaseModel<WorkflowInstance> {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -76,13 +76,5 @@ public class WorkflowInstance extends BaseModel {
      */
     @TableField("`status`")
     private Byte status;
-
-    public WorkflowInstance(String createBy, String updateBy) {
-        super(createBy, updateBy);
-    }
-
-    public WorkflowInstance(LocalDateTime createTime, String createBy, LocalDateTime updateTime, String updateBy) {
-        super(createTime, createBy, updateTime, updateBy);
-    }
 
 }

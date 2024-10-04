@@ -6,7 +6,7 @@ import cn.projectan.strix.model.enums.NumCategory;
  * Number 工具类
  *
  * @author ProjectAn
- * @date 2021/6/11 18:14
+ * @since 2021/6/11 18:14
  */
 public class NumUtil {
 

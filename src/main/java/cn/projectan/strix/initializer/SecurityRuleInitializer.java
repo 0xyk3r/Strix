@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
  * 安全规则初始化器
  *
  * @author ProjectAn
- * @date 2023/5/26 17:38
+ * @since 2023/5/26 17:38
  */
 @Slf4j
 @Order(Ordered.HIGHEST_PRECEDENCE)

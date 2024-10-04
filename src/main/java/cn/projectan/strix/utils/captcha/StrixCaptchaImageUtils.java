@@ -17,7 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Strix Captcha 图像工具类
  *
  * @author ProjectAn
- * @date 2024/3/30 13:00
+ * @since 2024/3/30 13:00
  */
 @Slf4j
 public class StrixCaptchaImageUtils {

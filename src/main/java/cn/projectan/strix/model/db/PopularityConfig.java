@@ -11,11 +11,10 @@ import lombok.experimental.Accessors;
 
 import java.io.Serial;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 
 /**
  * <p>
- *
+ * Strix 热度工具 配置
  * </p>
  *
  * @author ProjectAn
@@ -27,7 +26,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @TableName("sys_popularity_config")
-public class PopularityConfig extends BaseModel {
+public class PopularityConfig extends BaseModel<PopularityConfig> {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -58,13 +57,5 @@ public class PopularityConfig extends BaseModel {
      * 数值倍率
      */
     private BigDecimal magValue;
-
-    public PopularityConfig(String createBy, String updateBy) {
-        super(createBy, updateBy);
-    }
-
-    public PopularityConfig(LocalDateTime createTime, String createBy, LocalDateTime updateTime, String updateBy) {
-        super(createTime, createBy, updateTime, updateBy);
-    }
 
 }

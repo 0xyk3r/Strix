@@ -10,11 +10,10 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 
 import java.io.Serial;
-import java.time.LocalDateTime;
 
 /**
  * <p>
- *
+ * Strix SMS 短信模板
  * </p>
  *
  * @author ProjectAn
@@ -26,7 +25,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @TableName("sys_sms_template")
-public class SmsTemplate extends BaseModel {
+public class SmsTemplate extends BaseModel<SmsTemplate> {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -64,13 +63,5 @@ public class SmsTemplate extends BaseModel {
      * 模板内容
      */
     private String content;
-
-    public SmsTemplate(String createBy, String updateBy) {
-        super(createBy, updateBy);
-    }
-
-    public SmsTemplate(LocalDateTime createTime, String createBy, LocalDateTime updateTime, String updateBy) {
-        super(createTime, createBy, updateTime, updateBy);
-    }
 
 }

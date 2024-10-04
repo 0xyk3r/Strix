@@ -25,7 +25,7 @@ import java.util.TimeZone;
  * Jackson 配置
  *
  * @author ProjectAn
- * @date 2021/5/13 19:19
+ * @since 2021/5/13 19:19
  */
 @Configuration
 public class JacksonConfig {

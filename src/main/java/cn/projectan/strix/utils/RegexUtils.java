@@ -3,8 +3,10 @@ package cn.projectan.strix.utils;
 import java.util.regex.Pattern;
 
 /**
+ * 正则工具类
+ *
  * @author ProjectAn
- * @date 2023/5/23 10:05
+ * @since 2023/5/23 10:05
  */
 public class RegexUtils {
 

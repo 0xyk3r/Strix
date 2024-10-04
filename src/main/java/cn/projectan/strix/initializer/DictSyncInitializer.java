@@ -34,7 +34,7 @@ import java.util.Set;
  * 字典常量同步初始化器
  *
  * @author ProjectAn
- * @date 2023/6/9 15:18
+ * @since 2023/6/9 15:18
  */
 @Slf4j
 @Order(20)
@@ -67,9 +67,9 @@ public class DictSyncInitializer implements ApplicationRunner {
             String key = StringUtils.hasText(annotationDict.key()) ? annotationDict.key() : clazz.getSimpleName();
             String name = StringUtils.hasText(annotationDict.value()) ? annotationDict.value() : clazz.getSimpleName();
 
-            Dict dict = new Dict(key, name, 0, DictStatus.ENABLE, null, 0, DictProvided.YES);
-            dict.setCreateBy("SYSTEM");
-            dict.setUpdateBy("SYSTEM");
+            Dict dict = new Dict(key, name, 0, DictStatus.ENABLE, null, 0, DictProvided.YES)
+                    .setCreateBy("SYSTEM")
+                    .setUpdateBy("SYSTEM");
             List<DictData> dictDataList = new ArrayList<>();
 
             try {
@@ -89,9 +89,9 @@ public class DictSyncInitializer implements ApplicationRunner {
                     String label = StringUtils.hasText(annotationDictData.label()) ? annotationDictData.label() : field.getName();
                     int sort = annotationDictData.sort() >= 0 ? annotationDictData.sort() : i;
                     String style = annotationDictData.style();
-                    DictData dictData = new DictData(key, value, label, sort, style, DictDataStatus.ENABLE, null);
-                    dictData.setCreateBy("SYSTEM");
-                    dictData.setUpdateBy("SYSTEM");
+                    DictData dictData = new DictData(key, value, label, sort, style, DictDataStatus.ENABLE, null)
+                            .setCreateBy("SYSTEM")
+                            .setUpdateBy("SYSTEM");
                     dictDataList.add(dictData);
                 }
                 Dict dbDict = dictList.stream().filter(d -> d.getKey().equals(dict.getKey())).findFirst().orElse(null);

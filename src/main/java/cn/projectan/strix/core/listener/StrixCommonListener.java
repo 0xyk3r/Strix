@@ -6,7 +6,7 @@ package cn.projectan.strix.core.listener;
  * 用于实现 Strix 内部代码中, 向 Strix 子系统发送通知的功能
  *
  * @author ProjectAn
- * @date 2022/3/9 17:55
+ * @since 2022/3/9 17:55
  */
 public interface StrixCommonListener {
 

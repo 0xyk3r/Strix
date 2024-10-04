@@ -10,7 +10,7 @@ import java.security.MessageDigest;
  * Strix Captcha MD5 工具类
  *
  * @author ProjectAn
- * @date 2024/3/30 13:00
+ * @since 2024/3/30 13:00
  */
 @Slf4j
 public abstract class StrixCaptchaMD5Util {

@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
  * User-Agent 信息
  *
  * @author ProjectAn
- * @date 2024/3/31 02:56
+ * @since 2024/3/31 02:56
  */
 public class UserAgentInfo implements Serializable {
 

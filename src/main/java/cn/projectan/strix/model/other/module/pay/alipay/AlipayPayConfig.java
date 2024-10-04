@@ -5,7 +5,7 @@ import lombok.Data;
 
 /**
  * @author ProjectAn
- * @date 2024/4/3 2:12
+ * @since 2024/4/3 2:12
  */
 @Data
 public class AlipayPayConfig extends BasePayConfig {

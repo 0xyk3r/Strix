@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
  * 是否允许该字段被更新
  *
  * @author ProjectAn
- * @date 2021/6/17 17:27
+ * @since 2021/6/17 17:27
  */
 @Target({ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)

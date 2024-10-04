@@ -7,7 +7,7 @@ import java.nio.charset.Charset;
  * Strix Captcha 文件流工具类
  *
  * @author ProjectAn
- * @date 2024/3/30 13:00
+ * @since 2024/3/30 13:00
  */
 public abstract class StrixCaptchaStreamUtils {
 

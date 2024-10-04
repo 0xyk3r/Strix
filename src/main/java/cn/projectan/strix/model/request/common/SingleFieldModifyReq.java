@@ -6,7 +6,7 @@ import lombok.Data;
  * 单一属性修改请求参数
  *
  * @author ProjectAn
- * @date 2021/6/16 15:18
+ * @since 2021/6/16 15:18
  */
 @Data
 public class SingleFieldModifyReq {

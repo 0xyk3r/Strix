@@ -16,8 +16,10 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 /**
+ * Strix OAuth 推送任务
+ *
  * @author ProjectAn
- * @date 2022/3/27 12:17
+ * @since 2022/3/27 12:17
  */
 @Slf4j
 @Component

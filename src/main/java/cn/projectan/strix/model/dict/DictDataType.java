@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 /**
  * @author ProjectAn
- * @date 2023/6/12 18:34
+ * @since 2023/6/12 18:34
  */
 @Component
 @Dict(key = "DictDataType", value = "系统字典-数据类型")

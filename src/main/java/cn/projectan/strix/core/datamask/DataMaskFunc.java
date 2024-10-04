@@ -3,8 +3,10 @@ package cn.projectan.strix.core.datamask;
 import org.springframework.util.StringUtils;
 
 /**
+ * 数据脱敏函数
+ *
  * @author ProjectAn
- * @date 2023/2/22 14:30
+ * @since 2023/2/22 14:30
  */
 public enum DataMaskFunc {
 

@@ -12,7 +12,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * @author ProjectAn
- * @date 2022/10/2 19:51
+ * @since 2022/10/2 19:51
  */
 @Configuration
 public class StrixLogThreadPoolConfig {

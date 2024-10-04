@@ -19,7 +19,7 @@ import java.util.Set;
  * 数据库字段重复检测工具
  *
  * @author ProjectAn
- * @date 2021/6/17 14:13
+ * @since 2021/6/17 14:13
  */
 @Slf4j
 public class UniqueDetectionTool {

@@ -4,7 +4,7 @@ import lombok.Data;
 
 /**
  * @author ProjectAn
- * @date 2021/8/24 15:47
+ * @since 2021/8/24 15:47
  */
 @Data
 public class BasePayConfig {

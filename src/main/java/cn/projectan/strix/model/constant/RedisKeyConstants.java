@@ -8,7 +8,7 @@ package cn.projectan.strix.model.constant;
  * Key标识类型: PREFIX | SUFFIX
  *
  * @author ProjectAn
- * @date 2024/4/17 下午3:14
+ * @since 2024/4/17 下午3:14
  */
 public class RedisKeyConstants {
 

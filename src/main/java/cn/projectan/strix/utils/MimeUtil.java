@@ -16,7 +16,7 @@ import java.util.Map;
  * MIME 工具类
  *
  * @author ProjectAn
- * @date 2024/4/4 04:18
+ * @since 2024/4/4 04:18
  */
 public final class MimeUtil {
 

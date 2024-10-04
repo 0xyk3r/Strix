@@ -11,11 +11,10 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 
 import java.io.Serial;
-import java.time.LocalDateTime;
 
 /**
  * <p>
- *
+ * Strix 字典数据
  * </p>
  *
  * @author ProjectAn
@@ -27,7 +26,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @TableName("sys_dict_data")
-public class DictData extends BaseModel {
+public class DictData extends BaseModel<DictData> {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -70,13 +69,5 @@ public class DictData extends BaseModel {
      * 字典备注
      */
     private String remark;
-
-    public DictData(String createBy, String updateBy) {
-        super(createBy, updateBy);
-    }
-
-    public DictData(LocalDateTime createTime, String createBy, LocalDateTime updateTime, String updateBy) {
-        super(createTime, createBy, updateTime, updateBy);
-    }
 
 }

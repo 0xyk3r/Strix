@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
  * 其他功能初始化器
  *
  * @author ProjectAn
- * @date 2023/6/18 15:42
+ * @since 2023/6/18 15:42
  */
 @Slf4j
 @Order(100000000)

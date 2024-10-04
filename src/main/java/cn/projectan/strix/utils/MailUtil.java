@@ -19,7 +19,7 @@ import java.io.File;
  * 邮件工具类
  *
  * @author ProjectAn
- * @date 2023/5/15 21:23
+ * @since 2023/5/15 21:23
  */
 @Slf4j
 @Component

@@ -18,7 +18,7 @@ import java.util.Set;
  * Lambda 表达式注册特性
  *
  * @author ProjectAn
- * @date 2024/3/24 15:57
+ * @since 2024/3/24 15:57
  */
 public class LambdaRegistrationFeature implements Feature {
 

@@ -7,7 +7,7 @@ import cn.projectan.strix.model.other.ua.*;
  * User-Agent 解析器
  *
  * @author ProjectAn
- * @date 2024/3/31 02:56
+ * @since 2024/3/31 02:56
  */
 public class UserAgentParser {
 

@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit;
  * 异步工具类
  *
  * @author ProjectAn
- * @date 2023/6/16 22:56
+ * @since 2023/6/16 22:56
  */
 public class AsyncUtil {
 

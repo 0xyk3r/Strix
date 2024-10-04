@@ -16,8 +16,10 @@ import org.springframework.util.Assert;
 import java.util.Map;
 
 /**
+ * 支付宝 OAuth 客户端
+ *
  * @author ProjectAn
- * @date 2024/4/3 16:41
+ * @since 2024/4/3 16:41
  */
 @Slf4j
 public class AlipayOAuthClient extends StrixOAuthClient {

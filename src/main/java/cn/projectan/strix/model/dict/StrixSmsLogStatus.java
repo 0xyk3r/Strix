@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 /**
  * @author ProjectAn
- * @date 2023/5/22 14:22
+ * @since 2023/5/22 14:22
  */
 @Component
 @Dict(key = "StrixSmsLogStatus", value = "短信服务-短信日志-状态")

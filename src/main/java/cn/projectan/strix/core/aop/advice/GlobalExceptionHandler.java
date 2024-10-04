@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
  * 全局异常处理
  *
  * @author ProjectAn
- * @date 2021/5/7 18:20
+ * @since 2021/5/7 18:20
  */
 @Slf4j
 @RestControllerAdvice

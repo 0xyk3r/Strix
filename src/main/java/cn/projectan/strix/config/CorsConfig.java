@@ -12,7 +12,7 @@ import java.util.Collections;
  * 跨域配置
  *
  * @author ProjectAn
- * @date 2021/05/02 17:11
+ * @since 2021/05/02 17:11
  */
 @Configuration
 public class CorsConfig {

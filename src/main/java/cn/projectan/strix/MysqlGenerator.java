@@ -21,7 +21,7 @@ import java.util.List;
  * MyBatisPlus 代码生成器 新版本
  *
  * @author ProjectAn
- * @date 2022-07-15
+ * @since 2022-07-15
  */
 public class MysqlGenerator {
 
@@ -55,7 +55,7 @@ public class MysqlGenerator {
                         .controller("controller")
                         .pathInfo(Collections.singletonMap(OutputFile.xml, projectPath + "/src/main/resources/mapper"))
                         .build())
-                .strategyConfig((scanner, builder) -> builder.addInclude(getTables(scanner.apply("请输入表名，多个英文逗号分隔。所有输入 all")))
+                .strategyConfig((scanner, builder) -> builder.addInclude(getTables(scanner.apply("Enter table names, support 'all': ")))
                         .addTablePrefix("sys_", "tab_") // 表前缀过滤
                         // Controller 策略配置
                         .controllerBuilder()

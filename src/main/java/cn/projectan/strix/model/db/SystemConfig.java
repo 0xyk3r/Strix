@@ -13,7 +13,7 @@ import java.io.Serial;
 
 /**
  * <p>
- *
+ * Strix 系统配置
  * </p>
  *
  * @author ProjectAn
@@ -25,7 +25,7 @@ import java.io.Serial;
 @NoArgsConstructor
 @AllArgsConstructor
 @TableName("sys_system_config")
-public class SystemConfig extends BaseModel {
+public class SystemConfig extends BaseModel<SystemConfig> {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -58,6 +58,5 @@ public class SystemConfig extends BaseModel {
      * 设置说明
      */
     private String remark;
-
 
 }

@@ -10,11 +10,10 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 
 import java.io.Serial;
-import java.time.LocalDateTime;
 
 /**
  * <p>
- *
+ * Strix SMS 短信签名
  * </p>
  *
  * @author ProjectAn
@@ -26,7 +25,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @TableName("sys_sms_sign")
-public class SmsSign extends BaseModel {
+public class SmsSign extends BaseModel<SmsSign> {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -47,13 +46,5 @@ public class SmsSign extends BaseModel {
      */
     @TableField("`status`")
     private Integer status;
-
-    public SmsSign(String createBy, String updateBy) {
-        super(createBy, updateBy);
-    }
-
-    public SmsSign(LocalDateTime createTime, String createBy, LocalDateTime updateTime, String updateBy) {
-        super(createTime, createBy, updateTime, updateBy);
-    }
 
 }

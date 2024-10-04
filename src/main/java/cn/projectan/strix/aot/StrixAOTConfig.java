@@ -42,7 +42,7 @@ import java.util.Set;
  * Strix AOT 配置
  *
  * @author ProjectAn
- * @date 2024/3/25 0:56
+ * @since 2024/3/25 0:56
  */
 @Slf4j
 @Configuration(proxyBeanMethods = false)

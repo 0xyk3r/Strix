@@ -16,7 +16,7 @@ import java.util.List;
  * <p>注意：本校验器通过反射获取字典值，仅适用于字典值不可被后台修改的情况
  *
  * @author ProjectAn
- * @date 2023/9/6 16:43
+ * @since 2023/9/6 16:43
  */
 @Slf4j
 public class ConstantDictValueValidator implements ConstraintValidator<ConstantDictValue, Object> {

@@ -10,7 +10,7 @@ import lombok.Data;
 
 /**
  * @author ProjectAn
- * @date 2023/7/30 17:19
+ * @since 2023/7/30 17:19
  */
 @Data
 public class JobUpdateReq {

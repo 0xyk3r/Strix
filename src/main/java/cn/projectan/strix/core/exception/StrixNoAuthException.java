@@ -1,8 +1,10 @@
 package cn.projectan.strix.core.exception;
 
 /**
+ * StrixNoAuthException
+ *
  * @author ProjectAn
- * @date 2023/2/25 1:57
+ * @since 2023/2/25 1:57
  */
 public class StrixNoAuthException extends StrixException {
 

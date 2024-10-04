@@ -15,7 +15,7 @@ import java.io.Serial;
 
 /**
  * <p>
- * 短信服务配置
+ * Strix SMS 配置
  * </p>
  *
  * @author ProjectAn
@@ -27,7 +27,7 @@ import java.io.Serial;
 @NoArgsConstructor
 @AllArgsConstructor
 @TableName("sys_sms_config")
-public class SmsConfig extends BaseModel {
+public class SmsConfig extends BaseModel<SmsConfig> {
 
     @Serial
     private static final long serialVersionUID = 1L;

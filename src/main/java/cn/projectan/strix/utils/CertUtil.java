@@ -11,7 +11,7 @@ import java.security.cert.X509Certificate;
  * 证书工具类
  *
  * @author ProjectAn
- * @date 2024/4/3 1:28
+ * @since 2024/4/3 1:28
  */
 @Slf4j
 public class CertUtil {

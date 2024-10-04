@@ -8,8 +8,10 @@ import java.util.Map;
 import java.util.Set;
 
 /**
+ * Strix OAuth 客户端容器
+ *
  * @author ProjectAn
- * @date 2024/4/3 16:38
+ * @since 2024/4/3 16:38
  */
 @Component
 @ConditionalOnProperty(prefix = "strix.module", name = "oauth", havingValue = "true")

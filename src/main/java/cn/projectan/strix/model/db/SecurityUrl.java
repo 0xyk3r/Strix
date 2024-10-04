@@ -12,7 +12,7 @@ import java.io.Serial;
 
 /**
  * <p>
- *
+ * Strix Security URL配置
  * </p>
  *
  * @author ProjectAn
@@ -24,7 +24,7 @@ import java.io.Serial;
 @NoArgsConstructor
 @AllArgsConstructor
 @TableName("sys_security_url")
-public class SecurityUrl extends BaseModel {
+public class SecurityUrl extends BaseModel<SecurityUrl> {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -34,4 +34,5 @@ public class SecurityUrl extends BaseModel {
     private String ruleType;
 
     private String ruleValue;
+
 }

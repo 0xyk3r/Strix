@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 /**
  * @author ProjectAn
- * @date 2023/8/1 14:39
+ * @since 2023/8/1 14:39
  */
 @Component
 @Dict(key = "CommonSwitch", value = "通用简易开关")

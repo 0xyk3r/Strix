@@ -16,7 +16,7 @@ import java.util.List;
  * <p>适用于字典值可被后台动态修改的情况
  *
  * @author ProjectAn
- * @date 2023/9/6 21:50
+ * @since 2023/9/6 21:50
  */
 @Slf4j
 public class DynamicDictValueValidator implements ConstraintValidator<DynamicDictValue, Object> {

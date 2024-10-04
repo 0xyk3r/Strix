@@ -10,7 +10,7 @@ import lombok.Data;
 
 /**
  * @author ProjectAn
- * @date 2021/8/27 14:36
+ * @since 2021/8/27 14:36
  */
 @Data
 public class SystemUserUpdateReq {

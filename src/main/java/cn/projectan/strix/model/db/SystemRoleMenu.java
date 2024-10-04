@@ -12,7 +12,7 @@ import java.io.Serial;
 
 /**
  * <p>
- *
+ * Strix 系统角色 菜单关系
  * </p>
  *
  * @author ProjectAn
@@ -24,7 +24,7 @@ import java.io.Serial;
 @NoArgsConstructor
 @AllArgsConstructor
 @TableName("sys_system_role_menu")
-public class SystemRoleMenu extends BaseModel {
+public class SystemRoleMenu extends BaseModel<SystemRoleMenu> {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -38,6 +38,5 @@ public class SystemRoleMenu extends BaseModel {
      * 系统菜单id列表
      */
     private String systemMenuId;
-
 
 }

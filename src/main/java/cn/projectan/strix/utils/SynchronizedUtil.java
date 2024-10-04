@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit;
  * 同步操作工具类
  *
  * @author ProjectAn
- * @date 2022/4/4 19:24
+ * @since 2022/4/4 19:24
  */
 @Slf4j
 @Component

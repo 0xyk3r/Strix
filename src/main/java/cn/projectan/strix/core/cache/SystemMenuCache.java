@@ -12,10 +12,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 系统菜单缓存类
+ * 系统菜单缓存
  *
  * @author ProjectAn
- * @date 2021/5/13 18:36
+ * @since 2021/5/13 18:36
  */
 @Slf4j
 @Component

@@ -15,8 +15,9 @@ import java.time.LocalDateTime;
 
 /**
  * <p>
- * sys_system_log
+ * Strix 系统日志
  * </p>
+ * <p>In ClickHouse</p>
  *
  * @author ProjectAn
  * @since 2023-06-16

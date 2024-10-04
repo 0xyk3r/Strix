@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 /**
  * @author ProjectAn
- * @date 2023/7/30 17:08
+ * @since 2023/7/30 17:08
  */
 @Getter
 public class JobListResp extends BasePageResp {

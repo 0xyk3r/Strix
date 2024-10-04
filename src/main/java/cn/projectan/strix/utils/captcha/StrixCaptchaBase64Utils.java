@@ -9,7 +9,7 @@ import java.util.Base64;
  * Strix Captcha Base64 工具类
  *
  * @author ProjectAn
- * @date 2024/3/30 13:00
+ * @since 2024/3/30 13:00
  */
 public abstract class StrixCaptchaBase64Utils {
     private static final Charset DEFAULT_CHARSET;

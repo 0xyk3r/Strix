@@ -10,7 +10,6 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 
 import java.io.Serial;
-import java.time.LocalDateTime;
 
 /**
  * <p>
@@ -26,7 +25,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @TableName("sys_oauth_config")
-public class OauthConfig extends BaseModel {
+public class OauthConfig extends BaseModel<OauthConfig> {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -46,13 +45,5 @@ public class OauthConfig extends BaseModel {
      * 序列化后的配置信息
      */
     private String configData;
-
-    public OauthConfig(String createBy, String updateBy) {
-        super(createBy, updateBy);
-    }
-
-    public OauthConfig(LocalDateTime createTime, String createBy, LocalDateTime updateTime, String updateBy) {
-        super(createTime, createBy, updateTime, updateBy);
-    }
 
 }

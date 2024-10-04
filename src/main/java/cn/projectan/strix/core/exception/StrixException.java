@@ -1,8 +1,10 @@
 package cn.projectan.strix.core.exception;
 
 /**
+ * StrixException
+ *
  * @author ProjectAn
- * @date 2021/5/7 18:21
+ * @since 2021/5/7 18:21
  */
 public class StrixException extends RuntimeException {
 

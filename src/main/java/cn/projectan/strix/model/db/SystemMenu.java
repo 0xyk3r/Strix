@@ -14,7 +14,7 @@ import java.io.Serial;
 
 /**
  * <p>
- *
+ * Strix 系统菜单
  * </p>
  *
  * @author ProjectAn
@@ -26,7 +26,7 @@ import java.io.Serial;
 @NoArgsConstructor
 @AllArgsConstructor
 @TableName("sys_system_menu")
-public class SystemMenu extends BaseModel {
+public class SystemMenu extends BaseModel<SystemMenu> {
 
     @Serial
     private static final long serialVersionUID = 2L;
@@ -63,6 +63,5 @@ public class SystemMenu extends BaseModel {
      * 排序值 越小越靠前
      */
     private Integer sortValue;
-
 
 }

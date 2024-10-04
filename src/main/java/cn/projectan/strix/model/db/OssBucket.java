@@ -10,11 +10,10 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 
 import java.io.Serial;
-import java.time.LocalDateTime;
 
 /**
  * <p>
- *
+ * Strix OSS 容器
  * </p>
  *
  * @author ProjectAn
@@ -26,7 +25,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @TableName("sys_oss_bucket")
-public class OssBucket extends BaseModel {
+public class OssBucket extends BaseModel<OssBucket> {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -66,13 +65,5 @@ public class OssBucket extends BaseModel {
      * 备注
      */
     private String remark;
-
-    public OssBucket(String createBy, String updateBy) {
-        super(createBy, updateBy);
-    }
-
-    public OssBucket(LocalDateTime createTime, String createBy, LocalDateTime updateTime, String updateBy) {
-        super(createTime, createBy, updateTime, updateBy);
-    }
 
 }

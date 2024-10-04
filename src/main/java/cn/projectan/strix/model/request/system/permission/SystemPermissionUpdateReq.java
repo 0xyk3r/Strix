@@ -9,7 +9,7 @@ import lombok.Data;
 
 /**
  * @author ProjectAn
- * @date 2021/7/20 15:44
+ * @since 2021/7/20 15:44
  */
 @Data
 public class SystemPermissionUpdateReq {

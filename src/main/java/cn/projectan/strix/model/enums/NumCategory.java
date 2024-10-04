@@ -2,7 +2,7 @@ package cn.projectan.strix.model.enums;
 
 /**
  * @author ProjectAn
- * @date 2024/4/1 17:09
+ * @since 2024/4/1 17:09
  */
 public enum NumCategory {
     POSITIVE, // 正数

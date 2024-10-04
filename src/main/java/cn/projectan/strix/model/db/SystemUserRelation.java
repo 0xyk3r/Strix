@@ -12,7 +12,7 @@ import java.io.Serial;
 
 /**
  * <p>
- *
+ * Strix 系统用户 第三方账户绑定关系
  * </p>
  *
  * @author ProjectAn
@@ -24,7 +24,7 @@ import java.io.Serial;
 @NoArgsConstructor
 @AllArgsConstructor
 @TableName("sys_system_user_relation")
-public class SystemUserRelation extends BaseModel {
+public class SystemUserRelation extends BaseModel<SystemUserRelation> {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -43,6 +43,5 @@ public class SystemUserRelation extends BaseModel {
      * 系统内用户id
      */
     private String systemUserId;
-
 
 }

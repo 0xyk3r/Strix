@@ -6,7 +6,7 @@ import lombok.Data;
 
 /**
  * @author ProjectAn
- * @date 2021/6/11 18:02
+ * @since 2021/6/11 18:02
  */
 @Data
 public class SystemManagerListReq extends BasePageReq<SystemManager> {

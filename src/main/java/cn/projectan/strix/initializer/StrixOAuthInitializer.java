@@ -17,7 +17,7 @@ import java.util.List;
  * OAuth 初始化器
  *
  * @author ProjectAn
- * @date 2024/4/3 17:01
+ * @since 2024/4/3 17:01
  */
 @Slf4j
 @Order(12)

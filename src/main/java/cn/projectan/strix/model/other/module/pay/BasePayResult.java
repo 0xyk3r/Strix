@@ -6,7 +6,7 @@ import lombok.Data;
  * 支付结果
  *
  * @author ProjectAn
- * @date 2024/4/13 下午5:26
+ * @since 2024/4/13 下午5:26
  */
 @Data
 public class BasePayResult {

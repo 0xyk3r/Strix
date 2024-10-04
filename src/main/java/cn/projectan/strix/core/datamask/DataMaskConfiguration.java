@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Configuration;
  * Strix 数据脱敏工具配置
  *
  * @author ProjectAn
- * @date 2023/2/22 14:52
+ * @since 2023/2/22 14:52
  */
 @Slf4j
 @Configuration

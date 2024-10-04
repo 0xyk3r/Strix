@@ -4,7 +4,7 @@ package cn.projectan.strix.core.ret;
  * 响应码
  *
  * @author ProjectAn
- * @date 2021/1/31 18:22
+ * @since 2021/1/31 18:22
  */
 public interface RetCode {
 

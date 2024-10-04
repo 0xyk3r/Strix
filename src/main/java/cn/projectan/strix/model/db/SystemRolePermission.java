@@ -12,7 +12,7 @@ import java.io.Serial;
 
 /**
  * <p>
- *
+ * Strix 系统角色 权限关系
  * </p>
  *
  * @author ProjectAn
@@ -24,7 +24,7 @@ import java.io.Serial;
 @NoArgsConstructor
 @AllArgsConstructor
 @TableName("sys_system_role_permission")
-public class SystemRolePermission extends BaseModel {
+public class SystemRolePermission extends BaseModel<SystemRolePermission> {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -38,6 +38,5 @@ public class SystemRolePermission extends BaseModel {
      * 系统权限id
      */
     private String systemPermissionId;
-
 
 }

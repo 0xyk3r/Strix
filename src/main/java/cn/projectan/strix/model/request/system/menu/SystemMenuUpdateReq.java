@@ -8,7 +8,7 @@ import lombok.Data;
 
 /**
  * @author ProjectAn
- * @date 2021/6/20 19:02
+ * @since 2021/6/20 19:02
  */
 @Data
 public class SystemMenuUpdateReq {
