@@ -13,8 +13,8 @@ import cn.projectan.strix.model.request.module.job.JobUpdateReq;
 import cn.projectan.strix.model.response.module.job.JobListResp;
 import cn.projectan.strix.model.response.module.job.JobResp;
 import cn.projectan.strix.service.JobService;
-import cn.projectan.strix.utils.UniqueDetectionTool;
-import cn.projectan.strix.utils.UpdateConditionBuilder;
+import cn.projectan.strix.util.UniqueChecker;
+import cn.projectan.strix.util.UpdateBuilder;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -94,7 +94,7 @@ public class JobController extends BaseSystemController {
                 req.getStatus()
         );
 
-        UniqueDetectionTool.check(job);
+        UniqueChecker.check(job);
 
         try {
             jobService.insertJob(job);
@@ -115,8 +115,8 @@ public class JobController extends BaseSystemController {
         Job job = jobService.getById(id);
         Assert.notNull(job, "原记录不存在");
 
-        UpdateConditionBuilder.build(job, req);
-        UniqueDetectionTool.check(job);
+        UpdateBuilder.build(job, req);
+        UniqueChecker.check(job);
 
         try {
             jobService.updateJob(job);

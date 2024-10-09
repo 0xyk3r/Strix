@@ -19,8 +19,8 @@ import cn.projectan.strix.model.response.module.workflow.WorkflowResp;
 import cn.projectan.strix.service.WorkflowConfigService;
 import cn.projectan.strix.service.WorkflowInstanceService;
 import cn.projectan.strix.service.WorkflowService;
-import cn.projectan.strix.utils.UniqueDetectionTool;
-import cn.projectan.strix.utils.UpdateConditionBuilder;
+import cn.projectan.strix.util.UniqueChecker;
+import cn.projectan.strix.util.UpdateBuilder;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
@@ -91,7 +91,7 @@ public class WorkflowController extends BaseSystemController {
         Workflow workflow = new Workflow();
         workflow.setName(req.getName());
 
-        UniqueDetectionTool.check(workflow);
+        UniqueChecker.check(workflow);
 
         Assert.isTrue(workflowService.save(workflow), "保存失败");
         return RetBuilder.success();
@@ -107,8 +107,8 @@ public class WorkflowController extends BaseSystemController {
         Workflow workflow = workflowService.getById(id);
         Assert.notNull(workflow, "原记录不存在");
 
-        LambdaUpdateWrapper<Workflow> updateWrapper = UpdateConditionBuilder.build(workflow, req);
-        UniqueDetectionTool.check(workflow);
+        LambdaUpdateWrapper<Workflow> updateWrapper = UpdateBuilder.build(workflow, req);
+        UniqueChecker.check(workflow);
 
         Assert.isTrue(workflowService.update(updateWrapper), "保存失败");
         return RetBuilder.success();

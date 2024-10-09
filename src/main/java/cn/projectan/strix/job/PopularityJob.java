@@ -1,7 +1,7 @@
 package cn.projectan.strix.job;
 
 import cn.projectan.strix.model.annotation.StrixJob;
-import cn.projectan.strix.utils.PopularityUtil;
+import cn.projectan.strix.util.PopularityUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

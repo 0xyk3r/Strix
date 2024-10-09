@@ -9,7 +9,7 @@ import cn.projectan.strix.model.dict.PayPlatform;
 import cn.projectan.strix.model.other.module.pay.alipay.AlipayPayConfig;
 import cn.projectan.strix.model.other.module.pay.wxpay.WechatPayConfig;
 import cn.projectan.strix.service.PayConfigService;
-import cn.projectan.strix.utils.CertUtil;
+import cn.projectan.strix.util.CertUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;

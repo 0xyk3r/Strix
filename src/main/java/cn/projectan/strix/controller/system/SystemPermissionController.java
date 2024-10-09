@@ -17,9 +17,9 @@ import cn.projectan.strix.model.response.system.permission.SystemPermissionResp;
 import cn.projectan.strix.service.SystemManagerService;
 import cn.projectan.strix.service.SystemPermissionService;
 import cn.projectan.strix.service.SystemRolePermissionService;
-import cn.projectan.strix.utils.SpringUtil;
-import cn.projectan.strix.utils.UniqueDetectionTool;
-import cn.projectan.strix.utils.UpdateConditionBuilder;
+import cn.projectan.strix.util.SpringUtil;
+import cn.projectan.strix.util.UniqueChecker;
+import cn.projectan.strix.util.UpdateBuilder;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -89,7 +89,7 @@ public class SystemPermissionController extends BaseSystemController {
                 req.getDescription()
         );
 
-        UniqueDetectionTool.check(systemPermission);
+        UniqueChecker.check(systemPermission);
         Assert.isTrue(systemPermissionService.save(systemPermission), "保存失败");
         systemPermissionCache.updateRamAndRedis();
 
@@ -107,8 +107,8 @@ public class SystemPermissionController extends BaseSystemController {
         SystemPermission systemPermission = systemPermissionService.getById(permissionId);
         Assert.notNull(systemPermission, "系统权限信息不存在");
 
-        LambdaUpdateWrapper<SystemPermission> updateWrapper = UpdateConditionBuilder.build(systemPermission, req);
-        UniqueDetectionTool.check(systemPermission);
+        LambdaUpdateWrapper<SystemPermission> updateWrapper = UpdateBuilder.build(systemPermission, req);
+        UniqueChecker.check(systemPermission);
         Assert.isTrue(systemPermissionService.update(updateWrapper), "保存失败");
         // 更新缓存
         systemPermissionCache.updateRamAndRedis();

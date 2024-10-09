@@ -2,7 +2,7 @@ package cn.projectan.strix.core.ss.filter;
 
 import cn.projectan.strix.core.ss.token.SystemUserAuthenticationToken;
 import cn.projectan.strix.model.db.SystemUser;
-import cn.projectan.strix.utils.RedisUtil;
+import cn.projectan.strix.util.RedisUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

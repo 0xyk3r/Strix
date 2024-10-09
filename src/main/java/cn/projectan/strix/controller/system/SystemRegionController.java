@@ -21,8 +21,8 @@ import cn.projectan.strix.model.response.system.region.SystemRegionListResp;
 import cn.projectan.strix.model.response.system.region.SystemRegionResp;
 import cn.projectan.strix.service.SystemManagerService;
 import cn.projectan.strix.service.SystemRegionService;
-import cn.projectan.strix.utils.UniqueDetectionTool;
-import cn.projectan.strix.utils.UpdateConditionBuilder;
+import cn.projectan.strix.util.UniqueChecker;
+import cn.projectan.strix.util.UpdateBuilder;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
@@ -201,7 +201,7 @@ public class SystemRegionController extends BaseSystemController {
                 req.getRemarks()
         );
 
-        UniqueDetectionTool.check(systemRegion);
+        UniqueChecker.check(systemRegion);
         Assert.isTrue(systemRegionService.save(systemRegion), "保存失败");
 
         Map<String, String> fullInfo = systemRegionService.getFullInfo(systemRegion.getId());
@@ -241,8 +241,8 @@ public class SystemRegionController extends BaseSystemController {
 
         boolean parentChanged = !systemRegion.getParentId().equals(req.getParentId());
 
-        LambdaUpdateWrapper<SystemRegion> updateWrapper = UpdateConditionBuilder.build(systemRegion, req);
-        UniqueDetectionTool.check(systemRegion);
+        LambdaUpdateWrapper<SystemRegion> updateWrapper = UpdateBuilder.build(systemRegion, req);
+        UniqueChecker.check(systemRegion);
 
         if (parentChanged) {
             systemRegionService.updateRelevantRegion(systemRegion, req.getParentId(), updateWrapper);

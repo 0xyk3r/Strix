@@ -4,7 +4,7 @@ import cn.projectan.strix.core.cache.SystemRegionCache;
 import cn.projectan.strix.mapper.SystemRegionMapper;
 import cn.projectan.strix.model.db.SystemRegion;
 import cn.projectan.strix.service.SystemRegionService;
-import cn.projectan.strix.utils.SpringUtil;
+import cn.projectan.strix.util.SpringUtil;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;

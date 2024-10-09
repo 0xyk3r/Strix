@@ -21,10 +21,10 @@ import cn.projectan.strix.service.SmsLogService;
 import cn.projectan.strix.service.SmsSignService;
 import cn.projectan.strix.service.SmsTemplateService;
 import cn.projectan.strix.task.StrixSmsTask;
-import cn.projectan.strix.utils.NumUtil;
-import cn.projectan.strix.utils.SpringUtil;
-import cn.projectan.strix.utils.UniqueDetectionTool;
-import cn.projectan.strix.utils.UpdateConditionBuilder;
+import cn.projectan.strix.util.SpringUtil;
+import cn.projectan.strix.util.UniqueChecker;
+import cn.projectan.strix.util.UpdateBuilder;
+import cn.projectan.strix.util.math.NumUtil;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
@@ -125,7 +125,7 @@ public class SmsController extends BaseSystemController {
                 req.getRemark()
         );
 
-        UniqueDetectionTool.check(smsConfig);
+        UniqueChecker.check(smsConfig);
 
         Assert.isTrue(smsConfigService.save(smsConfig), "保存失败");
 
@@ -146,8 +146,8 @@ public class SmsController extends BaseSystemController {
         Assert.notNull(smsConfig, "原记录不存在");
         String originKey = smsConfig.getKey();
 
-        LambdaUpdateWrapper<SmsConfig> updateWrapper = UpdateConditionBuilder.build(smsConfig, req);
-        UniqueDetectionTool.check(smsConfig);
+        LambdaUpdateWrapper<SmsConfig> updateWrapper = UpdateBuilder.build(smsConfig, req);
+        UniqueChecker.check(smsConfig);
         Assert.isTrue(smsConfigService.update(updateWrapper), "保存失败");
 
         // 卸载原配置 重新加载

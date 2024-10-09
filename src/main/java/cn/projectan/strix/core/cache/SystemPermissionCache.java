@@ -4,7 +4,7 @@ import cn.projectan.strix.core.ss.details.LoginSystemManager;
 import cn.projectan.strix.model.db.SystemPermission;
 import cn.projectan.strix.service.SystemManagerService;
 import cn.projectan.strix.service.SystemPermissionService;
-import cn.projectan.strix.utils.RedisUtil;
+import cn.projectan.strix.util.RedisUtil;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -9,7 +9,7 @@ import cn.projectan.strix.model.annotation.IgnoreDataEncryption;
 import cn.projectan.strix.model.db.OssFile;
 import cn.projectan.strix.model.dict.StrixOssFileGroupSecretType;
 import cn.projectan.strix.service.OssFileService;
-import cn.projectan.strix.utils.MimeUtil;
+import cn.projectan.strix.util.MimeUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

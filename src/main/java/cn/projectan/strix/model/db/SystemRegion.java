@@ -1,6 +1,6 @@
 package cn.projectan.strix.model.db;
 
-import cn.projectan.strix.model.annotation.UniqueDetection;
+import cn.projectan.strix.model.annotation.UniqueField;
 import cn.projectan.strix.model.db.base.BaseModel;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
@@ -33,7 +33,7 @@ public class SystemRegion extends BaseModel<SystemRegion> {
     /**
      * 地区名称
      */
-    @UniqueDetection(value = "地区名称", group = 1)
+    @UniqueField(value = "地区名称", group = 1)
     private String name;
 
     /**
@@ -44,7 +44,7 @@ public class SystemRegion extends BaseModel<SystemRegion> {
     /**
      * 父节点id
      */
-    @UniqueDetection(value = "父级地区", group = 1)
+    @UniqueField(value = "父级地区", group = 1)
     private String parentId;
 
     /**

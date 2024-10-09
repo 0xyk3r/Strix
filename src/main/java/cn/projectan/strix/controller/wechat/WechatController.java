@@ -16,7 +16,7 @@ import cn.projectan.strix.model.other.module.oauth.BaseOAuthUserInfo;
 import cn.projectan.strix.model.other.module.oauth.WechatOAuthConfig;
 import cn.projectan.strix.service.OauthUserService;
 import cn.projectan.strix.service.SystemUserService;
-import cn.projectan.strix.utils.RedisUtil;
+import cn.projectan.strix.util.RedisUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;

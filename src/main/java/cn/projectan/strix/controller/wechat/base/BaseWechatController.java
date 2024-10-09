@@ -2,7 +2,7 @@ package cn.projectan.strix.controller.wechat.base;
 
 import cn.projectan.strix.controller.BaseController;
 import cn.projectan.strix.model.db.SystemUser;
-import cn.projectan.strix.utils.SecurityUtils;
+import cn.projectan.strix.util.SecurityUtils;
 import org.springframework.util.Assert;
 
 /**

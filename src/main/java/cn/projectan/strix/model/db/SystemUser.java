@@ -1,6 +1,6 @@
 package cn.projectan.strix.model.db;
 
-import cn.projectan.strix.model.annotation.UniqueDetection;
+import cn.projectan.strix.model.annotation.UniqueField;
 import cn.projectan.strix.model.db.base.BaseModel;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
@@ -33,7 +33,7 @@ public class SystemUser extends BaseModel<SystemUser> {
     /**
      * 用户昵称
      */
-    @UniqueDetection("用户昵称")
+    @UniqueField("用户昵称")
     private String nickname;
 
     /**
@@ -44,7 +44,7 @@ public class SystemUser extends BaseModel<SystemUser> {
     /**
      * 用户手机号码
      */
-    @UniqueDetection("用户手机号码")
+    @UniqueField("用户手机号码")
     private String phoneNumber;
 
     /**

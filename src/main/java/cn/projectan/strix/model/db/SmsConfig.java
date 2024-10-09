@@ -1,6 +1,6 @@
 package cn.projectan.strix.model.db;
 
-import cn.projectan.strix.model.annotation.UniqueDetection;
+import cn.projectan.strix.model.annotation.UniqueField;
 import cn.projectan.strix.model.db.base.BaseModel;
 import cn.projectan.strix.model.dict.StrixSmsPlatform;
 import com.baomidou.mybatisplus.annotation.TableField;
@@ -36,7 +36,7 @@ public class SmsConfig extends BaseModel<SmsConfig> {
      * key
      */
     @TableField("`key`")
-    @UniqueDetection("配置 Key ")
+    @UniqueField("配置 Key ")
     private String key;
 
     /**
@@ -50,13 +50,13 @@ public class SmsConfig extends BaseModel<SmsConfig> {
      *
      * @see StrixSmsPlatform
      */
-    @UniqueDetection(value = "服务平台", group = 1)
+    @UniqueField(value = "服务平台", group = 1)
     private Integer platform;
 
     /**
      * 短信服务地区ID
      */
-    @UniqueDetection(value = "服务地域", group = 1)
+    @UniqueField(value = "服务地域", group = 1)
     private String regionId;
 
     /**

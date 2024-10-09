@@ -1,6 +1,6 @@
 package cn.projectan.strix.model.db;
 
-import cn.projectan.strix.model.annotation.UniqueDetection;
+import cn.projectan.strix.model.annotation.UniqueField;
 import cn.projectan.strix.model.db.base.BaseModel;
 import cn.projectan.strix.model.dict.CommonSwitch;
 import cn.projectan.strix.model.dict.JobMisfire;
@@ -37,7 +37,7 @@ public class Job extends BaseModel<Job> {
     /**
      * 任务名称
      */
-    @UniqueDetection("任务名称")
+    @UniqueField("任务名称")
     @TableField("`name`")
     private String name;
 

@@ -7,7 +7,7 @@ import cn.projectan.strix.core.cache.SystemMenuCache;
 import cn.projectan.strix.initializer.DictSyncInitializer;
 import cn.projectan.strix.initializer.SecurityRuleInitializer;
 import cn.projectan.strix.task.StrixOAuthPushTask;
-import cn.projectan.strix.utils.PopularityUtil;
+import cn.projectan.strix.util.PopularityUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.graalvm.nativeimage.hosted.Feature;
 import org.graalvm.nativeimage.hosted.RuntimeSerialization;

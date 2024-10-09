@@ -1,6 +1,6 @@
 package cn.projectan.strix.model.db;
 
-import cn.projectan.strix.model.annotation.UniqueDetection;
+import cn.projectan.strix.model.annotation.UniqueField;
 import cn.projectan.strix.model.db.base.BaseModel;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
@@ -33,7 +33,7 @@ public class SystemRole extends BaseModel<SystemRole> {
     /**
      * 系统角色名称
      */
-    @UniqueDetection("角色名称")
+    @UniqueField("角色名称")
     private String name;
 
     /**

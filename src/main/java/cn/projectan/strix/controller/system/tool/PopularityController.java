@@ -17,8 +17,8 @@ import cn.projectan.strix.model.response.system.tool.popularity.PopularityConfig
 import cn.projectan.strix.model.response.system.tool.popularity.PopularityDataListResp;
 import cn.projectan.strix.service.PopularityConfigService;
 import cn.projectan.strix.service.PopularityDataService;
-import cn.projectan.strix.utils.UniqueDetectionTool;
-import cn.projectan.strix.utils.UpdateConditionBuilder;
+import cn.projectan.strix.util.UniqueChecker;
+import cn.projectan.strix.util.UpdateBuilder;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
@@ -86,7 +86,7 @@ public class PopularityController extends BaseSystemController {
                 req.getExtraValue(),
                 req.getMagValue()
         );
-        UniqueDetectionTool.check(popularityConfig);
+        UniqueChecker.check(popularityConfig);
 
         Assert.isTrue(popularityConfigService.save(popularityConfig), "保存失败");
         return RetBuilder.success();
@@ -102,8 +102,8 @@ public class PopularityController extends BaseSystemController {
         PopularityConfig data = popularityConfigService.getById(id);
         Assert.notNull(data, "数据不存在");
 
-        LambdaUpdateWrapper<PopularityConfig> updateWrapper = UpdateConditionBuilder.build(data, req);
-        UniqueDetectionTool.check(data);
+        LambdaUpdateWrapper<PopularityConfig> updateWrapper = UpdateBuilder.build(data, req);
+        UniqueChecker.check(data);
         Assert.isTrue(popularityConfigService.update(updateWrapper), "保存失败");
 
         return RetBuilder.success();

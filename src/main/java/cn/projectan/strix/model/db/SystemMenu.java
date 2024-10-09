@@ -1,6 +1,6 @@
 package cn.projectan.strix.model.db;
 
-import cn.projectan.strix.model.annotation.UniqueDetection;
+import cn.projectan.strix.model.annotation.UniqueField;
 import cn.projectan.strix.model.db.base.BaseModel;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -34,14 +34,14 @@ public class SystemMenu extends BaseModel<SystemMenu> {
     /**
      * 菜单 Key
      */
-    @UniqueDetection("菜单 Key")
+    @UniqueField("菜单 Key")
     @TableField("`key`")
     private String key;
 
     /**
      * 菜单名称
      */
-    @UniqueDetection("菜单名称")
+    @UniqueField("菜单名称")
     private String name;
 
     /**

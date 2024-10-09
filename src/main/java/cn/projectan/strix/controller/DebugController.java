@@ -1,13 +1,13 @@
 package cn.projectan.strix.controller;
 
+import cn.projectan.strix.core.ret.RetBuilder;
+import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.model.annotation.Anonymous;
 import cn.projectan.strix.model.annotation.IgnoreDataEncryption;
 import cn.projectan.strix.model.dict.PayType;
 import cn.projectan.strix.service.PayOrderService;
-import cn.projectan.strix.service.SystemUserService;
-import cn.projectan.strix.utils.PopularityUtil;
-import cn.projectan.strix.utils.RedisUtil;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import cn.projectan.strix.service.WorkflowInstanceService;
+import cn.projectan.strix.util.WorkflowUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -31,15 +31,19 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class DebugController extends BaseController {
 
-    private final SystemUserService systemUserService;
-    private final ObjectMapper objectMapper;
-    private final PayOrderService payOrderService;
-    private final RedisUtil redisUtil;
-    private final PopularityUtil popularityUtil;
+    private final WorkflowInstanceService workflowInstanceService;
+    private final WorkflowUtil workflowUtil;
 
-    @GetMapping("test")
-    public void test0() {
-        systemUserService.bindThirdUser("1", 1, "test");
+    private final PayOrderService payOrderService;
+
+    @GetMapping("wf/test/{workflowId}")
+    public RetResult<Object> test0(@PathVariable String workflowId) {
+        workflowInstanceService.createInstance(workflowId, "test");
+        return RetBuilder.success();
+    }
+
+    @GetMapping("wf/createInstance")
+    public void createInstance() {
     }
 
     @GetMapping("pay1")
@@ -50,21 +54,6 @@ public class DebugController extends BaseController {
     @GetMapping("pay2")
     public void test2() {
         payOrderService.createOrder("AliPaySandbox", "testorder", null, "toatt", 1, 1, "test", PayType.WEB);
-    }
-
-    @GetMapping("popularity/incr/{configKey}/{dataId}")
-    public void incrPopularity(@PathVariable String configKey, @PathVariable String dataId) {
-        popularityUtil.incr(configKey, dataId);
-    }
-
-    @GetMapping("popularity/get/{configKey}/{dataId}")
-    public Long getPopularity(@PathVariable String configKey, @PathVariable String dataId) {
-        return popularityUtil.get(configKey, dataId);
-    }
-
-    @GetMapping("popularity/save")
-    public void savePopularity() {
-        popularityUtil.syncToDB();
     }
 
 }

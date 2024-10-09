@@ -15,8 +15,8 @@ import cn.projectan.strix.model.response.common.CommonSelectDataResp;
 import cn.projectan.strix.model.response.module.oss.OssFileGroupListResp;
 import cn.projectan.strix.model.response.module.oss.OssFileGroupResp;
 import cn.projectan.strix.service.OssFileGroupService;
-import cn.projectan.strix.utils.UniqueDetectionTool;
-import cn.projectan.strix.utils.UpdateConditionBuilder;
+import cn.projectan.strix.util.UniqueChecker;
+import cn.projectan.strix.util.UpdateBuilder;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
@@ -104,7 +104,7 @@ public class OssFileGroupController extends BaseSystemController {
                 req.getRemark()
         );
 
-        UniqueDetectionTool.check(ossFileGroup);
+        UniqueChecker.check(ossFileGroup);
 
         Assert.isTrue(ossFileGroupService.save(ossFileGroup), "保存失败");
 
@@ -121,8 +121,8 @@ public class OssFileGroupController extends BaseSystemController {
         OssFileGroup ossFileGroup = ossFileGroupService.getById(id);
         Assert.notNull(ossFileGroup, "原记录不存在");
 
-        LambdaUpdateWrapper<OssFileGroup> updateWrapper = UpdateConditionBuilder.build(ossFileGroup, req);
-        UniqueDetectionTool.check(ossFileGroup);
+        LambdaUpdateWrapper<OssFileGroup> updateWrapper = UpdateBuilder.build(ossFileGroup, req);
+        UniqueChecker.check(ossFileGroup);
         Assert.isTrue(ossFileGroupService.update(updateWrapper), "保存失败");
 
         return RetBuilder.success();

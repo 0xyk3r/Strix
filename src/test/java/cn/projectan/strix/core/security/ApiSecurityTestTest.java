@@ -1,6 +1,6 @@
 package cn.projectan.strix.core.security;
 
-import cn.projectan.strix.utils.ApiSignUtil;
+import cn.projectan.strix.util.ApiSignUtil;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;

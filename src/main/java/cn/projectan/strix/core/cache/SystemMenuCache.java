@@ -2,7 +2,7 @@ package cn.projectan.strix.core.cache;
 
 import cn.projectan.strix.model.db.SystemMenu;
 import cn.projectan.strix.service.SystemMenuService;
-import cn.projectan.strix.utils.RedisUtil;
+import cn.projectan.strix.util.RedisUtil;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

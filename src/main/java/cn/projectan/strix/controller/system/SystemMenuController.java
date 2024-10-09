@@ -20,9 +20,9 @@ import cn.projectan.strix.service.SystemManagerService;
 import cn.projectan.strix.service.SystemMenuService;
 import cn.projectan.strix.service.SystemPermissionService;
 import cn.projectan.strix.service.SystemRoleMenuService;
-import cn.projectan.strix.utils.SpringUtil;
-import cn.projectan.strix.utils.UniqueDetectionTool;
-import cn.projectan.strix.utils.UpdateConditionBuilder;
+import cn.projectan.strix.util.SpringUtil;
+import cn.projectan.strix.util.UniqueChecker;
+import cn.projectan.strix.util.UpdateBuilder;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -122,7 +122,7 @@ public class SystemMenuController extends BaseSystemController {
                 req.getSortValue()
         );
 
-        UniqueDetectionTool.check(systemMenu);
+        UniqueChecker.check(systemMenu);
 
         Assert.isTrue(systemMenuService.save(systemMenu), "保存失败");
         // 更新缓存
@@ -142,8 +142,8 @@ public class SystemMenuController extends BaseSystemController {
         SystemMenu systemMenu = systemMenuService.getById(menuId);
         Assert.notNull(systemMenu, "系统菜单信息不存在");
 
-        LambdaUpdateWrapper<SystemMenu> updateWrapper = UpdateConditionBuilder.build(systemMenu, req);
-        UniqueDetectionTool.check(systemMenu);
+        LambdaUpdateWrapper<SystemMenu> updateWrapper = UpdateBuilder.build(systemMenu, req);
+        UniqueChecker.check(systemMenu);
         Assert.isTrue(systemMenuService.update(updateWrapper), "保存失败");
         // 更新缓存
         systemMenuCache.updateRamAndRedis();

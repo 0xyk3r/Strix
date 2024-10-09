@@ -2,8 +2,8 @@ package cn.projectan.strix.controller.api.base;
 
 import cn.projectan.strix.controller.BaseController;
 import cn.projectan.strix.model.db.SystemUser;
-import cn.projectan.strix.utils.I18nUtil;
-import cn.projectan.strix.utils.SecurityUtils;
+import cn.projectan.strix.util.I18nUtil;
+import cn.projectan.strix.util.SecurityUtils;
 import org.springframework.util.Assert;
 
 /**

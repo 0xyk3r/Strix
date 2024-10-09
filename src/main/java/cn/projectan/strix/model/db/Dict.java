@@ -1,6 +1,6 @@
 package cn.projectan.strix.model.db;
 
-import cn.projectan.strix.model.annotation.UniqueDetection;
+import cn.projectan.strix.model.annotation.UniqueField;
 import cn.projectan.strix.model.db.base.BaseModel;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -35,14 +35,14 @@ public class Dict extends BaseModel<Dict> {
      * 字典 Key
      */
     @TableField("`key`")
-    @UniqueDetection("字典 Key ")
+    @UniqueField("字典 Key ")
     private String key;
 
     /**
      * 字典名称
      */
     @TableField("`name`")
-    @UniqueDetection("字典名称")
+    @UniqueField("字典名称")
     private String name;
 
     /**

@@ -1,6 +1,6 @@
 package cn.projectan.strix.initializer;
 
-import cn.projectan.strix.utils.ip.IpLocationUtil;
+import cn.projectan.strix.util.ip.IpLocationUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;

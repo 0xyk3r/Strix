@@ -11,8 +11,8 @@ import cn.projectan.strix.model.response.common.CommonDictVersionResp;
 import cn.projectan.strix.model.response.system.dict.DictDataListResp;
 import cn.projectan.strix.service.DictDataService;
 import cn.projectan.strix.service.DictService;
-import cn.projectan.strix.utils.UniqueDetectionTool;
-import cn.projectan.strix.utils.UpdateConditionBuilder;
+import cn.projectan.strix.util.UniqueChecker;
+import cn.projectan.strix.util.UpdateBuilder;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -85,7 +85,7 @@ public class DictServiceImpl extends ServiceImpl<DictMapper, Dict> implements Di
             }
     )
     public void saveDict(Dict dict) {
-        UniqueDetectionTool.check(dict);
+        UniqueChecker.check(dict);
         Assert.isTrue(save(dict), "保存失败");
     }
 
@@ -106,8 +106,8 @@ public class DictServiceImpl extends ServiceImpl<DictMapper, Dict> implements Di
                     .update();
         }
 
-        LambdaUpdateWrapper<Dict> updateWrapper = UpdateConditionBuilder.build(dict, req);
-        UniqueDetectionTool.check(dict);
+        LambdaUpdateWrapper<Dict> updateWrapper = UpdateBuilder.build(dict, req);
+        UniqueChecker.check(dict);
         updateWrapper.set(Dict::getVersion, dict.getVersion() + 1);
         Assert.isTrue(update(updateWrapper), "保存失败");
     }
@@ -138,7 +138,7 @@ public class DictServiceImpl extends ServiceImpl<DictMapper, Dict> implements Di
     )
     @Transactional(rollbackFor = Exception.class)
     public void saveDictData(DictData dictData) {
-        UniqueDetectionTool.check(dictData);
+        UniqueChecker.check(dictData);
 
         Dict dict = lambdaQuery()
                 .eq(Dict::getKey, dictData.getKey())
@@ -161,8 +161,8 @@ public class DictServiceImpl extends ServiceImpl<DictMapper, Dict> implements Di
     )
     @Transactional(rollbackFor = Exception.class)
     public void updateDictData(DictData dictData, DictDataUpdateReq req) {
-        LambdaUpdateWrapper<DictData> updateWrapper = UpdateConditionBuilder.build(dictData, req);
-        UniqueDetectionTool.check(dictData);
+        LambdaUpdateWrapper<DictData> updateWrapper = UpdateBuilder.build(dictData, req);
+        UniqueChecker.check(dictData);
 
 
         Dict dict = lambdaQuery()

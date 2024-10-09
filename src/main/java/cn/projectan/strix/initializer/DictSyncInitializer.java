@@ -13,7 +13,7 @@ import cn.projectan.strix.model.request.system.dict.DictUpdateReq;
 import cn.projectan.strix.model.response.common.CommonDictResp;
 import cn.projectan.strix.model.response.system.dict.DictDataListResp;
 import cn.projectan.strix.service.DictService;
-import cn.projectan.strix.utils.SpringUtil;
+import cn.projectan.strix.util.SpringUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;

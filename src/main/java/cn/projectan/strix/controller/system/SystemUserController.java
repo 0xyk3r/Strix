@@ -18,9 +18,9 @@ import cn.projectan.strix.model.response.system.user.SystemUserListResp;
 import cn.projectan.strix.model.response.system.user.SystemUserResp;
 import cn.projectan.strix.service.SystemUserRelationService;
 import cn.projectan.strix.service.SystemUserService;
-import cn.projectan.strix.utils.NumUtil;
-import cn.projectan.strix.utils.UniqueDetectionTool;
-import cn.projectan.strix.utils.UpdateConditionBuilder;
+import cn.projectan.strix.util.UniqueChecker;
+import cn.projectan.strix.util.UpdateBuilder;
+import cn.projectan.strix.util.math.NumUtil;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
@@ -126,7 +126,7 @@ public class SystemUserController extends BaseSystemController {
                 null
         );
 
-        UniqueDetectionTool.check(systemUser);
+        UniqueChecker.check(systemUser);
 
         Assert.isTrue(systemUserService.save(systemUser), "保存失败");
 
@@ -144,8 +144,8 @@ public class SystemUserController extends BaseSystemController {
         SystemUser systemUser = systemUserService.getById(userId);
         Assert.notNull(systemUser, "系统用户信息不存在");
 
-        LambdaUpdateWrapper<SystemUser> updateWrapper = UpdateConditionBuilder.build(systemUser, req);
-        UniqueDetectionTool.check(systemUser);
+        LambdaUpdateWrapper<SystemUser> updateWrapper = UpdateBuilder.build(systemUser, req);
+        UniqueChecker.check(systemUser);
         Assert.isTrue(systemUserService.update(updateWrapper), "保存失败");
 
         return RetBuilder.success();

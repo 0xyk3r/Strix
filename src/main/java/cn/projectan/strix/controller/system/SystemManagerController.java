@@ -22,7 +22,11 @@ import cn.projectan.strix.model.response.system.manager.SystemManagerListResp;
 import cn.projectan.strix.model.response.system.manager.SystemManagerResp;
 import cn.projectan.strix.service.SystemManagerRoleService;
 import cn.projectan.strix.service.SystemManagerService;
-import cn.projectan.strix.utils.*;
+import cn.projectan.strix.util.RedisUtil;
+import cn.projectan.strix.util.UniqueChecker;
+import cn.projectan.strix.util.UpdateBuilder;
+import cn.projectan.strix.util.algo.KeyDiffUtil;
+import cn.projectan.strix.util.math.NumUtil;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
@@ -183,7 +187,7 @@ public class SystemManagerController extends BaseSystemController {
                 BuiltinConstant.NO
         );
 
-        UniqueDetectionTool.check(systemManager);
+        UniqueChecker.check(systemManager);
 
         Assert.isTrue(systemManagerService.save(systemManager), "保存失败");
 
@@ -203,8 +207,8 @@ public class SystemManagerController extends BaseSystemController {
         Assert.isTrue(BuiltinConstant.NO == systemManager.getBuiltin(), "内置用户不允许修改");
         checkLoginManagerRegionPermission(systemManager.getRegionId());
 
-        LambdaUpdateWrapper<SystemManager> updateWrapper = UpdateConditionBuilder.build(systemManager, req);
-        UniqueDetectionTool.check(systemManager);
+        LambdaUpdateWrapper<SystemManager> updateWrapper = UpdateBuilder.build(systemManager, req);
+        UniqueChecker.check(systemManager);
         Assert.isTrue(systemManagerService.update(updateWrapper), "保存失败");
 
         systemManagerService.refreshLoginInfoByManager(managerId);

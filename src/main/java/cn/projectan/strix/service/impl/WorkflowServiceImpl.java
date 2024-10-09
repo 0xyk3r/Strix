@@ -6,7 +6,7 @@ import cn.projectan.strix.model.db.WorkflowConfig;
 import cn.projectan.strix.model.response.common.CommonSelectDataResp;
 import cn.projectan.strix.service.WorkflowConfigService;
 import cn.projectan.strix.service.WorkflowService;
-import cn.projectan.strix.utils.SpringUtil;
+import cn.projectan.strix.util.SpringUtil;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
