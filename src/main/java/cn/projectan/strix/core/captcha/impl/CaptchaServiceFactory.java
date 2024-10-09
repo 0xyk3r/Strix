@@ -3,7 +3,7 @@ package cn.projectan.strix.core.captcha.impl;
 import cn.projectan.strix.core.captcha.CaptchaCacheService;
 import cn.projectan.strix.core.captcha.CaptchaService;
 import cn.projectan.strix.model.constant.StrixCaptchaConst;
-import cn.projectan.strix.utils.SpringUtil;
+import cn.projectan.strix.util.SpringUtil;
 
 import java.util.HashMap;
 import java.util.Map;

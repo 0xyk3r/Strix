@@ -14,6 +14,6 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface UniqueDetections {
 
-    UniqueDetection[] value();
+    UniqueField[] value();
 
 }

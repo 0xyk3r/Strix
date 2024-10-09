@@ -1,6 +1,6 @@
 package cn.projectan.strix.model.db;
 
-import cn.projectan.strix.model.annotation.UniqueDetection;
+import cn.projectan.strix.model.annotation.UniqueField;
 import cn.projectan.strix.model.db.base.BaseModel;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -34,13 +34,13 @@ public class SystemManager extends BaseModel<SystemManager> {
     /**
      * 显示昵称
      */
-    @UniqueDetection("昵称")
+    @UniqueField("昵称")
     private String nickname;
 
     /**
      * 登录账号
      */
-    @UniqueDetection("登录账号")
+    @UniqueField("登录账号")
     private String loginName;
 
     /**

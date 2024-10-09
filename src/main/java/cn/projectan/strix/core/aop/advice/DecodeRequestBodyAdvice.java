@@ -4,7 +4,7 @@ import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.projectan.strix.core.security.ApiSecurity;
 import cn.projectan.strix.model.annotation.IgnoreDataEncryption;
-import cn.projectan.strix.utils.ServletUtils;
+import cn.projectan.strix.util.ServletUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;

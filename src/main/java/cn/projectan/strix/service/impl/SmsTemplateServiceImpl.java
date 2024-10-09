@@ -4,7 +4,7 @@ import cn.projectan.strix.mapper.SmsTemplateMapper;
 import cn.projectan.strix.model.db.SmsTemplate;
 import cn.projectan.strix.model.other.module.sms.StrixSmsTemplate;
 import cn.projectan.strix.service.SmsTemplateService;
-import cn.projectan.strix.utils.KeyDiffUtil;
+import cn.projectan.strix.util.algo.KeyDiffUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

@@ -3,7 +3,7 @@ package cn.projectan.strix.core.module.oss;
 import cn.hutool.core.io.FileUtil;
 import cn.projectan.strix.core.exception.StrixException;
 import cn.projectan.strix.model.other.module.oss.StrixOssBucket;
-import cn.projectan.strix.utils.tempurl.TempUrlUtil;
+import cn.projectan.strix.util.tempurl.TempUrlUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
 

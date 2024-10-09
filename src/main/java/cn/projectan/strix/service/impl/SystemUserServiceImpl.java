@@ -6,7 +6,7 @@ import cn.projectan.strix.model.db.SystemUserRelation;
 import cn.projectan.strix.model.dict.SystemUserStatus;
 import cn.projectan.strix.service.SystemUserRelationService;
 import cn.projectan.strix.service.SystemUserService;
-import cn.projectan.strix.utils.RedisUtil;
+import cn.projectan.strix.util.RedisUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;

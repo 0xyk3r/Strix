@@ -2,7 +2,7 @@ package cn.projectan.strix.initializer;
 
 import cn.projectan.strix.model.db.Job;
 import cn.projectan.strix.service.JobService;
-import cn.projectan.strix.utils.job.ScheduleUtils;
+import cn.projectan.strix.util.job.ScheduleUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.Scheduler;

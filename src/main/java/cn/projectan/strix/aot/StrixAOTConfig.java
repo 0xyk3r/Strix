@@ -8,7 +8,7 @@ import cn.projectan.strix.core.validation.validator.ConstantDictValueValidator;
 import cn.projectan.strix.core.validation.validator.DynamicDictValueValidator;
 import cn.projectan.strix.mapper.SystemLogMapper;
 import cn.projectan.strix.model.properties.StrixPackageScanProperties;
-import cn.projectan.strix.utils.SpringUtil;
+import cn.projectan.strix.util.SpringUtil;
 import com.alipay.api.domain.*;
 import com.alipay.api.request.*;
 import com.alipay.api.response.*;

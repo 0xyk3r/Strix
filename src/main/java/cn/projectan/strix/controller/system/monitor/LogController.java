@@ -9,7 +9,7 @@ import cn.projectan.strix.model.enums.NumCategory;
 import cn.projectan.strix.model.request.system.monitor.log.SystemLogListReq;
 import cn.projectan.strix.model.response.system.monitor.log.SystemLogListResp;
 import cn.projectan.strix.service.SystemLogService;
-import cn.projectan.strix.utils.NumUtil;
+import cn.projectan.strix.util.math.NumUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

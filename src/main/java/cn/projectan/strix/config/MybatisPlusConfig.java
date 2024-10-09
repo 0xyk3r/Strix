@@ -1,6 +1,6 @@
 package cn.projectan.strix.config;
 
-import cn.projectan.strix.utils.SecurityUtils;
+import cn.projectan.strix.util.SecurityUtils;
 import com.baomidou.mybatisplus.annotation.DbType;
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
 import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;

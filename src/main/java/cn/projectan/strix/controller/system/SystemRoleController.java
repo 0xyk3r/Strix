@@ -19,10 +19,10 @@ import cn.projectan.strix.model.response.system.permission.SystemPermissionListR
 import cn.projectan.strix.model.response.system.role.SystemRoleListResp;
 import cn.projectan.strix.model.response.system.role.SystemRoleResp;
 import cn.projectan.strix.service.*;
-import cn.projectan.strix.utils.KeyDiffUtil;
-import cn.projectan.strix.utils.SpringUtil;
-import cn.projectan.strix.utils.UniqueDetectionTool;
-import cn.projectan.strix.utils.UpdateConditionBuilder;
+import cn.projectan.strix.util.SpringUtil;
+import cn.projectan.strix.util.UniqueChecker;
+import cn.projectan.strix.util.UpdateBuilder;
+import cn.projectan.strix.util.algo.KeyDiffUtil;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -100,7 +100,7 @@ public class SystemRoleController extends BaseSystemController {
                 BuiltinConstant.NO
         );
 
-        UniqueDetectionTool.check(systemRole);
+        UniqueChecker.check(systemRole);
 
         Assert.isTrue(systemRoleService.save(systemRole), "保存失败");
 
@@ -119,8 +119,8 @@ public class SystemRoleController extends BaseSystemController {
         Assert.notNull(systemRole, "系统角色信息不存在");
         Assert.isTrue(BuiltinConstant.NO == systemRole.getBuiltin(), "系统内置角色不支持修改");
 
-        LambdaUpdateWrapper<SystemRole> updateWrapper = UpdateConditionBuilder.build(systemRole, req);
-        UniqueDetectionTool.check(systemRole);
+        LambdaUpdateWrapper<SystemRole> updateWrapper = UpdateBuilder.build(systemRole, req);
+        UniqueChecker.check(systemRole);
         Assert.isTrue(systemRoleService.update(updateWrapper), "保存失败");
 
         // 刷新 redis 中的登录用户信息

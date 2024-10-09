@@ -2,7 +2,7 @@ package cn.projectan.strix.core.listener;
 
 import cn.projectan.strix.model.constant.DelayedQueueConst;
 import cn.projectan.strix.service.PayOrderService;
-import cn.projectan.strix.utils.DelayedQueueUtil;
+import cn.projectan.strix.util.DelayedQueueUtil;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

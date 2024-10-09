@@ -1,7 +1,7 @@
 package cn.projectan.strix.core.captcha.impl;
 
 import cn.projectan.strix.core.captcha.CaptchaCacheService;
-import cn.projectan.strix.utils.RedisUtil;
+import cn.projectan.strix.util.RedisUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;

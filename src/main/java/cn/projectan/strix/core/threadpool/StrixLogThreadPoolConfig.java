@@ -1,6 +1,6 @@
 package cn.projectan.strix.core.threadpool;
 
-import cn.projectan.strix.utils.ThreadUtil;
+import cn.projectan.strix.util.ThreadUtil;
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

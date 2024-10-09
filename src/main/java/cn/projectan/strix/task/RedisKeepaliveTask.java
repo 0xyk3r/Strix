@@ -1,6 +1,6 @@
 package cn.projectan.strix.task;
 
-import cn.projectan.strix.utils.RedisUtil;
+import cn.projectan.strix.util.RedisUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;

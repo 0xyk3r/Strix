@@ -1,7 +1,7 @@
 package cn.projectan.strix.config;
 
-import cn.projectan.strix.utils.I18nUtil;
-import cn.projectan.strix.utils.ServletUtils;
+import cn.projectan.strix.util.I18nUtil;
+import cn.projectan.strix.util.ServletUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.jetbrains.annotations.NotNull;

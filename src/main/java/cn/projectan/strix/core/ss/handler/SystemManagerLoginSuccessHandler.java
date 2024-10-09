@@ -1,7 +1,7 @@
 package cn.projectan.strix.core.ss.handler;
 
 import cn.projectan.strix.core.ret.RetBuilder;
-import cn.projectan.strix.utils.ServletUtils;
+import cn.projectan.strix.util.ServletUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

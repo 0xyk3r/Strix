@@ -5,7 +5,7 @@ import cn.projectan.strix.core.exception.StrixNoAuthException;
 import cn.projectan.strix.core.ret.RetBuilder;
 import cn.projectan.strix.core.ret.RetCode;
 import cn.projectan.strix.core.ret.RetResult;
-import cn.projectan.strix.utils.I18nUtil;
+import cn.projectan.strix.util.I18nUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.converter.HttpMessageNotReadableException;

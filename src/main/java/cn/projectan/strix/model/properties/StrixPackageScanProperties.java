@@ -15,7 +15,7 @@ public class StrixPackageScanProperties {
 
     /**
      * 服务包的包名, 多个包名用逗号分隔
-     * <br>所有可能被 {@link cn.projectan.strix.utils.ReflectUtil ReflectUtil} 反射调用的类都需要包含在该包内
+     * <br>所有可能被 {@link cn.projectan.strix.util.ReflectUtil ReflectUtil} 反射调用的类都需要包含在该包内
      */
     private String[] job;
 

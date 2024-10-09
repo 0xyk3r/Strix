@@ -21,7 +21,7 @@ import cn.projectan.strix.model.response.system.dict.DictListResp;
 import cn.projectan.strix.model.response.system.dict.DictResp;
 import cn.projectan.strix.service.DictDataService;
 import cn.projectan.strix.service.DictService;
-import cn.projectan.strix.utils.NumUtil;
+import cn.projectan.strix.util.math.NumUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

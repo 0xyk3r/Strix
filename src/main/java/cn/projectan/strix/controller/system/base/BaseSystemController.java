@@ -4,7 +4,7 @@ import cn.projectan.strix.controller.BaseController;
 import cn.projectan.strix.core.exception.StrixException;
 import cn.projectan.strix.model.db.SystemManager;
 import cn.projectan.strix.model.dict.SystemRoleRegionPermissionType;
-import cn.projectan.strix.utils.SecurityUtils;
+import cn.projectan.strix.util.SecurityUtils;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 

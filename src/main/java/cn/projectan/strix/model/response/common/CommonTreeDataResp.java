@@ -1,6 +1,6 @@
 package cn.projectan.strix.model.response.common;
 
-import cn.projectan.strix.utils.ReflectUtil;
+import cn.projectan.strix.util.ReflectUtil;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

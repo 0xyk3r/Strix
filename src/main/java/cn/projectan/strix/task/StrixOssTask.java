@@ -6,7 +6,7 @@ import cn.projectan.strix.model.db.OssConfig;
 import cn.projectan.strix.model.other.module.oss.StrixOssBucket;
 import cn.projectan.strix.service.OssBucketService;
 import cn.projectan.strix.service.OssConfigService;
-import cn.projectan.strix.utils.KeyDiffUtil;
+import cn.projectan.strix.util.algo.KeyDiffUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;

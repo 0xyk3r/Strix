@@ -1,6 +1,6 @@
 package cn.projectan.strix.core.ss;
 
-import cn.projectan.strix.utils.SecurityUtils;
+import cn.projectan.strix.util.SecurityUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;

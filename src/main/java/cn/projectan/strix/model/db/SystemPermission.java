@@ -1,6 +1,6 @@
 package cn.projectan.strix.model.db;
 
-import cn.projectan.strix.model.annotation.UniqueDetection;
+import cn.projectan.strix.model.annotation.UniqueField;
 import cn.projectan.strix.model.db.base.BaseModel;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -34,13 +34,13 @@ public class SystemPermission extends BaseModel<SystemPermission> {
     /**
      * 权限名称
      */
-    @UniqueDetection(value = "权限名称")
+    @UniqueField(value = "权限名称")
     private String name;
 
     /**
      * 权限标识
      */
-    @UniqueDetection(value = "权限标识")
+    @UniqueField(value = "权限标识")
     @TableField("`key`")
     private String key;
 

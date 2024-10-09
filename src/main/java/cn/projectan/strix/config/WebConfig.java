@@ -1,6 +1,6 @@
 package cn.projectan.strix.config;
 
-import cn.projectan.strix.utils.context.ContextInterceptor;
+import cn.projectan.strix.util.context.ContextInterceptor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;

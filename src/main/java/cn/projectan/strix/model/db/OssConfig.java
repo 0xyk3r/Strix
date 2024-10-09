@@ -1,6 +1,6 @@
 package cn.projectan.strix.model.db;
 
-import cn.projectan.strix.model.annotation.UniqueDetection;
+import cn.projectan.strix.model.annotation.UniqueField;
 import cn.projectan.strix.model.db.base.BaseModel;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -35,7 +35,7 @@ public class OssConfig extends BaseModel<OssConfig> {
      * OSS 配置 Key
      */
     @TableField("`key`")
-    @UniqueDetection("配置 Key ")
+    @UniqueField("配置 Key ")
     private String key;
 
     /**

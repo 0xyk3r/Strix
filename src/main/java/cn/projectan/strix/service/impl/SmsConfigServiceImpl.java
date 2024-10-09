@@ -9,7 +9,7 @@ import cn.projectan.strix.model.dict.StrixSmsPlatform;
 import cn.projectan.strix.model.response.common.CommonSelectDataResp;
 import cn.projectan.strix.service.SmsConfigService;
 import cn.projectan.strix.task.StrixSmsTask;
-import cn.projectan.strix.utils.SpringUtil;
+import cn.projectan.strix.util.SpringUtil;
 import com.aliyuncs.DefaultAcsClient;
 import com.aliyuncs.profile.DefaultProfile;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;

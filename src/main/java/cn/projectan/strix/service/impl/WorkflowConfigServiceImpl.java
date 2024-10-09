@@ -17,4 +17,13 @@ import org.springframework.stereotype.Service;
 @Service
 public class WorkflowConfigServiceImpl extends ServiceImpl<WorkflowConfigMapper, WorkflowConfig> implements WorkflowConfigService {
 
+    @Override
+    public WorkflowConfig getLatestConfig(String workflowId) {
+        return lambdaQuery()
+                .eq(WorkflowConfig::getWorkflowId, workflowId)
+                .orderByDesc(WorkflowConfig::getVersion)
+                .last("limit 1")
+                .one();
+    }
+
 }
