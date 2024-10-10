@@ -1,6 +1,7 @@
 package cn.projectan.strix.controller.system.module.workflow;
 
 import cn.projectan.strix.controller.system.base.BaseSystemController;
+import cn.projectan.strix.core.cache.WorkflowConfigCache;
 import cn.projectan.strix.core.ret.RetBuilder;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.core.validation.group.InsertGroup;
@@ -48,6 +49,7 @@ public class WorkflowController extends BaseSystemController {
     private final WorkflowService workflowService;
     private final WorkflowConfigService workflowConfigService;
     private final WorkflowInstanceService workflowInstanceService;
+    private final WorkflowConfigCache workflowConfigCache;
 
     /**
      * 查询工作流引擎列表
@@ -94,6 +96,7 @@ public class WorkflowController extends BaseSystemController {
         UniqueChecker.check(workflow);
 
         Assert.isTrue(workflowService.save(workflow), "保存失败");
+        workflowConfigCache.refresh();
         return RetBuilder.success();
     }
 
@@ -111,6 +114,7 @@ public class WorkflowController extends BaseSystemController {
         UniqueChecker.check(workflow);
 
         Assert.isTrue(workflowService.update(updateWrapper), "保存失败");
+        workflowConfigCache.refresh();
         return RetBuilder.success();
     }
 
@@ -129,6 +133,7 @@ public class WorkflowController extends BaseSystemController {
         workflowInstanceService.lambdaUpdate()
                 .eq(WorkflowInstance::getWorkflowId, id)
                 .remove();
+        workflowConfigCache.refresh();
 
         return RetBuilder.success();
     }
@@ -162,6 +167,7 @@ public class WorkflowController extends BaseSystemController {
     @StrixLog(operationGroup = "工作流引擎", operationName = "添加工作流配置", operationType = SysLogOperType.ADD)
     public RetResult<Object> updateConfig(@PathVariable String id, @RequestBody @Validated(UpdateGroup.class) WorkflowConfigUpdateReq req) {
         workflowService.saveConfig(id, req.getContent());
+        workflowConfigCache.refresh();
 
         return RetBuilder.success();
     }

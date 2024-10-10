@@ -1,7 +1,6 @@
 package cn.projectan.strix.model.db;
 
 import cn.projectan.strix.model.db.base.BaseModel;
-import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -14,19 +13,19 @@ import java.time.LocalDateTime;
 
 /**
  * <p>
- * Strix 工作流实例
+ * Strix 工作流任务
  * </p>
  *
  * @author ProjectAn
- * @since 2024-04-24
+ * @since 2024-10-09
  */
 @Getter
 @Setter
 @Accessors(chain = true)
 @NoArgsConstructor
 @AllArgsConstructor
-@TableName("sys_workflow_instance")
-public class WorkflowInstance extends BaseModel<WorkflowInstance> {
+@TableName("sys_workflow_task")
+public class WorkflowTask extends BaseModel<WorkflowTask> {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -47,29 +46,38 @@ public class WorkflowInstance extends BaseModel<WorkflowInstance> {
     private Integer workflowConfigVersion;
 
     /**
-     * 当前节点ID
+     * 工作流实例ID
      */
-    private String currentNodeId;
+    private String workflowInstanceId;
 
     /**
-     * 当前节点类型
+     * 节点ID
      */
-    private String currentNodeType;
+    private String nodeId;
 
     /**
-     * 流程开始时间
+     * 节点类型
+     */
+    private String nodeType;
+
+    /**
+     * 操作人ID
+     */
+    private String operatorId;
+
+    /**
+     * 操作类型
+     */
+    private Byte operationType;
+
+    /**
+     * 任务开始时间
      */
     private LocalDateTime startTime;
 
     /**
-     * 流程结束时间
+     * 任务结束时间
      */
     private LocalDateTime endTime;
-
-    /**
-     * 状态	1-进行中	2-已完成	3-已取消
-     */
-    @TableField("`status`")
-    private Byte status;
 
 }

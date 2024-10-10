@@ -112,7 +112,7 @@ public class WorkflowProps {
          * 指定角色: ROLE <br>
          * 发起人自选: SELECT <br>
          * 发起人自己: SELF <br>
-         * 系统自动拒绝: AUTOREJECT <br>
+         * 系统自动拒绝: AUTO_REJECT <br>
          */
         private String type;
         /**
@@ -171,6 +171,11 @@ public class WorkflowProps {
     @AllArgsConstructor
     public static class ConditionGroup {
         /**
+         * 条件之间的关系 <br>
+         * AND 或 OR
+         */
+        private String type;
+        /**
          * 条件组
          */
         private List<Condition> conditions;
@@ -223,8 +228,8 @@ public class WorkflowProps {
         /**
          * 超时处理 <br> <br>
          * 发送通知: NOTIFY <br>
-         * 自动通过: AUTOPASS <br>
-         * 自动驳回: AUTOREJECT
+         * 自动通过: AUTO_PASS <br>
+         * 自动驳回: AUTO_REJECT
          */
         private String handler;
     }

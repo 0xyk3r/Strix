@@ -1,5 +1,7 @@
 package cn.projectan.strix.model.other.module.workflow;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import lombok.Data;
 
 import java.util.List;
@@ -25,12 +27,23 @@ public class WorkflowNode {
     private String desc;
     /**
      * 节点类型
+     *
+     * @see cn.projectan.strix.model.dict.WorkflowNodeType
      */
     private String type;
     /**
      * 节点属性
+     *
+     * @see WorkflowProps
      */
-    private Object props;
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXTERNAL_PROPERTY, property = "type", defaultImpl = WorkflowProps.class)
+    @JsonSubTypes({
+            @JsonSubTypes.Type(value = WorkflowProps.ApprovalWorkflowProps.class, name = "approval"),
+            @JsonSubTypes.Type(value = WorkflowProps.TaskWorkflowProps.class, name = "task"),
+            @JsonSubTypes.Type(value = WorkflowProps.CcWorkflowProps.class, name = "cc"),
+            @JsonSubTypes.Type(value = WorkflowProps.ConditionWorkflowProps.class, name = "condition"),
+    })
+    private WorkflowProps props;
     /**
      * 父节点ID
      */

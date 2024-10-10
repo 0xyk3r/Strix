@@ -13,4 +13,12 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface WorkflowConfigService extends IService<WorkflowConfig> {
 
+    /**
+     * 获取最新的工作流配置
+     *
+     * @param workflowId 工作流ID
+     * @return 最新的工作流配置
+     */
+    WorkflowConfig getLatestConfig(String workflowId);
+
 }
