@@ -6,7 +6,7 @@ plugins {
 }
 
 group = 'cn.projectan'
-version = '2.6.3'
+version = '2.6.4'
 description = 'Strix'
 
 java {
@@ -53,14 +53,14 @@ dependencies {
     testImplementation 'org.springframework.security:spring-security-test'
     // Redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-    implementation 'org.redisson:redisson-spring-boot-starter:3.36.0'
+    implementation 'org.redisson:redisson-spring-boot-starter:3.37.0'
     // Database - MySQL
-    implementation 'p6spy:p6spy:3.9.1'
+    developmentOnly 'p6spy:p6spy:3.9.1'
     runtimeOnly 'com.mysql:mysql-connector-j'
     implementation 'com.baomidou:mybatis-plus-spring-boot3-starter:3.5.8'
     implementation 'com.baomidou:mybatis-plus-generator:3.5.8'
     implementation 'com.baomidou:dynamic-datasource-spring-boot3-starter:4.3.1'
-    developmentOnly 'org.apache.velocity:velocity-engine-core:2.3'
+    developmentOnly 'org.apache.velocity:velocity-engine-core:2.4'
     // Database - ClickHouse
     implementation 'com.clickhouse:clickhouse-jdbc:0.6.5'
     implementation 'org.apache.httpcomponents.client5:httpclient5:5.3.1'
@@ -70,9 +70,9 @@ dependencies {
         exclude group: 'com.mchange', module: 'c3p0'
     }
     // JWT
-    implementation 'io.jsonwebtoken:jjwt-api:0.12.5'
-    implementation 'io.jsonwebtoken:jjwt-impl:0.12.5'
-    implementation 'io.jsonwebtoken:jjwt-jackson:0.12.5'
+    implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
+    implementation 'io.jsonwebtoken:jjwt-impl:0.12.6'
+    implementation 'io.jsonwebtoken:jjwt-jackson:0.12.6'
     // Other Tools
     implementation 'com.squareup.okhttp3:okhttp'
     implementation 'cn.hutool:hutool-core:5.8.32'
@@ -83,17 +83,17 @@ dependencies {
     implementation 'org.apache.commons:commons-lang3:3.17.0'
     // Third Party
     implementation 'com.aliyun:aliyun-java-sdk-dysmsapi:2.2.1'
-    implementation 'com.aliyun.oss:aliyun-sdk-oss:3.17.4'
-    implementation('com.github.javen205:IJPay-WxPay:2.9.10-17') {
-        exclude group: 'cn.hutool', module: 'hutool-json'
-    }
-    implementation 'com.alipay.sdk:alipay-sdk-java:4.39.218.ALL'
+    implementation 'com.aliyun.oss:aliyun-sdk-oss:3.18.1'
+    implementation 'com.alipay.sdk:alipay-sdk-java:4.39.223.ALL'
     implementation('com.github.javen205:IJPay-AliPay:2.9.10-17') {
         exclude group: 'com.alipay.sdk', module: 'alipay-sdk-java'
     }
+    implementation('com.github.javen205:IJPay-WxPay:2.9.10-17') {
+        exclude group: 'cn.hutool', module: 'hutool-json'
+    }
 
     // GraalVM
-    compileOnly 'org.graalvm.sdk:graal-sdk:24.0.2'
+    compileOnly 'org.graalvm.sdk:graal-sdk:24.1.0'
 }
 
 test {
