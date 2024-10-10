@@ -112,6 +112,10 @@ public class BlockPuzzleCaptchaServiceImpl extends AbstractCaptchaService {
             afterValidateFail(captchaInfoVO);
             return StrixCaptchaResp.errorMsg(e.getMessage());
         }
+        if (point1 == null) {
+            afterValidateFail(captchaInfoVO);
+            return StrixCaptchaResp.errorMsg(CaptchaRepCodeEnum.API_CAPTCHA_COORDINATE_ERROR);
+        }
         if (point.x - Integer.parseInt(slipOffset) > point1.x
                 || point1.x > point.x + Integer.parseInt(slipOffset)
                 || point.y != point1.y) {

@@ -40,8 +40,7 @@ public class StrixCaptchaJsonUtil {
             CaptchaPointVO ret = clazz.getDeclaredConstructor().newInstance();
             return ret.parse(text);
         } catch (Exception ex) {
-            log.error("Strix Captcha: json解析异常", ex);
-
+            log.warn("Strix Captcha: json解析异常: {}", ex.getMessage());
         }
         return null;
     }
