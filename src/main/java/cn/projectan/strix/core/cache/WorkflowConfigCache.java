@@ -1,12 +1,16 @@
 package cn.projectan.strix.core.cache;
 
 import cn.projectan.strix.model.db.WorkflowConfig;
+import cn.projectan.strix.model.other.module.workflow.WorkflowNode;
 import cn.projectan.strix.service.WorkflowConfigService;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,32 +27,33 @@ import java.util.Map;
 public class WorkflowConfigCache {
 
     private final WorkflowConfigService workflowConfigService;
+    private final ObjectMapper objectMapper;
 
-    private final Map<String, String> workflowIdMap = new HashMap<>();
-    private final Map<String, String> workflowConfigIdMap = new HashMap<>();
+    private final List<WorkflowConfig> workflowMap = new ArrayList<>();
+    private final Map<String, List<WorkflowNode>> workflowNodeMap = new HashMap<>();
 
     @PostConstruct
     private void init() {
         List<WorkflowConfig> configList = workflowConfigService.list();
-
-        Map<String, WorkflowConfig> latestConfigs = new HashMap<>();
-        for (WorkflowConfig config : configList) {
-            workflowConfigIdMap.put(config.getId(), config.getContent());
-            latestConfigs.merge(config.getWorkflowId(), config, (existingConfig, newConfig) ->
-                    newConfig.getVersion() > existingConfig.getVersion() ? newConfig : existingConfig);
-        }
-        latestConfigs.forEach((workflowId, config) -> {
-            workflowIdMap.put(workflowId, config.getContent());
+        configList.forEach(config -> {
+            workflowMap.add(config);
+            try {
+                List<WorkflowNode> nodes = objectMapper.readValue(config.getContent(), new TypeReference<>() {
+                });
+                workflowNodeMap.put(config.getId(), nodes);
+            } catch (Exception e) {
+                log.error("Strix Cache: 工作流配置解析失败, ID: {}", config.getId(), e);
+            }
         });
-        log.info("Strix Cache: 工作流配置缓存完成, 缓存了 {} 个配置项.", workflowConfigIdMap.size());
+        log.info("Strix Cache: 工作流配置缓存完成, 缓存了 {} 个配置项.", configList.size());
     }
 
     /**
      * 更新缓存
      */
-    public void reset() {
-        workflowConfigIdMap.clear();
-        workflowIdMap.clear();
+    public void refresh() {
+        workflowMap.clear();
+        workflowNodeMap.clear();
         init();
     }
 
@@ -58,18 +63,21 @@ public class WorkflowConfigCache {
      * @param workflowId 工作流ID
      * @return 工作流配置
      */
-    public String getConfigByWorkflowId(String workflowId) {
-        return workflowIdMap.get(workflowId);
+    public List<WorkflowNode> getConfig(String workflowId) {
+        return getConfig(workflowId, null);
     }
 
-    /**
-     * 获取工作流配置
-     *
-     * @param configId 配置ID
-     * @return 工作流配置
-     */
-    public String getConfigByConfigId(String configId) {
-        return workflowConfigIdMap.get(configId);
+    public List<WorkflowNode> getConfig(String workflowId, Integer version) {
+        String configId = workflowMap.stream()
+                .filter(config -> config.getWorkflowId().equals(workflowId) && (version == null || config.getVersion().equals(version)))
+                .max((a, b) -> b.getVersion().compareTo(a.getVersion()))
+                .map(WorkflowConfig::getId)
+                .orElse(null);
+        return configId == null ? null : workflowNodeMap.get(configId);
+    }
+
+    public List<WorkflowNode> getConfigById(String configId) {
+        return configId == null ? null : workflowNodeMap.get(configId);
     }
 
 }

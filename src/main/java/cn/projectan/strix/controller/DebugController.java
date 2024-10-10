@@ -4,10 +4,8 @@ import cn.projectan.strix.core.ret.RetBuilder;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.model.annotation.Anonymous;
 import cn.projectan.strix.model.annotation.IgnoreDataEncryption;
-import cn.projectan.strix.model.dict.PayType;
-import cn.projectan.strix.service.PayOrderService;
 import cn.projectan.strix.service.WorkflowInstanceService;
-import cn.projectan.strix.util.WorkflowUtil;
+import cn.projectan.strix.service.WorkflowTaskService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -32,28 +30,22 @@ import org.springframework.web.bind.annotation.RestController;
 public class DebugController extends BaseController {
 
     private final WorkflowInstanceService workflowInstanceService;
-    private final WorkflowUtil workflowUtil;
+    private final WorkflowTaskService workflowTaskService;
 
-    private final PayOrderService payOrderService;
+    @GetMapping("wf/create/{workflowId}")
+    public RetResult<Object> create(@PathVariable String workflowId) {
+        workflowInstanceService.createInstance(workflowId, "anjiongyi");
+        return RetBuilder.success();
+    }
 
-    @GetMapping("wf/test/{workflowId}")
-    public RetResult<Object> test0(@PathVariable String workflowId) {
-        workflowInstanceService.createInstance(workflowId, "test");
+    @GetMapping("wf/completeTask/{taskId}/{operationType}")
+    public RetResult<Object> approval(@PathVariable String taskId, @PathVariable Byte operationType) {
+        workflowTaskService.completeTask(taskId, "anjiongyi", operationType, "test comment");
         return RetBuilder.success();
     }
 
     @GetMapping("wf/createInstance")
     public void createInstance() {
-    }
-
-    @GetMapping("pay1")
-    public void test1() {
-        payOrderService.createOrder("AliPaySandbox", "testorder", null, "toatt", 1, 1, "test", PayType.WAP);
-    }
-
-    @GetMapping("pay2")
-    public void test2() {
-        payOrderService.createOrder("AliPaySandbox", "testorder", null, "toatt", 1, 1, "test", PayType.WEB);
     }
 
 }
