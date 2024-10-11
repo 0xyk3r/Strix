@@ -41,8 +41,12 @@ public class WorkflowOperationType implements BaseDict {
     public static final
     byte AUTO = 7;
 
+    @DictData(label = "抄送", sort = 8, style = DictDataStyle.DEFAULT)
+    public static final
+    byte CC = 8;
+
     public static boolean valid(Byte value) {
-        return INITIATE == value || APPROVED == value || REJECT == value || CANCEL == value || BACK == value || REASSIGN == value || AUTO == value;
+        return INITIATE == value || APPROVED == value || REJECT == value || CANCEL == value || BACK == value || REASSIGN == value || AUTO == value || CC == value;
     }
 
 }

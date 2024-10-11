@@ -45,6 +45,9 @@ public class WorkflowTaskServiceImpl extends ServiceImpl<WorkflowTaskMapper, Wor
         boolean isDone = WorkflowInstanceStatus.DONE == instance.getStatus();
         boolean isAutoComplete = WorkflowNodeType.CONDITIONS.equals(instance.getCurrentNodeType()) ||
                 WorkflowNodeType.CC.equals(instance.getCurrentNodeType());
+        Byte operationType = isRoot ? Byte.valueOf(WorkflowOperationType.INITIATE) :
+                WorkflowNodeType.CC.equals(instance.getCurrentNodeType()) ? Byte.valueOf(WorkflowOperationType.CC) :
+                        isAutoComplete ? WorkflowOperationType.AUTO : null;
 
         WorkflowTask task = new WorkflowTask()
                 .setWorkflowId(instance.getWorkflowId())
@@ -54,7 +57,7 @@ public class WorkflowTaskServiceImpl extends ServiceImpl<WorkflowTaskMapper, Wor
                 .setNodeId(instance.getCurrentNodeId())
                 .setNodeType(instance.getCurrentNodeType())
                 .setOperatorId(isRoot ? instance.getCreateBy() : null)
-                .setOperationType(isRoot ? Byte.valueOf(WorkflowOperationType.INITIATE) : (isAutoComplete ? WorkflowOperationType.AUTO : null))
+                .setOperationType(operationType)
                 .setStartTime(isRoot ? instance.getStartTime() : LocalDateTime.now())
                 .setEndTime(isDone ? instance.getEndTime() : (isRoot || isAutoComplete ? LocalDateTime.now() : null));
         SpringUtil.getAopProxy(this).save(task);
@@ -78,7 +81,7 @@ public class WorkflowTaskServiceImpl extends ServiceImpl<WorkflowTaskMapper, Wor
                                     .setInstanceId(instance.getId())
                                     .setTaskId(task.getId())
                                     .setOperatorId(operatorId)
-                                    .setOperationType(WorkflowNodeType.CC.equals(currentNode.getType()) ? WorkflowOperationType.AUTO : null))
+                                    .setOperationType(operationType))
                     .collect(Collectors.toList());
             if (WorkflowPropsAssignMode.SEQ.equals(handler.getAssignMode())) {
                 // 顺序审核模式 只创建第一个
@@ -166,37 +169,16 @@ public class WorkflowTaskServiceImpl extends ServiceImpl<WorkflowTaskMapper, Wor
                         workflowInstanceService.lambdaUpdate()
                                 .set(WorkflowInstance::getStatus, WorkflowInstanceStatus.CANCEL)
                                 .set(WorkflowInstance::getEndTime, LocalDateTime.now())
-                                .eq(WorkflowInstance::getId, task.getWorkflowInstanceId());
-                    }
-                    case WorkflowPropsRejectType.BACK -> {
-                        // 返回上一节点
-                        isFinish = true;
-                        WorkflowNode prevNode = WorkflowTool.findPrevNode(nodes, task.getNodeId());
-                        if (prevNode != null) {
-                            workflowInstanceService.toNode(instance, prevNode.getId());
-                        } else {
-                            workflowInstanceService.lambdaUpdate()
-                                    .set(WorkflowInstance::getStatus, WorkflowInstanceStatus.CANCEL)
-                                    .set(WorkflowInstance::getEndTime, LocalDateTime.now())
-                                    .eq(WorkflowInstance::getId, task.getWorkflowInstanceId());
-                        }
+                                .eq(WorkflowInstance::getId, task.getWorkflowInstanceId())
+                                .update();
                     }
                     case WorkflowPropsRejectType.NODE -> {
                         // 返回指定节点
                         isFinish = true;
-                        workflowInstanceService.toNode(instance, rejectConfig.getNodeId());
+                        workflowInstanceService.toNode(instance, rejectConfig.getNodeId(), true);
                     }
                 }
             }
-//            case WorkflowOperationType.CANCEL -> {
-//                // todo
-//            }
-//            case WorkflowOperationType.BACK -> {
-//                // todo
-//            }
-//            case WorkflowOperationType.REASSIGN -> {
-//                // todo
-//            }
             default -> throw new IllegalArgumentException("不支持的操作");
         }
 

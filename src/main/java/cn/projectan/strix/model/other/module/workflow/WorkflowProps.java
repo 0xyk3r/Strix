@@ -194,7 +194,6 @@ public class WorkflowProps {
         /**
          * 审批驳回自动操作 <br> <br>
          * 结束流程：END <br>
-         * 返回上一节点：BACK <br>
          * 返回指定节点：NODE <br>
          */
         private String type;

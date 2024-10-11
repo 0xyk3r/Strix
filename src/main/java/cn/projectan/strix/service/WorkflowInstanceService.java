@@ -34,7 +34,7 @@ public interface WorkflowInstanceService extends IService<WorkflowInstance> {
      * @param instance 工作流实例
      * @param nodeId   节点ID
      */
-    void toNode(WorkflowInstance instance, String nodeId);
+    void toNode(WorkflowInstance instance, String nodeId, boolean isBack);
 
     /**
      * 转到下一个节点
