@@ -17,16 +17,12 @@ public class WorkflowPropsRejectType implements BaseDict {
     public static final
     String END = "END";
 
-    @DictData(label = "返回上一节点", sort = 2, style = DictDataStyle.DEFAULT)
-    public static final
-    String BACK = "BACK";
-
-    @DictData(label = "返回指定节点", sort = 3, style = DictDataStyle.DEFAULT)
+    @DictData(label = "返回指定节点", sort = 2, style = DictDataStyle.DEFAULT)
     public static final
     String NODE = "NODE";
 
     public static boolean valid(String value) {
-        return END.equals(value) || BACK.equals(value) || NODE.equals(value);
+        return END.equals(value) || NODE.equals(value);
     }
 
 }

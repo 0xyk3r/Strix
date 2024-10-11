@@ -80,7 +80,7 @@ public class WorkflowInstanceServiceImpl extends ServiceImpl<WorkflowInstanceMap
                 WorkflowHandler handler = new WorkflowHandler(targetNode);
                 String conditionsBranchNodeId = handler.getConditionsBranchNodeId();
                 WorkflowNode nextNode = WorkflowTool.findNextNode(nodes, conditionsBranchNodeId);
-                SpringUtil.getAopProxy(this).toNode(instance, nextNode.getId());
+                SpringUtil.getAopProxy(this).toNode(instance, nextNode.getId(), false);
             }
             case WorkflowNodeType.CC -> {
                 // 抄送
@@ -91,20 +91,24 @@ public class WorkflowInstanceServiceImpl extends ServiceImpl<WorkflowInstanceMap
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void toNode(WorkflowInstance instance, String nodeId) {
+    public void toNode(WorkflowInstance instance, String nodeId, boolean isBack) {
         List<WorkflowNode> nodes = workflowConfigCache.getConfigById(instance.getWorkflowConfigId());
         Assert.notEmpty(nodes, "工作流配置为空");
 
         WorkflowNode targetNode = WorkflowTool.findNodeById(nodes, nodeId);
+
         if (targetNode != null) {
             instance.setCurrentNodeId(targetNode.getId());
             instance.setCurrentNodeType(targetNode.getType());
+
+            SpringUtil.getAopProxy(this).updateById(instance);
+            SpringUtil.getAopProxy(this).postProcess(instance);
         } else {
-            instance.setStatus(WorkflowInstanceStatus.DONE);
+            instance.setStatus(isBack ? WorkflowInstanceStatus.CANCEL : WorkflowInstanceStatus.DONE);
             instance.setEndTime(LocalDateTime.now());
+
+            SpringUtil.getAopProxy(this).updateById(instance);
         }
-        SpringUtil.getAopProxy(this).updateById(instance);
-        SpringUtil.getAopProxy(this).postProcess(instance);
     }
 
     @Override
@@ -116,25 +120,27 @@ public class WorkflowInstanceServiceImpl extends ServiceImpl<WorkflowInstanceMap
         WorkflowNode currentNode = WorkflowTool.findNodeById(nodes, instance.getCurrentNodeId());
         WorkflowNode nextNode = WorkflowTool.findNextNode(nodes, instance.getCurrentNodeId());
 
-        boolean isEnd = false;
         if (nextNode != null) {
             // 进入下一个节点
             instance.setCurrentNodeId(nextNode.getId());
             instance.setCurrentNodeType(nextNode.getType());
+
+            SpringUtil.getAopProxy(this).updateById(instance);
+            SpringUtil.getAopProxy(this).postProcess(instance);
         } else if (currentNode.getConditionsId() != null) {
             // 结束条件分支
             WorkflowNode nextNode2 = WorkflowTool.findNextNode(nodes, currentNode.getConditionsId());
             instance.setCurrentNodeId(nextNode2.getId());
             instance.setCurrentNodeType(nextNode2.getType());
+
+            SpringUtil.getAopProxy(this).updateById(instance);
+            SpringUtil.getAopProxy(this).postProcess(instance);
         } else {
             // 结束流程
-            isEnd = true;
             instance.setStatus(WorkflowInstanceStatus.DONE);
             instance.setEndTime(LocalDateTime.now());
-        }
-        SpringUtil.getAopProxy(this).updateById(instance);
-        if (!isEnd) {
-            SpringUtil.getAopProxy(this).postProcess(instance);
+
+            SpringUtil.getAopProxy(this).updateById(instance);
         }
     }
 
