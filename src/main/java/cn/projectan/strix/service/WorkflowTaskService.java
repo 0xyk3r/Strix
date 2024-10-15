@@ -2,6 +2,7 @@ package cn.projectan.strix.service;
 
 import cn.projectan.strix.model.db.WorkflowInstance;
 import cn.projectan.strix.model.db.WorkflowTask;
+import cn.projectan.strix.model.other.module.workflow.WorkflowNode;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 /**
@@ -31,5 +32,13 @@ public interface WorkflowTaskService extends IService<WorkflowTask> {
      * @see cn.projectan.strix.model.dict.WorkflowOperationType 操作类型
      */
     void completeTask(String taskId, String operatorId, Byte operationType, String comment);
+
+    /**
+     * 创建定时器
+     *
+     * @param taskId 任务ID
+     * @param node   节点信息
+     */
+    void createTimer(String taskId, WorkflowNode node);
 
 }
