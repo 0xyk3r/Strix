@@ -4,6 +4,7 @@ import cn.projectan.strix.core.cache.WorkflowConfigCache;
 import cn.projectan.strix.core.module.workflow.WorkflowHandler;
 import cn.projectan.strix.core.module.workflow.WorkflowTool;
 import cn.projectan.strix.mapper.WorkflowTaskMapper;
+import cn.projectan.strix.model.constant.DelayedQueueConst;
 import cn.projectan.strix.model.db.WorkflowInstance;
 import cn.projectan.strix.model.db.WorkflowTask;
 import cn.projectan.strix.model.db.WorkflowTaskAssign;
@@ -12,6 +13,7 @@ import cn.projectan.strix.model.other.module.workflow.WorkflowNode;
 import cn.projectan.strix.model.other.module.workflow.WorkflowProps;
 import cn.projectan.strix.service.WorkflowTaskAssignService;
 import cn.projectan.strix.service.WorkflowTaskService;
+import cn.projectan.strix.util.DelayedQueueUtil;
 import cn.projectan.strix.util.SpringUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +23,7 @@ import org.springframework.util.Assert;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -37,6 +40,7 @@ public class WorkflowTaskServiceImpl extends ServiceImpl<WorkflowTaskMapper, Wor
 
     private final WorkflowTaskAssignService workflowTaskAssignService;
     private final WorkflowConfigCache workflowConfigCache;
+    private final DelayedQueueUtil delayedQueueUtil;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -89,6 +93,12 @@ public class WorkflowTaskServiceImpl extends ServiceImpl<WorkflowTaskMapper, Wor
             } else {
                 workflowTaskAssignService.saveBatch(assignList);
             }
+            // 创建定时器
+            if (!WorkflowPropsAssignType.AUTO_REJECT.equals(handler.getAssignType()) &&
+                    (WorkflowNodeType.APPROVAL.equals(currentNode.getType()) || WorkflowNodeType.TASK.equals(currentNode.getType()))
+            ) {
+                createTimer(task.getId(), currentNode);
+            }
         }
     }
 
@@ -99,7 +109,7 @@ public class WorkflowTaskServiceImpl extends ServiceImpl<WorkflowTaskMapper, Wor
         Assert.notNull(task, "任务不存在");
         WorkflowTaskAssign assign = workflowTaskAssignService.lambdaQuery()
                 .eq(WorkflowTaskAssign::getTaskId, taskId)
-                .eq(WorkflowTaskAssign::getOperatorId, operatorId)
+                .eq(!"TimeLimit".equals(operatorId), WorkflowTaskAssign::getOperatorId, operatorId)
                 .isNull(WorkflowTaskAssign::getOperationType)
                 .one();
         Assert.notNull(assign, "任务不存在");
@@ -113,6 +123,9 @@ public class WorkflowTaskServiceImpl extends ServiceImpl<WorkflowTaskMapper, Wor
 
         assign.setOperationType(operationType);
         assign.setComment(comment);
+        if ("TimeLimit".equals(operatorId)) {
+            assign.setOperatorId("TimeLimit");
+        }
         workflowTaskAssignService.updateById(assign);
 
         WorkflowInstanceServiceImpl workflowInstanceService = SpringUtil.getBean(WorkflowInstanceServiceImpl.class);
@@ -121,62 +134,63 @@ public class WorkflowTaskServiceImpl extends ServiceImpl<WorkflowTaskMapper, Wor
         boolean isFinish = false;
         switch (operationType) {
             case WorkflowOperationType.APPROVED -> {
-                String assignMode = handler.getAssignMode();
-                switch (handler.getAssignMode()) {
-                    // 顺序审核模式
-                    case WorkflowPropsAssignMode.SEQ -> {
-                        List<String> assignList = handler.getAssignList();
-                        int index = assignList.indexOf(operatorId);
-                        if (index == assignList.size() - 1) {
-                            // 最后一个操作人员
+                // 超时自动操作
+                if ("TimeLimit".equals(operatorId)) {
+                    isFinish = true;
+                    workflowInstanceService.toNext(instance);
+                } else {
+                    switch (handler.getAssignMode()) {
+                        // 顺序审核模式
+                        case WorkflowPropsAssignMode.SEQ -> {
+                            List<String> assignList = handler.getAssignList();
+                            int index = assignList.indexOf(operatorId);
+                            if (index == assignList.size() - 1) {
+                                // 最后一个操作人员
+                                isFinish = true;
+                                workflowInstanceService.toNext(instance);
+                            } else {
+                                String nextOperatorId = assignList.get(index + 1);
+                                workflowTaskAssignService.save(
+                                        new WorkflowTaskAssign()
+                                                .setWorkflowId(assign.getWorkflowId())
+                                                .setInstanceId(assign.getInstanceId())
+                                                .setTaskId(assign.getTaskId())
+                                                .setOperatorId(nextOperatorId)
+                                );
+                            }
+                        }
+                        // 并行审核模式
+                        case WorkflowPropsAssignMode.ALL -> {
+                            boolean isAllDone = workflowTaskAssignService.lambdaQuery()
+                                    .eq(WorkflowTaskAssign::getTaskId, taskId)
+                                    .isNull(WorkflowTaskAssign::getOperationType)
+                                    .count() == 0;
+                            if (isAllDone) {
+                                isFinish = true;
+                                workflowInstanceService.toNext(instance);
+                            }
+                        }
+                        // 任一审核模式
+                        case WorkflowPropsAssignMode.ANY -> {
                             isFinish = true;
                             workflowInstanceService.toNext(instance);
-                        } else {
-                            String nextOperatorId = assignList.get(index + 1);
-                            workflowTaskAssignService.save(
-                                    new WorkflowTaskAssign()
-                                            .setWorkflowId(assign.getWorkflowId())
-                                            .setInstanceId(assign.getInstanceId())
-                                            .setTaskId(assign.getTaskId())
-                                            .setOperatorId(nextOperatorId)
-                            );
                         }
-                    }
-                    // 并行审核模式
-                    case WorkflowPropsAssignMode.ALL -> {
-                        boolean isAllDone = workflowTaskAssignService.lambdaQuery()
-                                .eq(WorkflowTaskAssign::getTaskId, taskId)
-                                .isNull(WorkflowTaskAssign::getOperationType)
-                                .count() == 0;
-                        if (isAllDone) {
-                            isFinish = true;
-                            workflowInstanceService.toNext(instance);
-                        }
-                    }
-                    // 任一审核模式
-                    case WorkflowPropsAssignMode.ANY -> {
-                        isFinish = true;
-                        workflowInstanceService.toNext(instance);
                     }
                 }
             }
             case WorkflowOperationType.REJECT -> {
+                isFinish = true;
                 WorkflowProps.Reject rejectConfig = handler.getRejectConfig();
-                switch (rejectConfig.getType()) {
-                    case WorkflowPropsRejectType.END -> {
-                        // 结束流程
-                        isFinish = true;
-                        workflowInstanceService.lambdaUpdate()
-                                .set(WorkflowInstance::getStatus, WorkflowInstanceStatus.CANCEL)
-                                .set(WorkflowInstance::getEndTime, LocalDateTime.now())
-                                .eq(WorkflowInstance::getId, task.getWorkflowInstanceId())
-                                .update();
-                    }
-                    case WorkflowPropsRejectType.NODE -> {
-                        // 返回指定节点
-                        isFinish = true;
-                        workflowInstanceService.toNode(instance, rejectConfig.getNodeId(), true);
-                    }
+                if (WorkflowPropsRejectType.NODE.equals(rejectConfig.getType())) {
+                    // 返回指定节点
+                    workflowInstanceService.toNode(instance, rejectConfig.getNodeId(), true);
+                } else {
+                    // 结束流程 WorkflowPropsRejectType.END
+                    workflowInstanceService.lambdaUpdate()
+                            .set(WorkflowInstance::getStatus, WorkflowInstanceStatus.CANCEL)
+                            .set(WorkflowInstance::getEndTime, LocalDateTime.now())
+                            .eq(WorkflowInstance::getId, task.getWorkflowInstanceId())
+                            .update();
                 }
             }
             default -> throw new IllegalArgumentException("不支持的操作");
@@ -188,8 +202,19 @@ public class WorkflowTaskServiceImpl extends ServiceImpl<WorkflowTaskMapper, Wor
             task.setOperationType(operationType);
             task.setEndTime(LocalDateTime.now());
             SpringUtil.getAopProxy(this).updateById(task);
+            delayedQueueUtil.remove(DelayedQueueConst.WORKFLOW_TASK_EXPIRE, taskId);
         }
 
+    }
+
+    @Override
+    public void createTimer(String taskId, WorkflowNode node) {
+        WorkflowHandler handler = new WorkflowHandler(node);
+        Long timeLimitMinute = handler.getTimeLimitMinute();
+        if (timeLimitMinute == null) {
+            return;
+        }
+        delayedQueueUtil.offer(DelayedQueueConst.WORKFLOW_TASK_EXPIRE, taskId, timeLimitMinute, TimeUnit.MINUTES);
     }
 
 }

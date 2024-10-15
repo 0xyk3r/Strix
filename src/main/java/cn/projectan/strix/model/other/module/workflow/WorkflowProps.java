@@ -216,19 +216,17 @@ public class WorkflowProps {
         /**
          * 时限值
          */
-        private Integer value;
+        private Long value;
         /**
-         * 时限单位 <br> <br>
-         * 分钟: MINUTE <br>
-         * 小时: HOUR <br>
-         * 天: DAY
+         * 时限单位
+         *
+         * @see cn.projectan.strix.model.dict.WorkflowPropsTimeLimitUnit
          */
         private String unit;
         /**
-         * 超时处理 <br> <br>
-         * 发送通知: NOTIFY <br>
-         * 自动通过: AUTO_PASS <br>
-         * 自动驳回: AUTO_REJECT
+         * 超时处理
+         *
+         * @see cn.projectan.strix.model.dict.WorkflowPropsTimeLimitHandler
          */
         private String handler;
     }
