@@ -27,15 +27,15 @@ public class StrixOrderExpireListener {
     private final PayOrderService payOrderService;
     private final DelayedQueueUtil delayedQueueUtil;
 
-    private final ExecutorService singlePoolExecutor = Executors.newSingleThreadExecutor();
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     @PostConstruct
     public void listener() {
-        singlePoolExecutor.execute(() -> {
-            RBlockingDeque<String> payOrderExpireQueue = delayedQueueUtil.getQueue(DelayedQueueConst.PAY_ORDER_EXPIRE);
+        executor.execute(() -> {
+            RBlockingDeque<String> queue = delayedQueueUtil.getQueue(DelayedQueueConst.PAY_ORDER_EXPIRE);
             while (true) {
                 try {
-                    String orderId = payOrderExpireQueue.take();
+                    String orderId = queue.take();
                     payOrderService.handleExpired(orderId);
                 } catch (InterruptedException e) {
                     log.error("订单超时处理监听器异常", e);
@@ -46,7 +46,7 @@ public class StrixOrderExpireListener {
 
     @PreDestroy
     public void destroy() {
-        singlePoolExecutor.shutdown();
+        executor.shutdown();
     }
 
 }
