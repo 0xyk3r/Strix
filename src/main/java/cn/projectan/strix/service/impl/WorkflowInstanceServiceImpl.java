@@ -11,7 +11,6 @@ import cn.projectan.strix.model.dict.WorkflowNodeType;
 import cn.projectan.strix.model.other.module.workflow.WorkflowNode;
 import cn.projectan.strix.service.WorkflowConfigService;
 import cn.projectan.strix.service.WorkflowInstanceService;
-import cn.projectan.strix.service.WorkflowTaskAssignService;
 import cn.projectan.strix.service.WorkflowTaskService;
 import cn.projectan.strix.util.SpringUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -39,7 +38,6 @@ public class WorkflowInstanceServiceImpl extends ServiceImpl<WorkflowInstanceMap
 
     private final WorkflowConfigService workflowConfigService;
     private final WorkflowTaskService workflowTaskService;
-    private final WorkflowTaskAssignService workflowTaskAssignService;
     private final WorkflowConfigCache workflowConfigCache;
 
     @Override
@@ -83,7 +81,7 @@ public class WorkflowInstanceServiceImpl extends ServiceImpl<WorkflowInstanceMap
                 SpringUtil.getAopProxy(this).toNode(instance, nextNode.getId(), false);
             }
             case WorkflowNodeType.CC -> {
-                // 抄送
+                // todo 抄送
                 SpringUtil.getAopProxy(this).toNext(instance);
             }
         }
