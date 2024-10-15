@@ -1,6 +1,11 @@
 package cn.projectan.strix.core.module.oauth;
 
+import cn.hutool.core.map.MapUtil;
+import cn.projectan.strix.util.OkHttpUtil;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.Assert;
 
 import java.security.MessageDigest;
 import java.security.SecureRandom;
@@ -20,6 +25,50 @@ public class WechatOAuthTools {
 
     private static final String SYMBOLS = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
     private static final Random RANDOM = new SecureRandom();
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
+    /**
+     * 获取全局AccessToken
+     *
+     * @param appId     公众号的AppID
+     * @param appSecret 公众号的AppSecret
+     */
+    public static String getAccessToken(String appId, String appSecret) {
+        String url = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=" + appId + "&secret=" + appSecret;
+        try {
+            String responseStr = OkHttpUtil.get(url);
+            Assert.hasText(responseStr, "远程服务器返回数据为空");
+            Map<String, Object> responseMap = OBJECT_MAPPER.readValue(responseStr, new TypeReference<>() {
+            });
+            String accessToken = MapUtil.getStr(responseMap, "access_token");
+            Assert.hasText(accessToken, "远程服务器返回数据异常");
+            return accessToken;
+        } catch (Exception e) {
+            log.error("Strix OAuth: 获取微信 AccessToken 失败", e);
+            return null;
+        }
+    }
+
+    /**
+     * 获取JS_API_TICKET
+     *
+     * @param accessToken 全局AccessToken
+     */
+    public static String getJsApiTicket(String accessToken) {
+        String url = "https://api.weixin.qq.com/cgi-bin/ticket/getticket?access_token=" + accessToken + "&type=jsapi";
+        try {
+            String responseStr = OkHttpUtil.get(url);
+            Assert.hasText(responseStr, "远程服务器返回数据为空");
+            Map<String, Object> responseMap = OBJECT_MAPPER.readValue(responseStr, new TypeReference<>() {
+            });
+            String ticket = MapUtil.getStr(responseMap, "ticket");
+            Assert.hasText(ticket, "远程服务器返回数据异常");
+            return ticket;
+        } catch (Exception e) {
+            log.error("Strix OAuth: 获取微信 JsApiTicket 失败", e);
+            return null;
+        }
+    }
 
     /**
      * 获取当前时间戳，单位秒

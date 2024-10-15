@@ -12,7 +12,7 @@ import cn.projectan.strix.util.SpringUtil;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
-import lombok.SneakyThrows;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
@@ -22,6 +22,8 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 微信 OAuth 客户端
@@ -37,8 +39,10 @@ public class WechatOAuthClient extends StrixOAuthClient {
     private final OauthPushService oauthPushService;
 
     @Getter
+    @Setter
     protected String accessToken;
     @Getter
+    @Setter
     protected String jsApiTicket;
 
     public WechatOAuthClient(WechatOAuthConfig config) {
@@ -47,15 +51,8 @@ public class WechatOAuthClient extends StrixOAuthClient {
         this.config = config;
         this.objectMapper = SpringUtil.getBean(ObjectMapper.class);
         this.oauthPushService = SpringUtil.getBean(OauthPushService.class);
-        try {
-            refreshAccessToken();
-            refreshJsApiTicket();
-            Thread thread = new Thread(new WechatOAuthClient.RefreshAccessTokenThread());
-            thread.setName("Strix OAuth RAT - " + config.getId());
-            thread.start();
-        } catch (Exception e) {
-            throw new RuntimeException("Strix OAuth: 初始化微信 OAuth 服务实例失败. (配置信息错误)", e);
-        }
+        ScheduledExecutorService strixOAuthScheduler = SpringUtil.getBean("strixOAuthScheduler", ScheduledExecutorService.class);
+        strixOAuthScheduler.scheduleWithFixedDelay(new WechatOAuthClient.RefreshAccessTokenThread(), 0, 60, TimeUnit.MINUTES);
     }
 
     @Override
@@ -85,16 +82,14 @@ public class WechatOAuthClient extends StrixOAuthClient {
 
     @Override
     public BaseOAuthUserInfo grantBaseUserInfo(String code) {
-        String requestUrl = "https://api.weixin.qq.com/sns/oauth2/access_token?appid=APPID&secret=SECRET&code=CODE&grant_type=authorization_code";
-        requestUrl = requestUrl.replace("APPID", config.getAppId());
-        requestUrl = requestUrl.replace("SECRET", config.getAppSecret());
-        requestUrl = requestUrl.replace("CODE", code);
         // 获取网页授权凭证
+        String requestUrl = "https://api.weixin.qq.com/sns/oauth2/access_token?appid=" + config.getAppId() + "&secret=" + config.getAppSecret() + "&code=" + code + "&grant_type=authorization_code";
         try {
-            Map<String, Object> data = objectMapper.readValue(OkHttpUtil.get(requestUrl), new TypeReference<>() {
+            String responseStr = OkHttpUtil.get(requestUrl);
+            Assert.hasText(responseStr, "Strix OAuth: 获取微信 OAuth 授权凭证失败.");
+            Map<String, Object> data = objectMapper.readValue(responseStr, new TypeReference<>() {
             });
             Assert.notNull(data, "Strix OAuth: 获取微信 OAuth 授权凭证失败.");
-
             try {
                 BaseOAuthUserInfo oAuthUserInfo = new BaseOAuthUserInfo();
                 oAuthUserInfo.setConfigId(config.getId());
@@ -167,43 +162,6 @@ public class WechatOAuthClient extends StrixOAuthClient {
                 oauthPushService.updateById(oauthPush);
             }
         });
-
-    }
-
-    /**
-     * 获取全局Access_Token
-     */
-    public void refreshAccessToken() {
-        String url = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=" + config.getAppId() + "&secret=" + config.getAppSecret();
-        try {
-            String responseStr = OkHttpUtil.get(url);
-            Map<String, Object> responseMap = objectMapper.readValue(responseStr, new TypeReference<>() {
-            });
-            Assert.notNull(responseMap, "Strix OAuth: 获取微信 AccessToken 失败.");
-            String accessToken = MapUtil.getStr(responseMap, "access_token");
-            Assert.hasText(accessToken, "Strix OAuth: 获取微信 AccessToken 失败.");
-            this.accessToken = accessToken;
-        } catch (Exception e) {
-            log.error("Strix OAuth: 获取微信 AccessToken 失败", e);
-        }
-    }
-
-    /**
-     * 获取JS_API_TICKET
-     */
-    public void refreshJsApiTicket() {
-        String url = "https://api.weixin.qq.com/cgi-bin/ticket/getticket?access_token=" + this.accessToken + "&type=jsapi";
-        try {
-            String responseStr = OkHttpUtil.get(url);
-            Map<String, Object> responseMap = objectMapper.readValue(responseStr, new TypeReference<>() {
-            });
-            Assert.notNull(responseMap, "Strix OAuth: 获取微信 JsApiTicket 失败.");
-            String ticket = MapUtil.getStr(responseMap, "ticket");
-            Assert.hasText(accessToken, "Strix OAuth: 获取微信 JsApiTicket 失败.");
-            this.jsApiTicket = ticket;
-        } catch (Exception e) {
-            log.error("Strix OAuth: 获取微信 JsApiTicket 失败", e);
-        }
     }
 
     /**
@@ -211,10 +169,6 @@ public class WechatOAuthClient extends StrixOAuthClient {
      *
      * @return 微信网页授权地址
      */
-    public String getAuthorizeUrl() {
-        return getAuthorizeUrl(config.getAuthUrl());
-    }
-
     public String getAuthorizeUrl(String redirectUrl) {
         String url = URLEncoder.encode(redirectUrl, StandardCharsets.UTF_8);
         return "https://open.weixin.qq.com/connect/oauth2/authorize?appid=" + config.getAppId() + "&redirect_uri=" + url +
@@ -222,15 +176,12 @@ public class WechatOAuthClient extends StrixOAuthClient {
     }
 
     private class RefreshAccessTokenThread implements Runnable {
-        @SneakyThrows
         @Override
         public void run() {
-            while (true) {
-                Thread.sleep(1000 * 60 * 60);
-                refreshAccessToken();
-                refreshJsApiTicket();
-                log.info("Strix OAuth: 刷新实例 <{}> 的 AccessToken 和 JsApiTicket 完成.", config.getName());
-            }
+            Thread.currentThread().setName("strix-oauth-" + config.getId());
+            setAccessToken(WechatOAuthTools.getAccessToken(config.getAppId(), config.getAppSecret()));
+            setJsApiTicket(WechatOAuthTools.getJsApiTicket(getAccessToken()));
+            log.info("Strix OAuth: 刷新实例 <{}> 的 AccessToken 和 JsApiTicket 完成.", config.getName());
         }
     }
 
