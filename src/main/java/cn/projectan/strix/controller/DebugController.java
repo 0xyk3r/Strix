@@ -6,9 +6,12 @@ import cn.projectan.strix.model.annotation.Anonymous;
 import cn.projectan.strix.model.annotation.IgnoreDataEncryption;
 import cn.projectan.strix.service.WorkflowInstanceService;
 import cn.projectan.strix.service.WorkflowTaskService;
+import cn.projectan.strix.util.SpringUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.ApplicationContext;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -46,6 +49,12 @@ public class DebugController extends BaseController {
 
     @GetMapping("wf/createInstance")
     public void createInstance() {
+    }
+
+    @GetMapping("shutdown")
+    public void shutdown() {
+        ApplicationContext context = SpringUtil.getApplicationContext();
+        new Thread(() -> SpringApplication.exit(context)).start();
     }
 
 }

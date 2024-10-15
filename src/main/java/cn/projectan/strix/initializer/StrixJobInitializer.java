@@ -3,6 +3,7 @@ package cn.projectan.strix.initializer;
 import cn.projectan.strix.model.db.Job;
 import cn.projectan.strix.service.JobService;
 import cn.projectan.strix.util.job.ScheduleUtils;
+import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.Scheduler;
@@ -40,6 +41,15 @@ public class StrixJobInitializer implements ApplicationRunner {
             }
         } catch (Exception e) {
             log.error("StrixJobInit run error", e);
+        }
+    }
+
+    @PreDestroy
+    public void destroy() {
+        try {
+            scheduler.shutdown();
+        } catch (Exception e) {
+            log.error("StrixJobInit destroy error", e);
         }
     }
 

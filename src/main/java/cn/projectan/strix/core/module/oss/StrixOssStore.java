@@ -1,5 +1,6 @@
 package cn.projectan.strix.core.module.oss;
 
+import jakarta.annotation.PreDestroy;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
@@ -33,6 +34,11 @@ public class StrixOssStore {
 
     public Set<String> getInstanceKeySet() {
         return instanceMap.keySet();
+    }
+
+    @PreDestroy
+    public void destroy() {
+        instanceMap.values().forEach(StrixOssClient::close);
     }
 
 }

@@ -4,6 +4,7 @@ import cn.projectan.strix.model.constant.DelayedQueueConst;
 import cn.projectan.strix.service.PayOrderService;
 import cn.projectan.strix.util.DelayedQueueUtil;
 import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RBlockingDeque;
@@ -41,6 +42,11 @@ public class StrixOrderExpireListener {
                 }
             }
         });
+    }
+
+    @PreDestroy
+    public void destroy() {
+        singlePoolExecutor.shutdown();
     }
 
 }
