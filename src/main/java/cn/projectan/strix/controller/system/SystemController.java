@@ -8,6 +8,7 @@ import cn.projectan.strix.core.ret.RetBuilder;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.core.ss.details.LoginSystemManager;
 import cn.projectan.strix.model.annotation.Anonymous;
+import cn.projectan.strix.model.annotation.IgnoreDataEncryption;
 import cn.projectan.strix.model.annotation.StrixLog;
 import cn.projectan.strix.model.db.SystemManager;
 import cn.projectan.strix.model.db.SystemMenu;
@@ -22,10 +23,15 @@ import cn.projectan.strix.service.SystemManagerService;
 import cn.projectan.strix.service.SystemMenuService;
 import cn.projectan.strix.util.RedisUtil;
 import cn.projectan.strix.util.SecurityUtils;
+import cn.projectan.strix.util.SpringUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.SpringApplication;
+import org.springframework.context.ApplicationContext;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.NoHandlerFoundException;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -154,6 +160,18 @@ public class SystemController extends BaseSystemController {
         Assert.notEmpty(systemMenus, "当前账号无可用菜单权限");
 
         return RetBuilder.success(new SystemMenuResp(systemMenus));
+    }
+
+    @Anonymous
+    @IgnoreDataEncryption
+    @GetMapping("shutdown/{pwd}")
+    public void shutdown(@PathVariable String pwd) throws NoHandlerFoundException {
+        if (!StringUtils.hasText(pwd) || !pwd.equals("ProjectAn")) {
+            throw new NoHandlerFoundException("GET", "/system/shutdown/" + pwd, null);
+        }
+        log.warn("使用 Strix Shutdown API 关闭了系统.");
+        ApplicationContext context = SpringUtil.getApplicationContext();
+        new Thread(() -> SpringApplication.exit(context)).start();
     }
 
 }

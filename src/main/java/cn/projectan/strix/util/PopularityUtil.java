@@ -50,6 +50,7 @@ public class PopularityUtil {
         // 关机前保存热度数据到数据库
         log.info("Strix PopularityUtil: 持久化数据中, 强制关闭程序会导致数据丢失.");
         syncToDB();
+        log.info("Strix PopularityUtil: 持久化数据完成.");
     }
 
     /**

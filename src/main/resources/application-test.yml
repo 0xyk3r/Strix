@@ -1,5 +1,6 @@
 server:
   port: 80
+  shutdown: graceful
   tomcat:
     threads:
       min-spare: 10
