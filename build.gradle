@@ -62,8 +62,13 @@ dependencies {
     implementation 'com.baomidou:dynamic-datasource-spring-boot3-starter:4.3.1'
     developmentOnly 'org.apache.velocity:velocity-engine-core:2.4'
     // Database - ClickHouse
-    implementation 'com.clickhouse:clickhouse-jdbc:0.6.5'
-    implementation 'org.apache.httpcomponents.client5:httpclient5:5.3.1'
+    implementation 'com.clickhouse:clickhouse-http-client:0.7.0'
+    implementation('com.clickhouse:clickhouse-jdbc:0.7.0') {
+        // 临时修复 ClickHouse 0.7.0 版本依赖问题
+        exclude group: 'com.clickhouse', module: 'clickhouse-http-client'
+    }
+    implementation 'org.apache.httpcomponents.core5:httpcore5:5.3'
+    implementation 'org.apache.httpcomponents.client5:httpclient5:5.4'
     runtimeOnly 'org.lz4:lz4-java:1.8.0'
     // Quartz
     implementation('org.quartz-scheduler:quartz') {
