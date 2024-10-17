@@ -64,7 +64,7 @@ public class WorkflowTaskServiceImpl extends ServiceImpl<WorkflowTaskMapper, Wor
                 .setOperationType(operationType)
                 .setStartTime(isRoot ? instance.getStartTime() : LocalDateTime.now())
                 .setEndTime(isDone ? instance.getEndTime() : (isRoot || isAutoComplete ? LocalDateTime.now() : null));
-        SpringUtil.getAopProxy(this).save(task);
+        Assert.isTrue(SpringUtil.getAopProxy(this).save(task), "任务创建失败");
 
         if (isRoot || isDone) {
             return;
@@ -88,7 +88,7 @@ public class WorkflowTaskServiceImpl extends ServiceImpl<WorkflowTaskMapper, Wor
                                     .setOperationType(operationType))
                     .collect(Collectors.toList());
             if (WorkflowPropsAssignMode.SEQ.equals(handler.getAssignMode())) {
-                // 顺序审核模式 只创建第一个
+                // 顺序审核模式下 只创建第一个任务指派
                 workflowTaskAssignService.save(assignList.getFirst());
             } else {
                 workflowTaskAssignService.saveBatch(assignList);
@@ -97,7 +97,10 @@ public class WorkflowTaskServiceImpl extends ServiceImpl<WorkflowTaskMapper, Wor
             if (!WorkflowPropsAssignType.AUTO_REJECT.equals(handler.getAssignType()) &&
                     (WorkflowNodeType.APPROVAL.equals(currentNode.getType()) || WorkflowNodeType.TASK.equals(currentNode.getType()))
             ) {
-                createTimer(task.getId(), currentNode);
+                Long timeLimitMinute = handler.getTimeLimitMinute();
+                if (timeLimitMinute != null) {
+                    delayedQueueUtil.offer(DelayedQueueConst.WORKFLOW_TASK_EXPIRE, task.getId(), timeLimitMinute, TimeUnit.MINUTES);
+                }
             }
         }
     }
@@ -145,10 +148,11 @@ public class WorkflowTaskServiceImpl extends ServiceImpl<WorkflowTaskMapper, Wor
                             List<String> assignList = handler.getAssignList();
                             int index = assignList.indexOf(operatorId);
                             if (index == assignList.size() - 1) {
-                                // 最后一个操作人员
+                                // 是最后一个操作人员, 则跳至下一节点
                                 isFinish = true;
                                 workflowInstanceService.toNext(instance);
                             } else {
+                                // 创建下一个任务指派
                                 String nextOperatorId = assignList.get(index + 1);
                                 workflowTaskAssignService.save(
                                         new WorkflowTaskAssign()
@@ -202,19 +206,9 @@ public class WorkflowTaskServiceImpl extends ServiceImpl<WorkflowTaskMapper, Wor
             task.setOperationType(operationType);
             task.setEndTime(LocalDateTime.now());
             SpringUtil.getAopProxy(this).updateById(task);
+            // 移除定时器
             delayedQueueUtil.remove(DelayedQueueConst.WORKFLOW_TASK_EXPIRE, taskId);
         }
-
-    }
-
-    @Override
-    public void createTimer(String taskId, WorkflowNode node) {
-        WorkflowHandler handler = new WorkflowHandler(node);
-        Long timeLimitMinute = handler.getTimeLimitMinute();
-        if (timeLimitMinute == null) {
-            return;
-        }
-        delayedQueueUtil.offer(DelayedQueueConst.WORKFLOW_TASK_EXPIRE, taskId, timeLimitMinute, TimeUnit.MINUTES);
     }
 
 }
