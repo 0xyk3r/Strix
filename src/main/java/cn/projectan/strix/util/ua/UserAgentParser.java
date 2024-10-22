@@ -1,7 +1,7 @@
 package cn.projectan.strix.util.ua;
 
-import cn.hutool.core.util.StrUtil;
 import cn.projectan.strix.model.other.ua.*;
+import org.springframework.util.StringUtils;
 
 /**
  * User-Agent 解析器
@@ -18,7 +18,7 @@ public class UserAgentParser {
      * @return {@link UserAgent}
      */
     public static UserAgent parse(String userAgentString) {
-        if (StrUtil.isBlank(userAgentString)) {
+        if (!StringUtils.hasText(userAgentString)) {
             return null;
         }
         final UserAgent userAgent = new UserAgent();

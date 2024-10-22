@@ -1,12 +1,12 @@
 package cn.projectan.strix.controller.system.monitor;
 
+import cn.hutool.core.util.StrUtil;
 import cn.projectan.strix.controller.system.base.BaseSystemController;
 import cn.projectan.strix.core.ret.RetBuilder;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.model.annotation.StrixLog;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.redis.connection.RedisServerCommands;
 import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -53,8 +53,8 @@ public class CacheController extends BaseSystemController {
                         .map(stats -> stats.stringPropertyNames().stream()
                                 .filter(key -> !key.equals("cmdstat_ping"))
                                 .map(key -> Map.of(
-                                        "name", StringUtils.removeStart(key, "cmdstat_"),
-                                        "value", StringUtils.substringBetween(stats.getProperty(key), "calls=", ",usec")
+                                        "name", StrUtil.removePrefix(key, "cmdstat_"),
+                                        "value", StrUtil.subBetween(stats.getProperty(key), "calls=", ",usec")
                                 ))
                                 .sorted((a, b) -> Integer.parseInt(b.get("value")) - Integer.parseInt(a.get("value")))
                                 .limit(10)

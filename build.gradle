@@ -85,7 +85,6 @@ dependencies {
     implementation 'cn.hutool:hutool-crypto:5.8.32'
     implementation 'org.bouncycastle:bcprov-jdk18on:1.78.1'
     implementation 'org.lionsoul:ip2region:2.7.0'
-    implementation 'org.apache.commons:commons-lang3:3.17.0'
     // Third Party
     implementation 'com.aliyun:aliyun-java-sdk-dysmsapi:2.2.1'
     implementation 'com.aliyun.oss:aliyun-sdk-oss:3.18.1'

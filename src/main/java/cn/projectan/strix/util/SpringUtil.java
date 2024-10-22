@@ -1,6 +1,5 @@
 package cn.projectan.strix.util;
 
-import cn.hutool.core.exceptions.UtilException;
 import cn.hutool.core.lang.TypeReference;
 import cn.hutool.core.util.ArrayUtil;
 import lombok.Getter;
@@ -60,7 +59,7 @@ public class SpringUtil implements BeanFactoryPostProcessor, ApplicationContextA
     public static ListableBeanFactory getBeanFactory() {
         final ListableBeanFactory factory = null == beanFactory ? applicationContext : beanFactory;
         if (null == factory) {
-            throw new UtilException("No ConfigurableListableBeanFactory or ApplicationContext injected, maybe not in the Spring environment?");
+            throw new RuntimeException("No ConfigurableListableBeanFactory or ApplicationContext injected, maybe not in the Spring environment?");
         }
         return factory;
     }
@@ -69,16 +68,16 @@ public class SpringUtil implements BeanFactoryPostProcessor, ApplicationContextA
      * 获取{@link ConfigurableListableBeanFactory}
      *
      * @return {@link ConfigurableListableBeanFactory}
-     * @throws UtilException 当上下文非ConfigurableListableBeanFactory抛出异常
+     * @throws RuntimeException 当上下文非ConfigurableListableBeanFactory抛出异常
      */
-    public static ConfigurableListableBeanFactory getConfigurableBeanFactory() throws UtilException {
+    public static ConfigurableListableBeanFactory getConfigurableBeanFactory() throws RuntimeException {
         final ConfigurableListableBeanFactory factory;
         if (null != beanFactory) {
             factory = beanFactory;
         } else if (applicationContext instanceof ConfigurableApplicationContext) {
             factory = ((ConfigurableApplicationContext) applicationContext).getBeanFactory();
         } else {
-            throw new UtilException("No ConfigurableListableBeanFactory from context!");
+            throw new RuntimeException("No ConfigurableListableBeanFactory from context!");
         }
         return factory;
     }
@@ -270,7 +269,7 @@ public class SpringUtil implements BeanFactoryPostProcessor, ApplicationContextA
         if (factory instanceof DefaultSingletonBeanRegistry registry) {
             registry.destroySingleton(beanName);
         } else {
-            throw new UtilException("Can not unregister bean, the factory is not a DefaultSingletonBeanRegistry!");
+            throw new RuntimeException("Can not unregister bean, the factory is not a DefaultSingletonBeanRegistry!");
         }
     }
 

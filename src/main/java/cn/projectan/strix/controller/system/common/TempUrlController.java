@@ -1,7 +1,6 @@
 package cn.projectan.strix.controller.system.common;
 
 import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.lang.Assert;
 import cn.projectan.strix.controller.system.base.BaseSystemController;
 import cn.projectan.strix.model.annotation.Anonymous;
 import cn.projectan.strix.model.annotation.IgnoreDataEncryption;
@@ -10,6 +9,7 @@ import cn.projectan.strix.util.tempurl.TempUrlUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;

@@ -1,5 +1,6 @@
 package cn.projectan.strix.service.impl;
 
+import cn.hutool.core.util.StrUtil;
 import cn.projectan.strix.core.exception.StrixJobException;
 import cn.projectan.strix.mapper.JobMapper;
 import cn.projectan.strix.model.constant.JobConstants;
@@ -10,7 +11,6 @@ import cn.projectan.strix.util.CronUtil;
 import cn.projectan.strix.util.InvokeUtil;
 import cn.projectan.strix.util.job.ScheduleUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import org.apache.commons.lang3.StringUtils;
 import org.quartz.JobDataMap;
 import org.quartz.JobKey;
 import org.quartz.Scheduler;
@@ -144,10 +144,10 @@ public class JobServiceImpl extends ServiceImpl<JobMapper, Job> implements JobSe
     @Override
     public void checkJobLegal(Job job) {
         Assert.isTrue(CronUtil.isValid(job.getCronExpression()), "Cron表达式不正确");
-        Assert.isTrue(!StringUtils.containsIgnoreCase(job.getInvokeTarget(), "rmi:"), "目标字符串不合法");
-        Assert.isTrue(!StringUtils.containsAnyIgnoreCase(job.getInvokeTarget(), "ldap:", "ldaps:"), "目标字符串不合法");
-        Assert.isTrue(!StringUtils.containsAnyIgnoreCase(job.getInvokeTarget(), "http://", "https://"), "目标字符串不合法");
-        Assert.isTrue(!StringUtils.containsAnyIgnoreCase(job.getInvokeTarget(), "java.net.URL", "javax.naming.InitialContext", "org.yaml.snakeyaml",
+        Assert.isTrue(!StrUtil.containsIgnoreCase(job.getInvokeTarget(), "rmi:"), "目标字符串不合法");
+        Assert.isTrue(!StrUtil.containsAnyIgnoreCase(job.getInvokeTarget(), "ldap:", "ldaps:"), "目标字符串不合法");
+        Assert.isTrue(!StrUtil.containsAnyIgnoreCase(job.getInvokeTarget(), "http://", "https://"), "目标字符串不合法");
+        Assert.isTrue(!StrUtil.containsAnyIgnoreCase(job.getInvokeTarget(), "java.net.URL", "javax.naming.InitialContext", "org.yaml.snakeyaml",
                 "org.springframework", "org.apache", "cn.projectan.strix.utils", "cn.projectan.strix.config"), "目标字符串不合法");
         Assert.isTrue(InvokeUtil.valid(job.getInvokeTarget()), "目标字符串不合法");
     }
