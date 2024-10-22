@@ -1,7 +1,5 @@
 package cn.projectan.strix.util;
 
-import cn.hutool.core.exceptions.UtilException;
-import cn.hutool.core.io.IORuntimeException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.util.Assert;
@@ -67,13 +65,13 @@ public class ServletUtils {
      *
      * @param response 响应对象{@link HttpServletResponse}
      * @return 获得PrintWriter
-     * @throws IORuntimeException IO异常
+     * @throws IOException IO异常
      */
-    public static PrintWriter getWriter(HttpServletResponse response) throws IORuntimeException {
+    public static PrintWriter getWriter(HttpServletResponse response) throws IOException {
         try {
             return response.getWriter();
         } catch (IOException e) {
-            throw new IORuntimeException(e);
+            throw new IOException(e);
         }
     }
 
@@ -89,7 +87,7 @@ public class ServletUtils {
             writer.write(text);
             writer.flush();
         } catch (IOException e) {
-            throw new UtilException(e);
+            throw new RuntimeException(e);
         }
     }
 
@@ -106,7 +104,7 @@ public class ServletUtils {
             writer.write(text);
             writer.flush();
         } catch (IOException e) {
-            throw new UtilException(e);
+            throw new RuntimeException(e);
         }
     }
 

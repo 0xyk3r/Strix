@@ -6,7 +6,6 @@ import cn.projectan.strix.service.SecurityUrlService;
 import cn.projectan.strix.util.SpringUtil;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.RegExUtils;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.annotation.Order;
@@ -66,7 +65,7 @@ public class SecurityRuleInitializer {
             if (info.getPathPatternsCondition() != null) {
                 Set<String> patterns = Objects.requireNonNull(info.getPathPatternsCondition().getPatterns())
                         .stream()
-                        .map(url -> RegExUtils.replaceAll(url.getPatternString(), PATTERN, ASTERISK))
+                        .map(url -> url.getPatternString().replaceAll(PATTERN.pattern(), ASTERISK))
                         .collect(Collectors.toSet());
 
                 if (AnnotationUtils.findAnnotation(handlerMethod.getMethod(), Anonymous.class) != null ||

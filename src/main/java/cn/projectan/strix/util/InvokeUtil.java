@@ -1,9 +1,10 @@
 package cn.projectan.strix.util;
 
+import cn.hutool.core.util.StrUtil;
 import cn.projectan.strix.model.annotation.StrixJob;
 import io.netty.util.internal.StringUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
+import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Method;
 import java.util.LinkedList;
@@ -24,16 +25,14 @@ public class InvokeUtil {
      * @return true是 false否
      */
     public static boolean valid(String invokeTarget) {
-        if (StringUtils.isEmpty(invokeTarget)) {
+        if (!StringUtils.hasText(invokeTarget)) {
             return false;
         }
-        if (StringUtils.isNotEmpty(invokeTarget)) {
-            String beanName = getBeanName(invokeTarget);
-            if (!isValidClassName(beanName)) {
-                Object bean = SpringUtil.getBean(beanName);
-                Class<?> aClass = bean.getClass();
-                return aClass.isAnnotationPresent(StrixJob.class);
-            }
+        String beanName = getBeanName(invokeTarget);
+        if (!isValidClassName(beanName)) {
+            Object bean = SpringUtil.getBean(beanName);
+            Class<?> aClass = bean.getClass();
+            return aClass.isAnnotationPresent(StrixJob.class);
         }
         return false;
     }
@@ -44,7 +43,7 @@ public class InvokeUtil {
      * @param invokeTarget 目标字符串
      */
     public static void invokeMethod(String invokeTarget) {
-        if (StringUtils.isEmpty(invokeTarget)) {
+        if (!StringUtils.hasText(invokeTarget)) {
             return;
         }
         String beanName = getBeanName(invokeTarget);
@@ -66,7 +65,7 @@ public class InvokeUtil {
      * @return 返回值
      */
     public static Object invokeMethodWithReturn(String invokeTarget) {
-        if (StringUtils.isEmpty(invokeTarget)) {
+        if (!StringUtils.hasText(invokeTarget)) {
             return null;
         }
         String beanName = getBeanName(invokeTarget);
@@ -77,7 +76,7 @@ public class InvokeUtil {
             Object bean = SpringUtil.getBean(beanName);
             return invokeMethodWithReturn(bean, methodName, methodParams);
         } else {
-            log.warn("调用目标：" + invokeTarget + "未启动成功，请检查是否配置正确！");
+            log.warn("调用具返回值目标：" + invokeTarget + "未启动成功，请检查是否配置正确！");
         }
         return null;
     }
@@ -132,7 +131,7 @@ public class InvokeUtil {
      * @return true是 false否
      */
     private static boolean isValidClassName(String invokeTarget) {
-        return StringUtils.countMatches(invokeTarget, ".") > 1;
+        return StrUtil.count(invokeTarget, ".") > 1;
     }
 
     /**
@@ -143,7 +142,7 @@ public class InvokeUtil {
      */
     private static String getBeanName(String invokeTarget) {
         String beanName = StringUtil.substringBefore(invokeTarget, '(');
-        return StringUtils.substringBeforeLast(beanName, ".");
+        return StrUtil.subBefore(beanName, ".", true);
     }
 
     /**
@@ -153,8 +152,8 @@ public class InvokeUtil {
      * @return method方法
      */
     private static String getMethodName(String invokeTarget) {
-        String methodName = StringUtils.substringBefore(invokeTarget, '(');
-        return StringUtils.substringAfterLast(methodName, ".");
+        String methodName = StrUtil.subBefore(invokeTarget, "(", false);
+        return StrUtil.subAfter(methodName, ".", true);
     }
 
     /**
@@ -164,29 +163,29 @@ public class InvokeUtil {
      * @return method方法相关参数列表
      */
     private static List<Object[]> getMethodParams(String invokeTarget) {
-        String methodStr = StringUtils.substringBetween(invokeTarget, "(", ")");
-        if (StringUtils.isEmpty(methodStr)) {
+        String methodStr = StrUtil.subBetween(invokeTarget, "(", ")");
+        if (!StringUtils.hasText(methodStr)) {
             return null;
         }
         String[] methodParams = methodStr.split(",(?=([^\"']*[\"'][^\"']*[\"'])*[^\"']*$)");
         List<Object[]> classList = new LinkedList<>();
         for (String methodParam : methodParams) {
-            String str = StringUtils.trimToEmpty(methodParam);
+            String str = StrUtil.trimToEmpty(methodParam);
             // String，以'或"开头
-            if (StringUtils.startsWithAny(str, "'", "\"")) {
-                classList.add(new Object[]{StringUtils.substring(str, 1, str.length() - 1), String.class});
+            if (StrUtil.startWithAny(str, "'", "\"")) {
+                classList.add(new Object[]{StrUtil.sub(str, 1, str.length() - 1), String.class});
             }
             // boolean，等于true或者false
             else if ("true".equalsIgnoreCase(str) || "false".equalsIgnoreCase(str)) {
                 classList.add(new Object[]{Boolean.valueOf(str), Boolean.class});
             }
             // long，以L结尾
-            else if (StringUtils.endsWith(str, "L")) {
-                classList.add(new Object[]{Long.valueOf(StringUtils.substring(str, 0, str.length() - 1)), Long.class});
+            else if (StrUtil.endWith(str, "L")) {
+                classList.add(new Object[]{Long.valueOf(StrUtil.sub(str, 0, str.length() - 1)), Long.class});
             }
             // double，以D结尾
-            else if (StringUtils.endsWith(str, "D")) {
-                classList.add(new Object[]{Double.valueOf(StringUtils.substring(str, 0, str.length() - 1)), Double.class});
+            else if (StrUtil.endWith(str, "D")) {
+                classList.add(new Object[]{Double.valueOf(StrUtil.sub(str, 0, str.length() - 1)), Double.class});
             }
             // 其他类型归类为 int
             else {

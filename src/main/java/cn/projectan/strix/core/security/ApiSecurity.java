@@ -1,6 +1,5 @@
 package cn.projectan.strix.core.security;
 
-import cn.hutool.core.util.CharsetUtil;
 import cn.hutool.crypto.SecureUtil;
 import cn.hutool.crypto.asymmetric.KeyType;
 import cn.hutool.crypto.asymmetric.RSA;
@@ -84,7 +83,7 @@ public class ApiSecurity {
                 byte[] decrypt = rsa.decrypt(Base64.getDecoder().decode(sign), KeyType.PrivateKey);
                 // 使用AES秘钥对实际数据进行解密
                 AES aes = new AES("CBC", "PKCS7Padding", decrypt, ApiSecurity.AES_IV.getBytes(StandardCharsets.UTF_8));
-                content = aes.decryptStr(data, CharsetUtil.CHARSET_UTF_8);
+                content = aes.decryptStr(data, StandardCharsets.UTF_8);
             }
         } catch (Exception e) {
             log.error("解密数据时出现异常：" + body, e);
