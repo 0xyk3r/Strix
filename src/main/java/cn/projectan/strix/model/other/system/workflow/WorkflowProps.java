@@ -1,4 +1,4 @@
-package cn.projectan.strix.model.other.module.workflow;
+package cn.projectan.strix.model.other.system.workflow;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

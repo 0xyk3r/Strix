@@ -42,11 +42,6 @@ public class WorkflowInstance extends BaseModel<WorkflowInstance> {
     private String workflowConfigId;
 
     /**
-     * 工作流配置版本
-     */
-    private Integer workflowConfigVersion;
-
-    /**
      * 当前节点ID
      */
     private String currentNodeId;

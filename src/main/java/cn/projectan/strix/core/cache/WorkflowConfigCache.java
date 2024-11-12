@@ -1,7 +1,7 @@
 package cn.projectan.strix.core.cache;
 
 import cn.projectan.strix.model.db.WorkflowConfig;
-import cn.projectan.strix.model.other.module.workflow.WorkflowNode;
+import cn.projectan.strix.model.other.system.workflow.WorkflowNode;
 import cn.projectan.strix.service.WorkflowConfigService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;

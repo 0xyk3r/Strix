@@ -41,11 +41,6 @@ public class WorkflowTask extends BaseModel<WorkflowTask> {
     private String workflowConfigId;
 
     /**
-     * 工作流配置版本
-     */
-    private Integer workflowConfigVersion;
-
-    /**
      * 工作流实例ID
      */
     private String workflowInstanceId;

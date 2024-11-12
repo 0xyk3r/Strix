@@ -9,8 +9,8 @@ import cn.projectan.strix.model.db.WorkflowInstance;
 import cn.projectan.strix.model.db.WorkflowTask;
 import cn.projectan.strix.model.db.WorkflowTaskAssign;
 import cn.projectan.strix.model.dict.*;
-import cn.projectan.strix.model.other.module.workflow.WorkflowNode;
-import cn.projectan.strix.model.other.module.workflow.WorkflowProps;
+import cn.projectan.strix.model.other.system.workflow.WorkflowNode;
+import cn.projectan.strix.model.other.system.workflow.WorkflowProps;
 import cn.projectan.strix.service.WorkflowTaskAssignService;
 import cn.projectan.strix.service.WorkflowTaskService;
 import cn.projectan.strix.util.DelayedQueueUtil;
@@ -56,7 +56,6 @@ public class WorkflowTaskServiceImpl extends ServiceImpl<WorkflowTaskMapper, Wor
         WorkflowTask task = new WorkflowTask()
                 .setWorkflowId(instance.getWorkflowId())
                 .setWorkflowConfigId(instance.getWorkflowConfigId())
-                .setWorkflowConfigVersion(instance.getWorkflowConfigVersion())
                 .setWorkflowInstanceId(instance.getId())
                 .setNodeId(instance.getCurrentNodeId())
                 .setNodeType(instance.getCurrentNodeType())
