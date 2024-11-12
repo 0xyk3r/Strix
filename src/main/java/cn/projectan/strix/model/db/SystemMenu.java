@@ -40,7 +40,7 @@ public class SystemMenu extends BaseModel<SystemMenu> {
     /**
      * 菜单名称
      */
-    @UniqueField("菜单名称")
+    @UniqueField(value = "菜单名称", group = 1)
     private String name;
 
     /**
@@ -56,6 +56,7 @@ public class SystemMenu extends BaseModel<SystemMenu> {
     /**
      * 父菜单 ID
      */
+    @UniqueField(value = "父级菜单", group = 1)
     private String parentId;
 
     /**
