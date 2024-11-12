@@ -32,9 +32,8 @@ public class SystemMenu extends BaseModel<SystemMenu> {
     private static final long serialVersionUID = 2L;
 
     /**
-     * 菜单 Key
+     * 菜单权限标识
      */
-    @UniqueField("菜单 Key")
     @TableField("`key`")
     private String key;
 

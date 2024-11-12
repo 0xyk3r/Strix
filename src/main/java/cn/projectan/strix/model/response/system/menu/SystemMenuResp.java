@@ -16,7 +16,7 @@ public class SystemMenuResp {
     private String id;
 
     /**
-     * 菜单 Key
+     * 菜单权限标识
      */
     private String key;
 
