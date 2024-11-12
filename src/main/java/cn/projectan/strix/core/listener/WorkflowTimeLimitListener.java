@@ -6,7 +6,7 @@ import cn.projectan.strix.core.module.workflow.WorkflowTool;
 import cn.projectan.strix.model.constant.DelayedQueueConst;
 import cn.projectan.strix.model.db.WorkflowTask;
 import cn.projectan.strix.model.dict.WorkflowPropsTimeLimitHandler;
-import cn.projectan.strix.model.other.module.workflow.WorkflowNode;
+import cn.projectan.strix.model.other.system.workflow.WorkflowNode;
 import cn.projectan.strix.service.WorkflowTaskService;
 import cn.projectan.strix.util.DelayedQueueUtil;
 import jakarta.annotation.PostConstruct;

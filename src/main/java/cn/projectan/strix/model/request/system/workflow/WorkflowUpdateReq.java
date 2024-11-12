@@ -1,4 +1,4 @@
-package cn.projectan.strix.model.request.module.workflow;
+package cn.projectan.strix.model.request.system.workflow;
 
 import cn.projectan.strix.core.validation.group.InsertGroup;
 import cn.projectan.strix.core.validation.group.UpdateGroup;

@@ -1,4 +1,4 @@
-package cn.projectan.strix.model.response.module.workflow;
+package cn.projectan.strix.model.response.system.workflow;
 
 import cn.projectan.strix.model.response.base.BasePageResp;
 import lombok.Getter;

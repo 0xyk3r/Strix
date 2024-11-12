@@ -2,8 +2,8 @@ package cn.projectan.strix.core.module.workflow;
 
 import cn.projectan.strix.model.dict.WorkflowPropsAssignType;
 import cn.projectan.strix.model.dict.WorkflowPropsTimeLimitUnit;
-import cn.projectan.strix.model.other.module.workflow.WorkflowNode;
-import cn.projectan.strix.model.other.module.workflow.WorkflowProps;
+import cn.projectan.strix.model.other.system.workflow.WorkflowNode;
+import cn.projectan.strix.model.other.system.workflow.WorkflowProps;
 import cn.projectan.strix.service.SystemManagerService;
 import cn.projectan.strix.util.SpringUtil;
 import lombok.extern.slf4j.Slf4j;

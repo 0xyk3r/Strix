@@ -1,4 +1,4 @@
-package cn.projectan.strix.controller.system.module.workflow;
+package cn.projectan.strix.controller.system.workflow;
 
 import cn.projectan.strix.controller.system.base.BaseSystemController;
 import cn.projectan.strix.core.cache.WorkflowConfigCache;
@@ -11,12 +11,12 @@ import cn.projectan.strix.model.db.Workflow;
 import cn.projectan.strix.model.db.WorkflowConfig;
 import cn.projectan.strix.model.db.WorkflowInstance;
 import cn.projectan.strix.model.dict.SysLogOperType;
-import cn.projectan.strix.model.request.module.workflow.WorkflowConfigUpdateReq;
-import cn.projectan.strix.model.request.module.workflow.WorkflowListReq;
-import cn.projectan.strix.model.request.module.workflow.WorkflowUpdateReq;
+import cn.projectan.strix.model.request.system.workflow.WorkflowConfigUpdateReq;
+import cn.projectan.strix.model.request.system.workflow.WorkflowListReq;
+import cn.projectan.strix.model.request.system.workflow.WorkflowUpdateReq;
 import cn.projectan.strix.model.response.common.CommonSelectDataResp;
-import cn.projectan.strix.model.response.module.workflow.WorkflowListResp;
-import cn.projectan.strix.model.response.module.workflow.WorkflowResp;
+import cn.projectan.strix.model.response.system.workflow.WorkflowListResp;
+import cn.projectan.strix.model.response.system.workflow.WorkflowResp;
 import cn.projectan.strix.service.WorkflowConfigService;
 import cn.projectan.strix.service.WorkflowInstanceService;
 import cn.projectan.strix.service.WorkflowService;
@@ -35,16 +35,16 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * 工作流管理
+ * 工作流程配置管理
  *
  * @author ProjectAn
  * @since 2024/4/24 下午12:50
  */
 @Slf4j
 @RestController
-@RequestMapping("system/workflow")
+@RequestMapping("system/workflow/config")
 @RequiredArgsConstructor
-public class WorkflowController extends BaseSystemController {
+public class SystemWorkflowConfigController extends BaseSystemController {
 
     private final WorkflowService workflowService;
     private final WorkflowConfigService workflowConfigService;
@@ -55,7 +55,7 @@ public class WorkflowController extends BaseSystemController {
      * 查询工作流引擎列表
      */
     @GetMapping("")
-    @PreAuthorize("@ss.hasPermission('system:module:workflow')")
+    @PreAuthorize("@ss.hasPermission('system:workflow:config')")
     @StrixLog(operationGroup = "工作流引擎", operationName = "查询工作流引擎列表")
     public RetResult<WorkflowListResp> list(WorkflowListReq req) {
         Page<Workflow> page = workflowService.lambdaQuery()
@@ -74,7 +74,7 @@ public class WorkflowController extends BaseSystemController {
      * 查询工作流引擎信息
      */
     @GetMapping("{id}")
-    @PreAuthorize("@ss.hasPermission('system:module:workflow')")
+    @PreAuthorize("@ss.hasPermission('system:workflow:config')")
     @StrixLog(operationGroup = "工作流引擎", operationName = "查询工作流引擎信息")
     public RetResult<WorkflowResp> info(@PathVariable String id) {
         Workflow workflow = workflowService.getById(id);
@@ -87,7 +87,7 @@ public class WorkflowController extends BaseSystemController {
      * 新增工作流引擎
      */
     @PostMapping("update")
-    @PreAuthorize("@ss.hasPermission('system:module:workflow:add')")
+    @PreAuthorize("@ss.hasPermission('system:workflow:config:add')")
     @StrixLog(operationGroup = "工作流引擎", operationName = "新增工作流引擎", operationType = SysLogOperType.ADD)
     public RetResult<Object> update(@RequestBody @Validated(InsertGroup.class) WorkflowUpdateReq req) {
         Workflow workflow = new Workflow();
@@ -104,7 +104,7 @@ public class WorkflowController extends BaseSystemController {
      * 修改工作流引擎
      */
     @PostMapping("update/{id}")
-    @PreAuthorize("@ss.hasPermission('system:module:workflow:update')")
+    @PreAuthorize("@ss.hasPermission('system:workflow:config:update')")
     @StrixLog(operationGroup = "工作流引擎", operationName = "修改工作流引擎", operationType = SysLogOperType.UPDATE)
     public RetResult<Object> update(@PathVariable String id, @RequestBody @Validated(UpdateGroup.class) WorkflowUpdateReq req) {
         Workflow workflow = workflowService.getById(id);
@@ -122,7 +122,7 @@ public class WorkflowController extends BaseSystemController {
      * 删除工作流引擎
      */
     @PostMapping("remove/{id}")
-    @PreAuthorize("@ss.hasPermission('system:module:workflow:remove')")
+    @PreAuthorize("@ss.hasPermission('system:workflow:config:remove')")
     @StrixLog(operationGroup = "工作流引擎", operationName = "删除工作流引擎", operationType = SysLogOperType.DELETE)
     public RetResult<Object> remove(@PathVariable String id) {
         workflowService.removeById(id);
@@ -150,7 +150,7 @@ public class WorkflowController extends BaseSystemController {
      * 获取工作流配置
      */
     @GetMapping("config/{configId}")
-    @PreAuthorize("@ss.hasPermission('system:module:workflow')")
+    @PreAuthorize("@ss.hasPermission('system:workflow:config')")
     @StrixLog(operationGroup = "工作流引擎", operationName = "获取工作流配置")
     public RetResult<Object> getConfig(@PathVariable String configId) {
         WorkflowConfig workflowConfig = workflowConfigService.getById(configId);
@@ -163,7 +163,7 @@ public class WorkflowController extends BaseSystemController {
      * 添加工作流配置
      */
     @PostMapping("update/{id}/config")
-    @PreAuthorize("@ss.hasPermission('system:module:workflow:update')")
+    @PreAuthorize("@ss.hasPermission('system:workflow:config:update')")
     @StrixLog(operationGroup = "工作流引擎", operationName = "添加工作流配置", operationType = SysLogOperType.ADD)
     public RetResult<Object> updateConfig(@PathVariable String id, @RequestBody @Validated(UpdateGroup.class) WorkflowConfigUpdateReq req) {
         workflowService.saveConfig(id, req.getContent());

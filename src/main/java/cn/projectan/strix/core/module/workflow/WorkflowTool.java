@@ -1,7 +1,7 @@
 package cn.projectan.strix.core.module.workflow;
 
 import cn.projectan.strix.model.dict.WorkflowNodeType;
-import cn.projectan.strix.model.other.module.workflow.WorkflowNode;
+import cn.projectan.strix.model.other.system.workflow.WorkflowNode;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;

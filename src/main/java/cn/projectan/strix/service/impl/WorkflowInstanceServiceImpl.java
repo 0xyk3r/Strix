@@ -8,7 +8,7 @@ import cn.projectan.strix.model.db.WorkflowConfig;
 import cn.projectan.strix.model.db.WorkflowInstance;
 import cn.projectan.strix.model.dict.WorkflowInstanceStatus;
 import cn.projectan.strix.model.dict.WorkflowNodeType;
-import cn.projectan.strix.model.other.module.workflow.WorkflowNode;
+import cn.projectan.strix.model.other.system.workflow.WorkflowNode;
 import cn.projectan.strix.service.WorkflowConfigService;
 import cn.projectan.strix.service.WorkflowInstanceService;
 import cn.projectan.strix.service.WorkflowTaskService;
@@ -51,7 +51,7 @@ public class WorkflowInstanceServiceImpl extends ServiceImpl<WorkflowInstanceMap
         WorkflowNode rootNode = WorkflowTool.findRootNode(nodes);
         Assert.notNull(rootNode, "工作流配置根节点不存在");
 
-        WorkflowInstance instance = new WorkflowInstance().setWorkflowId(config.getWorkflowId()).setWorkflowConfigId(config.getId()).setWorkflowConfigVersion(config.getVersion()).setCurrentNodeId(rootNode.getId()).setCurrentNodeType(rootNode.getType()).setStartTime(LocalDateTime.now()).setStatus(WorkflowInstanceStatus.ACTIVE);
+        WorkflowInstance instance = new WorkflowInstance().setWorkflowId(config.getWorkflowId()).setWorkflowConfigId(config.getId()).setCurrentNodeId(rootNode.getId()).setCurrentNodeType(rootNode.getType()).setStartTime(LocalDateTime.now()).setStatus(WorkflowInstanceStatus.ACTIVE);
         SpringUtil.getAopProxy(this).saveAndProcess(instance);
     }
 
