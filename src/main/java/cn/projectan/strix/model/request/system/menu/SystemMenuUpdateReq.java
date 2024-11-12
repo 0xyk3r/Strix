@@ -14,10 +14,10 @@ import lombok.Data;
 public class SystemMenuUpdateReq {
 
     /**
-     * 菜单 Key
+     * 菜单权限标识
      */
-    @NotEmpty(groups = {InsertGroup.class, UpdateGroup.class}, message = "菜单Key不可为空")
-    @Size(groups = {InsertGroup.class, UpdateGroup.class}, min = 2, max = 32, message = "菜单Key长度不符合要求")
+    @NotEmpty(groups = {InsertGroup.class, UpdateGroup.class}, message = "菜单权限标识不可为空")
+    @Size(groups = {InsertGroup.class, UpdateGroup.class}, min = 2, max = 64, message = "菜单权限标识长度不符合要求")
     @UpdateField
     private String key;
 
