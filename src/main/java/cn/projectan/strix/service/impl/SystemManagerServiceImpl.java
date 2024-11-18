@@ -191,4 +191,14 @@ public class SystemManagerServiceImpl extends ServiceImpl<SystemManagerMapper, S
             refreshLoginInfoByRole(roleIdList);
         }
     }
+
+    @Override
+    public String getDataNameById(String id) {
+        SystemManager data = lambdaQuery()
+                .select(SystemManager::getNickname)
+                .eq(SystemManager::getId, id)
+                .one();
+        return data == null ? null : data.getNickname();
+    }
+
 }
