@@ -12,10 +12,24 @@ package cn.projectan.strix.model.constant;
  */
 public class RedisKeyConstants {
 
+    /**
+     * 热度工具数据
+     */
     public static final String HASH_POPULARITY_DATA_PREFIX = "strix:popularity:data:";
 
+    /**
+     * 临时 URL - 公开
+     */
     public static final String STR_TEMP_URL_PUBLIC_PREFIX = "strix:util:temp-url:public::";
 
+    /**
+     * 临时 URL - 私有
+     */
     public static final String STR_TEMP_URL_PRIVATE_PREFIX = "strix:util:temp-url:private::";
+
+    /**
+     * 数据 ID 映射器
+     */
+    public static final String HASH_ID_MAPPER_PREFIX = "strix:id-mapper::";
 
 }

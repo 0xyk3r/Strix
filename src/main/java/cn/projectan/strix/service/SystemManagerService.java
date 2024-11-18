@@ -2,7 +2,6 @@ package cn.projectan.strix.service;
 
 import cn.projectan.strix.core.ss.details.LoginSystemManager;
 import cn.projectan.strix.model.db.SystemManager;
-import com.baomidou.mybatisplus.extension.service.IService;
 
 import java.util.List;
 
@@ -14,7 +13,7 @@ import java.util.List;
  * @author ProjectAn
  * @since 2021-05-12
  */
-public interface SystemManagerService extends IService<SystemManager> {
+public interface SystemManagerService extends IDMapperService<SystemManager> {
 
     /**
      * 根据角色ID获取人员ID列表
