@@ -8,7 +8,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * @author ProjectAn
  * @since 2024-11-18 17:33:50
  */
-public interface IDMapperService<T> extends IService<T> {
+public interface NameFetcherService<T> extends IService<T> {
 
     String getDataNameById(String id);
 

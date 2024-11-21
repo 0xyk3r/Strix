@@ -30,6 +30,6 @@ public class RedisKeyConstants {
     /**
      * 数据 ID 映射器
      */
-    public static final String HASH_ID_MAPPER_PREFIX = "strix:id-mapper::";
+    public static final String HASH_NAME_FETCHER_PREFIX = "strix:name-fetcher::";
 
 }

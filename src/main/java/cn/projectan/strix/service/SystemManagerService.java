@@ -13,7 +13,7 @@ import java.util.List;
  * @author ProjectAn
  * @since 2021-05-12
  */
-public interface SystemManagerService extends IDMapperService<SystemManager> {
+public interface SystemManagerService extends NameFetcherService<SystemManager> {
 
     /**
      * 根据角色ID获取人员ID列表
