@@ -1,7 +1,7 @@
 package cn.projectan.strix.util;
 
 import cn.projectan.strix.model.constant.RedisKeyConstants;
-import cn.projectan.strix.service.IDMapperService;
+import cn.projectan.strix.service.NameFetcherService;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +17,7 @@ import java.util.List;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class IDMapperUtil {
+public class NameFetcherUtil {
 
     private final RedisUtil redisUtil;
 
@@ -26,7 +26,7 @@ public class IDMapperUtil {
 
     @PostConstruct
     public void init() {
-        String[] beanNamesForType = SpringUtil.getBeanNamesForType(IDMapperService.class);
+        String[] beanNamesForType = SpringUtil.getBeanNamesForType(NameFetcherService.class);
         for (String beanName : beanNamesForType) {
             if (beanName.endsWith(SERVICE_SUFFIX)) {
                 serviceList.add(beanName);
@@ -35,11 +35,11 @@ public class IDMapperUtil {
     }
 
     public String get(String dataType, String dataId) {
-        Object o = redisUtil.hGet(RedisKeyConstants.HASH_ID_MAPPER_PREFIX + dataType, dataId);
+        Object o = redisUtil.hGet(RedisKeyConstants.HASH_NAME_FETCHER_PREFIX + dataType, dataId);
         if (o == null) {
             String formDB = getFormDB(dataType, dataId);
             if (formDB != null) {
-                redisUtil.hSet(RedisKeyConstants.HASH_ID_MAPPER_PREFIX + dataType, dataId, formDB);
+                redisUtil.hSet(RedisKeyConstants.HASH_NAME_FETCHER_PREFIX + dataType, dataId, formDB);
             }
             return formDB;
         } else {
@@ -50,7 +50,7 @@ public class IDMapperUtil {
     private String getFormDB(String dataType, String dataId) {
         for (String serviceName : serviceList) {
             if (serviceName.equalsIgnoreCase(dataType + SERVICE_SUFFIX)) {
-                IDMapperService<?> service = SpringUtil.getBean(serviceName);
+                NameFetcherService<?> service = SpringUtil.getBean(serviceName);
                 return service.getDataNameById(dataId);
             }
         }
