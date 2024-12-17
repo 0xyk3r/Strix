@@ -1,7 +1,7 @@
 package cn.projectan.strix.config.converter;
 
+import jakarta.annotation.Nonnull;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
 
@@ -21,7 +21,7 @@ public class StringToLocalDateConverter implements Converter<String, LocalDate> 
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     @Override
-    public LocalDate convert(@NotNull String source) {
+    public LocalDate convert(@Nonnull String source) {
         try {
             return LocalDate.parse(source, formatter);
         } catch (Exception e) {

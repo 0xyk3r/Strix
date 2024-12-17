@@ -6,10 +6,10 @@ import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.core.security.ApiSecurity;
 import cn.projectan.strix.model.annotation.IgnoreDataEncryption;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.annotation.Nonnull;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
@@ -37,7 +37,7 @@ public class EncodeResponseBodyAdvice implements ResponseBodyAdvice<Object> {
 
     @SneakyThrows
     @Override
-    public boolean supports(MethodParameter methodParameter, @NotNull Class aClass) {
+    public boolean supports(MethodParameter methodParameter, @Nonnull Class aClass) {
         String className = methodParameter.getContainingClass().getName();
         return !className.equals("cn.projectan.strix.core.aop.aspect.ApiSecurityCheckAspect") &&
                 !className.equals("cn.projectan.strix.core.aop.advice.GlobalExceptionHandler") &&
@@ -46,7 +46,7 @@ public class EncodeResponseBodyAdvice implements ResponseBodyAdvice<Object> {
     }
 
     @Override
-    public Object beforeBodyWrite(Object body, @NotNull MethodParameter methodParameter, @NotNull MediaType mediaType, @NotNull Class aClass, @NotNull ServerHttpRequest serverHttpRequest, @NotNull ServerHttpResponse serverHttpResponse) {
+    public Object beforeBodyWrite(Object body, @Nonnull MethodParameter methodParameter, @Nonnull MediaType mediaType, @Nonnull Class aClass, @Nonnull ServerHttpRequest serverHttpRequest, @Nonnull ServerHttpResponse serverHttpResponse) {
         try {
             if (showResponse) {
                 String fullMethodName = methodParameter.getContainingClass().getName() + "." + methodParameter.getMethod().getName();

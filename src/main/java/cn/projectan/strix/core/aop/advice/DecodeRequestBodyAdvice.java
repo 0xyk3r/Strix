@@ -6,10 +6,10 @@ import cn.projectan.strix.core.security.ApiSecurity;
 import cn.projectan.strix.model.annotation.IgnoreDataEncryption;
 import cn.projectan.strix.util.ServletUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.annotation.Nonnull;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpHeaders;
@@ -43,7 +43,7 @@ public class DecodeRequestBodyAdvice implements RequestBodyAdvice {
     private Boolean showRequest;
 
     @Override
-    public boolean supports(MethodParameter methodParameter, @NotNull Type type, @NotNull Class<? extends HttpMessageConverter<?>> aClass) {
+    public boolean supports(MethodParameter methodParameter, @Nonnull Type type, @Nonnull Class<? extends HttpMessageConverter<?>> aClass) {
         String className = methodParameter.getContainingClass().getName();
         return !className.equals("cn.projectan.strix.core.aop.aspect.ApiSecurityCheckAspect") &&
                 !className.equals("cn.projectan.strix.core.aop.advice.GlobalExceptionHandler") &&
@@ -51,9 +51,9 @@ public class DecodeRequestBodyAdvice implements RequestBodyAdvice {
                 !methodParameter.hasMethodAnnotation(IgnoreDataEncryption.class);
     }
 
-    @NotNull
+    @Nonnull
     @Override
-    public HttpInputMessage beforeBodyRead(@NotNull HttpInputMessage inputMessage, @NotNull MethodParameter methodParameter, @NotNull Type type, @NotNull Class<? extends HttpMessageConverter<?>> aClass) {
+    public HttpInputMessage beforeBodyRead(@Nonnull HttpInputMessage inputMessage, @Nonnull MethodParameter methodParameter, @Nonnull Type type, @Nonnull Class<? extends HttpMessageConverter<?>> aClass) {
         try {
             return new HttpInputMessageHandler(inputMessage, methodParameter);
         } catch (Exception e) {
@@ -64,14 +64,14 @@ public class DecodeRequestBodyAdvice implements RequestBodyAdvice {
         }
     }
 
-    @NotNull
+    @Nonnull
     @Override
-    public Object afterBodyRead(@NotNull Object body, @NotNull HttpInputMessage httpInputMessage, @NotNull MethodParameter methodParameter, @NotNull Type type, @NotNull Class<? extends HttpMessageConverter<?>> aClass) {
+    public Object afterBodyRead(@Nonnull Object body, @Nonnull HttpInputMessage httpInputMessage, @Nonnull MethodParameter methodParameter, @Nonnull Type type, @Nonnull Class<? extends HttpMessageConverter<?>> aClass) {
         return body;
     }
 
     @Override
-    public Object handleEmptyBody(Object body, @NotNull HttpInputMessage httpInputMessage, @NotNull MethodParameter methodParameter, @NotNull Type type, @NotNull Class<? extends HttpMessageConverter<?>> aClass) {
+    public Object handleEmptyBody(Object body, @Nonnull HttpInputMessage httpInputMessage, @Nonnull MethodParameter methodParameter, @Nonnull Type type, @Nonnull Class<? extends HttpMessageConverter<?>> aClass) {
         return body;
     }
 
@@ -106,13 +106,13 @@ public class DecodeRequestBodyAdvice implements RequestBodyAdvice {
             }
         }
 
-        @NotNull
+        @Nonnull
         @Override
         public InputStream getBody() {
             return this.body;
         }
 
-        @NotNull
+        @Nonnull
         @Override
         public HttpHeaders getHeaders() {
             return this.headers;
