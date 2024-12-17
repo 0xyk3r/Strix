@@ -32,6 +32,7 @@ public class NameFetcherUtil {
                 serviceList.add(beanName);
             }
         }
+        log.info("Strix NameFetcher: init success, service count: {}", serviceList.size());
     }
 
     public String get(String dataType, String dataId) {
