@@ -32,6 +32,11 @@ public class WorkflowInstance extends BaseModel<WorkflowInstance> {
     private static final long serialVersionUID = 1L;
 
     /**
+     * 工作流实例名称
+     */
+    private String name;
+
+    /**
      * 工作流ID
      */
     private String workflowId;

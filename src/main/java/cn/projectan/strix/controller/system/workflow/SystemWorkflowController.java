@@ -9,9 +9,11 @@ import cn.projectan.strix.model.db.WorkflowTask;
 import cn.projectan.strix.model.db.WorkflowTaskAssign;
 import cn.projectan.strix.model.dict.WorkflowNodeType;
 import cn.projectan.strix.model.request.base.BasePageReq;
+import cn.projectan.strix.model.response.system.workflow.task.WorkflowTaskUnfinishedListResp;
 import cn.projectan.strix.service.WorkflowInstanceService;
 import cn.projectan.strix.service.WorkflowTaskAssignService;
 import cn.projectan.strix.service.WorkflowTaskService;
+import cn.projectan.strix.util.async.ParallelExecution;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +21,12 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 /**
  * @author ProjectAn
@@ -40,13 +48,47 @@ public class SystemWorkflowController extends BaseSystemController {
     @GetMapping("unfinished")
     @PreAuthorize("@ss.hasPermission('system:workflow')")
     @StrixLog(operationGroup = "工作区", operationName = "查询我的工作区待处理任务列表")
-    public RetResult<Object> unfinished(BasePageReq<WorkflowTask> req) {
-        Page<WorkflowTask> page = workflowTaskService.lambdaQuery()
-                .eq(WorkflowTask::getOperatorId, loginManagerId())
-                .isNull(WorkflowTask::getOperationType)
+    public RetResult<WorkflowTaskUnfinishedListResp> unfinished(BasePageReq<WorkflowTaskAssign> req) {
+        Page<WorkflowTaskAssign> page = workflowTaskAssignService.lambdaQuery()
+                .eq(WorkflowTaskAssign::getOperatorId, loginManagerId())
+                .isNull(WorkflowTaskAssign::getOperationType)
                 .page(req.getPage());
 
-        return RetBuilder.success(page);
+        Set<String> workflowTaskIdList = page.getRecords().stream()
+                .map(WorkflowTaskAssign::getTaskId)
+                .collect(Collectors.toSet());
+        Set<String> workflowInstanceIdList = page.getRecords().stream()
+                .map(WorkflowTaskAssign::getInstanceId)
+                .collect(Collectors.toSet());
+        AtomicReference<List<WorkflowTask>> workflowTaskList = new AtomicReference<>(Collections.emptyList());
+        AtomicReference<List<WorkflowInstance>> workflowInstanceList = new AtomicReference<>(Collections.emptyList());
+
+        ParallelExecution.allOf(
+                () -> {
+                    if (!workflowTaskIdList.isEmpty()) {
+                        workflowTaskList.set(
+                                workflowTaskService.lambdaQuery()
+                                        .in(WorkflowTask::getId, workflowTaskIdList)
+                                        .list());
+                    }
+                },
+                () -> {
+                    if (!workflowInstanceIdList.isEmpty()) {
+                        workflowInstanceList.set(
+                                workflowInstanceService.lambdaQuery()
+                                        .in(WorkflowInstance::getId, workflowInstanceIdList)
+                                        .list());
+                    }
+                }
+        );
+
+        return RetBuilder.success(
+                new WorkflowTaskUnfinishedListResp(
+                        workflowTaskList.get(),
+                        page.getTotal(),
+                        workflowInstanceList.get()
+                )
+        );
     }
 
     /**
