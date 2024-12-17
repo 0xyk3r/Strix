@@ -6,6 +6,7 @@ import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.util.NameFetcherUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -26,6 +27,8 @@ public class NameFetcherController extends BaseSystemController {
 
     @GetMapping("")
     public RetResult<Object> nameFetcher(String dataType, String dataId) {
+        Assert.hasText(dataType, "参数错误");
+        Assert.hasText(dataId, "参数错误");
         String s = nameFetcherUtil.get(dataType, dataId);
         return RetBuilder.success(s);
     }
