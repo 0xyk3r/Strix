@@ -3,12 +3,12 @@ package cn.projectan.strix.core.ss.filter;
 import cn.projectan.strix.core.ss.details.LoginSystemManager;
 import cn.projectan.strix.core.ss.token.SystemManagerAuthenticationToken;
 import cn.projectan.strix.util.RedisUtil;
+import jakarta.annotation.Nonnull;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -27,7 +27,7 @@ public class SystemManagerAuthenticationTokenFilter extends OncePerRequestFilter
     private final RedisUtil redisUtil;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, @Nonnull HttpServletResponse response, @Nonnull FilterChain filterChain) throws ServletException, IOException {
         String token = request.getHeader("token");
 
         if (!StringUtils.hasText(token)) {

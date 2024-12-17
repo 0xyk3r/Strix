@@ -2,9 +2,9 @@ package cn.projectan.strix.config;
 
 import cn.projectan.strix.util.I18nUtil;
 import cn.projectan.strix.util.ServletUtils;
+import jakarta.annotation.Nonnull;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -34,7 +34,7 @@ public class StrixLocaleResolver implements LocaleResolver {
         return resolveLocale(ServletUtils.getRequest());
     }
 
-    @NotNull
+    @Nonnull
     @Override
     public Locale resolveLocale(HttpServletRequest request) {
         // 获取请求中的语言参数
@@ -45,7 +45,7 @@ public class StrixLocaleResolver implements LocaleResolver {
     }
 
     @Override
-    public void setLocale(@NotNull HttpServletRequest request, HttpServletResponse response, Locale locale) {
+    public void setLocale(@Nonnull HttpServletRequest request, HttpServletResponse response, Locale locale) {
 
     }
 

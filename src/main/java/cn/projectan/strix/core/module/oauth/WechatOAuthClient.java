@@ -11,11 +11,11 @@ import cn.projectan.strix.util.OkHttpUtil;
 import cn.projectan.strix.util.SpringUtil;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.annotation.Nonnull;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.util.Assert;
 
 import java.io.IOException;
@@ -131,12 +131,12 @@ public class WechatOAuthClient extends StrixOAuthClient {
         Call call = httpClient.newCall(request);
         call.enqueue(new Callback() {
             @Override
-            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+            public void onFailure(@Nonnull Call call, @Nonnull IOException e) {
                 log.error(e.getMessage(), e);
             }
 
             @Override
-            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+            public void onResponse(@Nonnull Call call, @Nonnull Response response) throws IOException {
                 String responseStr = response.body().string();
                 oauthPush.setResult(responseStr);
                 Map<String, Object> responseMap = objectMapper.readValue(responseStr, new TypeReference<>() {
