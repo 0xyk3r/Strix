@@ -2,7 +2,6 @@ package cn.projectan.strix.service;
 
 import cn.projectan.strix.model.db.Workflow;
 import cn.projectan.strix.model.response.common.CommonSelectDataResp;
-import com.baomidou.mybatisplus.extension.service.IService;
 
 /**
  * <p>
@@ -12,7 +11,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * @author ProjectAn
  * @since 2024-04-24
  */
-public interface WorkflowService extends IService<Workflow> {
+public interface WorkflowService extends NameFetcherService<Workflow> {
 
     CommonSelectDataResp getSelectData();
 

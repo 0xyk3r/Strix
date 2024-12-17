@@ -51,4 +51,13 @@ public class WorkflowServiceImpl extends ServiceImpl<WorkflowMapper, Workflow> i
         Assert.isTrue(workflowService.updateById(workflow), "保存失败");
     }
 
+    @Override
+    public String getDataNameById(String id) {
+        Workflow data = lambdaQuery()
+                .select(Workflow::getName)
+                .eq(Workflow::getId, id)
+                .one();
+        return data == null ? null : data.getName();
+    }
+
 }
