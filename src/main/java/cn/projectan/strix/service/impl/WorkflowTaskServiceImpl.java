@@ -84,7 +84,9 @@ public class WorkflowTaskServiceImpl extends ServiceImpl<WorkflowTaskMapper, Wor
                                     .setInstanceId(instance.getId())
                                     .setTaskId(task.getId())
                                     .setOperatorId(operatorId)
-                                    .setOperationType(operationType))
+                                    .setOperationType(operationType)
+                                    .setStartTime(LocalDateTime.now())
+                                    .setEndTime(isAutoComplete ? LocalDateTime.now() : null))
                     .collect(Collectors.toList());
             if (WorkflowPropsAssignMode.SEQ.equals(handler.getAssignMode())) {
                 // 顺序审核模式下 只创建第一个任务指派
@@ -124,6 +126,7 @@ public class WorkflowTaskServiceImpl extends ServiceImpl<WorkflowTaskMapper, Wor
         Assert.isTrue(handler.isAssignOperator(operatorId), "任务不存在");
 
         assign.setOperationType(operationType);
+        assign.setEndTime(LocalDateTime.now());
         assign.setComment(comment);
         if ("TimeLimit".equals(operatorId)) {
             assign.setOperatorId("TimeLimit");
@@ -159,6 +162,7 @@ public class WorkflowTaskServiceImpl extends ServiceImpl<WorkflowTaskMapper, Wor
                                                 .setInstanceId(assign.getInstanceId())
                                                 .setTaskId(assign.getTaskId())
                                                 .setOperatorId(nextOperatorId)
+                                                .setStartTime(LocalDateTime.now())
                                 );
                             }
                         }

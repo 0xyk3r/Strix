@@ -37,7 +37,7 @@ public class DebugController extends BaseController {
 
     @GetMapping("wf/create/{workflowId}")
     public RetResult<Object> create(@PathVariable String workflowId) {
-        workflowInstanceService.createInstance(workflowId, "anjiongyi");
+        workflowInstanceService.createInstance(workflowId, "DEBUG发起的流程", "anjiongyi");
         return RetBuilder.success();
     }
 

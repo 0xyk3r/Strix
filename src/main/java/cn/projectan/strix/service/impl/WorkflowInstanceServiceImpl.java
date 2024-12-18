@@ -42,7 +42,7 @@ public class WorkflowInstanceServiceImpl extends ServiceImpl<WorkflowInstanceMap
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void createInstance(String workflowId, String creatorId) {
+    public void createInstance(String workflowId, String workflowName, String creatorId) {
         WorkflowConfig config = workflowConfigService.getLatestConfig(workflowId);
         Assert.notNull(config, "工作流配置不存在");
 
@@ -51,7 +51,14 @@ public class WorkflowInstanceServiceImpl extends ServiceImpl<WorkflowInstanceMap
         WorkflowNode rootNode = WorkflowTool.findRootNode(nodes);
         Assert.notNull(rootNode, "工作流配置根节点不存在");
 
-        WorkflowInstance instance = new WorkflowInstance().setWorkflowId(config.getWorkflowId()).setWorkflowConfigId(config.getId()).setCurrentNodeId(rootNode.getId()).setCurrentNodeType(rootNode.getType()).setStartTime(LocalDateTime.now()).setStatus(WorkflowInstanceStatus.ACTIVE);
+        WorkflowInstance instance = new WorkflowInstance()
+                .setName(workflowName)
+                .setWorkflowId(config.getWorkflowId())
+                .setWorkflowConfigId(config.getId())
+                .setCurrentNodeId(rootNode.getId())
+                .setCurrentNodeType(rootNode.getType())
+                .setStartTime(LocalDateTime.now())
+                .setStatus(WorkflowInstanceStatus.ACTIVE);
         SpringUtil.getAopProxy(this).saveAndProcess(instance);
     }
 

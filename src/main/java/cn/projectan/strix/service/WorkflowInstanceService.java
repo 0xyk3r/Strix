@@ -19,7 +19,7 @@ public interface WorkflowInstanceService extends IService<WorkflowInstance> {
      * @param workflowId 工作流ID
      * @param creatorId  创建者ID
      */
-    void createInstance(String workflowId, String creatorId);
+    void createInstance(String workflowId, String workflowName, String creatorId);
 
     /**
      * 转到指定节点
