@@ -16,14 +16,14 @@ import java.util.stream.Collectors;
 
 /**
  * @author ProjectAn
- * @since 2024-11-13 06:25:07
+ * @since 2024-12-18 16:07:06
  */
 @Getter
-public class WorkflowTaskUnfinishedListResp extends BasePageResp {
+public class WorkflowTaskFinishedListResp extends BasePageResp {
 
     private final List<Item> items;
 
-    public WorkflowTaskUnfinishedListResp(Collection<WorkflowTaskAssign> data, Long total, Collection<WorkflowTask> taskData, Collection<WorkflowInstance> instanceData) {
+    public WorkflowTaskFinishedListResp(Collection<WorkflowTaskAssign> data, Long total, Collection<WorkflowTask> taskData, Collection<WorkflowInstance> instanceData) {
         items = taskData.stream()
                 .map(d -> new Item(
                         d.getId(),
@@ -37,7 +37,10 @@ public class WorkflowTaskUnfinishedListResp extends BasePageResp {
                         null,
                         null,
                         null,
-                        d.getStartTime()
+                        null,
+                        null,
+                        d.getStartTime(),
+                        d.getEndTime()
                 ))
                 .collect(Collectors.toList());
 
@@ -45,6 +48,7 @@ public class WorkflowTaskUnfinishedListResp extends BasePageResp {
             data.forEach(d -> {
                 if (item.getId().equals(d.getTaskId())) {
                     item.setTaskAssignStartTime(d.getStartTime());
+                    item.setTaskAssignEndTime(d.getEndTime());
                 }
             });
             instanceData.forEach(instance -> {
@@ -87,6 +91,12 @@ public class WorkflowTaskUnfinishedListResp extends BasePageResp {
         private LocalDateTime instanceCreateTime;
 
         private LocalDateTime taskAssignStartTime;
+
+        private LocalDateTime taskAssignEndTime;
+
+        private LocalDateTime startTime;
+
+        private LocalDateTime endTime;
 
     }
 

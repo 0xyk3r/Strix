@@ -9,6 +9,7 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 
 import java.io.Serial;
+import java.time.LocalDateTime;
 
 /**
  * <p>
@@ -51,8 +52,20 @@ public class WorkflowTaskAssign extends BaseModel<WorkflowTaskAssign> {
 
     /**
      * 操作类型
+     *
+     * @see cn.projectan.strix.model.dict.WorkflowOperationType WorkflowOperationType
      */
     private Byte operationType;
+
+    /**
+     * 任务开始时间
+     */
+    private LocalDateTime startTime;
+
+    /**
+     * 任务结束时间
+     */
+    private LocalDateTime endTime;
 
     /**
      * 附加留言
