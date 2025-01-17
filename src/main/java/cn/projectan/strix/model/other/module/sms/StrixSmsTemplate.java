@@ -25,6 +25,6 @@ public class StrixSmsTemplate {
 
     private String content;
 
-    private LocalDateTime createTime;
+    private LocalDateTime createdTime;
 
 }

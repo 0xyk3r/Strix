@@ -75,7 +75,7 @@ public class SystemManagerController extends BaseSystemController {
                 .eq(NumUtil.checkCategory(req.getStatus(), NumCategory.NON_NEGATIVE), SystemManager::getStatus, req.getStatus())
                 .eq(NumUtil.checkCategory(req.getType(), NumCategory.POSITIVE), SystemManager::getType, req.getType())
                 .in(!CollectionUtils.isEmpty(loginManagerRegionPermissions), SystemManager::getRegionId, loginManagerRegionPermissions)
-                .orderByAsc(SystemManager::getCreateTime)
+                .orderByAsc(SystemManager::getCreatedTime)
                 .page(req.getPage());
 
         SystemManagerListResp resp = new SystemManagerListResp(page.getRecords(), page.getTotal());
@@ -96,7 +96,7 @@ public class SystemManagerController extends BaseSystemController {
 
         List<String> systemManagerRoleIds = systemManagerService.getRoleIdListByManagerId(managerId);
 
-        return RetBuilder.success(new SystemManagerResp(systemManager.getId(), systemManager.getNickname(), systemManager.getLoginName(), systemManager.getStatus(), systemManager.getType(), systemManager.getRegionId(), systemManager.getCreateTime(), String.join(",", systemManagerRoleIds)));
+        return RetBuilder.success(new SystemManagerResp(systemManager.getId(), systemManager.getNickname(), systemManager.getLoginName(), systemManager.getStatus(), systemManager.getType(), systemManager.getRegionId(), systemManager.getCreatedTime(), String.join(",", systemManagerRoleIds)));
     }
 
     /**
@@ -161,7 +161,7 @@ public class SystemManagerController extends BaseSystemController {
 
         if (needReturnNewData.get()) {
             List<String> systemManagerRoleIds = systemManagerService.getRoleIdListByManagerId(managerId);
-            return RetBuilder.success(new SystemManagerResp(systemManager.getId(), systemManager.getNickname(), systemManager.getLoginName(), systemManager.getStatus(), systemManager.getType(), systemManager.getRegionId(), systemManager.getCreateTime(), String.join(",", systemManagerRoleIds)));
+            return RetBuilder.success(new SystemManagerResp(systemManager.getId(), systemManager.getNickname(), systemManager.getLoginName(), systemManager.getStatus(), systemManager.getType(), systemManager.getRegionId(), systemManager.getCreatedTime(), String.join(",", systemManagerRoleIds)));
         }
 
         return RetBuilder.success();

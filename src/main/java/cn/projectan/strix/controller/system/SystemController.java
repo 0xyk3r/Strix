@@ -36,6 +36,7 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -150,7 +151,7 @@ public class SystemController extends BaseSystemController {
      */
     @GetMapping("menus")
     public RetResult<SystemMenuResp> getMenuList() {
-        List<String> systemMenuKeys = SecurityUtils.getManagerMenuKeys();
+        List<String> systemMenuKeys = Optional.ofNullable(SecurityUtils.getSystemManagerLoginInfo()).map(LoginSystemManager::getMenusKeys).orElse(null);
         Assert.notEmpty(systemMenuKeys, "当前账号无菜单权限");
 
         List<SystemMenu> systemMenus = systemMenusService.lambdaQuery()

@@ -33,25 +33,37 @@ public class BaseModel<T extends BaseModel<T>> implements java.io.Serializable {
      * 数据创建时间
      */
     @TableField(fill = FieldFill.INSERT)
-    private LocalDateTime createTime;
+    private LocalDateTime createdTime;
+
+    /**
+     * 数据创建人类型
+     */
+    @TableField(fill = FieldFill.INSERT)
+    private Short createdByType;
 
     /**
      * 数据创建人
      */
     @TableField(fill = FieldFill.INSERT)
-    private String createBy;
+    private String createdBy;
 
     /**
      * 数据修改时间
      */
     @TableField(fill = FieldFill.INSERT_UPDATE)
-    private LocalDateTime updateTime;
+    private LocalDateTime updatedTime;
+
+    /**
+     * 数据修改人类型
+     */
+    @TableField(fill = FieldFill.INSERT_UPDATE)
+    private Short updatedByType;
 
     /**
      * 数据修改人
      */
     @TableField(fill = FieldFill.INSERT_UPDATE)
-    private String updateBy;
+    private String updatedBy;
 
     @SuppressWarnings("unchecked")
     public T setId(String id) {
@@ -66,27 +78,38 @@ public class BaseModel<T extends BaseModel<T>> implements java.io.Serializable {
     }
 
     @SuppressWarnings("unchecked")
-    public T setCreateTime(LocalDateTime createTime) {
-        this.createTime = createTime;
+    public T setCreatedTime(LocalDateTime createdTime) {
+        this.createdTime = createdTime;
         return (T) this;
     }
 
     @SuppressWarnings("unchecked")
-    public T setCreateBy(String createBy) {
-        this.createBy = createBy;
+    public T setCreatedByType(Short createdByType) {
+        this.createdByType = createdByType;
         return (T) this;
     }
 
     @SuppressWarnings("unchecked")
-    public T setUpdateTime(LocalDateTime updateTime) {
-        this.updateTime = updateTime;
+    public T setCreatedBy(String createdBy) {
+        this.createdBy = createdBy;
         return (T) this;
     }
 
     @SuppressWarnings("unchecked")
-    public T setUpdateBy(String updateBy) {
-        this.updateBy = updateBy;
+    public T setUpdatedTime(LocalDateTime updatedTime) {
+        this.updatedTime = updatedTime;
         return (T) this;
     }
 
+    @SuppressWarnings("unchecked")
+    public T setUpdatedByType(Short updatedByType) {
+        this.updatedByType = updatedByType;
+        return (T) this;
+    }
+
+    @SuppressWarnings("unchecked")
+    public T setUpdatedBy(String updatedBy) {
+        this.updatedBy = updatedBy;
+        return (T) this;
+    }
 }

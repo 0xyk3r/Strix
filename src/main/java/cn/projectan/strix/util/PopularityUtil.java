@@ -1,5 +1,6 @@
 package cn.projectan.strix.util;
 
+import cn.projectan.strix.model.constant.OperatorType;
 import cn.projectan.strix.model.constant.RedisKeyConstants;
 import cn.projectan.strix.model.db.PopularityConfig;
 import cn.projectan.strix.model.db.PopularityData;
@@ -131,8 +132,8 @@ public class PopularityUtil {
                                     .setInitialValue(0)
                                     .setMagValue(BigDecimal.ONE)
                                     .setExtraValue(0)
-                                    .setCreateBy("SYNC")
-                                    .setUpdateBy("SYNC")
+                                    .setCreatedByType(OperatorType.SYSTEM)
+                                    .setUpdatedByType(OperatorType.SYSTEM)
                     ).toList();
                     popularityConfigService.saveBatch(addConfigList);
                 }
@@ -152,8 +153,8 @@ public class PopularityUtil {
                                 .setConfigKey(key)
                                 .setDataId(typedTuple.getValue().toString())
                                 .setOriginalValue(typedTuple.getScore().longValue())
-                                .setCreateBy("SYNC")
-                                .setUpdateBy("SYNC");
+                                .setCreatedByType(OperatorType.SYSTEM)
+                                .setUpdatedByType(OperatorType.SYSTEM);
                     }).toList();
             // 数据差异处理
             addDataList.addAll(

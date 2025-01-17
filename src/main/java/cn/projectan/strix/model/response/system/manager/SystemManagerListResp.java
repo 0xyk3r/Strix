@@ -24,7 +24,7 @@ public class SystemManagerListResp extends BasePageResp {
 
     public SystemManagerListResp(List<SystemManager> data, Long total) {
         systemManagerList = data.stream().map(d ->
-                new SystemManagerItem(d.getId(), d.getNickname(), d.getLoginName(), d.getStatus(), d.getType(), d.getRegionId(), d.getBuiltin(), d.getCreateTime())
+                new SystemManagerItem(d.getId(), d.getNickname(), d.getLoginName(), d.getStatus(), d.getType(), d.getRegionId(), d.getBuiltin(), d.getCreatedTime())
         ).collect(Collectors.toList());
         this.setTotal(total);
     }
@@ -48,7 +48,7 @@ public class SystemManagerListResp extends BasePageResp {
 
         private Byte builtin;
 
-        private LocalDateTime createTime;
+        private LocalDateTime createdTime;
 
     }
 

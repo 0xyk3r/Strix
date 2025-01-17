@@ -100,7 +100,7 @@ public class OssController extends BaseSystemController {
                         ossConfig.getPrivateEndpoint(),
                         ossConfig.getAccessKey(),
                         ossConfig.getRemark(),
-                        ossConfig.getCreateTime(),
+                        ossConfig.getCreatedTime(),
                         bucketItems,
                         fileGroupItems
                 )

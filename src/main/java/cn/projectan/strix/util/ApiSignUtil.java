@@ -21,7 +21,7 @@ public class ApiSignUtil {
 
     /**
      * @param params 需要进行排序加密的参数
-     * @return 验证签名结果 为null则为异常
+     * @return 验证签名结果 为false则为异常
      */
     public static boolean verifySign(Map<String, Object> params, String sign) {
         String correctSign = getSign(params);

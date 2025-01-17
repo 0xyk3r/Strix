@@ -19,6 +19,6 @@ public class StrixSmsSign {
 
     private Integer status;
 
-    private LocalDateTime createTime;
+    private LocalDateTime createdTime;
 
 }

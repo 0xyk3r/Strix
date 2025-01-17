@@ -110,13 +110,13 @@ public class OssFileServiceImpl extends ServiceImpl<OssFileMapper, OssFile> impl
     }
 
     @Override
-    public OssFile upload(String groupKey, File file, String uploaderId) {
+    public OssFile upload(String groupKey, File file) {
         try {
             byte[] fileContent = Files.readAllBytes(file.toPath());
             String encodedString = Base64.getEncoder().encodeToString(fileContent);
             String fileBase64 = "data:" + Files.probeContentType(file.toPath()) + ";base64," + encodedString;
 
-            return upload(groupKey, fileBase64, uploaderId);
+            return upload(groupKey, fileBase64);
         } catch (IllegalArgumentException e) {
             throw e;
         } catch (Exception e) {
@@ -125,7 +125,7 @@ public class OssFileServiceImpl extends ServiceImpl<OssFileMapper, OssFile> impl
     }
 
     @Override
-    public OssFile upload(String groupKey, String fileBase64, String uploaderId) {
+    public OssFile upload(String groupKey, String fileBase64) {
         OssFileGroup ossFileGroup = ossFileGroupService.getGroupByKey(groupKey);
         Assert.notNull(ossFileGroup, "上传文件失败. 文件组不存在");
         StrixOssClient client = strixOssStore.getInstance(ossFileGroup.getConfigKey());
@@ -160,17 +160,14 @@ public class OssFileServiceImpl extends ServiceImpl<OssFileMapper, OssFile> impl
 
             client.uploadPrivate(ossFileGroup.getBucketName(), filePath.toString(), imageByte);
 
-            OssFile ossFile = new OssFile();
-            ossFile.setConfigKey(ossFileGroup.getConfigKey());
-            ossFile.setGroupKey(ossFileGroup.getKey());
-            ossFile.setPath(filePath.toString());
-            ossFile.setSize((long) imageByte.length);
-            ossFile.setExt(ext);
-            ossFile.setUploaderId(uploaderId);
-            ossFile.setCreateBy(uploaderId);
-            ossFile.setUpdateBy(uploaderId);
-            save(ossFile);
-
+            // FIXME 验证上传人信息是否填充正确
+            OssFile ossFile = new OssFile()
+                    .setConfigKey(ossFileGroup.getConfigKey())
+                    .setGroupKey(ossFileGroup.getKey())
+                    .setPath(filePath.toString())
+                    .setSize((long) imageByte.length)
+                    .setExt(ext);
+            Assert.isTrue(save(ossFile), "上传文件失败, 保存文件信息失败.");
             return ossFile;
         } else {
             throw new IllegalArgumentException("上传文件失败, 不支持的文件数据.");
@@ -243,7 +240,7 @@ public class OssFileServiceImpl extends ServiceImpl<OssFileMapper, OssFile> impl
         } else if (StrixOssFileGroupSecretType.USER == ossFileGroup.getSecretType() && StrixOssFileGroupSecretType.USER == downloaderType) {
             // 文件要求用户权限 且下载用户为用户 ACCEPT
             // 要求下载用户为上传用户
-            return Objects.equals(downloaderId, ossFile.getUploaderId());
+            return Objects.equals(downloaderId, ossFile.getCreatedBy());
         } else {
             return false;
         }

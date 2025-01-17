@@ -37,6 +37,6 @@ public class OssFileGroupResp {
 
     private String remark;
 
-    private LocalDateTime createTime;
+    private LocalDateTime createdTime;
 
 }

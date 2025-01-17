@@ -39,6 +39,7 @@ public class WorkflowTaskFinishedListResp extends BasePageResp {
                         null,
                         null,
                         null,
+                        null,
                         d.getStartTime(),
                         d.getEndTime()
                 ))
@@ -54,8 +55,9 @@ public class WorkflowTaskFinishedListResp extends BasePageResp {
             instanceData.forEach(instance -> {
                 if (item.getInstanceId().equals(instance.getId())) {
                     item.setInstanceName(instance.getName());
-                    item.setInstanceCreateBy(instance.getCreateBy());
-                    item.setInstanceCreateTime(instance.getCreateTime());
+                    item.setInstanceCreatedByType(instance.getCreatedByType());
+                    item.setInstanceCreatedBy(instance.getCreatedBy());
+                    item.setInstanceCreatedTime(instance.getCreatedTime());
                 }
             });
         });
@@ -86,9 +88,11 @@ public class WorkflowTaskFinishedListResp extends BasePageResp {
 
         private String instanceName;
 
-        private String instanceCreateBy;
+        private Short instanceCreatedByType;
 
-        private LocalDateTime instanceCreateTime;
+        private String instanceCreatedBy;
+
+        private LocalDateTime instanceCreatedTime;
 
         private LocalDateTime taskAssignStartTime;
 

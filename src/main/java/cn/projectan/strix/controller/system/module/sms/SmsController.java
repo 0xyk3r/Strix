@@ -101,7 +101,7 @@ public class SmsController extends BaseSystemController {
                         smsConfig.getRegionId(),
                         smsConfig.getAccessKey(),
                         smsConfig.getRemark(),
-                        smsConfig.getCreateTime(),
+                        smsConfig.getCreatedTime(),
                         signItems,
                         templateItems
                 )

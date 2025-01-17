@@ -91,10 +91,14 @@ public class DecodeRequestBodyAdvice implements RequestBodyAdvice {
             Method method = methodParameter.getMethod();
             if (showRequest && method != null) {
                 String fullMethodName = methodParameter.getContainingClass().getName() + "." + method.getName();
-                log.info("\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n" +
-                        "请求数据: " + fullMethodName + "\n" +
-                        decryptBodyStr +
-                        "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+                log.info("""
+                                
+                                ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+                                请求函数: {}
+                                请求数据:
+                                {}
+                                ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++""",
+                        fullMethodName, decryptBodyStr);
             }
 
             if (!StringUtils.hasText(decryptBodyStr)) {

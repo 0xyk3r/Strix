@@ -43,9 +43,11 @@ public class UpdateBuilder {
         updateWrapper.eq("id", id);
 
         // 设置修改用户
-        String updateBy = SecurityUtils.getManagerId();
-        if (StringUtils.hasText(updateBy)) {
-            updateWrapper.set("update_by", updateBy);
+        short updatedByType = SecurityUtils.getOperatorType();
+        String updatedBy = SecurityUtils.getOperatorId();
+        if (StringUtils.hasText(updatedBy)) {
+            updateWrapper.set("updated_by_type", updatedByType);
+            updateWrapper.set("updated_by", updatedBy);
         }
 
         AtomicInteger setCount = new AtomicInteger();
@@ -61,7 +63,7 @@ public class UpdateBuilder {
                     if (!hasNewValue) {
                         newValue = "null".equals(annotation.defaultValue()) ? null : annotation.defaultValue();
                     }
-                    // 仅当数据发生变动才执行 set 语句
+                    // 仅当数据发生变动才添加 set 语句
                     if (!Objects.equals(originalValue, newValue)) {
                         updateWrapper = updateWrapper.set("`" + StrUtil.toUnderlineCase(field.getName()) + "`", newValue).or();
                         setCount.getAndIncrement();

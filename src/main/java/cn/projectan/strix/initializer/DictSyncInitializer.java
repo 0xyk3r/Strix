@@ -1,6 +1,7 @@
 package cn.projectan.strix.initializer;
 
 import cn.projectan.strix.core.module.oss.StrixOssStore;
+import cn.projectan.strix.model.constant.OperatorType;
 import cn.projectan.strix.model.db.Dict;
 import cn.projectan.strix.model.db.DictData;
 import cn.projectan.strix.model.dict.DictDataStatus;
@@ -68,8 +69,8 @@ public class DictSyncInitializer implements ApplicationRunner {
             String name = StringUtils.hasText(annotationDict.value()) ? annotationDict.value() : clazz.getSimpleName();
 
             Dict dict = new Dict(key, name, 0, DictStatus.ENABLE, null, 0, DictProvided.YES)
-                    .setCreateBy("SYSTEM")
-                    .setUpdateBy("SYSTEM");
+                    .setCreatedByType(OperatorType.SYSTEM)
+                    .setUpdatedByType(OperatorType.SYSTEM);
             List<DictData> dictDataList = new ArrayList<>();
 
             try {
@@ -90,8 +91,8 @@ public class DictSyncInitializer implements ApplicationRunner {
                     int sort = annotationDictData.sort() >= 0 ? annotationDictData.sort() : i;
                     String style = annotationDictData.style();
                     DictData dictData = new DictData(key, value, label, sort, style, DictDataStatus.ENABLE, null)
-                            .setCreateBy("SYSTEM")
-                            .setUpdateBy("SYSTEM");
+                            .setCreatedByType(OperatorType.SYSTEM)
+                            .setUpdatedByType(OperatorType.SYSTEM);
                     dictDataList.add(dictData);
                 }
                 Dict dbDict = dictList.stream().filter(d -> d.getKey().equals(dict.getKey())).findFirst().orElse(null);

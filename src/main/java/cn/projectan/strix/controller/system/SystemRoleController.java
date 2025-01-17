@@ -62,7 +62,7 @@ public class SystemRoleController extends BaseSystemController {
     @StrixLog(operationGroup = "系统角色", operationName = "查询角色列表")
     public RetResult<SystemRoleListResp> getSystemRoleList() {
         List<SystemRole> systemRoleList = systemRoleService.lambdaQuery()
-                .orderByAsc(SystemRole::getCreateTime)
+                .orderByAsc(SystemRole::getCreatedTime)
                 .list();
 
         return RetBuilder.success(new SystemRoleListResp(systemRoleList));
