@@ -3,6 +3,7 @@ package cn.projectan.strix.service.impl;
 import cn.projectan.strix.core.module.oss.StrixOssClient;
 import cn.projectan.strix.core.module.oss.StrixOssStore;
 import cn.projectan.strix.mapper.OssBucketMapper;
+import cn.projectan.strix.model.constant.OperatorType;
 import cn.projectan.strix.model.db.OssBucket;
 import cn.projectan.strix.model.other.module.oss.StrixOssBucket;
 import cn.projectan.strix.service.OssBucketService;
@@ -56,9 +57,9 @@ public class OssBucketServiceImpl extends ServiceImpl<OssBucketMapper, OssBucket
                                     .setPrivateEndpoint(b.getPrivateEndpoint())
                                     .setRegion(b.getRegion())
                                     .setStorageClass(b.getStorageClass())
-                                    .setCreateTime(b.getCreateTime())
-                                    .setCreateBy("SYSTEM")
-                                    .setUpdateBy("SYSTEM")
+                                    .setCreatedTime(b.getCreatedTime())
+                                    .setCreatedByType(OperatorType.SYSTEM)
+                                    .setUpdatedByType(OperatorType.SYSTEM)
                             )
                             .collect(Collectors.toList());
                     Assert.isTrue(saveBatch(ossBucketList), "Strix OSS: 同步增加存储空间失败.");

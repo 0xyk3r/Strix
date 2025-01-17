@@ -57,7 +57,7 @@ public class SystemUserController extends BaseSystemController {
                 .like(StringUtils.hasText(req.getKeyword()), SystemUser::getNickname, req.getKeyword())
                 .or(StringUtils.hasText(req.getKeyword()), q -> q.like(SystemUser::getPhoneNumber, req.getKeyword()))
                 .eq(NumUtil.checkCategory(req.getStatus(), NumCategory.NON_NEGATIVE), SystemUser::getStatus, req.getStatus())
-                .orderByAsc(SystemUser::getCreateTime)
+                .orderByAsc(SystemUser::getCreatedTime)
                 .page(req.getPage());
 
         SystemUserListResp resp = new SystemUserListResp(page.getRecords(), page.getTotal());

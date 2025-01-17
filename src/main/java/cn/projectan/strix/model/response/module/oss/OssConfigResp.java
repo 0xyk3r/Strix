@@ -32,7 +32,7 @@ public class OssConfigResp {
 
     private String remark;
 
-    private LocalDateTime createTime;
+    private LocalDateTime createdTime;
 
     private List<OssBucketListResp.OssBucketItem> buckets;
 

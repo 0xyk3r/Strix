@@ -1,6 +1,7 @@
 package cn.projectan.strix.service.impl;
 
 import cn.projectan.strix.mapper.SmsTemplateMapper;
+import cn.projectan.strix.model.constant.OperatorType;
 import cn.projectan.strix.model.db.SmsTemplate;
 import cn.projectan.strix.model.other.module.sms.StrixSmsTemplate;
 import cn.projectan.strix.service.SmsTemplateService;
@@ -53,9 +54,9 @@ public class SmsTemplateServiceImpl extends ServiceImpl<SmsTemplateMapper, SmsTe
                                     .setType(t.getType())
                                     .setStatus(t.getStatus())
                                     .setContent(t.getContent())
-                                    .setCreateTime(t.getCreateTime())
-                                    .setCreateBy("SYSTEM")
-                                    .setUpdateBy("SYSTEM")
+                                    .setCreatedTime(t.getCreatedTime())
+                                    .setCreatedByType(OperatorType.SYSTEM)
+                                    .setUpdatedByType(OperatorType.SYSTEM)
                             )
                             .collect(Collectors.toList());
                     Assert.isTrue(saveBatch(smsTemplateList), "Strix SMS: 同步增加模板失败.");

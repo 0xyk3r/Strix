@@ -56,22 +56,27 @@ public class MybatisPlusConfig {
 
         @Override
         public void insertFill(MetaObject metaObject) {
-            this.strictInsertFill(metaObject, "createTime", LocalDateTime.class, LocalDateTime.now());
-            this.strictInsertFill(metaObject, "updateTime", LocalDateTime.class, LocalDateTime.now());
+            this.strictInsertFill(metaObject, "createdTime", LocalDateTime.class, LocalDateTime.now());
+            this.strictInsertFill(metaObject, "updatedTime", LocalDateTime.class, LocalDateTime.now());
             this.strictInsertFill(metaObject, "deletedStatus", Integer.class, 0);
 
-            String loginManagerId = Optional.ofNullable(SecurityUtils.getManagerId()).orElse("0");
-            this.strictInsertFill(metaObject, "createBy", String.class, loginManagerId);
-            this.strictInsertFill(metaObject, "updateBy", String.class, loginManagerId);
+            short operatorType = SecurityUtils.getOperatorType();
+            String operatorId = Optional.ofNullable(SecurityUtils.getOperatorId()).orElse("0");
+            this.strictInsertFill(metaObject, "createdByType", Short.class, operatorType);
+            this.strictInsertFill(metaObject, "updatedByType", Short.class, operatorType);
+            this.strictInsertFill(metaObject, "createdBy", String.class, operatorId);
+            this.strictInsertFill(metaObject, "updatedBy", String.class, operatorId);
         }
 
         @Override
         public void updateFill(MetaObject metaObject) {
             // strictUpdateFill 在原对象有值时，不会覆盖原值，所以这里使用 setFieldValByName
-            this.setFieldValByName("updateTime", LocalDateTime.now(), metaObject);
+            this.setFieldValByName("updatedTime", LocalDateTime.now(), metaObject);
 
-            String loginManagerId = Optional.ofNullable(SecurityUtils.getManagerId()).orElse("0");
-            this.setFieldValByName("updateBy", loginManagerId, metaObject);
+            short operatorType = SecurityUtils.getOperatorType();
+            String operatorId = Optional.ofNullable(SecurityUtils.getOperatorId()).orElse("0");
+            this.setFieldValByName("updatedByType", operatorType, metaObject);
+            this.setFieldValByName("updatedBy", operatorId, metaObject);
         }
 
     }

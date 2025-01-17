@@ -22,7 +22,7 @@ public class OssFileGroupListResp extends BasePageResp {
 
     public OssFileGroupListResp(List<OssFileGroup> data, Long total) {
         fileGroups = data.stream().map(d ->
-                new OssFileGroupItem(d.getId(), d.getKey(), d.getConfigKey(), d.getName(), d.getBucketName(), d.getBucketDomain(), d.getBaseDir(), d.getAllowExtension(), d.getSecretType(), d.getSecretLevel(), d.getRemark(), d.getCreateTime())
+                new OssFileGroupItem(d.getId(), d.getKey(), d.getConfigKey(), d.getName(), d.getBucketName(), d.getBucketDomain(), d.getBaseDir(), d.getAllowExtension(), d.getSecretType(), d.getSecretLevel(), d.getRemark(), d.getCreatedTime())
         ).collect(Collectors.toList());
         this.setTotal(total);
     }
@@ -54,7 +54,7 @@ public class OssFileGroupListResp extends BasePageResp {
 
         private String remark;
 
-        private LocalDateTime createTime;
+        private LocalDateTime createdTime;
 
     }
 

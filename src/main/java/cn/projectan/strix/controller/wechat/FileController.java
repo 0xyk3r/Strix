@@ -37,7 +37,7 @@ public class FileController extends BaseWechatController {
     public RetResult<Object> uploadImage(String imageBase64) {
         Assert.hasText(imageBase64, "参数错误");
 
-        OssFile ossFile = ossFileService.upload("Wechat", imageBase64, getLoginWechatUserId());
+        OssFile ossFile = ossFileService.upload("Wechat", imageBase64);
         return RetBuilder.success(Map.of("fileId", ossFile.getId()));
     }
 

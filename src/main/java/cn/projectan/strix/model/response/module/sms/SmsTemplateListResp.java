@@ -24,7 +24,7 @@ public class SmsTemplateListResp extends BasePageResp {
 
     public SmsTemplateListResp(List<SmsTemplate> data, Long total) {
         templates = data.stream().map(d ->
-                new SmsTemplateItem(d.getId(), d.getConfigKey(), d.getCode(), d.getName(), d.getType(), d.getStatus(), d.getContent(), d.getCreateTime())
+                new SmsTemplateItem(d.getId(), d.getConfigKey(), d.getCode(), d.getName(), d.getType(), d.getStatus(), d.getContent(), d.getCreatedTime())
         ).collect(Collectors.toList());
         this.setTotal(total);
     }
@@ -48,7 +48,7 @@ public class SmsTemplateListResp extends BasePageResp {
 
         private String content;
 
-        private LocalDateTime createTime;
+        private LocalDateTime createdTime;
 
     }
 }

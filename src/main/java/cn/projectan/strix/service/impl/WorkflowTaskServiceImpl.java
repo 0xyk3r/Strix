@@ -59,7 +59,7 @@ public class WorkflowTaskServiceImpl extends ServiceImpl<WorkflowTaskMapper, Wor
                 .setWorkflowInstanceId(instance.getId())
                 .setNodeId(instance.getCurrentNodeId())
                 .setNodeType(instance.getCurrentNodeType())
-                .setOperatorId(isRoot ? instance.getCreateBy() : null)
+                .setOperatorId(isRoot ? instance.getCreatedBy() : null)
                 .setOperationType(operationType)
                 .setStartTime(isRoot ? instance.getStartTime() : LocalDateTime.now())
                 .setEndTime(isDone ? instance.getEndTime() : (isRoot || isAutoComplete ? LocalDateTime.now() : null));

@@ -80,7 +80,7 @@ public class OssFileGroupController extends BaseSystemController {
                 ossFileGroup.getSecretType(),
                 ossFileGroup.getSecretLevel(),
                 ossFileGroup.getRemark(),
-                ossFileGroup.getCreateTime()
+                ossFileGroup.getCreatedTime()
         ));
     }
 

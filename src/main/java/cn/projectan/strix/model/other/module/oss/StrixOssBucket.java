@@ -25,6 +25,6 @@ public class StrixOssBucket {
 
     private String storageClass;
 
-    private LocalDateTime createTime;
+    private LocalDateTime createdTime;
 
 }

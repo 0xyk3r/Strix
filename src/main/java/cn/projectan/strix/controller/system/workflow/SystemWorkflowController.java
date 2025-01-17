@@ -153,7 +153,7 @@ public class SystemWorkflowController extends BaseSystemController {
     @StrixLog(operationGroup = "工作区", operationName = "查询我的工作区已发起任务列表")
     public RetResult<Object> initiated(BasePageReq<WorkflowInstance> req) {
         Page<WorkflowInstance> page = workflowInstanceService.lambdaQuery()
-                .eq(WorkflowInstance::getCreateBy, loginManagerId())
+                .eq(WorkflowInstance::getCreatedBy, loginManagerId())
                 .page(req.getPage());
 
         return RetBuilder.success(page);

@@ -59,7 +59,7 @@ public class FileController extends BaseSystemController {
             File tempFile = File.createTempFile("temp", file.getOriginalFilename());
             IoUtil.copy(file.getInputStream(), FileUtil.getOutputStream(tempFile));
 
-            OssFile ossFile = ossFileService.upload(groupId, tempFile, loginManagerId());
+            OssFile ossFile = ossFileService.upload(groupId, tempFile);
 
             //noinspection ResultOfMethodCallIgnored
             tempFile.delete();

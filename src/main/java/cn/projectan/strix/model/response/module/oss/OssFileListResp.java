@@ -22,7 +22,7 @@ public class OssFileListResp extends BasePageResp {
 
     public OssFileListResp(List<OssFile> data, Long total) {
         files = data.stream().map(d ->
-                new OssFileItem(d.getId(), d.getConfigKey(), d.getGroupKey(), d.getPath(), d.getSize(), d.getExt(), d.getUploaderId(), d.getCreateTime())
+                new OssFileItem(d.getId(), d.getConfigKey(), d.getGroupKey(), d.getPath(), d.getSize(), d.getExt(), d.getCreatedBy(), d.getCreatedTime())
         ).collect(Collectors.toList());
         this.setTotal(total);
     }
@@ -46,7 +46,7 @@ public class OssFileListResp extends BasePageResp {
 
         private String uploaderId;
 
-        private LocalDateTime createTime;
+        private LocalDateTime createdTime;
 
     }
 

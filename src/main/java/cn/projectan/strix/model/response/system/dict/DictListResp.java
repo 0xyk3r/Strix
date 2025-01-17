@@ -24,7 +24,7 @@ public class DictListResp extends BasePageResp {
 
     public DictListResp(List<Dict> data, long total) {
         items = data.stream().map(d ->
-                new DictItem(d.getId(), d.getKey(), d.getName(), d.getDataType(), d.getStatus(), d.getRemark(), d.getVersion(), d.getProvided(), d.getCreateTime())
+                new DictItem(d.getId(), d.getKey(), d.getName(), d.getDataType(), d.getStatus(), d.getRemark(), d.getVersion(), d.getProvided(), d.getCreatedTime())
         ).collect(Collectors.toList());
         this.setTotal(total);
     }
@@ -50,7 +50,7 @@ public class DictListResp extends BasePageResp {
 
         private Integer provided;
 
-        private LocalDateTime createTime;
+        private LocalDateTime createdTime;
 
     }
 

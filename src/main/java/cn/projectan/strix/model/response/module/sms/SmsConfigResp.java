@@ -30,7 +30,7 @@ public class SmsConfigResp {
 
     private String remark;
 
-    private LocalDateTime createTime;
+    private LocalDateTime createdTime;
 
     private List<SmsSignListResp.SmsSignItem> signs;
 

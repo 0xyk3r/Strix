@@ -1,5 +1,6 @@
 package cn.projectan.strix.core.ss;
 
+import cn.projectan.strix.core.ss.details.LoginSystemManager;
 import cn.projectan.strix.util.SecurityUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -7,6 +8,7 @@ import org.springframework.util.StringUtils;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -28,17 +30,11 @@ public class SystemManagerSecurityService {
         if (SecurityUtils.isSuperAdmin()) {
             return true;
         }
-
         if (!StringUtils.hasText(permission)) {
             return false;
         }
-
-        Set<String> hasPermissionSet = SecurityUtils.getManagerAllPermissions();
-        if (CollectionUtils.isEmpty(hasPermissionSet)) {
-            return false;
-        }
-
-        return hasPermissionSet.contains(permission);
+        Set<String> hasPermissionSet = SecurityUtils.getManagerPermissions();
+        return !CollectionUtils.isEmpty(hasPermissionSet) && hasPermissionSet.contains(permission);
     }
 
     /**
@@ -51,19 +47,12 @@ public class SystemManagerSecurityService {
         if (SecurityUtils.isSuperAdmin()) {
             return true;
         }
-
         if (permissions == null || permissions.length == 0) {
             return false;
         }
-
         List<String> permissionList = Arrays.asList(permissions);
-
-        Set<String> hasPermissionSet = SecurityUtils.getManagerAllPermissions();
-        if (CollectionUtils.isEmpty(hasPermissionSet)) {
-            return false;
-        }
-
-        return hasPermissionSet.containsAll(permissionList);
+        Set<String> hasPermissionSet = SecurityUtils.getManagerPermissions();
+        return !CollectionUtils.isEmpty(hasPermissionSet) && hasPermissionSet.containsAll(permissionList);
     }
 
     /**
@@ -76,19 +65,12 @@ public class SystemManagerSecurityService {
         if (SecurityUtils.isSuperAdmin()) {
             return true;
         }
-
         if (permissions == null || permissions.length == 0) {
             return false;
         }
-
         List<String> permissionList = Arrays.asList(permissions);
-
-        Set<String> hasPermissionSet = SecurityUtils.getManagerAllPermissions();
-        if (CollectionUtils.isEmpty(hasPermissionSet)) {
-            return false;
-        }
-
-        return hasPermissionSet.stream().anyMatch(permissionList::contains);
+        Set<String> hasPermissionSet = SecurityUtils.getManagerPermissions();
+        return !CollectionUtils.isEmpty(hasPermissionSet) && hasPermissionSet.stream().anyMatch(permissionList::contains);
     }
 
     /**
@@ -103,17 +85,11 @@ public class SystemManagerSecurityService {
         if (SecurityUtils.isSuperAdmin()) {
             return true;
         }
-
         if (!StringUtils.hasText(menu)) {
             return false;
         }
-
-        List<String> hasMenuKeys = SecurityUtils.getManagerMenuKeys();
-        if (CollectionUtils.isEmpty(hasMenuKeys)) {
-            return false;
-        }
-
-        return hasMenuKeys.contains(menu);
+        List<String> hasMenuKeys = Optional.ofNullable(SecurityUtils.getSystemManagerLoginInfo()).map(LoginSystemManager::getMenusKeys).orElse(null);
+        return !CollectionUtils.isEmpty(hasMenuKeys) && hasMenuKeys.contains(menu);
     }
 
     /**
@@ -128,19 +104,12 @@ public class SystemManagerSecurityService {
         if (SecurityUtils.isSuperAdmin()) {
             return true;
         }
-
         if (menus == null || menus.length == 0) {
             return false;
         }
-
-        List<String> hasMenuKeys = SecurityUtils.getManagerMenuKeys();
-        if (CollectionUtils.isEmpty(hasMenuKeys)) {
-            return false;
-        }
-
+        List<String> hasMenuKeys = Optional.ofNullable(SecurityUtils.getSystemManagerLoginInfo()).map(LoginSystemManager::getMenusKeys).orElse(null);
         List<String> menuList = Arrays.asList(menus);
-
-        return hasMenuKeys.stream().anyMatch(menuList::contains);
+        return !CollectionUtils.isEmpty(hasMenuKeys) && hasMenuKeys.stream().anyMatch(menuList::contains);
     }
 
 }

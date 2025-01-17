@@ -24,14 +24,14 @@ public class WorkflowConfigResp {
 
     private String content;
 
-    private LocalDateTime createTime;
+    private LocalDateTime createdTime;
 
     public WorkflowConfigResp(WorkflowConfig data) {
         this.id = data.getId();
         this.workflowId = data.getWorkflowId();
         this.version = data.getVersion();
         this.content = data.getContent();
-        this.createTime = data.getCreateTime();
+        this.createdTime = data.getCreatedTime();
     }
 
 }

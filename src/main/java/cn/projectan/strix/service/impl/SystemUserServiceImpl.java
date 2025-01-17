@@ -1,6 +1,7 @@
 package cn.projectan.strix.service.impl;
 
 import cn.projectan.strix.mapper.SystemUserMapper;
+import cn.projectan.strix.model.constant.OperatorType;
 import cn.projectan.strix.model.db.SystemUser;
 import cn.projectan.strix.model.db.SystemUserRelation;
 import cn.projectan.strix.model.dict.SystemUserStatus;
@@ -37,12 +38,12 @@ public class SystemUserServiceImpl extends ServiceImpl<SystemUserMapper, SystemU
                         .exists(),
                 "昵称或手机号码已被使用，请更换后重试");
 
-        SystemUser systemUser = new SystemUser();
-        systemUser.setNickname(nickname);
-        systemUser.setStatus(SystemUserStatus.NORMAL);
-        systemUser.setPhoneNumber(phoneNumber);
-        systemUser.setCreateBy("CreateUser");
-        systemUser.setUpdateBy("CreateUser");
+        SystemUser systemUser = new SystemUser()
+                .setNickname(nickname)
+                .setStatus(SystemUserStatus.NORMAL)
+                .setPhoneNumber(phoneNumber)
+                .setCreatedByType(OperatorType.SYSTEM)
+                .setUpdatedByType(OperatorType.SYSTEM);
         Assert.isTrue(save(systemUser), "创建用户失败，请稍后重试");
         return systemUser;
     }
@@ -60,15 +61,14 @@ public class SystemUserServiceImpl extends ServiceImpl<SystemUserMapper, SystemU
                         .exists(),
                 "已绑定过或账号已被其他用户绑定，不能重复绑定");
 
-        SystemUserRelation systemUserRelation = new SystemUserRelation();
-        systemUserRelation.setRelationType(relationType);
-        systemUserRelation.setRelationId(oauthUserId);
-        systemUserRelation.setSystemUserId(systemUserId);
-        systemUserRelation.setCreateBy("CreateUser");
-        systemUserRelation.setUpdateBy("CreateUser");
+        SystemUserRelation systemUserRelation = new SystemUserRelation()
+                .setRelationType(relationType)
+                .setRelationId(oauthUserId)
+                .setSystemUserId(systemUserId)
+                .setCreatedByType(OperatorType.SYSTEM)
+                .setUpdatedByType(OperatorType.SYSTEM);
 
         redisUtil.del("strix:system:user:userRelation::" + relationType + "-" + oauthUserId);
-
         systemUserRelationService.save(systemUserRelation);
     }
 

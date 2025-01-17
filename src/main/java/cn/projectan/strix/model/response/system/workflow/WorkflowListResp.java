@@ -31,7 +31,7 @@ public class WorkflowListResp extends BasePageResp {
                                 .sorted((a, b) -> b.getVersion().compareTo(a.getVersion()))
                                 .map(WorkflowConfigResp::new)
                                 .collect(Collectors.toList()),
-                        d.getCreateTime()
+                        d.getCreatedTime()
                 ))
                 .collect(Collectors.toList());
         this.setTotal(total);
@@ -48,7 +48,7 @@ public class WorkflowListResp extends BasePageResp {
 
         private List<WorkflowConfigResp> configs;
 
-        private LocalDateTime createTime;
+        private LocalDateTime createdTime;
 
     }
 

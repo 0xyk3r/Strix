@@ -54,7 +54,7 @@ public class SystemPermissionController extends BaseSystemController {
     @StrixLog(operationGroup = "系统权限", operationName = "查询权限列表")
     public RetResult<SystemPermissionListResp> getSystemPermissionList() {
         List<SystemPermission> systemPermissionList = systemPermissionService.lambdaQuery()
-                .orderByAsc(SystemPermission::getCreateTime)
+                .orderByAsc(SystemPermission::getCreatedTime)
                 .list();
 
         return RetBuilder.success(new SystemPermissionListResp(systemPermissionList));

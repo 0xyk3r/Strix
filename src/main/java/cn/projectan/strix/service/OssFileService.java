@@ -52,20 +52,18 @@ public interface OssFileService extends IService<OssFile> {
      *
      * @param groupKey   文件组key
      * @param file       文件
-     * @param uploaderId 上传者id
      * @return 上传成功的文件信息
      */
-    OssFile upload(String groupKey, File file, String uploaderId);
+    OssFile upload(String groupKey, File file);
 
     /**
      * 上传文件
      *
      * @param groupKey   文件组key
      * @param fileBase64 文件base64
-     * @param uploaderId 上传者id
      * @return 上传成功的文件信息
      */
-    OssFile upload(String groupKey, String fileBase64, String uploaderId);
+    OssFile upload(String groupKey, String fileBase64);
 
     /**
      * 下载文件 (无权限校验)

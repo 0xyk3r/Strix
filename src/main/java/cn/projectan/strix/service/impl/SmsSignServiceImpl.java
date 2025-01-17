@@ -1,6 +1,7 @@
 package cn.projectan.strix.service.impl;
 
 import cn.projectan.strix.mapper.SmsSignMapper;
+import cn.projectan.strix.model.constant.OperatorType;
 import cn.projectan.strix.model.db.SmsSign;
 import cn.projectan.strix.model.other.module.sms.StrixSmsSign;
 import cn.projectan.strix.service.SmsSignService;
@@ -50,9 +51,9 @@ public class SmsSignServiceImpl extends ServiceImpl<SmsSignMapper, SmsSign> impl
                                     .setConfigKey(configKey)
                                     .setName(s.getName())
                                     .setStatus(s.getStatus())
-                                    .setCreateTime(s.getCreateTime())
-                                    .setCreateBy("SYSTEM")
-                                    .setUpdateBy("SYSTEM")
+                                    .setCreatedTime(s.getCreatedTime())
+                                    .setCreatedByType(OperatorType.SYSTEM)
+                                    .setUpdatedByType(OperatorType.SYSTEM)
                             )
                             .collect(Collectors.toList());
                     Assert.isTrue(saveBatch(smsSignList), "Strix SMS: 同步增加签名失败.");

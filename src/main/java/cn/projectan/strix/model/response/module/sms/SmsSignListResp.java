@@ -24,7 +24,7 @@ public class SmsSignListResp extends BasePageResp {
 
     public SmsSignListResp(List<SmsSign> data, Long total) {
         signs = data.stream().map(d ->
-                new SmsSignItem(d.getId(), d.getConfigKey(), d.getName(), d.getStatus(), d.getCreateTime())
+                new SmsSignItem(d.getId(), d.getConfigKey(), d.getName(), d.getStatus(), d.getCreatedTime())
         ).collect(Collectors.toList());
         this.setTotal(total);
     }
@@ -42,7 +42,7 @@ public class SmsSignListResp extends BasePageResp {
 
         private Integer status;
 
-        private LocalDateTime createTime;
+        private LocalDateTime createdTime;
 
     }
 

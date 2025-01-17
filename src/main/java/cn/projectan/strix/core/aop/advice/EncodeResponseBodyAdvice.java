@@ -50,10 +50,14 @@ public class EncodeResponseBodyAdvice implements ResponseBodyAdvice<Object> {
         try {
             if (showResponse) {
                 String fullMethodName = methodParameter.getContainingClass().getName() + "." + methodParameter.getMethod().getName();
-                log.info("\n============================================================\n" +
-                        "响应数据: " + fullMethodName + "\n" +
-                        objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(body) +
-                        "\n============================================================");
+                log.info("""
+                                
+                                ============================================================
+                                响应函数: {}
+                                响应数据:
+                                {}
+                                ============================================================""",
+                        fullMethodName, objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(body));
             }
             return apiSecurity.encrypt(body);
         } catch (Exception e) {

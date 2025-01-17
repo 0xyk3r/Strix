@@ -24,7 +24,7 @@ public class SmsLogListResp extends BasePageResp {
 
     public SmsLogListResp(List<SmsLog> data, Long total) {
         logs = data.stream().map(d ->
-                new SmsLogItem(d.getId(), d.getConfigKey(), d.getPlatform(), d.getPhoneNumber(), d.getRequesterIp(), d.getSignName(), d.getTemplateCode(), d.getTemplateParam(), d.getStatus(), d.getPlatformResponse(), d.getCreateTime())
+                new SmsLogItem(d.getId(), d.getConfigKey(), d.getPlatform(), d.getPhoneNumber(), d.getRequesterIp(), d.getSignName(), d.getTemplateCode(), d.getTemplateParam(), d.getStatus(), d.getPlatformResponse(), d.getCreatedTime())
         ).collect(Collectors.toList());
         this.setTotal(total);
     }
@@ -54,7 +54,7 @@ public class SmsLogListResp extends BasePageResp {
 
         private String platformResponse;
 
-        private LocalDateTime createTime;
+        private LocalDateTime createdTime;
 
     }
 
