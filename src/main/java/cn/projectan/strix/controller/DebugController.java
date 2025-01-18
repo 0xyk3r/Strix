@@ -1,9 +1,12 @@
 package cn.projectan.strix.controller;
 
+import cn.hutool.core.lang.Assert;
 import cn.projectan.strix.core.ret.RetBuilder;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.model.annotation.Anonymous;
 import cn.projectan.strix.model.annotation.IgnoreDataEncryption;
+import cn.projectan.strix.model.response.common.CommonOperatorInfoResp;
+import cn.projectan.strix.service.OperatorService;
 import cn.projectan.strix.service.WorkflowInstanceService;
 import cn.projectan.strix.service.WorkflowTaskService;
 import cn.projectan.strix.util.SpringUtil;
@@ -34,6 +37,7 @@ public class DebugController extends BaseController {
 
     private final WorkflowInstanceService workflowInstanceService;
     private final WorkflowTaskService workflowTaskService;
+    private final OperatorService operatorService;
 
     @GetMapping("wf/create/{workflowId}")
     public RetResult<Object> create(@PathVariable String workflowId) {
@@ -55,6 +59,13 @@ public class DebugController extends BaseController {
     public void shutdown() {
         ApplicationContext context = SpringUtil.getApplicationContext();
         new Thread(() -> SpringApplication.exit(context)).start();
+    }
+
+    @GetMapping("operator/{operatorType}/{operatorId}")
+    public RetResult<Object> queryOperatorInfo(@PathVariable Short operatorType, @PathVariable String operatorId) {
+        CommonOperatorInfoResp operatorInfoResp = operatorService.queryOperatorInfo(operatorType, operatorId);
+        Assert.notNull(operatorInfoResp, "未找到该人员信息");
+        return RetBuilder.success(operatorInfoResp);
     }
 
 }

@@ -32,4 +32,9 @@ public class RedisKeyConstants {
      */
     public static final String HASH_NAME_FETCHER_PREFIX = "strix:name-fetcher::";
 
+    /**
+     * 数据操作人信息映射器
+     */
+    public static final String HASH_OPERATOR_INFO_PREFIX = "strix:operator-info::";
+
 }
