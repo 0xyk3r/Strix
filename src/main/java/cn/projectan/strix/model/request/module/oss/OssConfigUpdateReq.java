@@ -44,6 +44,14 @@ public class OssConfigUpdateReq {
     private Integer platform;
 
     /**
+     * 存储服务地域
+     */
+    @NotEmpty(groups = {InsertGroup.class, UpdateGroup.class}, message = "存储服务地域不可为空")
+    @Size(groups = {InsertGroup.class, UpdateGroup.class}, min = 1, max = 32, message = "存储服务地域长度不符合要求")
+    @UpdateField
+    private String region;
+
+    /**
      * 公网连接域名
      */
     @NotEmpty(groups = {InsertGroup.class, UpdateGroup.class}, message = "公网连接域名不可为空")

@@ -75,7 +75,7 @@ public class OssFileServiceImpl extends ServiceImpl<OssFileMapper, OssFile> impl
             StrixOssClient client = strixOssStore.getInstance(ossFileGroup.getConfigKey());
             Assert.notNull(client, "获取文件URL失败. OSS服务实例不存在");
 
-            String url = client.getUrlPublic(ossFileGroup.getBucketName(), ossFile.getPath(), 300);
+            String url = client.getPublic().getUrl(ossFileGroup.getBucketName(), ossFile.getPath(), 300);
             // 处理自定义域名
             if (StringUtils.hasText(url) && StringUtils.hasText(ossFileGroup.getBucketDomain())) {
                 Matcher matcher = RegexUtils.DOMAIN_PATTERN.matcher(url);
@@ -158,7 +158,7 @@ public class OssFileServiceImpl extends ServiceImpl<OssFileMapper, OssFile> impl
             }
             filePath.append(SnowflakeUtil.nextOssFileName()).append(ext);
 
-            client.uploadPrivate(ossFileGroup.getBucketName(), filePath.toString(), imageByte);
+            client.getPrivate().upload(ossFileGroup.getBucketName(), filePath.toString(), imageByte);
 
             // FIXME 验证上传人信息是否填充正确
             OssFile ossFile = new OssFile()
@@ -189,7 +189,7 @@ public class OssFileServiceImpl extends ServiceImpl<OssFileMapper, OssFile> impl
         StrixOssClient client = strixOssStore.getInstance(ossFileGroup.getConfigKey());
         Assert.notNull(client, "下载文件失败. OSS服务实例不存在");
 
-        return client.downloadPrivate(ossFileGroup.getBucketName(), ossFile.getPath(), saveFile);
+        return client.getPrivate().download(ossFileGroup.getBucketName(), ossFile.getPath(), saveFile);
     }
 
     @Override
@@ -221,7 +221,7 @@ public class OssFileServiceImpl extends ServiceImpl<OssFileMapper, OssFile> impl
             }
             StrixOssClient client = strixOssStore.getInstance(ossFileGroup.getConfigKey());
             Assert.notNull(client, "上传文件失败. OSS服务实例不存在");
-            client.deletePrivate(ossFileGroup.getBucketName(), ossFile.getPath());
+            client.getPrivate().delete(ossFileGroup.getBucketName(), ossFile.getPath());
         } catch (Exception e) {
             log.error("删除文件失败", e);
         }

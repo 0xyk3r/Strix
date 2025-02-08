@@ -71,7 +71,7 @@ public class OssBucketServiceImpl extends ServiceImpl<OssBucketMapper, OssBucket
     public void createBucket(String configKey, String bucketName, String storageClass) {
         StrixOssClient instance = SpringUtil.getBean(StrixOssStore.class).getInstance(configKey);
         Assert.notNull(instance, "创建存储空间失败. OSS服务配置不存在");
-        instance.createBucket(bucketName, storageClass);
+        instance.getPrivate().createBucket(bucketName, storageClass);
     }
 
 }

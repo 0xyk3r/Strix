@@ -1,8 +1,6 @@
 package cn.projectan.strix.core.module.oss;
 
 import cn.projectan.strix.model.other.module.oss.StrixOssBucket;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.io.File;
 import java.util.List;
@@ -13,34 +11,84 @@ import java.util.List;
  * @author ProjectAn
  * @since 2023/5/22 15:21
  */
-@Getter
-@Setter
-public abstract class StrixOssClient {
+public interface StrixOssClient {
 
-    public abstract Object getPublic();
+    /**
+     * 获取对象存储服务公网操作集
+     *
+     * @return 公网操作集
+     */
+    Operations getPublic();
 
-    public abstract Object getPrivate();
+    /**
+     * 获取对象存储服务私网操作集
+     *
+     * @return 私网操作集
+     */
+    Operations getPrivate();
 
-    public abstract void uploadPublic(String bucketName, String objectName, byte[] buf);
+    /**
+     * 关闭客户端
+     */
+    void close();
 
-    public abstract void uploadPrivate(String bucketName, String objectName, byte[] buf);
+    /**
+     * Strix OSS 操作集
+     */
+    interface Operations {
 
-    public abstract File downloadPublic(String bucketName, String objectName, String filePath);
+        /**
+         * 上传文件
+         *
+         * @param bucketName 桶名称
+         * @param objectName 对象名称
+         * @param buf        文件字节数组
+         */
+        void upload(String bucketName, String objectName, byte[] buf);
 
-    public abstract File downloadPrivate(String bucketName, String objectName, String filePath);
+        /**
+         * 下载文件
+         *
+         * @param bucketName 桶名称
+         * @param objectName 对象名称
+         * @param filePath   文件路径
+         * @return 文件
+         */
+        File download(String bucketName, String objectName, String filePath);
 
-    public abstract String getUrlPublic(String bucketName, String objectName, long expires);
+        /**
+         * 获取文件 URL
+         *
+         * @param bucketName 桶名称
+         * @param objectName 对象名称
+         * @param expires    过期时间
+         * @return 文件 URL
+         */
+        String getUrl(String bucketName, String objectName, long expires);
 
-    public abstract String getUrlPrivate(String bucketName, String objectName, long expires);
+        /**
+         * 删除文件
+         *
+         * @param bucketName 桶名称
+         * @param objectName 对象名称
+         */
+        void delete(String bucketName, String objectName);
 
-    public abstract void deletePublic(String bucketName, String objectName);
+        /**
+         * 获取桶列表
+         *
+         * @return 桶列表
+         */
+        List<StrixOssBucket> getBucketList();
 
-    public abstract void deletePrivate(String bucketName, String objectName);
+        /**
+         * 创建桶
+         *
+         * @param bucketName   桶名称
+         * @param storageClass 存储类型
+         */
+        void createBucket(String bucketName, String storageClass);
 
-    public abstract List<StrixOssBucket> getBucketList();
-
-    public abstract void createBucket(String bucketName, String storageClass);
-
-    public abstract void close();
+    }
 
 }
