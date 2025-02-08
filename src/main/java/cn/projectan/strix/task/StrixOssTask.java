@@ -65,7 +65,7 @@ public class StrixOssTask {
     public void refreshBucketList() {
         Set<String> instanceKeySet = strixOssStore.getInstanceKeySet();
         instanceKeySet.forEach(key -> {
-            List<StrixOssBucket> bucketList = strixOssStore.getInstance(key).getBucketList();
+            List<StrixOssBucket> bucketList = strixOssStore.getInstance(key).getPrivate().getBucketList();
             ossBucketService.syncBucketList(key, bucketList);
         });
     }

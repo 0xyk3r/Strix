@@ -29,156 +29,29 @@ import java.util.stream.Collectors;
  * @since 2023/5/22 15:37
  */
 @Slf4j
-public class AliyunOssClient extends StrixOssClient {
+public class AliyunOssClient implements StrixOssClient {
 
-    /**
-     * 公网 OSS 客户端
-     */
     private OSS publicClient;
-
-    /**
-     * 私网 OSS 客户端
-     */
+    private final DefaultOperations publicOperations;
     private OSS privateClient;
+    private final DefaultOperations privateOperations;
 
     public AliyunOssClient(OSS publicClient, OSS privateClient) {
         super();
         this.publicClient = publicClient;
+        this.publicOperations = new DefaultOperations(publicClient);
         this.privateClient = privateClient;
+        this.privateOperations = new DefaultOperations(privateClient);
     }
 
     @Override
-    public Object getPublic() {
-        return publicClient;
+    public DefaultOperations getPublic() {
+        return publicOperations;
     }
 
     @Override
-    public Object getPrivate() {
-        return privateClient;
-    }
-
-    @Override
-    public void uploadPublic(String bucketName, String objectName, byte[] buf) {
-        try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(buf)) {
-            publicClient.putObject(bucketName, objectName, byteArrayInputStream);
-        } catch (IOException e) {
-            log.error(e.getMessage(), e);
-            throw new StrixException("Strix OSS: 上传文件失败.");
-        }
-    }
-
-    @Override
-    public void uploadPrivate(String bucketName, String objectName, byte[] buf) {
-        try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(buf)) {
-            privateClient.putObject(bucketName, objectName, byteArrayInputStream);
-        } catch (IOException e) {
-            log.error(e.getMessage(), e);
-            throw new StrixException("Strix OSS: 上传文件失败.");
-        }
-    }
-
-    @Override
-    public File downloadPublic(String bucketName, String objectName, String filePath) {
-        try {
-            File file = new File(filePath);
-            publicClient.getObject(new GetObjectRequest(bucketName, objectName), file);
-            Assert.isTrue(file.exists(), "Strix OSS: 下载文件失败.");
-            return file;
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            throw new StrixException("Strix OSS: 下载文件失败.");
-        }
-    }
-
-    @Override
-    public File downloadPrivate(String bucketName, String objectName, String filePath) {
-        try {
-            File file = new File(filePath);
-            privateClient.getObject(new GetObjectRequest(bucketName, objectName), file);
-            Assert.isTrue(file.exists(), "Strix OSS: 下载文件失败.");
-            return file;
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            throw new StrixException("Strix OSS: 下载文件失败.");
-        }
-    }
-
-    @Override
-    public String getUrlPublic(String bucketName, String objectName, long expires) {
-        try {
-            Date expiration = new Date(System.currentTimeMillis() + (expires * 1000));
-            URL url = publicClient.generatePresignedUrl(bucketName, objectName, expiration);
-            Assert.notNull(url, "Strix OSS: 获取文件URL失败.");
-            return url.toString();
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            throw new StrixException("Strix OSS: 获取文件URL失败.");
-        }
-    }
-
-    @Override
-    public String getUrlPrivate(String bucketName, String objectName, long expires) {
-        try {
-            Date expiration = new Date(System.currentTimeMillis() + (expires * 1000));
-            URL url = privateClient.generatePresignedUrl(bucketName, objectName, expiration);
-            Assert.notNull(url, "Strix OSS: 获取文件URL失败.");
-            return url.toString();
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            throw new StrixException("Strix OSS: 获取文件URL失败.");
-        }
-    }
-
-    @Override
-    public void deletePublic(String bucketName, String objectName) {
-        try {
-            publicClient.deleteObject(bucketName, objectName);
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            throw new StrixException("Strix OSS: 删除文件失败.");
-        }
-    }
-
-    @Override
-    public void deletePrivate(String bucketName, String objectName) {
-        try {
-            privateClient.deleteObject(bucketName, objectName);
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            throw new StrixException("Strix OSS: 删除文件失败.");
-        }
-    }
-
-    @Override
-    public List<StrixOssBucket> getBucketList() {
-        List<Bucket> buckets = privateClient.listBuckets();
-
-        return Optional.ofNullable(buckets).orElse(Collections.emptyList()).stream().map(b ->
-                new StrixOssBucket(
-                        b.getName(),
-                        b.getExtranetEndpoint(),
-                        b.getIntranetEndpoint(),
-                        b.getRegion(),
-                        b.getStorageClass().toString(),
-                        b.getCreationDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime()
-                )).collect(Collectors.toList());
-    }
-
-    @Override
-    public void createBucket(String bucketName, String storageClass) {
-        try {
-            CreateBucketRequest createBucketRequest = new CreateBucketRequest(bucketName);
-            if (StringUtils.hasText(storageClass)) {
-                createBucketRequest.setStorageClass(StorageClass.parse(storageClass));
-            }
-            privateClient.createBucket(createBucketRequest);
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            if (e.getMessage().contains("BucketAlreadyExists")) {
-                throw new StrixException("Strix OSS: Bucket名称不可用，存储服务提供商要求Bucket名称不得与其他用户重复.");
-            }
-            throw new StrixException("Strix OSS: 创建Bucket失败.");
-        }
+    public DefaultOperations getPrivate() {
+        return privateOperations;
     }
 
     @Override
@@ -190,6 +63,93 @@ public class AliyunOssClient extends StrixOssClient {
         if (privateClient != null) {
             privateClient.shutdown();
             privateClient = null;
+        }
+    }
+
+    public static class DefaultOperations implements StrixOssClient.Operations {
+
+        private final OSS client;
+
+        public DefaultOperations(OSS client) {
+            this.client = client;
+        }
+
+        @Override
+        public void upload(String bucketName, String objectName, byte[] buf) {
+            try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(buf)) {
+                client.putObject(bucketName, objectName, byteArrayInputStream);
+            } catch (IOException e) {
+                log.error(e.getMessage(), e);
+                throw new StrixException("Strix OSS: 上传文件失败.");
+            }
+        }
+
+        @Override
+        public File download(String bucketName, String objectName, String filePath) {
+            try {
+                File file = new File(filePath);
+                client.getObject(new GetObjectRequest(bucketName, objectName), file);
+                Assert.isTrue(file.exists(), "Strix OSS: 下载文件失败.");
+                return file;
+            } catch (Exception e) {
+                log.error(e.getMessage(), e);
+                throw new StrixException("Strix OSS: 下载文件失败.");
+            }
+        }
+
+        @Override
+        public String getUrl(String bucketName, String objectName, long expires) {
+            try {
+                Date expiration = new Date(System.currentTimeMillis() + (expires * 1000));
+                URL url = client.generatePresignedUrl(bucketName, objectName, expiration);
+                Assert.notNull(url, "Strix OSS: 获取文件URL失败.");
+                return url.toString();
+            } catch (Exception e) {
+                log.error(e.getMessage(), e);
+                throw new StrixException("Strix OSS: 获取文件URL失败.");
+            }
+        }
+
+        @Override
+        public void delete(String bucketName, String objectName) {
+            try {
+                client.deleteObject(bucketName, objectName);
+            } catch (Exception e) {
+                log.error(e.getMessage(), e);
+                throw new StrixException("Strix OSS: 删除文件失败.");
+            }
+        }
+
+        @Override
+        public List<StrixOssBucket> getBucketList() {
+            List<Bucket> buckets = client.listBuckets();
+
+            return Optional.ofNullable(buckets).orElse(Collections.emptyList()).stream().map(b ->
+                    new StrixOssBucket(
+                            b.getName(),
+                            b.getExtranetEndpoint(),
+                            b.getIntranetEndpoint(),
+                            b.getRegion(),
+                            b.getStorageClass().toString(),
+                            b.getCreationDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime()
+                    )).collect(Collectors.toList());
+        }
+
+        @Override
+        public void createBucket(String bucketName, String storageClass) {
+            try {
+                CreateBucketRequest createBucketRequest = new CreateBucketRequest(bucketName);
+                if (StringUtils.hasText(storageClass)) {
+                    createBucketRequest.setStorageClass(StorageClass.parse(storageClass));
+                }
+                client.createBucket(createBucketRequest);
+            } catch (Exception e) {
+                log.error(e.getMessage(), e);
+                if (e.getMessage().contains("BucketAlreadyExists")) {
+                    throw new StrixException("Strix OSS: Bucket名称不可用，存储服务提供商要求Bucket名称不得与其他用户重复.");
+                }
+                throw new StrixException("Strix OSS: 创建Bucket失败.");
+            }
         }
     }
 

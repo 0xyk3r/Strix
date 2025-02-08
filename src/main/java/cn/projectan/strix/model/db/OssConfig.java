@@ -50,6 +50,11 @@ public class OssConfig extends BaseModel<OssConfig> {
     private Integer platform;
 
     /**
+     * OSS地域
+     */
+    private String region;
+
+    /**
      * 公网连接域名
      */
     private String publicEndpoint;

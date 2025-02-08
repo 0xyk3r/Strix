@@ -15,6 +15,9 @@ import cn.projectan.strix.util.tempurl.TempUrlUtil;
 import com.aliyun.oss.ClientBuilderConfiguration;
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;
+import com.aliyun.oss.common.auth.CredentialsProvider;
+import com.aliyun.oss.common.auth.DefaultCredentialProvider;
+import com.aliyun.oss.common.comm.SignVersion;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -53,13 +56,25 @@ public class OssConfigServiceImpl extends ServiceImpl<OssConfigMapper, OssConfig
             try {
                 switch (ossConfig.getPlatform()) {
                     case StrixOssPlatform.ALIYUN -> {
-                        ClientBuilderConfiguration conf = new ClientBuilderConfiguration();
-                        conf.setSupportCname(true);
-                        OSS publicClient = new OSSClientBuilder().build(ossConfig.getPublicEndpoint(), ossConfig.getAccessKey(), ossConfig.getAccessSecret(), conf);
+                        CredentialsProvider credentialsProvider = new DefaultCredentialProvider(ossConfig.getAccessKey(), ossConfig.getAccessSecret());
+                        ClientBuilderConfiguration clientBuilderConfiguration = new ClientBuilderConfiguration();
+                        clientBuilderConfiguration.setSupportCname(true);
+                        clientBuilderConfiguration.setSignatureVersion(SignVersion.V4);
+                        OSS publicClient = OSSClientBuilder.create()
+                                .endpoint(ossConfig.getPublicEndpoint())
+                                .credentialsProvider(credentialsProvider)
+                                .clientConfiguration(clientBuilderConfiguration)
+                                .region(ossConfig.getRegion())
+                                .build();
                         OSS privateClient = publicClient;
                         // 非正式环境无法创建内网OSS实例
                         if ("prod".equals(profiles)) {
-                            privateClient = new OSSClientBuilder().build(ossConfig.getPrivateEndpoint(), ossConfig.getAccessKey(), ossConfig.getAccessSecret(), conf);
+                            privateClient = OSSClientBuilder.create()
+                                    .endpoint(ossConfig.getPrivateEndpoint())
+                                    .credentialsProvider(credentialsProvider)
+                                    .clientConfiguration(clientBuilderConfiguration)
+                                    .region(ossConfig.getRegion())
+                                    .build();
                         }
                         Assert.notNull(publicClient, "Strix OSS: 初始化对象存储服务实例 <" + ossConfig.getKey() + "> 失败. (阿里云公网对象存储服务配置错误)");
                         Assert.notNull(privateClient, "Strix OSS: 初始化对象存储服务实例 <" + ossConfig.getKey() + "> 失败. (阿里云私网对象存储服务配置错误)");

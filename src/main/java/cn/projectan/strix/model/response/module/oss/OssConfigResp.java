@@ -24,6 +24,8 @@ public class OssConfigResp {
 
     private Integer platform;
 
+    private String region;
+
     private String publicEndpoint;
 
     private String privateEndpoint;

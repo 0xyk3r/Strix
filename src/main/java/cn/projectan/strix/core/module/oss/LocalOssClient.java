@@ -19,116 +19,97 @@ import java.util.List;
  * @since 2024/8/15 17:37
  */
 @Slf4j
-public class LocalOssClient extends StrixOssClient {
+public class LocalOssClient implements StrixOssClient {
 
-    private final String publicDomain;
-    private final String privateDomain;
-    private final TempUrlUtil tempUrlUtil;
+    private final DefaultOperations publicOperations;
+    private final DefaultOperations privateOperations;
 
     public LocalOssClient(String publicDomain, String privateDomain, TempUrlUtil tempUrlUtil) {
-        this.publicDomain = publicDomain;
-        this.privateDomain = privateDomain;
-        this.tempUrlUtil = tempUrlUtil;
+        this.publicOperations = new DefaultOperations(publicDomain, tempUrlUtil);
+        this.privateOperations = new DefaultOperations(privateDomain, tempUrlUtil);
     }
 
-    @Override
-    public Object getPublic() {
-        return null;
+    public DefaultOperations getPublic() {
+        return publicOperations;
     }
 
-    @Override
-    public Object getPrivate() {
-        return null;
-    }
-
-    @Override
-    public void uploadPublic(String bucketName, String objectName, byte[] buf) {
-        try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(buf)) {
-            File file = new File(objectName);
-            File parentFile = file.getParentFile();
-            if (parentFile != null && !parentFile.exists()) {
-                parentFile.mkdirs();
-            }
-            if (!file.exists()) {
-                file.createNewFile();
-            }
-            FileUtil.writeFromStream(byteArrayInputStream, file);
-        } catch (IOException e) {
-            log.error(e.getMessage(), e);
-            throw new StrixException("Strix OSS: 上传文件失败.");
-        }
-    }
-
-    @Override
-    public void uploadPrivate(String bucketName, String objectName, byte[] buf) {
-        uploadPublic(bucketName, objectName, buf);
-    }
-
-    @Override
-    public File downloadPublic(String bucketName, String objectName, String filePath) {
-        File file = new File(objectName);
-        if (!file.exists()) {
-            return null;
-        }
-        File saveFile = new File(filePath);
-        FileUtil.copy(file, saveFile, true);
-        return saveFile;
-    }
-
-    @Override
-    public File downloadPrivate(String bucketName, String objectName, String filePath) {
-        return downloadPublic(bucketName, objectName, filePath);
-    }
-
-    @Override
-    public String getUrlPublic(String bucketName, String objectName, long expires) {
-        String ext = FileUtil.extName(objectName);
-        File tempFile = FileUtil.createTempFile("strix-oss-", "." + ext, false);
-        File downloadFile = downloadPublic(bucketName, objectName, tempFile.getAbsolutePath());
-        Assert.isTrue(downloadFile != null && downloadFile.exists(), "文件不存在");
-
-        String keyData = tempFile.getAbsolutePath();
-        String key = tempUrlUtil.create(keyData, expires);
-        return publicDomain + "/system/common/url/file/" + key;
-    }
-
-    @Override
-    public String getUrlPrivate(String bucketName, String objectName, long expires) {
-        String ext = FileUtil.extName(objectName);
-        File tempFile = FileUtil.createTempFile("strix-oss-", "." + ext, false);
-        File downloadFile = downloadPrivate(bucketName, objectName, tempFile.getAbsolutePath());
-        Assert.isTrue(downloadFile != null && downloadFile.exists(), "文件不存在");
-
-        String keyData = tempFile.getAbsolutePath();
-        String key = tempUrlUtil.create(keyData, expires);
-        return privateDomain + "/system/common/url/file/" + key;
-    }
-
-    @Override
-    public void deletePublic(String bucketName, String objectName) {
-        File file = new File(objectName);
-        if (file.exists()) {
-            file.delete();
-        }
-    }
-
-    @Override
-    public void deletePrivate(String bucketName, String objectName) {
-        deletePublic(bucketName, objectName);
-    }
-
-    @Override
-    public List<StrixOssBucket> getBucketList() {
-        return List.of();
-    }
-
-    @Override
-    public void createBucket(String bucketName, String storageClass) {
-
+    public DefaultOperations getPrivate() {
+        return privateOperations;
     }
 
     @Override
     public void close() {
+    }
+
+    public static class DefaultOperations implements StrixOssClient.Operations {
+
+        private final String publicDomain;
+        private final TempUrlUtil tempUrlUtil;
+
+        public DefaultOperations(String publicDomain, TempUrlUtil tempUrlUtil) {
+            this.publicDomain = publicDomain;
+            this.tempUrlUtil = tempUrlUtil;
+        }
+
+        @Override
+        public void upload(String bucketName, String objectName, byte[] buf) {
+            try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(buf)) {
+                File file = new File(objectName);
+                File parentFile = file.getParentFile();
+                if (parentFile != null && !parentFile.exists()) {
+                    Assert.isTrue(parentFile.mkdirs(), "创建文件夹失败");
+                }
+                if (!file.exists()) {
+                    Assert.isTrue(file.createNewFile(), "创建文件失败");
+                }
+                FileUtil.writeFromStream(byteArrayInputStream, file);
+            } catch (IOException e) {
+                log.error(e.getMessage(), e);
+                throw new StrixException("Strix OSS: 上传文件失败.");
+            }
+        }
+
+        @Override
+        public File download(String bucketName, String objectName, String filePath) {
+            File file = new File(objectName);
+            if (!file.exists()) {
+                return null;
+            }
+            File saveFile = new File(filePath);
+            FileUtil.copy(file, saveFile, true);
+            return saveFile;
+        }
+
+        @Override
+        public String getUrl(String bucketName, String objectName, long expires) {
+            String ext = FileUtil.extName(objectName);
+            File tempFile = FileUtil.createTempFile("strix-oss-", "." + ext, false);
+            File downloadFile = download(bucketName, objectName, tempFile.getAbsolutePath());
+            Assert.isTrue(downloadFile != null && downloadFile.exists(), "文件不存在");
+
+            String keyData = tempFile.getAbsolutePath();
+            String key = tempUrlUtil.create(keyData, expires);
+            return publicDomain + "/system/common/url/file/" + key;
+        }
+
+        @Override
+        public void delete(String bucketName, String objectName) {
+            File file = new File(objectName);
+            if (file.exists()) {
+                Assert.isTrue(file.delete(), "删除文件失败");
+            }
+        }
+
+        @Override
+        public List<StrixOssBucket> getBucketList() {
+            return List.of();
+        }
+
+        @Override
+        public void createBucket(String bucketName, String storageClass) {
+
+        }
 
     }
+
 }
