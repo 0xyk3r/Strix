@@ -3,6 +3,7 @@ package cn.projectan.strix.service.impl;
 import cn.projectan.strix.core.exception.StrixException;
 import cn.projectan.strix.core.module.oss.AliyunOssClient;
 import cn.projectan.strix.core.module.oss.LocalOssClient;
+import cn.projectan.strix.core.module.oss.StrixOssClient;
 import cn.projectan.strix.core.module.oss.StrixOssStore;
 import cn.projectan.strix.mapper.OssConfigMapper;
 import cn.projectan.strix.model.db.OssConfig;
@@ -11,6 +12,7 @@ import cn.projectan.strix.model.response.common.CommonSelectDataResp;
 import cn.projectan.strix.service.OssConfigService;
 import cn.projectan.strix.task.StrixOssTask;
 import cn.projectan.strix.util.SpringUtil;
+import cn.projectan.strix.util.algo.KeyDiffUtil;
 import cn.projectan.strix.util.tempurl.TempUrlUtil;
 import com.aliyun.oss.ClientBuilderConfiguration;
 import com.aliyun.oss.OSS;
@@ -27,6 +29,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -45,6 +50,26 @@ public class OssConfigServiceImpl extends ServiceImpl<OssConfigMapper, OssConfig
     private String profiles;
 
     private final TempUrlUtil tempUrlUtil;
+    private final StrixOssStore strixOssStore;
+
+    @Override
+    public void refreshConfig() {
+        List<OssConfig> ossConfigList = list();
+        List<String> ossConfigKeyList = ossConfigList.stream()
+                .map(OssConfig::getKey)
+                .collect(Collectors.toList());
+        Set<String> instanceKeySet = strixOssStore.getInstanceKeySet();
+
+        KeyDiffUtil.handle(instanceKeySet, ossConfigKeyList,
+                (removeKeys) -> removeKeys.forEach(key -> {
+                    Optional.ofNullable(strixOssStore.getInstance(key)).ifPresent(StrixOssClient::close);
+                    strixOssStore.removeInstance(key);
+                }),
+                (addKeys) -> {
+                    List<OssConfig> addSmsConfigList = ossConfigList.stream().filter(ossConfig -> addKeys.contains(ossConfig.getKey())).collect(Collectors.toList());
+                    createInstance(addSmsConfigList);
+                });
+    }
 
     @Override
     public void createInstance(List<OssConfig> ossConfigList) {

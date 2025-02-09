@@ -6,10 +6,12 @@ import cn.projectan.strix.model.other.module.oss.StrixOssBucket;
 import cn.projectan.strix.util.tempurl.TempUrlUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 
 /**
@@ -51,22 +53,55 @@ public class LocalOssClient implements StrixOssClient {
             this.tempUrlUtil = tempUrlUtil;
         }
 
+        private File createFile(String objectName) throws IOException {
+            File file = new File(objectName);
+            File parentFile = file.getParentFile();
+            if (parentFile != null && !parentFile.exists()) {
+                Assert.isTrue(parentFile.mkdirs(), "创建文件夹失败");
+            }
+            if (!file.exists()) {
+                Assert.isTrue(file.createNewFile(), "创建文件失败");
+            }
+            return file;
+        }
+
         @Override
         public void upload(String bucketName, String objectName, byte[] buf) {
             try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(buf)) {
-                File file = new File(objectName);
-                File parentFile = file.getParentFile();
-                if (parentFile != null && !parentFile.exists()) {
-                    Assert.isTrue(parentFile.mkdirs(), "创建文件夹失败");
-                }
-                if (!file.exists()) {
-                    Assert.isTrue(file.createNewFile(), "创建文件失败");
-                }
-                FileUtil.writeFromStream(byteArrayInputStream, file);
+                File newFile = createFile(objectName);
+                FileUtil.writeFromStream(byteArrayInputStream, newFile);
             } catch (IOException e) {
                 log.error(e.getMessage(), e);
                 throw new StrixException("Strix OSS: 上传文件失败.");
             }
+        }
+
+        @Override
+        public void upload(String bucketName, String objectName, InputStream inputStream) {
+            try {
+                File newFile = createFile(objectName);
+                FileUtil.writeFromStream(inputStream, newFile);
+            } catch (IOException e) {
+                log.error(e.getMessage(), e);
+                throw new StrixException("Strix OSS: 上传文件失败.");
+            }
+        }
+
+        @Override
+        public void upload(String bucketName, String objectName, File file) {
+            try {
+                File newFile = createFile(objectName);
+                // 注意: 这里覆盖了原文件
+                FileUtil.copy(file, newFile, true);
+            } catch (IOException e) {
+                log.error(e.getMessage(), e);
+                throw new StrixException("Strix OSS: 上传文件失败.");
+            }
+        }
+
+        @Override
+        public String signUploadUrl(String bucketName, String objectName, long expires) {
+            return null;
         }
 
         @Override
@@ -81,7 +116,12 @@ public class LocalOssClient implements StrixOssClient {
         }
 
         @Override
-        public String getUrl(String bucketName, String objectName, long expires) {
+        public File downloadStream(String bucketName, String objectName, String filePath) {
+            return download(bucketName, objectName, filePath);
+        }
+
+        @Override
+        public String signDownloadUrl(String bucketName, String objectName, long expires) {
             String ext = FileUtil.extName(objectName);
             File tempFile = FileUtil.createTempFile("strix-oss-", "." + ext, false);
             File downloadFile = download(bucketName, objectName, tempFile.getAbsolutePath());
@@ -93,6 +133,39 @@ public class LocalOssClient implements StrixOssClient {
         }
 
         @Override
+        public boolean exist(String bucketName, String objectName) {
+            File file = new File(objectName);
+            return file.exists();
+        }
+
+        @Override
+        public void list(String bucketName, String prefix, int maxKeys) {
+            File dir = new File(bucketName);
+            if (!dir.exists() || !dir.isDirectory()) {
+                throw new StrixException("Strix OSS: 目录不存在或不是目录.");
+            }
+
+            File[] files = dir.listFiles((d, name) -> {
+                if (!StringUtils.hasText(prefix)) {
+                    return true;
+                }
+                return name.startsWith(prefix);
+            });
+            if (files == null) {
+                throw new StrixException("Strix OSS: 获取文件列表失败.");
+            }
+
+            int count = 0;
+            for (File file : files) {
+                if (count >= maxKeys) {
+                    break;
+                }
+                System.out.println(file.getName());
+                count++;
+            }
+        }
+
+        @Override
         public void delete(String bucketName, String objectName) {
             File file = new File(objectName);
             if (file.exists()) {
@@ -101,7 +174,7 @@ public class LocalOssClient implements StrixOssClient {
         }
 
         @Override
-        public List<StrixOssBucket> getBucketList() {
+        public List<StrixOssBucket> listBuckets() {
             return List.of();
         }
 
@@ -110,6 +183,10 @@ public class LocalOssClient implements StrixOssClient {
 
         }
 
+        @Override
+        public void deleteBucket(String bucketName) {
+
+        }
     }
 
 }

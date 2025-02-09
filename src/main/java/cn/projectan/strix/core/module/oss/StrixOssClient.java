@@ -3,6 +3,7 @@ package cn.projectan.strix.core.module.oss;
 import cn.projectan.strix.model.other.module.oss.StrixOssBucket;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.List;
 
 /**
@@ -47,6 +48,34 @@ public interface StrixOssClient {
         void upload(String bucketName, String objectName, byte[] buf);
 
         /**
+         * 上传文件
+         *
+         * @param bucketName  桶名称
+         * @param objectName  对象名称
+         * @param inputStream 输入流
+         */
+        void upload(String bucketName, String objectName, InputStream inputStream);
+
+        /**
+         * 上传文件
+         *
+         * @param bucketName 桶名称
+         * @param objectName 对象名称
+         * @param file       文件
+         */
+        void upload(String bucketName, String objectName, File file);
+
+        /**
+         * 获取上传文件的签名 URL
+         *
+         * @param bucketName 桶名称
+         * @param objectName 对象名称
+         * @param expires    过期时间
+         * @return 上传文件的签名 URL
+         */
+        String signUploadUrl(String bucketName, String objectName, long expires);
+
+        /**
          * 下载文件
          *
          * @param bucketName 桶名称
@@ -56,15 +85,21 @@ public interface StrixOssClient {
          */
         File download(String bucketName, String objectName, String filePath);
 
+        File downloadStream(String bucketName, String objectName, String filePath);
+
         /**
-         * 获取文件 URL
+         * 获取下载文件的签名 URL
          *
          * @param bucketName 桶名称
          * @param objectName 对象名称
-         * @param expires    过期时间
-         * @return 文件 URL
+         * @param expires    过期时间 (ms)
+         * @return 下载文件的签名 URL
          */
-        String getUrl(String bucketName, String objectName, long expires);
+        String signDownloadUrl(String bucketName, String objectName, long expires);
+
+        boolean exist(String bucketName, String objectName);
+
+        void list(String bucketName, String prefix, int maxKeys);
 
         /**
          * 删除文件
@@ -79,7 +114,7 @@ public interface StrixOssClient {
          *
          * @return 桶列表
          */
-        List<StrixOssBucket> getBucketList();
+        List<StrixOssBucket> listBuckets();
 
         /**
          * 创建桶
@@ -88,6 +123,13 @@ public interface StrixOssClient {
          * @param storageClass 存储类型
          */
         void createBucket(String bucketName, String storageClass);
+
+        /**
+         * 删除桶
+         *
+         * @param bucketName 桶名称
+         */
+        void deleteBucket(String bucketName);
 
     }
 
