@@ -1,12 +1,9 @@
 package cn.projectan.strix.task;
 
-import cn.projectan.strix.core.module.oss.StrixOssClient;
 import cn.projectan.strix.core.module.oss.StrixOssStore;
-import cn.projectan.strix.model.db.OssConfig;
 import cn.projectan.strix.model.other.module.oss.StrixOssBucket;
 import cn.projectan.strix.service.OssBucketService;
 import cn.projectan.strix.service.OssConfigService;
-import cn.projectan.strix.util.algo.KeyDiffUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -15,9 +12,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Strix OSS 任务
@@ -44,28 +39,14 @@ public class StrixOssTask {
 
     @Scheduled(cron = "0 0/5 * * * ?")
     public void refreshConfig() {
-        List<OssConfig> ossConfigList = ossConfigService.list();
-        List<String> ossConfigKeyList = ossConfigList.stream()
-                .map(OssConfig::getKey)
-                .collect(Collectors.toList());
-        Set<String> instanceKeySet = strixOssStore.getInstanceKeySet();
-
-        KeyDiffUtil.handle(instanceKeySet, ossConfigKeyList,
-                (removeKeys) -> removeKeys.forEach(key -> {
-                    Optional.ofNullable(strixOssStore.getInstance(key)).ifPresent(StrixOssClient::close);
-                    strixOssStore.removeInstance(key);
-                }),
-                (addKeys) -> {
-                    List<OssConfig> addSmsConfigList = ossConfigList.stream().filter(ossConfig -> addKeys.contains(ossConfig.getKey())).collect(Collectors.toList());
-                    ossConfigService.createInstance(addSmsConfigList);
-                });
+        ossConfigService.refreshConfig();
     }
 
     @Scheduled(cron = "0 30 0 * * ?")
     public void refreshBucketList() {
         Set<String> instanceKeySet = strixOssStore.getInstanceKeySet();
         instanceKeySet.forEach(key -> {
-            List<StrixOssBucket> bucketList = strixOssStore.getInstance(key).getPrivate().getBucketList();
+            List<StrixOssBucket> bucketList = strixOssStore.getInstance(key).getPrivate().listBuckets();
             ossBucketService.syncBucketList(key, bucketList);
         });
     }

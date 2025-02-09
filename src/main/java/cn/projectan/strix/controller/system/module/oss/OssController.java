@@ -21,8 +21,6 @@ import cn.projectan.strix.service.OssBucketService;
 import cn.projectan.strix.service.OssConfigService;
 import cn.projectan.strix.service.OssFileGroupService;
 import cn.projectan.strix.service.OssFileService;
-import cn.projectan.strix.task.StrixOssTask;
-import cn.projectan.strix.util.SpringUtil;
 import cn.projectan.strix.util.UniqueChecker;
 import cn.projectan.strix.util.UpdateBuilder;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -55,6 +53,7 @@ public class OssController extends BaseSystemController {
     private final OssBucketService ossBucketService;
     private final OssFileService ossFileService;
     private final OssFileGroupService ossFileGroupService;
+    private final StrixOssStore strixOssStore;
 
     /**
      * 查询存储配置列表
@@ -132,7 +131,7 @@ public class OssController extends BaseSystemController {
         Assert.isTrue(ossConfigService.save(ossConfig), "保存失败");
 
         // 重新加载配置
-        SpringUtil.getBean(StrixOssTask.class).refreshConfig();
+        ossConfigService.refreshConfig();
 
         return RetBuilder.success();
     }
@@ -153,8 +152,8 @@ public class OssController extends BaseSystemController {
         Assert.isTrue(ossConfigService.update(updateWrapper), "保存失败");
 
         // 卸载原配置 重新加载
-        SpringUtil.getBean(StrixOssStore.class).getInstance(originKey).close();
-        SpringUtil.getBean(StrixOssTask.class).refreshConfig();
+        strixOssStore.removeInstance(originKey);
+        ossConfigService.refreshConfig();
 
         return RetBuilder.success();
     }
@@ -176,6 +175,9 @@ public class OssController extends BaseSystemController {
         ossBucketService.lambdaUpdate()
                 .eq(OssBucket::getConfigKey, key)
                 .remove();
+
+        // 卸载配置
+        strixOssStore.removeInstance(key);
 
         return RetBuilder.success();
     }

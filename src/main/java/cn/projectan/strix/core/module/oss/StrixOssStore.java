@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -29,6 +30,7 @@ public class StrixOssStore {
     }
 
     public void removeInstance(String key) {
+        Optional.ofNullable(instanceMap.get(key)).ifPresent(StrixOssClient::close);
         instanceMap.remove(key);
     }
 

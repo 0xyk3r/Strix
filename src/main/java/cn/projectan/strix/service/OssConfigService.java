@@ -16,6 +16,8 @@ import java.util.List;
  */
 public interface OssConfigService extends IService<OssConfig> {
 
+    void refreshConfig();
+
     /**
      * 创建实例
      *
