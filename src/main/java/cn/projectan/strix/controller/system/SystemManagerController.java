@@ -18,6 +18,7 @@ import cn.projectan.strix.model.enums.NumCategory;
 import cn.projectan.strix.model.request.common.SingleFieldModifyReq;
 import cn.projectan.strix.model.request.system.manager.SystemManagerListReq;
 import cn.projectan.strix.model.request.system.manager.SystemManagerUpdateReq;
+import cn.projectan.strix.model.response.common.CommonTransferDataResp;
 import cn.projectan.strix.model.response.system.manager.SystemManagerListResp;
 import cn.projectan.strix.model.response.system.manager.SystemManagerResp;
 import cn.projectan.strix.service.SystemManagerRoleService;
@@ -243,6 +244,18 @@ public class SystemManagerController extends BaseSystemController {
         }
 
         return RetBuilder.success();
+    }
+
+    /**
+     * 获取系统人员穿梭框数据
+     */
+    @GetMapping("transfer")
+    public RetResult<CommonTransferDataResp> getTransferData() {
+        List<SystemManager> systemManagerList = systemManagerService.lambdaQuery()
+                .select(SystemManager::getId, SystemManager::getNickname)
+                .list();
+
+        return RetBuilder.success(new CommonTransferDataResp(systemManagerList, "id", "nickname", null));
     }
 
 }
