@@ -14,6 +14,7 @@ import cn.projectan.strix.model.dict.SysLogOperType;
 import cn.projectan.strix.model.request.system.role.SystemRoleUpdateMenuReq;
 import cn.projectan.strix.model.request.system.role.SystemRoleUpdateReq;
 import cn.projectan.strix.model.response.common.CommonSelectDataResp;
+import cn.projectan.strix.model.response.common.CommonTransferDataResp;
 import cn.projectan.strix.model.response.system.menu.SystemMenuListResp;
 import cn.projectan.strix.model.response.system.permission.SystemPermissionListResp;
 import cn.projectan.strix.model.response.system.role.SystemRoleListResp;
@@ -317,6 +318,18 @@ public class SystemRoleController extends BaseSystemController {
     @GetMapping("select")
     public RetResult<CommonSelectDataResp> getSystemRoleSelectList() {
         return RetBuilder.success(systemRoleService.getSelectData());
+    }
+
+    /**
+     * 获取系统角色穿梭框数据
+     */
+    @GetMapping("transfer")
+    public RetResult<CommonTransferDataResp> getTransferData() {
+        List<SystemRole> systemRoleList = systemRoleService.lambdaQuery()
+                .select(SystemRole::getId, SystemRole::getName)
+                .list();
+
+        return RetBuilder.success(new CommonTransferDataResp(systemRoleList, "id", "name", null));
     }
 
 }
