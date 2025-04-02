@@ -11,7 +11,7 @@ import cn.hutool.core.lang.Snowflake;
 public class SnowflakeUtil {
 
     private static final Snowflake SNOWFLAKE_OSS_FILE = new Snowflake(1, 1);
-    private static final Snowflake SNOWFLAKE_SYSTEM_USER = new Snowflake(1, 2);
+    private static final Snowflake SNOWFLAKE_SYSTEM_USER = new Snowflake(2, 1);
 
     /**
      * 生成OSS文件名
