@@ -9,7 +9,9 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -25,6 +27,7 @@ import java.io.IOException;
 public class SystemManagerAuthenticationTokenFilter extends OncePerRequestFilter {
 
     private final RedisUtil redisUtil;
+    private final RequestAttributeSecurityContextRepository requestAttributeSecurityContextRepository;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, @Nonnull HttpServletResponse response, @Nonnull FilterChain filterChain) throws ServletException, IOException {
@@ -46,7 +49,9 @@ public class SystemManagerAuthenticationTokenFilter extends OncePerRequestFilter
         SystemManagerAuthenticationToken authentication =
                 new SystemManagerAuthenticationToken(loginSystemManager, null, loginSystemManager.getAuthorities());
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+        SecurityContext context = SecurityContextHolder.getContext();
+        context.setAuthentication(authentication);
+        requestAttributeSecurityContextRepository.saveContext(context, request, response);
 
         filterChain.doFilter(request, response);
     }
