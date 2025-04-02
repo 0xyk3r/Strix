@@ -37,4 +37,18 @@ public class StrixAssert {
                 .orElseThrow(() -> new IllegalArgumentException(message));
     }
 
+    public static void in(Short checkValue, String message, short... passValue) {
+        Assert.notNull(checkValue, message);
+        boolean found = false;
+        for (short pass : passValue) {
+            if (pass == checkValue) {
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            throw new IllegalArgumentException(message);
+        }
+    }
+
 }
