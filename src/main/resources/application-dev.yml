@@ -19,7 +19,7 @@ spring:
           driver-class-name: com.mysql.cj.jdbc.Driver
           url: jdbc:mysql://192.168.31.188:3366/strix?useSSL=true&serverTimezone=Asia/Shanghai&autoReconnect=true&rewriteBatchedStatements=true
           username: root
-          password: AnAn@8899#
+          password: password
           type: com.zaxxer.hikari.HikariDataSource
           hikari:
             keepalive-time: 60000
@@ -29,7 +29,7 @@ spring:
           driver-class-name: com.clickhouse.jdbc.ClickHouseDriver
           url: jdbc:clickhouse://192.168.31.188:8123/strix?socket_timeout=300000
           username: root
-          password: S1V/holh
+          password: password
           type: com.zaxxer.hikari.HikariDataSource
           lazy: true
           hikari:
@@ -41,7 +41,7 @@ spring:
       database: 0
       host: 192.168.31.188
       port: 6379
-      password: str1Xredis
+      password: password
       lettuce:
         shutdown-timeout: 100
         pool:
