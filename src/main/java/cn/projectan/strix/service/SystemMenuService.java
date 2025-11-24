@@ -4,6 +4,8 @@ import cn.projectan.strix.model.db.SystemMenu;
 import cn.projectan.strix.model.response.common.CommonTreeDataResp;
 import com.baomidou.mybatisplus.extension.service.IService;
 
+import java.util.Collection;
+
 /**
  * <p>
  * 服务类
@@ -20,5 +22,7 @@ public interface SystemMenuService extends IService<SystemMenu> {
      * @return 树形数据
      */
     CommonTreeDataResp getTreeData();
+
+    void deleteByIds(Collection<String> idList);
 
 }

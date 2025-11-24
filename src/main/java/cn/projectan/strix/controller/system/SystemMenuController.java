@@ -9,7 +9,6 @@ import cn.projectan.strix.core.validation.group.UpdateGroup;
 import cn.projectan.strix.model.annotation.StrixLog;
 import cn.projectan.strix.model.db.SystemMenu;
 import cn.projectan.strix.model.db.SystemPermission;
-import cn.projectan.strix.model.db.SystemRoleMenu;
 import cn.projectan.strix.model.dict.SysLogOperType;
 import cn.projectan.strix.model.request.common.SingleFieldModifyReq;
 import cn.projectan.strix.model.request.system.menu.SystemMenuUpdateReq;
@@ -161,27 +160,7 @@ public class SystemMenuController extends BaseSystemController {
     @PreAuthorize("@ss.hasPermission('system:menu:remove')")
     @StrixLog(operationGroup = "系统菜单", operationName = "删除菜单", operationType = SysLogOperType.DELETE)
     public RetResult<Object> remove(@PathVariable String menuId) {
-        SystemMenu systemMenu = systemMenuService.getById(menuId);
-        Assert.notNull(systemMenu, "系统菜单信息不存在");
-
-        // 查找子菜单
-        List<SystemMenu> systemMenuList = systemMenuService.list();
-        Set<String> childrenMenusIdList = findSystemMenuChildrenIdList(systemMenuList, menuId);
-
-        // 批量删除菜单
-        systemMenuService.removeByIds(childrenMenusIdList);
-        // 删除角色和菜单间关系
-        systemRoleMenuService.lambdaUpdate()
-                .in(SystemRoleMenu::getSystemMenuId, childrenMenusIdList)
-                .remove();
-        // 删除菜单对应的权限
-        systemPermissionService.lambdaUpdate()
-                .in(SystemPermission::getMenuId, childrenMenusIdList)
-                .remove();
-
-        // 更新缓存
-        systemMenuCache.updateRamAndRedis();
-
+        systemMenuService.deleteByIds(List.of(menuId));
         return RetBuilder.success();
     }
 
