@@ -26,8 +26,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class SystemPermissionCache {
 
-    private final SystemManagerService systemManagerService;
     private final SystemPermissionService systemPermissionService;
+    private final SystemManagerService systemManagerService;
     private final RedisUtil redisUtil;
 
     private List<SystemPermission> instance = new ArrayList<>();

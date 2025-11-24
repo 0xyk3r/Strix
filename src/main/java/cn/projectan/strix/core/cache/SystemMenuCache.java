@@ -22,8 +22,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SystemMenuCache {
 
-    private final SystemMenuService systemMenuService;
     private final RedisUtil redisUtil;
+    private final SystemMenuService systemMenuService;
 
     private List<SystemMenu> instance = new ArrayList<>();
 

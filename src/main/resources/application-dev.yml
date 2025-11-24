@@ -40,8 +40,8 @@ spring:
             connection-timeout: 30000
             max-lifetime: 1800000
             idle-timeout: 600000
-            minimum-idle: 10
-            maximum-pool-size: 50
+            minimum-idle: 4
+            maximum-pool-size: 10
             connection-test-query: SELECT 1
             validation-timeout: 5000
             leak-detection-threshold: 60000

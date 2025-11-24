@@ -8,7 +8,6 @@ import cn.projectan.strix.core.validation.group.InsertGroup;
 import cn.projectan.strix.core.validation.group.UpdateGroup;
 import cn.projectan.strix.model.annotation.StrixLog;
 import cn.projectan.strix.model.db.SystemPermission;
-import cn.projectan.strix.model.db.SystemRolePermission;
 import cn.projectan.strix.model.dict.SysLogOperType;
 import cn.projectan.strix.model.request.system.permission.SystemPermissionUpdateReq;
 import cn.projectan.strix.model.response.common.CommonTransferDataResp;
@@ -126,17 +125,7 @@ public class SystemPermissionController extends BaseSystemController {
     @PreAuthorize("@ss.hasPermission('system:menu:remove')")
     @StrixLog(operationGroup = "系统权限", operationName = "删除权限", operationType = SysLogOperType.DELETE)
     public RetResult<Object> remove(@PathVariable String permissionId) {
-        Assert.hasText(permissionId, "参数错误");
-        SystemPermission systemPermission = systemPermissionService.getById(permissionId);
-        Assert.notNull(systemPermission, "系统权限信息不存在");
-
-        Assert.isTrue(systemPermissionService.removeById(systemPermission), "删除失败");
-        // 删除角色和系统权限间关系
-        systemRolePermissionService.lambdaUpdate()
-                .eq(SystemRolePermission::getSystemPermissionId, systemPermission.getId())
-                .remove();
-        systemPermissionCache.updateRamAndRedis();
-
+        systemPermissionService.deleteByIds(List.of(permissionId));
         return RetBuilder.success();
     }
 
