@@ -103,7 +103,7 @@ dependencies {
     }
 
     // GraalVM
-    compileOnly 'org.graalvm.sdk:graal-sdk:24.1.1'
+    compileOnly 'org.graalvm.sdk:graal-sdk:25.0.1'
 }
 
 test {
