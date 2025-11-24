@@ -6,6 +6,7 @@ import cn.projectan.strix.model.annotation.IgnoreDataEncryption;
 import cn.projectan.strix.util.ApiSignUtil;
 import cn.projectan.strix.util.I18nUtil;
 import cn.projectan.strix.util.ServletUtils;
+import cn.projectan.strix.util.SpringUtil;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -24,7 +25,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.lang.reflect.Parameter;
-import java.util.*;
+import java.util.Map;
+import java.util.Optional;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 /**
  * API 安全校验切面
@@ -41,9 +45,10 @@ public class ApiSecurityCheckAspect {
     private final ObjectMapper objectMapper;
 
     public ApiSecurityCheckAspect() {
-        objectMapper = new ObjectMapper();
-        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-        objectMapper.setTimeZone(TimeZone.getTimeZone("GMT+8"));
+        // 深拷贝一份 ObjectMapper ，避免修改全局配置
+        ObjectMapper globalObjectMapper = SpringUtil.getBean(ObjectMapper.class);
+        this.objectMapper = globalObjectMapper.copy();
+        this.objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
     }
 
     @Pointcut("execution(public * cn.projectan..controller..*(..))")
