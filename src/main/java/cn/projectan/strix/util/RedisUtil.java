@@ -2,12 +2,11 @@ package cn.projectan.strix.util;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.data.redis.connection.DataType;
 import org.springframework.data.redis.connection.RedisConnectionCommands;
-import org.springframework.data.redis.core.Cursor;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ScanOptions;
-import org.springframework.data.redis.core.ZSetOperations;
+import org.springframework.data.redis.core.*;
+import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
@@ -36,6 +35,11 @@ public class RedisUtil {
      */
     public long getExpire(String key) {
         Long expire = redisTemplate.getExpire(key, TimeUnit.SECONDS);
+        return expire != null ? expire : -3;
+    }
+
+    public long getExpire(String key, TimeUnit timeUnit) {
+        Long expire = redisTemplate.getExpire(key, timeUnit);
         return expire != null ? expire : -3;
     }
 
@@ -114,14 +118,22 @@ public class RedisUtil {
 
     /**
      * 模糊删除 Keys
-     * <p>基于 {@link #keys(String) } 实现, 大数据量场景请使用scan
+     * <p>使用 scan 命令分批处理，避免阻塞 Redis
      *
      * @param pattern 需要删除的前缀 需要包含通配符 *
      */
     public void delLike(String pattern) {
-        Set<String> keys = redisTemplate.keys(pattern);
-        if (!CollectionUtils.isEmpty(keys)) {
-            redisTemplate.delete(keys);
+        try (Cursor<String> cursor = redisTemplate.scan(
+                ScanOptions.scanOptions()
+                        .match(pattern)
+                        .count(1000)
+                        .build()
+        )) {
+            List<String> keys = new ArrayList<>();
+            cursor.forEachRemaining(keys::add);
+            if (!keys.isEmpty()) {
+                redisTemplate.unlink(keys);
+            }
         }
     }
 
@@ -134,6 +146,25 @@ public class RedisUtil {
     public Object get(String key) {
         Assert.hasText(key, "key 不能为空");
         return redisTemplate.opsForValue().get(key);
+    }
+
+    /**
+     * 使用管道批量获取多个键的值
+     *
+     * @param keys 键列表
+     * @return 值列表，顺序与keys一致
+     */
+    public List<Object> pipelineGet(List<String> keys) {
+        if (CollectionUtils.isEmpty(keys)) {
+            return new ArrayList<>();
+        }
+
+        return redisTemplate.executePipelined((RedisCallback<Object>) connection -> {
+            for (String key : keys) {
+                connection.stringCommands().get(key.getBytes());
+            }
+            return null;
+        });
     }
 
     /**
@@ -175,6 +206,37 @@ public class RedisUtil {
         } else {
             set(key, value);
         }
+    }
+
+    /**
+     * 使用管道批量设置多个键值对
+     *
+     * @param keyValueMap 键值对映射
+     */
+    public void pipelineSet(Map<String, Object> keyValueMap) {
+        if (CollectionUtils.isEmpty(keyValueMap)) {
+            return;
+        }
+
+        redisTemplate.executePipelined((RedisCallback<Object>) connection -> {
+            keyValueMap.forEach((key, value) -> {
+                byte[] keyBytes = key.getBytes();
+                try {
+                    // 使用原始字节序列化
+                    @SuppressWarnings("unchecked")
+                    byte[] valueBytes = value != null ?
+                            ((RedisSerializer<Object>) redisTemplate.getValueSerializer()).serialize(value) :
+                            null;
+
+                    if (valueBytes != null) {
+                        connection.stringCommands().set(keyBytes, valueBytes);
+                    }
+                } catch (Exception e) {
+                    log.error("序列化键值对失败: key={}", key, e);
+                }
+            });
+            return null;
+        });
     }
 
     /**
@@ -432,6 +494,37 @@ public class RedisUtil {
             log.error("获取Set缓存的长度失败", e);
             return 0;
         }
+    }
+
+    /**
+     * 批量获取多个Set的大小
+     *
+     * @param keys Set键集合
+     * @return 键与大小的映射
+     */
+    public Map<String, Long> sMultiSize(Collection<String> keys) {
+        if (keys == null || keys.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
+        Map<String, Long> result = new HashMap<>(keys.size());
+
+        redisTemplate.executePipelined(new SessionCallback<>() {
+            @Override
+            public Object execute(@NotNull RedisOperations operations) {
+                for (String key : keys) {
+                    operations.opsForSet().size(key);
+                }
+                return null;
+            }
+        }).forEach(size -> {
+            if (size instanceof Long) {
+                String key = new ArrayList<>(keys).get(result.size());
+                result.put(key, (Long) size);
+            }
+        });
+
+        return result;
     }
 
     /**

@@ -92,8 +92,8 @@ public class ApiSecurityCheckAspect {
         if (!StringUtils.hasText(sign) || !StringUtils.hasText(timestamp)) {
             return RetBuilder.error(RetCode.BAT_REQUEST, I18nUtil.get("error.badRequest") + "2");
         }
-        // 校验时间戳 30s 内有效
-        if (System.currentTimeMillis() - Long.parseLong(timestamp) > 1000 * 30) {
+        // 校验时间戳 600s 内有效
+        if (System.currentTimeMillis() - Long.parseLong(timestamp) > 1000 * 600) {
             return RetBuilder.error(RetCode.BAT_REQUEST, I18nUtil.get("error.badRequest") + "3");
         }
 
