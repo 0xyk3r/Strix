@@ -89,9 +89,14 @@ public class SystemManagerServiceImpl extends ServiceImpl<SystemManagerMapper, S
         SystemManagerServiceImpl proxy = SpringUtil.getAopProxy(this);
 
         SystemManager systemManager = proxy.getById(systemManagerId);
+        SystemRegion systemRegion = null;
+        if (StringUtils.hasText(systemManager.getRegionId())) {
+            systemRegion = systemRegionService.getById(systemManager.getRegionId());
+        }
 
         List<String> systemManagerRoleIdList = getRoleIdListByManagerId(systemManagerId);
 
+        // 获取地区权限类型
         byte regionPermissionType = 0;
         if (!CollectionUtils.isEmpty(systemManagerRoleIdList)) {
             regionPermissionType = Optional.ofNullable(
@@ -122,7 +127,7 @@ public class SystemManagerServiceImpl extends ServiceImpl<SystemManagerMapper, S
                 regionIds = systemRegionService.getChildrenIdList(systemManager.getRegionId());
             }
         }
-        return new LoginSystemManager(systemManager, regionPermissionType, menus, permissions, regionIds);
+        return new LoginSystemManager(systemManager, systemRegion, regionPermissionType, menus, permissions, regionIds);
     }
 
     @Override

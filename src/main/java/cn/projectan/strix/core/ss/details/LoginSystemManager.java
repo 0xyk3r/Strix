@@ -1,6 +1,7 @@
 package cn.projectan.strix.core.ss.details;
 
 import cn.projectan.strix.model.db.SystemManager;
+import cn.projectan.strix.model.db.SystemRegion;
 import cn.projectan.strix.model.dict.SystemManagerStatus;
 import cn.projectan.strix.model.dict.SystemManagerType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -28,6 +29,7 @@ import java.util.stream.Collectors;
 public class LoginSystemManager implements UserDetails {
 
     private SystemManager systemManager;
+    private SystemRegion systemRegion;
     private List<String> menusKeys;
     private List<String> permissionKeys;
     private List<String> regionIds;
@@ -36,8 +38,14 @@ public class LoginSystemManager implements UserDetails {
     @JsonIgnore
     private List<GrantedAuthority> authorities;
 
-    public LoginSystemManager(SystemManager systemManager, byte regionPermissionType, List<String> menusKeys, List<String> permissionKeys, List<String> regionIds) {
+    public LoginSystemManager(SystemManager systemManager,
+                              SystemRegion systemRegion,
+                              byte regionPermissionType,
+                              List<String> menusKeys,
+                              List<String> permissionKeys,
+                              List<String> regionIds) {
         this.systemManager = systemManager;
+        this.systemRegion = systemRegion;
         this.regionPermissionType = regionPermissionType;
         this.menusKeys = menusKeys;
         this.permissionKeys = permissionKeys;

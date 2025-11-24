@@ -9,13 +9,15 @@ spring:
     multipart:
       enabled: true
       file-size-threshold: 0
-      max-file-size: 5MB
-      max-request-size: 20MB
+      max-file-size: 256MB
+      max-request-size: 256MB
   jackson:
     time-zone: GMT+8
     date-format: yyyy-MM-dd HH:mm:ss
     default-property-inclusion: non_null
   mvc:
+    async:
+      request-timeout: 300000
     static-path-pattern: /statics/**
     format:
       date: yyyy-MM-dd

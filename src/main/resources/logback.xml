@@ -8,7 +8,7 @@
         <!--设置输出格式-->
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <!--@formatter:off-->
-            <pattern>%cyan(%d{yyyy-MM-dd HH:mm:ss}) %highlight(%-5level) %green([%15.15thread{15}]) %boldMagenta(%-50.50logger{50}) : %yellow(%msg%n)</pattern>
+            <pattern>%cyan(%d{yy-MM-dd HH:mm:ss}) %highlight(%-5level) %green([%7.7thread{7}]) %boldMagenta(%-36.36logger{36}) : %yellow(%msg%n)</pattern>
             <!--@formatter:on-->
             <!--设置编码-->
             <charset>UTF-8</charset>

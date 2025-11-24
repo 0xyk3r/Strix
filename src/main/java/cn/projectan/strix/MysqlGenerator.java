@@ -6,12 +6,13 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.generator.FastAutoGenerator;
 import com.baomidou.mybatisplus.generator.config.DataSourceConfig;
 import com.baomidou.mybatisplus.generator.config.OutputFile;
-import com.baomidou.mybatisplus.generator.config.converts.MySqlTypeConvert;
 import com.baomidou.mybatisplus.generator.config.rules.DateType;
+import com.baomidou.mybatisplus.generator.config.rules.DbColumnType;
 import com.baomidou.mybatisplus.generator.fill.Column;
 import com.baomidou.mybatisplus.generator.fill.Property;
 import com.baomidou.mybatisplus.generator.keywords.MySqlKeyWordsHandler;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.type.JdbcType;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -36,7 +37,18 @@ public class MysqlGenerator {
 
         // 数据库配置
         DataSourceConfig.Builder dataSourceConfigBuilder = new DataSourceConfig.Builder(DB_URL, DB_USER, DB_PWD)
-                .typeConvert(new MySqlTypeConvert())
+                .typeConvertHandler((globalConfig, typeRegistry, metaInfo) -> {
+                    // 处理 TINYINT 类型
+                    if (JdbcType.TINYINT == metaInfo.getJdbcType()) {
+                        return DbColumnType.SHORT;
+                    }
+                    // 处理 BIGINT 类型
+                    // int typeCode = metaInfo.getJdbcType().TYPE_CODE;
+                    if (JdbcType.BIGINT == metaInfo.getJdbcType() && metaInfo.getColumnName().toLowerCase().endsWith("id")) {
+                        return DbColumnType.STRING;
+                    }
+                    return typeRegistry.getColumnType(metaInfo);
+                })
                 .keyWordsHandler(new MySqlKeyWordsHandler());
 
         FastAutoGenerator.create(dataSourceConfigBuilder)

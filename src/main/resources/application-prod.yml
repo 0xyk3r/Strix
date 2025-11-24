@@ -2,11 +2,26 @@ server:
   port: 9889
   shutdown: graceful
   tomcat:
+    # 线程配置
     threads:
-      min-spare: 16
-      max: 160
-    connection-timeout: 5000
-    max-connections: 8192
+      max: 64  # 最大工作线程数
+      min-spare: 16  # 最小空闲线程数
+    # 连接配置
+    max-connections: 2000  # 最大连接数
+    accept-count: 200  # 等待队列大小
+    connection-timeout: 30000  # 连接超时(ms)
+    keep-alive-timeout: 30000  # Keep-Alive 超时
+    max-keep-alive-requests: 100
+    max-swallow-size: 500MB  # 请求体最大大小
+    max-http-form-post-size: 500MB
+    # 请求头配置
+    max-http-header-size: 16KB
+    # 使用高性能NIO连接器
+    protocol-header: X-Forwarded-Proto
+    protocol-header-https-value: https
+    remoteip:
+      remote-ip-header: X-Forwarded-For
+      protocol-header: X-Forwarded-Proto
 spring:
   datasource:
     dynamic:
@@ -20,9 +35,15 @@ spring:
           password: password
           type: com.zaxxer.hikari.HikariDataSource
           hikari:
-            keepalive-time: 60000
-            max-lifetime: 120000
-            maximum-pool-size: 4
+            connection-timeout: 30000
+            max-lifetime: 1800000
+            idle-timeout: 600000
+            minimum-idle: 10
+            maximum-pool-size: 50
+            connection-test-query: SELECT 1
+            validation-timeout: 5000
+            leak-detection-threshold: 60000
+            keepalive-time: 30000
         clickhouse:
           driver-class-name: com.clickhouse.jdbc.ClickHouseDriver
           url: jdbc:clickhouse://192.168.31.188:8123/strix?socket_timeout=300000
@@ -41,8 +62,9 @@ spring:
       port: 6379
       password:
       lettuce:
-        shutdown-timeout: 100
+        shutdown-timeout: 200ms
         pool:
-          max-active: 1
-          max-idle: 1
-          min-idle: 1
+          max-active: 16
+          max-idle: 4
+          min-idle: 2
+          max-wait: 5000ms

@@ -4,6 +4,7 @@ import cn.projectan.strix.core.ss.details.LoginSystemManager;
 import cn.projectan.strix.core.ss.details.LoginSystemUser;
 import cn.projectan.strix.model.constant.OperatorType;
 import cn.projectan.strix.model.db.SystemManager;
+import cn.projectan.strix.model.db.SystemRegion;
 import cn.projectan.strix.model.db.SystemUser;
 import cn.projectan.strix.model.dict.SystemManagerType;
 import lombok.extern.slf4j.Slf4j;
@@ -11,6 +12,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -57,6 +59,22 @@ public class SecurityUtils {
             case OperatorType.SYSTEM_USER ->
                     Optional.ofNullable(getSystemUserLoginInfo()).map(LoginSystemUser::getSystemUser).map(SystemUser::getId).orElse(null);
             default -> null;
+        };
+    }
+
+    public static SystemRegion getRegion() {
+        return switch (getOperatorType()) {
+            case OperatorType.SYSTEM_MANAGER ->
+                    Optional.ofNullable(getSystemManagerLoginInfo()).map(LoginSystemManager::getSystemRegion).orElse(null);
+            default -> null;
+        };
+    }
+
+    public static List<String> getRegionIdList() {
+        return switch (getOperatorType()) {
+            case OperatorType.SYSTEM_MANAGER ->
+                    Optional.ofNullable(getSystemManagerLoginInfo()).map(LoginSystemManager::getRegionIds).orElse(null);
+            default -> List.of();
         };
     }
 
