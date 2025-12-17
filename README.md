@@ -9,7 +9,7 @@ Strix 使用最新的 Java 21 和 Spring Boot 3, 享受最新的语言特性和�
 
 ### 1.2 支持多种功能模块
 
-Strix 支持可开关可配置的功能模块, Strix 提供了 SMS / OSS / Auth / Push / Job / Pay / Log / Captcha 等模块,
+Strix 支持可开关可配置的功能模块, Strix 提供了 SMS / OSS / Auth / Push / Job / Pay / Log / Captcha / DelayedTask 等模块,
 可以根据需要选择性的启用或禁用某些模块.
 
 ### 1.3 提供丰富的工具类
@@ -52,12 +52,6 @@ strix:
   show-request: false
   # 开发环境下控制台输出原始响应内容
   show-response: false
-  # 安全模块配置
-  security:
-    jwt:
-      secret-key: T3GMtWkpWMgioX4nyY1tnU9feVpRElw1PA8DRNpEmng=
-      expire-time: 86400000
-      refresh-expire-time: 604800000
   # 日志配置
   log:
     enable: false
@@ -86,6 +80,10 @@ strix:
   package-scan:
     job:
     model:
+  # 延迟任务配置
+  delayed-task:
+    enabled: true
+    batch-size: 100
 ```
 
 ## 三、详细使用说明
