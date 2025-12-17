@@ -1,10 +1,11 @@
 package cn.projectan.strix.service.impl;
 
+import cn.projectan.strix.core.delayedtask.DelayedTaskManager;
 import cn.projectan.strix.core.exception.StrixException;
 import cn.projectan.strix.core.module.pay.StrixPayClient;
 import cn.projectan.strix.core.module.pay.StrixPayStore;
 import cn.projectan.strix.mapper.PayOrderMapper;
-import cn.projectan.strix.model.constant.DelayedQueueConst;
+import cn.projectan.strix.model.constant.DelayedTaskConst;
 import cn.projectan.strix.model.db.PayOrder;
 import cn.projectan.strix.model.dict.PayOrderStatus;
 import cn.projectan.strix.model.dict.PayPlatform;
@@ -13,7 +14,6 @@ import cn.projectan.strix.model.other.module.pay.BasePayParam;
 import cn.projectan.strix.model.other.module.pay.BasePayResult;
 import cn.projectan.strix.service.PayHandlerService;
 import cn.projectan.strix.service.PayOrderService;
-import cn.projectan.strix.util.DelayedQueueUtil;
 import cn.projectan.strix.util.SpringUtil;
 import cn.projectan.strix.util.StrixAssert;
 import cn.projectan.strix.util.SynchronizedUtil;
@@ -44,7 +44,7 @@ import java.util.concurrent.TimeUnit;
 public class PayOrderServiceImpl extends ServiceImpl<PayOrderMapper, PayOrder> implements PayOrderService {
 
     private final PayHandlerService payHandlerService;
-    private final DelayedQueueUtil delayedQueueUtil;
+    private final DelayedTaskManager delayedTaskManager;
     private final SynchronizedUtil synchronizedUtil;
     private final StrixPayStore strixPayStore;
     private final ObjectMapper objectMapper;
@@ -78,7 +78,7 @@ public class PayOrderServiceImpl extends ServiceImpl<PayOrderMapper, PayOrder> i
         payOrder.setTotalRefundAmount(0);
         Assert.isTrue(save(payOrder), "创建订单失败");
 
-        delayedQueueUtil.offer(DelayedQueueConst.PAY_ORDER_EXPIRE, payOrder.getId(), expireMin, TimeUnit.MINUTES);
+        delayedTaskManager.schedule(DelayedTaskConst.PAY_ORDER_EXPIRE, payOrder.getId(), expireMin, TimeUnit.MINUTES);
 
         Map<String, String> responseMap = null;
         switch (payType) {
@@ -115,7 +115,7 @@ public class PayOrderServiceImpl extends ServiceImpl<PayOrderMapper, PayOrder> i
             Assert.isTrue(proxy.updateById(payOrder), "更新订单信息失败");
 
             // 移除订单过期队列
-            delayedQueueUtil.remove(DelayedQueueConst.PAY_ORDER_EXPIRE, payOrder.getId());
+            delayedTaskManager.cancel(DelayedTaskConst.PAY_ORDER_EXPIRE, payOrder.getId());
 
             // 调用订单业务处理器
             payHandlerService.handleSuccess(payOrder.getHandlerId(), payOrder.getId());

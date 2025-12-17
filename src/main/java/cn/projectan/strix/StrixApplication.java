@@ -1,5 +1,6 @@
 package cn.projectan.strix;
 
+import cn.projectan.strix.model.properties.StrixDelayedTaskProperties;
 import cn.projectan.strix.model.properties.StrixModuleProperties;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -20,7 +21,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableScheduling
 @EnableAspectJAutoProxy(exposeProxy = true)
 @SpringBootApplication(proxyBeanMethods = false, scanBasePackages = "cn.projectan")
-@EnableConfigurationProperties(StrixModuleProperties.class)
+@EnableConfigurationProperties({StrixModuleProperties.class, StrixDelayedTaskProperties.class})
 public class StrixApplication {
 
     public static void main(String[] args) {

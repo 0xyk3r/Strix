@@ -117,3 +117,7 @@ strix:
   package-scan:
     job:
     model:
+  # 延迟任务配置
+  delayed-task:
+    enabled: true
+    batch-size: 100

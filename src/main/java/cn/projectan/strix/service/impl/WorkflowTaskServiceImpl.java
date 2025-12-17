@@ -1,10 +1,11 @@
 package cn.projectan.strix.service.impl;
 
 import cn.projectan.strix.core.cache.WorkflowConfigCache;
+import cn.projectan.strix.core.delayedtask.DelayedTaskManager;
 import cn.projectan.strix.core.module.workflow.WorkflowHandler;
 import cn.projectan.strix.core.module.workflow.WorkflowTool;
 import cn.projectan.strix.mapper.WorkflowTaskMapper;
-import cn.projectan.strix.model.constant.DelayedQueueConst;
+import cn.projectan.strix.model.constant.DelayedTaskConst;
 import cn.projectan.strix.model.db.WorkflowInstance;
 import cn.projectan.strix.model.db.WorkflowTask;
 import cn.projectan.strix.model.db.WorkflowTaskAssign;
@@ -13,7 +14,6 @@ import cn.projectan.strix.model.other.system.workflow.WorkflowNode;
 import cn.projectan.strix.model.other.system.workflow.WorkflowProps;
 import cn.projectan.strix.service.WorkflowTaskAssignService;
 import cn.projectan.strix.service.WorkflowTaskService;
-import cn.projectan.strix.util.DelayedQueueUtil;
 import cn.projectan.strix.util.SpringUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -40,7 +40,7 @@ public class WorkflowTaskServiceImpl extends ServiceImpl<WorkflowTaskMapper, Wor
 
     private final WorkflowTaskAssignService workflowTaskAssignService;
     private final WorkflowConfigCache workflowConfigCache;
-    private final DelayedQueueUtil delayedQueueUtil;
+    private final DelayedTaskManager delayedTaskManager;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -100,7 +100,7 @@ public class WorkflowTaskServiceImpl extends ServiceImpl<WorkflowTaskMapper, Wor
             ) {
                 Long timeLimitMinute = handler.getTimeLimitMinute();
                 if (timeLimitMinute != null) {
-                    delayedQueueUtil.offer(DelayedQueueConst.WORKFLOW_TASK_EXPIRE, task.getId(), timeLimitMinute, TimeUnit.MINUTES);
+                    delayedTaskManager.schedule(DelayedTaskConst.WORKFLOW_TASK_EXPIRE, task.getId(), timeLimitMinute, TimeUnit.MINUTES);
                 }
             }
         }
@@ -210,7 +210,7 @@ public class WorkflowTaskServiceImpl extends ServiceImpl<WorkflowTaskMapper, Wor
             task.setEndTime(LocalDateTime.now());
             SpringUtil.getAopProxy(this).updateById(task);
             // 移除定时器
-            delayedQueueUtil.remove(DelayedQueueConst.WORKFLOW_TASK_EXPIRE, taskId);
+            delayedTaskManager.cancel(DelayedTaskConst.WORKFLOW_TASK_EXPIRE, taskId);
         }
     }
 

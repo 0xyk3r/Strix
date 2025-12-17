@@ -1,12 +1,12 @@
 package cn.projectan.strix.model.constant;
 
 /**
- * 延迟队列常量
+ * 延迟任务常量
  *
  * @author ProjectAn
- * @since 2024/4/14 上午12:30
+ * @since 2024-12-18
  */
-public class DelayedQueueConst {
+public class DelayedTaskConst {
 
     /**
      * 支付订单过期
