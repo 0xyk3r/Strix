@@ -3,6 +3,7 @@ package cn.projectan.strix.service;
 import cn.projectan.strix.model.db.OssFile;
 import cn.projectan.strix.model.db.OssFileGroup;
 import com.baomidou.mybatisplus.extension.service.IService;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 
@@ -50,8 +51,8 @@ public interface OssFileService extends IService<OssFile> {
     /**
      * 上传文件
      *
-     * @param groupKey   文件组key
-     * @param file       文件
+     * @param groupKey 文件组 key
+     * @param file     文件
      * @return 上传成功的文件信息
      */
     OssFile upload(String groupKey, File file);
@@ -59,7 +60,16 @@ public interface OssFileService extends IService<OssFile> {
     /**
      * 上传文件
      *
-     * @param groupKey   文件组key
+     * @param groupKey 文件组 key
+     * @param file     文件
+     * @return 上传成功的文件信息
+     */
+    OssFile upload(String groupKey, MultipartFile file);
+
+    /**
+     * 上传文件
+     *
+     * @param groupKey   文件组 key
      * @param fileBase64 文件base64
      * @return 上传成功的文件信息
      */

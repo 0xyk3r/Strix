@@ -1,6 +1,8 @@
 package cn.projectan.strix.core.module.oss;
 
 import cn.projectan.strix.model.other.module.oss.StrixOssBucket;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import java.io.File;
 import java.io.InputStream;
@@ -86,6 +88,8 @@ public interface StrixOssClient {
         File download(String bucketName, String objectName, String filePath);
 
         File downloadStream(String bucketName, String objectName, String filePath);
+
+        StreamingResponseBody downloadStream(String bucketName, String objectName, HttpServletResponse response);
 
         /**
          * 获取下载文件的签名 URL

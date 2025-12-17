@@ -5,9 +5,11 @@ import cn.projectan.strix.model.other.module.oss.StrixOssBucket;
 import com.aliyun.oss.HttpMethod;
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.model.*;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import java.io.*;
 import java.net.URL;
@@ -147,6 +149,54 @@ public class AliyunOssClient implements StrixOssClient {
                 log.error(e.getMessage(), e);
                 throw new StrixException("Strix OSS: 流式下载文件失败.");
             }
+        }
+
+        @Override
+        public StreamingResponseBody downloadStream(String bucketName, String objectName, HttpServletResponse response) {
+            // 获取文件元信息
+            ObjectMetadata metadata = client.getObjectMetadata(bucketName, objectName);
+            long fileSize = metadata.getContentLength();
+            response.setContentLengthLong(fileSize);
+
+            return outputStream -> {
+                try (OSSObject ossObject = client.getObject(bucketName, objectName);
+                     InputStream inputStream = ossObject.getObjectContent()) {
+
+                    byte[] buffer = new byte[4096];
+                    int bytesRead;
+                    while ((bytesRead = inputStream.read(buffer)) != -1) {
+                        try {
+                            outputStream.write(buffer, 0, bytesRead);
+                            outputStream.flush();
+                        } catch (IOException writeException) {
+                            log.warn("Strix OSS: 检测到客户端断开连接，停止下载. 原因: {}", writeException.getMessage());
+                            try {
+                                inputStream.close();
+                            } catch (IOException closeException) {
+                                log.debug("关闭OSS输入流时出现异常: {}", closeException.getMessage());
+                            }
+                            try {
+                                ossObject.close();
+                            } catch (IOException closeException) {
+                                log.debug("关闭OSS对象时出现异常: {}", closeException.getMessage());
+                            }
+                            return;
+                        }
+                    }
+                } catch (IOException e) {
+                    // 检查是否为客户端断开连接的常见错误
+                    if (e.getMessage() != null &&
+                            (e.getMessage().contains("Broken pipe") ||
+                                    e.getMessage().contains("Connection reset") ||
+                                    e.getMessage().contains("中止") ||
+                                    e.getMessage().contains("连接中断"))) {
+                        log.warn("Strix OSS: 流式下载文件失败, 客户端可能已断开连接. 原因: {}", e.getMessage());
+                    } else {
+                        log.error(e.getMessage(), e);
+                        throw new StrixException("Strix OSS: 流式下载文件失败.");
+                    }
+                }
+            };
         }
 
         @Override

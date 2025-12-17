@@ -20,8 +20,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Base64;
@@ -122,6 +124,41 @@ public class OssFileServiceImpl extends ServiceImpl<OssFileMapper, OssFile> impl
         } catch (Exception e) {
             throw new StrixException("上传文件失败. 解析文件失败");
         }
+    }
+
+    @Override
+    public OssFile upload(String groupKey, MultipartFile file) {
+        OssFileGroup ossFileGroup = ossFileGroupService.getGroupByKey(groupKey);
+        Assert.notNull(ossFileGroup, "上传文件失败. 文件组不存在");
+        StrixOssClient client = strixOssStore.getInstance(ossFileGroup.getConfigKey());
+        Assert.notNull(client, "上传文件失败. OSS服务实例不存在");
+
+        String ext = "." + StringUtils.getFilenameExtension(file.getOriginalFilename());
+        List<String> allowExtSet = Arrays.asList(ossFileGroup.getAllowExtension().split(","));
+        Assert.isTrue(allowExtSet.contains(ext), "上传文件失败, 不支持的文件格式.");
+
+        StringBuilder filePath = new StringBuilder();
+        if (StringUtils.hasText(ossFileGroup.getBaseDir())) {
+            filePath.append(ossFileGroup.getBaseDir()).append("/");
+        }
+        filePath.append(SnowflakeUtil.nextOssFileName()).append("_").append(file.getOriginalFilename());
+
+        try (InputStream is = file.getInputStream()) {
+            client.getPrivate().upload(ossFileGroup.getBucketName(), filePath.toString(), is);
+        } catch (Exception e) {
+            throw new StrixException("上传文件失败. 文件上传异常", e);
+        }
+
+        // FIXME 验证上传人信息是否填充正确
+        OssFile ossFile = new OssFile()
+                .setConfigKey(ossFileGroup.getConfigKey())
+                .setGroupKey(ossFileGroup.getKey())
+                .setPath(filePath.toString())
+                .setSize(file.getSize())
+                .setExt(ext);
+        Assert.isTrue(save(ossFile), "上传文件失败, 保存文件信息失败.");
+        return ossFile;
+
     }
 
     @Override

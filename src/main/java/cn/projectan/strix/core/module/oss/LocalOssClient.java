@@ -4,9 +4,11 @@ import cn.hutool.core.io.FileUtil;
 import cn.projectan.strix.core.exception.StrixException;
 import cn.projectan.strix.model.other.module.oss.StrixOssBucket;
 import cn.projectan.strix.util.tempurl.TempUrlUtil;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -118,6 +120,33 @@ public class LocalOssClient implements StrixOssClient {
         @Override
         public File downloadStream(String bucketName, String objectName, String filePath) {
             return download(bucketName, objectName, filePath);
+        }
+
+        @Override
+        public StreamingResponseBody downloadStream(String bucketName, String objectName, HttpServletResponse response) {
+            File file = new File(objectName);
+            if (!file.exists()) {
+                throw new StrixException("Strix OSS: 文件不存在.");
+            }
+
+            // 设置响应头
+            response.setContentType("application/octet-stream");
+            response.setHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
+            response.setContentLengthLong(file.length());
+
+            return outputStream -> {
+                try (InputStream inputStream = FileUtil.getInputStream(file)) {
+                    byte[] buffer = new byte[8192];
+                    int bytesRead;
+                    while ((bytesRead = inputStream.read(buffer)) != -1) {
+                        outputStream.write(buffer, 0, bytesRead);
+                    }
+                    outputStream.flush();
+                } catch (IOException e) {
+                    log.error("Strix OSS: 流式下载文件失败: {}", e.getMessage(), e);
+                    throw new StrixException("Strix OSS: 流式下载文件失败.");
+                }
+            };
         }
 
         @Override
