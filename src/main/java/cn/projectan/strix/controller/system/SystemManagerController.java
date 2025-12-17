@@ -40,6 +40,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
@@ -70,6 +71,23 @@ public class SystemManagerController extends BaseSystemController {
     @StrixLog(operationGroup = "系统人员", operationName = "查询人员列表")
     public RetResult<SystemManagerListResp> getSystemManagerList(SystemManagerListReq req) {
         List<String> loginManagerRegionPermissions = loginManagerRegionPermissions();
+
+        // 如果指定了角色ID，先查询拥有该角色的所有管理员ID
+        List<String> managerIdsByRole = null;
+        if (StringUtils.hasText(req.getRoleId())) {
+            managerIdsByRole = systemManagerRoleService.lambdaQuery()
+                    .eq(SystemManagerRole::getSystemRoleId, req.getRoleId())
+                    .list()
+                    .stream()
+                    .map(SystemManagerRole::getSystemManagerId)
+                    .collect(Collectors.toList());
+
+            // 如果没有任何管理员拥有该角色，直接返回空结果
+            if (CollectionUtils.isEmpty(managerIdsByRole)) {
+                return RetBuilder.success(new SystemManagerListResp(Collections.emptyList(), 0L));
+            }
+        }
+
         Page<SystemManager> page = systemManagerService.lambdaQuery()
                 .eq(StringUtils.hasText(req.getKeyword()), SystemManager::getNickname, req.getKeyword())
                 .or(StringUtils.hasText(req.getKeyword()), q -> q.like(SystemManager::getLoginName, req.getKeyword()))

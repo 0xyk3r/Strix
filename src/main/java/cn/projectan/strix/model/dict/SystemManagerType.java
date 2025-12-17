@@ -15,11 +15,11 @@ import org.springframework.stereotype.Component;
 @Dict(key = "SystemManagerType", value = "系统人员-类型")
 public class SystemManagerType implements BaseDict {
 
-    @DictData(label = "超级账号", sort = 1, style = DictDataStyle.SUCCESS)
+    @DictData(label = "超级账号", sort = 99, style = DictDataStyle.SUCCESS)
     public static final
     int SUPER_ACCOUNT = 1;
 
-    @DictData(label = "普通账号", sort = 2, style = DictDataStyle.PRIMARY)
+    @DictData(label = "普通账号", sort = 1, style = DictDataStyle.PRIMARY)
     public static final
     int NORMAL_ACCOUNT = 2;
 

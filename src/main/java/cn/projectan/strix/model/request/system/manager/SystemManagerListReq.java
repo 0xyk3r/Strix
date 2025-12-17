@@ -19,4 +19,6 @@ public class SystemManagerListReq extends BasePageReq<SystemManager> {
 
     private String regionId;
 
+    private String roleId;
+
 }
