@@ -94,7 +94,9 @@ dependencies {
     implementation 'com.github.xiaoymin:knife4j-openapi3-jakarta-spring-boot-starter:4.5.0'
     // Third Party
     implementation 'com.aliyun:aliyun-java-sdk-dysmsapi:2.2.1'
-    implementation 'com.aliyun.oss:aliyun-sdk-oss:3.18.1'
+    implementation('com.aliyun.oss:aliyun-sdk-oss:3.18.2') {
+        exclude group: 'com.aliyun', module: 'java-trace-api'
+    }
     implementation 'com.alipay.sdk:alipay-sdk-java:4.40.13.ALL'
     implementation('com.github.javen205:IJPay-AliPay:2.9.10-17') {
         exclude group: 'com.alipay.sdk', module: 'alipay-sdk-java'
