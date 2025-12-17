@@ -2,20 +2,26 @@ package cn.projectan.strix.core.module.oss;
 
 import cn.projectan.strix.core.exception.StrixException;
 import cn.projectan.strix.model.other.module.oss.StrixOssBucket;
-import com.aliyun.oss.HttpMethod;
-import com.aliyun.oss.OSS;
-import com.aliyun.oss.model.*;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
+import software.amazon.awssdk.core.ResponseInputStream;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.*;
+import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
+import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
 
-import java.io.*;
-import java.net.URL;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.time.Duration;
 import java.time.ZoneId;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -29,17 +35,21 @@ import java.util.stream.Collectors;
 @Slf4j
 public class AliyunOssClient implements StrixOssClient {
 
-    private OSS publicClient;
+    private S3Client publicClient;
+    private S3Presigner publicPresigner;
     private final DefaultOperations publicOperations;
-    private OSS privateClient;
+    private S3Client privateClient;
+    private S3Presigner privatePresigner;
     private final DefaultOperations privateOperations;
 
-    public AliyunOssClient(OSS publicClient, OSS privateClient) {
+    public AliyunOssClient(S3Client publicClient, S3Presigner publicPresigner, S3Client privateClient, S3Presigner privatePresigner) {
         super();
         this.publicClient = publicClient;
-        this.publicOperations = new DefaultOperations(publicClient);
+        this.publicPresigner = publicPresigner;
+        this.publicOperations = new DefaultOperations(publicClient, publicPresigner);
         this.privateClient = privateClient;
-        this.privateOperations = new DefaultOperations(privateClient);
+        this.privatePresigner = privatePresigner;
+        this.privateOperations = new DefaultOperations(privateClient, privatePresigner);
     }
 
     @Override
@@ -55,28 +65,42 @@ public class AliyunOssClient implements StrixOssClient {
     @Override
     public void close() {
         if (publicClient != null) {
-            publicClient.shutdown();
+            publicClient.close();
             publicClient = null;
         }
+        if (publicPresigner != null) {
+            publicPresigner.close();
+            publicPresigner = null;
+        }
         if (privateClient != null) {
-            privateClient.shutdown();
+            privateClient.close();
             privateClient = null;
+        }
+        if (privatePresigner != null) {
+            privatePresigner.close();
+            privatePresigner = null;
         }
     }
 
     public static class DefaultOperations implements StrixOssClient.Operations {
 
-        private final OSS client;
+        private final S3Client client;
+        private final S3Presigner presigner;
 
-        public DefaultOperations(OSS client) {
+        public DefaultOperations(S3Client client, S3Presigner presigner) {
             this.client = client;
+            this.presigner = presigner;
         }
 
         @Override
         public void upload(String bucketName, String objectName, byte[] buf) {
-            try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(buf)) {
-                client.putObject(bucketName, objectName, byteArrayInputStream);
-            } catch (IOException e) {
+            try {
+                PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                        .bucket(bucketName)
+                        .key(objectName)
+                        .build();
+                client.putObject(putObjectRequest, RequestBody.fromBytes(buf));
+            } catch (Exception e) {
                 log.error(e.getMessage(), e);
                 throw new StrixException("Strix OSS: 上传文件失败.");
             }
@@ -85,7 +109,11 @@ public class AliyunOssClient implements StrixOssClient {
         @Override
         public void upload(String bucketName, String objectName, InputStream inputStream) {
             try {
-                client.putObject(bucketName, objectName, inputStream);
+                PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                        .bucket(bucketName)
+                        .key(objectName)
+                        .build();
+                client.putObject(putObjectRequest, RequestBody.fromInputStream(inputStream, inputStream.available()));
             } catch (Exception e) {
                 log.error(e.getMessage(), e);
                 throw new StrixException("Strix OSS: 上传文件失败.");
@@ -95,7 +123,11 @@ public class AliyunOssClient implements StrixOssClient {
         @Override
         public void upload(String bucketName, String objectName, File file) {
             try {
-                client.putObject(bucketName, objectName, file);
+                PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                        .bucket(bucketName)
+                        .key(objectName)
+                        .build();
+                client.putObject(putObjectRequest, RequestBody.fromFile(file));
             } catch (Exception e) {
                 log.error(e.getMessage(), e);
                 throw new StrixException("Strix OSS: 上传文件失败.");
@@ -105,10 +137,17 @@ public class AliyunOssClient implements StrixOssClient {
         @Override
         public String signUploadUrl(String bucketName, String objectName, long expires) {
             try {
-                Date expiration = new Date(System.currentTimeMillis() + expires);
-                URL url = client.generatePresignedUrl(bucketName, objectName, expiration, HttpMethod.PUT);
-                Assert.notNull(url, "Strix OSS: 获取文件上传 URL 失败.");
-                return url.toString();
+                PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                        .bucket(bucketName)
+                        .key(objectName)
+                        .build();
+                PutObjectPresignRequest presignRequest = PutObjectPresignRequest.builder()
+                        .signatureDuration(Duration.ofMillis(expires))
+                        .putObjectRequest(putObjectRequest)
+                        .build();
+                String url = presigner.presignPutObject(presignRequest).url().toString();
+                Assert.hasText(url, "Strix OSS: 获取文件上传 URL 失败.");
+                return url;
             } catch (Exception e) {
                 log.error(e.getMessage(), e);
                 throw new StrixException("Strix OSS: 获取文件上传 URL 失败.");
@@ -119,7 +158,11 @@ public class AliyunOssClient implements StrixOssClient {
         public File download(String bucketName, String objectName, String filePath) {
             try {
                 File file = new File(filePath);
-                client.getObject(new GetObjectRequest(bucketName, objectName), file);
+                GetObjectRequest getObjectRequest = GetObjectRequest.builder()
+                        .bucket(bucketName)
+                        .key(objectName)
+                        .build();
+                client.getObject(getObjectRequest, file.toPath());
                 Assert.isTrue(file.exists(), "Strix OSS: 下载文件失败.");
                 return file;
             } catch (Exception e) {
@@ -132,14 +175,17 @@ public class AliyunOssClient implements StrixOssClient {
         public File downloadStream(String bucketName, String objectName, String filePath) {
             try {
                 File file = new File(filePath);
-                try (OSSObject ossObject = client.getObject(bucketName, objectName);
-                     InputStream inputStream = ossObject.getObjectContent();
+                GetObjectRequest getObjectRequest = GetObjectRequest.builder()
+                        .bucket(bucketName)
+                        .key(objectName)
+                        .build();
+                try (ResponseInputStream<GetObjectResponse> s3Object = client.getObject(getObjectRequest);
                      FileOutputStream fileOutputStream = new FileOutputStream(file)
                 ) {
                     // 读取文件内容到字节数组。
                     byte[] readBuffer = new byte[1024];
                     int bytesRead;
-                    while ((bytesRead = inputStream.read(readBuffer)) != -1) {
+                    while ((bytesRead = s3Object.read(readBuffer)) != -1) {
                         fileOutputStream.write(readBuffer, 0, bytesRead);
                     }
                 }
@@ -154,31 +200,38 @@ public class AliyunOssClient implements StrixOssClient {
         @Override
         public StreamingResponseBody downloadStream(String bucketName, String objectName, HttpServletResponse response) {
             // 获取文件元信息
-            ObjectMetadata metadata = client.getObjectMetadata(bucketName, objectName);
-            long fileSize = metadata.getContentLength();
-            response.setContentLengthLong(fileSize);
+            try {
+                HeadObjectRequest headObjectRequest = HeadObjectRequest.builder()
+                        .bucket(bucketName)
+                        .key(objectName)
+                        .build();
+                HeadObjectResponse headObjectResponse = client.headObject(headObjectRequest);
+                long fileSize = headObjectResponse.contentLength();
+                response.setContentLengthLong(fileSize);
+            } catch (Exception e) {
+                log.error(e.getMessage(), e);
+                throw new StrixException("Strix OSS: 获取文件元信息失败.");
+            }
 
             return outputStream -> {
-                try (OSSObject ossObject = client.getObject(bucketName, objectName);
-                     InputStream inputStream = ossObject.getObjectContent()) {
+                GetObjectRequest getObjectRequest = GetObjectRequest.builder()
+                        .bucket(bucketName)
+                        .key(objectName)
+                        .build();
+                try (ResponseInputStream<GetObjectResponse> s3Object = client.getObject(getObjectRequest)) {
 
                     byte[] buffer = new byte[4096];
                     int bytesRead;
-                    while ((bytesRead = inputStream.read(buffer)) != -1) {
+                    while ((bytesRead = s3Object.read(buffer)) != -1) {
                         try {
                             outputStream.write(buffer, 0, bytesRead);
                             outputStream.flush();
                         } catch (IOException writeException) {
                             log.warn("Strix OSS: 检测到客户端断开连接，停止下载. 原因: {}", writeException.getMessage());
                             try {
-                                inputStream.close();
+                                s3Object.close();
                             } catch (IOException closeException) {
-                                log.debug("关闭OSS输入流时出现异常: {}", closeException.getMessage());
-                            }
-                            try {
-                                ossObject.close();
-                            } catch (IOException closeException) {
-                                log.debug("关闭OSS对象时出现异常: {}", closeException.getMessage());
+                                log.debug("关闭S3输入流时出现异常: {}", closeException.getMessage());
                             }
                             return;
                         }
@@ -202,10 +255,17 @@ public class AliyunOssClient implements StrixOssClient {
         @Override
         public String signDownloadUrl(String bucketName, String objectName, long expires) {
             try {
-                Date expiration = new Date(System.currentTimeMillis() + expires);
-                URL url = client.generatePresignedUrl(bucketName, objectName, expiration);
-                Assert.notNull(url, "Strix OSS: 获取文件下载 URL 失败.");
-                return url.toString();
+                GetObjectRequest getObjectRequest = GetObjectRequest.builder()
+                        .bucket(bucketName)
+                        .key(objectName)
+                        .build();
+                GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
+                        .signatureDuration(Duration.ofMillis(expires))
+                        .getObjectRequest(getObjectRequest)
+                        .build();
+                String url = presigner.presignGetObject(presignRequest).url().toString();
+                Assert.hasText(url, "Strix OSS: 获取文件下载 URL 失败.");
+                return url;
             } catch (Exception e) {
                 log.error(e.getMessage(), e);
                 throw new StrixException("Strix OSS: 获取文件下载 URL 失败.");
@@ -215,7 +275,14 @@ public class AliyunOssClient implements StrixOssClient {
         @Override
         public boolean exist(String bucketName, String objectName) {
             try {
-                return client.doesObjectExist(bucketName, objectName);
+                HeadObjectRequest headObjectRequest = HeadObjectRequest.builder()
+                        .bucket(bucketName)
+                        .key(objectName)
+                        .build();
+                client.headObject(headObjectRequest);
+                return true;
+            } catch (NoSuchKeyException e) {
+                return false;
             } catch (Exception e) {
                 log.error(e.getMessage(), e);
                 throw new StrixException("Strix OSS: 判断文件是否存在失败.");
@@ -225,22 +292,28 @@ public class AliyunOssClient implements StrixOssClient {
         @Override
         public void list(String bucketName, String prefix, int maxKeys) {
             try {
-                String nextContinuationToken = null;
-                ListObjectsV2Result result = null;
+                String continuationToken = null;
+                ListObjectsV2Response result;
                 do {
-                    ListObjectsV2Request listObjectsV2Request = new ListObjectsV2Request(bucketName).withMaxKeys(maxKeys);
-                    listObjectsV2Request.setPrefix(prefix);
-                    listObjectsV2Request.setContinuationToken(nextContinuationToken);
-                    result = client.listObjectsV2(listObjectsV2Request);
+                    ListObjectsV2Request.Builder builder = ListObjectsV2Request.builder()
+                            .bucket(bucketName)
+                            .maxKeys(maxKeys);
+                    if (StringUtils.hasText(prefix)) {
+                        builder.prefix(prefix);
+                    }
+                    if (continuationToken != null) {
+                        builder.continuationToken(continuationToken);
+                    }
+                    result = client.listObjectsV2(builder.build());
 
-                    List<OSSObjectSummary> sums = result.getObjectSummaries();
-                    for (OSSObjectSummary s : sums) {
-                        System.out.println("\t" + s.getKey());
+                    List<S3Object> contents = result.contents();
+                    for (S3Object s : contents) {
+                        System.out.println("\t" + s.key());
                     }
 
-                    nextContinuationToken = result.getNextContinuationToken();
+                    continuationToken = result.nextContinuationToken();
 
-                } while (result.isTruncated());
+                } while (Boolean.TRUE.equals(result.isTruncated()));
             } catch (Exception e) {
                 log.error(e.getMessage(), e);
                 throw new StrixException("Strix OSS: 获取文件列表失败.");
@@ -250,7 +323,11 @@ public class AliyunOssClient implements StrixOssClient {
         @Override
         public void delete(String bucketName, String objectName) {
             try {
-                client.deleteObject(bucketName, objectName);
+                DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
+                        .bucket(bucketName)
+                        .key(objectName)
+                        .build();
+                client.deleteObject(deleteObjectRequest);
             } catch (Exception e) {
                 log.error(e.getMessage(), e);
                 throw new StrixException("Strix OSS: 删除文件失败.");
@@ -260,15 +337,16 @@ public class AliyunOssClient implements StrixOssClient {
         @Override
         public List<StrixOssBucket> listBuckets() {
             try {
-                List<Bucket> buckets = client.listBuckets();
+                ListBucketsResponse response = client.listBuckets();
+                List<Bucket> buckets = response.buckets();
                 return Optional.ofNullable(buckets).orElse(Collections.emptyList()).stream().map(b ->
                         new StrixOssBucket(
-                                b.getName(),
-                                b.getExtranetEndpoint(),
-                                b.getIntranetEndpoint(),
-                                b.getRegion(),
-                                b.getStorageClass().toString(),
-                                b.getCreationDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime()
+                                b.name(),
+                                null, // S3 API doesn't return extranet endpoint in list operation
+                                null, // S3 API doesn't return intranet endpoint in list operation
+                                null, // S3 API doesn't return region in list operation
+                                null, // S3 API doesn't return storage class in list operation
+                                b.creationDate().atZone(ZoneId.systemDefault()).toLocalDateTime()
                         )).collect(Collectors.toList());
             } catch (Exception e) {
                 log.error(e.getMessage(), e);
@@ -279,16 +357,16 @@ public class AliyunOssClient implements StrixOssClient {
         @Override
         public void createBucket(String bucketName, String storageClass) {
             try {
-                CreateBucketRequest createBucketRequest = new CreateBucketRequest(bucketName);
-                if (StringUtils.hasText(storageClass)) {
-                    createBucketRequest.setStorageClass(StorageClass.parse(storageClass));
-                }
-                client.createBucket(createBucketRequest);
+                CreateBucketRequest.Builder builder = CreateBucketRequest.builder()
+                        .bucket(bucketName);
+                // Note: Storage class for bucket is not set at bucket creation in S3
+                // It's set at object level or through lifecycle policies
+                client.createBucket(builder.build());
+            } catch (BucketAlreadyExistsException | BucketAlreadyOwnedByYouException e) {
+                log.error(e.getMessage(), e);
+                throw new StrixException("Strix OSS: Bucket名称不可用，存储服务提供商要求Bucket名称不得与其他用户重复.");
             } catch (Exception e) {
                 log.error(e.getMessage(), e);
-                if (e.getMessage().contains("BucketAlreadyExists")) {
-                    throw new StrixException("Strix OSS: Bucket名称不可用，存储服务提供商要求Bucket名称不得与其他用户重复.");
-                }
                 throw new StrixException("Strix OSS: 创建Bucket失败.");
             }
         }
@@ -296,7 +374,10 @@ public class AliyunOssClient implements StrixOssClient {
         @Override
         public void deleteBucket(String bucketName) {
             try {
-                client.deleteBucket(bucketName);
+                DeleteBucketRequest deleteBucketRequest = DeleteBucketRequest.builder()
+                        .bucket(bucketName)
+                        .build();
+                client.deleteBucket(deleteBucketRequest);
             } catch (Exception e) {
                 log.error(e.getMessage(), e);
                 throw new StrixException("Strix OSS: 删除Bucket失败.");

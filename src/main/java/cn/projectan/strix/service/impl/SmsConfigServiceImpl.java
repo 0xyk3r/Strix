@@ -10,12 +10,10 @@ import cn.projectan.strix.model.response.common.CommonSelectDataResp;
 import cn.projectan.strix.service.SmsConfigService;
 import cn.projectan.strix.task.StrixSmsTask;
 import cn.projectan.strix.util.SpringUtil;
-import com.aliyuncs.DefaultAcsClient;
-import com.aliyuncs.profile.DefaultProfile;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
@@ -31,7 +29,7 @@ import java.util.List;
  */
 @Slf4j
 @Service
-@ConditionalOnClass(DefaultAcsClient.class)
+@ConditionalOnProperty(prefix = "strix.module", name = "sms", havingValue = "true")
 public class SmsConfigServiceImpl extends ServiceImpl<SmsConfigMapper, SmsConfig> implements SmsConfigService {
 
     @Override
@@ -44,9 +42,13 @@ public class SmsConfigServiceImpl extends ServiceImpl<SmsConfigMapper, SmsConfig
             try {
                 switch (smsConfig.getPlatform()) {
                     case StrixSmsPlatform.ALIYUN -> {
-                        DefaultProfile profile = DefaultProfile.getProfile(smsConfig.getRegionId(), smsConfig.getAccessKey(), smsConfig.getAccessSecret());
-                        Assert.notNull(profile, "Strix SMS: 初始化短信服务实例 <" + smsConfig.getKey() + "> 失败. (阿里云短信服务配置错误)");
-                        strixSmsStore.addInstance(smsConfig.getKey(), new AliyunSmsClient(new DefaultAcsClient(profile)));
+                        com.aliyun.teaopenapi.models.Config config = new com.aliyun.teaopenapi.models.Config()
+                                .setAccessKeyId(smsConfig.getAccessKey())
+                                .setAccessKeySecret(smsConfig.getAccessSecret())
+                                .setRegionId(smsConfig.getRegionId());
+                        com.aliyun.dysmsapi20170525.Client client = new com.aliyun.dysmsapi20170525.Client(config);
+                        Assert.notNull(client, "Strix SMS: 初始化短信服务实例 <" + smsConfig.getKey() + "> 失败.");
+                        strixSmsStore.addInstance(smsConfig.getKey(), new AliyunSmsClient(client));
                     }
                     case StrixSmsPlatform.TENCENT ->
                             throw new StrixException("Strix SMS: 初始化短信服务实例 <" + smsConfig.getKey() + "> 失败. (暂不支持腾讯云短信服务)");
@@ -55,10 +57,10 @@ public class SmsConfigServiceImpl extends ServiceImpl<SmsConfigMapper, SmsConfig
                 }
             } catch (Exception e) {
                 success = false;
-                log.error("Strix SMS: 初始化短信服务实例 <" + smsConfig.getKey() + "> 失败. (其他错误)", e);
+                log.error("Strix SMS: 初始化短信服务实例 <{}> 失败.", smsConfig.getKey(), e);
             }
             if (success) {
-                log.info("Strix SMS: 初始化短信服务实例 <" + smsConfig.getKey() + "> 成功.");
+                log.info("Strix SMS: 初始化短信服务实例 <{}> 成功.", smsConfig.getKey());
             }
         }
 

@@ -14,12 +14,6 @@ import cn.projectan.strix.task.StrixOssTask;
 import cn.projectan.strix.util.SpringUtil;
 import cn.projectan.strix.util.algo.KeyDiffUtil;
 import cn.projectan.strix.util.tempurl.TempUrlUtil;
-import com.aliyun.oss.ClientBuilderConfiguration;
-import com.aliyun.oss.OSS;
-import com.aliyun.oss.OSSClientBuilder;
-import com.aliyun.oss.common.auth.CredentialsProvider;
-import com.aliyun.oss.common.auth.DefaultCredentialProvider;
-import com.aliyun.oss.common.comm.SignVersion;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +21,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.S3Configuration;
+import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 
+import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -81,29 +82,79 @@ public class OssConfigServiceImpl extends ServiceImpl<OssConfigMapper, OssConfig
             try {
                 switch (ossConfig.getPlatform()) {
                     case StrixOssPlatform.ALIYUN -> {
-                        CredentialsProvider credentialsProvider = new DefaultCredentialProvider(ossConfig.getAccessKey(), ossConfig.getAccessSecret());
-                        ClientBuilderConfiguration clientBuilderConfiguration = new ClientBuilderConfiguration();
-                        clientBuilderConfiguration.setSupportCname(true);
-                        clientBuilderConfiguration.setSignatureVersion(SignVersion.V4);
-                        OSS publicClient = OSSClientBuilder.create()
-                                .endpoint(ossConfig.getPublicEndpoint())
-                                .credentialsProvider(credentialsProvider)
-                                .clientConfiguration(clientBuilderConfiguration)
-                                .region(ossConfig.getRegion())
+                        S3Client publicClient = S3Client.builder()
+                                .endpointOverride(URI.create(ossConfig.getPublicEndpoint()))
+                                .credentialsProvider(
+                                        StaticCredentialsProvider.create(
+                                                AwsBasicCredentials.create(ossConfig.getAccessKey(), ossConfig.getAccessSecret())
+                                        )
+                                )
+                                .region(Region.of(ossConfig.getRegion()))
+                                .serviceConfiguration(
+                                        S3Configuration.builder()
+                                                .pathStyleAccessEnabled(false)
+                                                .chunkedEncodingEnabled(false)
+                                                .build()
+                                )
                                 .build();
-                        OSS privateClient = publicClient;
-                        // 非正式环境无法创建内网OSS实例
+
+                        S3Presigner publicPresigner = S3Presigner.builder()
+                                .endpointOverride(URI.create(ossConfig.getPublicEndpoint()))
+                                .credentialsProvider(
+                                        StaticCredentialsProvider.create(
+                                                AwsBasicCredentials.create(ossConfig.getAccessKey(), ossConfig.getAccessSecret())
+                                        )
+                                )
+                                .region(Region.of(ossConfig.getRegion()))
+                                .serviceConfiguration(
+                                        S3Configuration.builder()
+                                                .pathStyleAccessEnabled(false)
+                                                .chunkedEncodingEnabled(false)
+                                                .build()
+                                )
+                                .build();
+
+                        S3Client privateClient = publicClient;
+                        S3Presigner privatePresigner = publicPresigner;
                         if ("prod".equals(profiles)) {
-                            privateClient = OSSClientBuilder.create()
-                                    .endpoint(ossConfig.getPrivateEndpoint())
-                                    .credentialsProvider(credentialsProvider)
-                                    .clientConfiguration(clientBuilderConfiguration)
-                                    .region(ossConfig.getRegion())
+                            privateClient = S3Client.builder()
+                                    .endpointOverride(URI.create(ossConfig.getPrivateEndpoint()))
+                                    .credentialsProvider(
+                                            StaticCredentialsProvider.create(
+                                                    AwsBasicCredentials.create(ossConfig.getAccessKey(), ossConfig.getAccessSecret())
+                                            )
+                                    )
+                                    .region(Region.of(ossConfig.getRegion()))
+                                    .serviceConfiguration(
+                                            S3Configuration.builder()
+                                                    .pathStyleAccessEnabled(false)
+                                                    .chunkedEncodingEnabled(false)
+                                                    .build()
+                                    )
+                                    .build();
+
+                            privatePresigner = S3Presigner.builder()
+                                    .endpointOverride(URI.create(ossConfig.getPrivateEndpoint()))
+                                    .credentialsProvider(
+                                            StaticCredentialsProvider.create(
+                                                    AwsBasicCredentials.create(ossConfig.getAccessKey(), ossConfig.getAccessSecret())
+                                            )
+                                    )
+                                    .region(Region.of(ossConfig.getRegion()))
+                                    .serviceConfiguration(
+                                            S3Configuration.builder()
+                                                    .pathStyleAccessEnabled(false)
+                                                    .chunkedEncodingEnabled(false)
+                                                    .build()
+                                    )
                                     .build();
                         }
-                        Assert.notNull(publicClient, "Strix OSS: 初始化对象存储服务实例 <" + ossConfig.getKey() + "> 失败. (阿里云公网对象存储服务配置错误)");
-                        Assert.notNull(privateClient, "Strix OSS: 初始化对象存储服务实例 <" + ossConfig.getKey() + "> 失败. (阿里云私网对象存储服务配置错误)");
-                        strixOssStore.addInstance(ossConfig.getKey(), new AliyunOssClient(publicClient, privateClient));
+
+                        Assert.notNull(publicClient, "Strix OSS: 初始化对象存储服务实例 <" + ossConfig.getKey() + "> 失败.");
+                        Assert.notNull(publicPresigner, "Strix OSS: 初始化对象存储服务实例 <" + ossConfig.getKey() + "> 失败.");
+                        Assert.notNull(privateClient, "Strix OSS: 初始化对象存储服务实例 <" + ossConfig.getKey() + "> 失败.");
+                        Assert.notNull(privatePresigner, "Strix OSS: 初始化对象存储服务实例 <" + ossConfig.getKey() + "> 失败.");
+                        strixOssStore.addInstance(ossConfig.getKey(), new AliyunOssClient(publicClient, publicPresigner, privateClient, privatePresigner));
                     }
                     case StrixOssPlatform.TENCENT ->
                             throw new StrixException("Strix OSS: 初始化对象存储服务实例 <" + ossConfig.getKey() + "> 失败. (暂不支持腾讯云对象存储服务)");
@@ -114,10 +165,10 @@ public class OssConfigServiceImpl extends ServiceImpl<OssConfigMapper, OssConfig
                 }
             } catch (Exception e) {
                 success = false;
-                log.error("Strix OSS: 初始化对象存储服务实例 <" + ossConfig.getKey() + "> 失败. (其他错误)", e);
+                log.error("Strix OSS: 初始化对象存储服务实例 <{}> 失败. (其他错误)", ossConfig.getKey(), e);
             }
             if (success) {
-                log.info("Strix OSS: 初始化对象存储服务实例 <" + ossConfig.getKey() + "> 完成.");
+                log.info("Strix OSS: 初始化对象存储服务实例 <{}> 完成.", ossConfig.getKey());
             }
         }
 

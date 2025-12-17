@@ -7,8 +7,9 @@ import cn.projectan.strix.model.dict.StrixSmsTemplateStatus;
 import cn.projectan.strix.model.dict.StrixSmsTemplateType;
 import cn.projectan.strix.model.other.module.sms.StrixSmsSign;
 import cn.projectan.strix.model.other.module.sms.StrixSmsTemplate;
-import com.aliyuncs.IAcsClient;
-import com.aliyuncs.dysmsapi.model.v20170525.*;
+import com.aliyun.dysmsapi20170525.Client;
+import com.aliyun.dysmsapi20170525.models.*;
+import com.aliyun.teautil.models.RuntimeOptions;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.CollectionUtils;
 
@@ -28,31 +29,33 @@ import java.util.Optional;
 @Slf4j
 public class AliyunSmsClient extends StrixSmsClient {
 
-    protected IAcsClient client;
+    protected Client client;
 
-    public AliyunSmsClient(IAcsClient client) {
+    public AliyunSmsClient(Client client) {
         super();
         this.client = client;
     }
 
     @Override
-    public IAcsClient get() {
+    public Client get() {
         return client;
     }
 
     @Override
     public void send(SmsLog sms) {
-        SendSmsRequest request = new SendSmsRequest();
-        request.setPhoneNumbers(sms.getPhoneNumber());
-        request.setSignName(sms.getSignName());
-        request.setTemplateCode(sms.getTemplateCode());
-        request.setTemplateParam(sms.getTemplateParam());
+        SendSmsRequest request = new SendSmsRequest()
+                .setPhoneNumbers(sms.getPhoneNumber())
+                .setSignName(sms.getSignName())
+                .setTemplateCode(sms.getTemplateCode())
+                .setTemplateParam(sms.getTemplateParam());
 
         try {
-            SendSmsResponse response = client.getAcsResponse(request);
+            RuntimeOptions runtime = new RuntimeOptions();
+            SendSmsResponse response = client.sendSmsWithOptions(request, runtime);
+            SendSmsResponseBody body = response.getBody();
 
-            sms.setStatus("OK".equalsIgnoreCase(response.getCode()) ? StrixSmsLogStatus.SUCCESS : StrixSmsLogStatus.FAIL);
-            sms.setPlatformResponse(response.getMessage());
+            sms.setStatus("OK".equalsIgnoreCase(body.getCode()) ? StrixSmsLogStatus.SUCCESS : StrixSmsLogStatus.FAIL);
+            sms.setPlatformResponse(body.getMessage());
         } catch (Exception e) {
             log.error("Strix SMS: 发送短信失败. (发送短信时发生异常)", e);
             sms.setStatus(StrixSmsLogStatus.FAIL);
@@ -69,9 +72,9 @@ public class AliyunSmsClient extends StrixSmsClient {
 
     @Override
     public List<StrixSmsSign> getSignList() {
-        List<QuerySmsSignListResponse.QuerySmsSignDTO> signListPrivate = getSignListPrivate(1);
+        List<QuerySmsSignListResponseBody.QuerySmsSignListResponseBodySmsSignList> signList = getSignListPrivate(1);
 
-        return Optional.ofNullable(signListPrivate).orElse(Collections.emptyList()).stream().map(s ->
+        return Optional.ofNullable(signList).orElse(Collections.emptyList()).stream().map(s ->
                 new StrixSmsSign(
                         s.getSignName(),
                         SIGN_STATUS_MAP.get(s.getAuditStatus()),
@@ -96,9 +99,9 @@ public class AliyunSmsClient extends StrixSmsClient {
 
     @Override
     public List<StrixSmsTemplate> getTemplateList() {
-        List<QuerySmsTemplateListResponse.SmsStatsResultDTO> templateListPrivate = getTemplateListPrivate(1);
+        List<QuerySmsTemplateListResponseBody.QuerySmsTemplateListResponseBodySmsTemplateList> templateList = getTemplateListPrivate(1);
 
-        return Optional.ofNullable(templateListPrivate).orElse(Collections.emptyList()).stream().map(t ->
+        return Optional.ofNullable(templateList).orElse(Collections.emptyList()).stream().map(t ->
                 new StrixSmsTemplate(
                         t.getTemplateCode(),
                         t.getTemplateName(),
@@ -111,21 +114,18 @@ public class AliyunSmsClient extends StrixSmsClient {
 
     @Override
     public void close() {
-        if (client != null) {
-            client.shutdown();
-            client = null;
-        }
     }
 
-    private List<QuerySmsSignListResponse.QuerySmsSignDTO> getSignListPrivate(int index) {
+    private List<QuerySmsSignListResponseBody.QuerySmsSignListResponseBodySmsSignList> getSignListPrivate(int index) {
         QuerySmsSignListRequest request = new QuerySmsSignListRequest();
         request.setPageSize(50);
         request.setPageIndex(index);
 
         try {
-            QuerySmsSignListResponse response = client.getAcsResponse(request);
-
-            List<QuerySmsSignListResponse.QuerySmsSignDTO> signList = response.getSmsSignList();
+            RuntimeOptions runtime = new RuntimeOptions();
+            QuerySmsSignListResponse response = client.querySmsSignListWithOptions(request, runtime);
+            QuerySmsSignListResponseBody body = response.getBody();
+            List<QuerySmsSignListResponseBody.QuerySmsSignListResponseBodySmsSignList> signList = body.getSmsSignList();
 
             if (!CollectionUtils.isEmpty(signList)) {
                 signList.addAll(Optional.ofNullable(getSignListPrivate(index + 1)).orElse(Collections.emptyList()));
@@ -138,15 +138,16 @@ public class AliyunSmsClient extends StrixSmsClient {
         }
     }
 
-    private List<QuerySmsTemplateListResponse.SmsStatsResultDTO> getTemplateListPrivate(int index) {
+    private List<QuerySmsTemplateListResponseBody.QuerySmsTemplateListResponseBodySmsTemplateList> getTemplateListPrivate(int index) {
         QuerySmsTemplateListRequest request = new QuerySmsTemplateListRequest();
         request.setPageSize(50);
         request.setPageIndex(index);
 
         try {
-            QuerySmsTemplateListResponse response = client.getAcsResponse(request);
-
-            List<QuerySmsTemplateListResponse.SmsStatsResultDTO> templateList = response.getSmsTemplateList();
+            RuntimeOptions runtime = new RuntimeOptions();
+            QuerySmsTemplateListResponse response = client.querySmsTemplateListWithOptions(request, runtime);
+            QuerySmsTemplateListResponseBody body = response.getBody();
+            List<QuerySmsTemplateListResponseBody.QuerySmsTemplateListResponseBodySmsTemplateList> templateList = body.getSmsTemplateList();
 
             if (!CollectionUtils.isEmpty(templateList)) {
                 templateList.addAll(Optional.ofNullable(getTemplateListPrivate(index + 1)).orElse(Collections.emptyList()));
@@ -158,6 +159,5 @@ public class AliyunSmsClient extends StrixSmsClient {
             return null;
         }
     }
-
 
 }

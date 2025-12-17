@@ -72,7 +72,7 @@ dependencies {
     testImplementation 'org.springframework.security:spring-security-test'
     // Redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-    implementation 'org.redisson:redisson-spring-boot-starter:3.45.1'
+    implementation 'org.redisson:redisson-spring-boot-starter:4.0.0'
     // Database - MySQL
     developmentOnly 'p6spy:p6spy:3.9.1'
     runtimeOnly 'com.mysql:mysql-connector-j'
@@ -92,17 +92,22 @@ dependencies {
     implementation 'org.bouncycastle:bcprov-jdk18on:1.83'
     implementation 'org.lionsoul:ip2region:2.7.0'
     implementation 'com.github.xiaoymin:knife4j-openapi3-jakarta-spring-boot-starter:4.5.0'
+    // S3
+    implementation platform("software.amazon.awssdk:bom:2.40.9")
+    implementation "software.amazon.awssdk:s3"
     // Third Party
-    implementation 'com.aliyun:aliyun-java-sdk-dysmsapi:2.2.1'
-    implementation('com.aliyun.oss:aliyun-sdk-oss:3.18.2') {
-        exclude group: 'com.aliyun', module: 'java-trace-api'
+    implementation("com.aliyun:dysmsapi20170525:4.3.1") {
+        exclude group: "com.aliyun", module: "tea-xml"
     }
     implementation 'com.alipay.sdk:alipay-sdk-java:4.40.13.ALL'
     implementation('com.github.javen205:IJPay-AliPay:2.9.10-17') {
         exclude group: 'com.alipay.sdk', module: 'alipay-sdk-java'
+        exclude group: 'cn.hutool', module: 'hutool-json'
+        exclude group: 'cn.hutool', module: 'hutool-crypto'
     }
     implementation('com.github.javen205:IJPay-WxPay:2.9.10-17') {
         exclude group: 'cn.hutool', module: 'hutool-json'
+        exclude group: 'cn.hutool', module: 'hutool-crypto'
     }
 
     // GraalVM

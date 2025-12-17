@@ -12,9 +12,8 @@ import cn.projectan.strix.util.SpringUtil;
 import com.alipay.api.domain.*;
 import com.alipay.api.request.*;
 import com.alipay.api.response.*;
-import com.aliyuncs.dysmsapi.model.v20170525.QuerySmsSignListResponse;
-import com.aliyuncs.dysmsapi.model.v20170525.QuerySmsTemplateListResponse;
-import com.aliyuncs.http.clients.ApacheHttpClient;
+import com.aliyun.dysmsapi20170525.models.QuerySmsSignListResponse;
+import com.aliyun.dysmsapi20170525.models.QuerySmsTemplateListResponse;
 import com.zaxxer.hikari.HikariConfig;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -82,7 +81,6 @@ public class StrixAOTConfig {
             }
 
             // Aliyun OSS
-            hints.reflection().registerType(ApacheHttpClient.class, MemberCategory.values());
             hints.reflection().registerType(QuerySmsSignListResponse.class, MemberCategory.values());
             hints.reflection().registerType(QuerySmsTemplateListResponse.class, MemberCategory.values());
 

@@ -3,6 +3,7 @@ package cn.projectan.strix.core.module.pay;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.file.FileWriter;
 import cn.hutool.core.map.MapUtil;
+import cn.hutool.crypto.digest.DigestUtil;
 import cn.projectan.strix.core.ret.RetBuilder;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.model.db.PayOrder;
@@ -32,7 +33,6 @@ import com.ijpay.wxpay.model.v3.UnifiedOrderModel;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.util.Assert;
 
@@ -265,7 +265,7 @@ public class WechatPayClient extends StrixPayClient {
         ObjectMapper objectMapper = new ObjectMapper();
         try (FileInputStream is = new FileInputStream(file)) {
             String fileName = file.getName();
-            String sha256 = DigestUtils.sha256Hex(is);
+            String sha256 = DigestUtil.sha256Hex(is);
             Map<String, String> requestMap = new HashMap<>(2);
             requestMap.put("filename", fileName);
             requestMap.put("sha256", sha256);

@@ -2,12 +2,10 @@ package cn.projectan.strix.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.redisson.api.NameMapper;
 import org.redisson.codec.JsonJacksonCodec;
 import org.redisson.spring.starter.RedissonAutoConfigurationCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.util.StringUtils;
 
 /**
  * Redisson 配置
@@ -36,28 +34,6 @@ public class RedissonConfig {
                     .setConnectionMinimumIdleSize(8) // 最小空闲连接数
                     .setConnectionPoolSize(32); // 连接池大小
         };
-    }
-
-    private record KeyPrefixHandler(String keyPrefix) implements NameMapper {
-        private KeyPrefixHandler(String keyPrefix) {
-            this.keyPrefix = StringUtils.hasText(keyPrefix) ? keyPrefix + ":" : "";
-        }
-
-        /**
-         * 增加前缀
-         */
-        @Override
-        public String map(String name) {
-            return StringUtils.hasText(keyPrefix) && !name.startsWith(keyPrefix) ? keyPrefix + name : name;
-        }
-
-        /**
-         * 去除前缀
-         */
-        @Override
-        public String unmap(String name) {
-            return StringUtils.hasText(keyPrefix) && name.startsWith(keyPrefix) ? name.substring(keyPrefix.length()) : name;
-        }
     }
 
 }
