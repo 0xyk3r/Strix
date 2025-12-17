@@ -63,7 +63,7 @@ public class SystemController extends BaseSystemController {
     @Anonymous
     @PostMapping("login")
     @StrixLog(operationGroup = "系统登录", operationName = "系统登录", operationType = SysLogOperType.LOGIN)
-    public RetResult<Object> login(@RequestBody SystemLoginReq req) {
+    public RetResult<SystemLoginResp> login(@RequestBody SystemLoginReq req) {
         // 验证码校验
         Assert.hasText(req.getCaptchaVerification(), "行为验证不通过，请重新验证");
         CaptchaInfoVO captchaInfoVO = new CaptchaInfoVO();
@@ -104,7 +104,7 @@ public class SystemController extends BaseSystemController {
         return RetBuilder.success(
                 new SystemLoginResp(
                         new SystemLoginResp.LoginManagerInfo(
-                                systemManager.getId(), systemManager.getNickname(), systemManager.getType(), permissionKeys
+                                systemManager.getId(), systemManager.getNickname(), systemManager.getType(), systemManager.getRegionId(), permissionKeys
                         ),
                         token,
                         LocalDateTime.now().plusMinutes(tokenTTL)
@@ -139,7 +139,7 @@ public class SystemController extends BaseSystemController {
         return RetBuilder.success(
                 new SystemLoginResp(
                         new SystemLoginResp.LoginManagerInfo(
-                                systemManager.getId(), systemManager.getNickname(), systemManager.getType(), permissionKeys
+                                systemManager.getId(), systemManager.getNickname(), systemManager.getType(), systemManager.getRegionId(), permissionKeys
                         ),
                         oldTokenObj.toString(),
                         LocalDateTime.now().plusMinutes(effectiveTime)

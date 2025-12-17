@@ -33,13 +33,16 @@ public class SystemLoginResp {
 
         private Integer type;
 
+        private String regionId;
+
         // 存储的是菜单权限Key和按钮权限Key的集合
         private List<String> permissionKeys;
 
-        public LoginManagerInfo(String id, String nickname, Integer type) {
+        public LoginManagerInfo(String id, String nickname, Integer type, String regionId) {
             this.id = id;
             this.nickname = nickname;
             this.type = type;
+            this.regionId = regionId;
         }
     }
 
