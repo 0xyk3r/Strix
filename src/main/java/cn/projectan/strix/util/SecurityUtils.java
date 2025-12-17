@@ -70,6 +70,11 @@ public class SecurityUtils {
         };
     }
 
+    public static String getRegionId() {
+        SystemRegion region = getRegion();
+        return region != null ? region.getId() : null;
+    }
+
     public static List<String> getRegionIdList() {
         return switch (getOperatorType()) {
             case OperatorType.SYSTEM_MANAGER ->
