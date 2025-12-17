@@ -10,7 +10,7 @@ public class RetBuilder {
 
     private final static String SUCCESS = "success";
 
-    public static RetResult<Object> success() {
+    public static <T> RetResult<T> success() {
         return new RetResult<>(RetCode.SUCCESS, SUCCESS, null);
     }
 
@@ -18,15 +18,15 @@ public class RetBuilder {
         return new RetResult<>(RetCode.SUCCESS, SUCCESS, data);
     }
 
-    public static RetResult<Object> error(int code, String message) {
+    public static <T> RetResult<T> error(int code, String message) {
         return new RetResult<>(code, message, null);
     }
 
-    public static RetResult<Object> error(String message) {
+    public static <T> RetResult<T> error(String message) {
         return new RetResult<>(RetCode.SERVER_ERROR, message, null);
     }
 
-    public static RetResult<Object> build(int code, String msg) {
+    public static <T> RetResult<T> build(int code, String msg) {
         return new RetResult<>(code, msg, null);
     }
 
