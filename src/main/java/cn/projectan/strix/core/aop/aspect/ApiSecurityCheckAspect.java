@@ -3,6 +3,7 @@ package cn.projectan.strix.core.aop.aspect;
 import cn.projectan.strix.core.ret.RetBuilder;
 import cn.projectan.strix.core.ret.RetCode;
 import cn.projectan.strix.model.annotation.IgnoreDataEncryption;
+import cn.projectan.strix.model.constant.PasswordConst;
 import cn.projectan.strix.util.ApiSignUtil;
 import cn.projectan.strix.util.I18nUtil;
 import cn.projectan.strix.util.ServletUtils;
@@ -67,6 +68,11 @@ public class ApiSecurityCheckAspect {
         // 非加密接口直接放行
         if (signature.getMethod().isAnnotationPresent(IgnoreDataEncryption.class) ||
                 signature.getMethod().getDeclaringClass().isAnnotationPresent(IgnoreDataEncryption.class)) {
+            return pjp.proceed();
+        }
+
+        // 填写了密码直接放行
+        if (PasswordConst.IGNORE_ENCRYPTION.equals(request.getHeader("ss-pwd"))) {
             return pjp.proceed();
         }
 

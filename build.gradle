@@ -1,12 +1,12 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '3.4.5'
+    id 'org.springframework.boot' version '3.5.8'
     id 'io.spring.dependency-management' version '1.1.7'
     id 'org.graalvm.buildtools.native' version '0.10.4'
 }
 
 group = 'cn.projectan'
-version = '2.7.5'
+version = '2.8.5'
 description = 'Strix'
 
 java {
@@ -31,6 +31,15 @@ configurations {
 bootJar {
     // 可直接运行的Jar文件
     archiveFileName = "Strix.jar"
+
+    // 将版本号写入 MANIFEST.MF
+    manifest {
+        attributes(
+                'Implementation-Title': project.name,
+                'Implementation-Version': project.version,
+                'Implementation-Vendor': project.group
+        )
+    }
 }
 
 // 屏蔽部分依赖传递
@@ -41,7 +50,7 @@ configurations.configureEach {
 
 dependencyManagement {
     imports {
-        mavenBom "com.baomidou:mybatis-plus-bom:3.5.9"
+        mavenBom "com.baomidou:mybatis-plus-bom:3.5.15"
     }
 }
 
@@ -67,7 +76,7 @@ dependencies {
     developmentOnly 'p6spy:p6spy:3.9.1'
     runtimeOnly 'com.mysql:mysql-connector-j'
     implementation 'com.baomidou:mybatis-plus-spring-boot3-starter'
-    implementation("com.baomidou:mybatis-plus-jsqlparser")
+    implementation 'com.baomidou:mybatis-plus-jsqlparser'
     implementation 'com.baomidou:mybatis-plus-generator'
     implementation 'com.baomidou:dynamic-datasource-spring-boot3-starter:4.3.1'
     developmentOnly 'org.apache.velocity:velocity-engine-core:2.4.1'
@@ -80,17 +89,14 @@ dependencies {
     implementation('org.quartz-scheduler:quartz') {
         exclude group: 'com.mchange', module: 'c3p0'
     }
-    // JWT
-    implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
-    implementation 'io.jsonwebtoken:jjwt-impl:0.12.6'
-    implementation 'io.jsonwebtoken:jjwt-jackson:0.12.6'
     // Other Tools
-    implementation 'com.squareup.okhttp3:okhttp:4.12.0'
-    implementation 'cn.hutool:hutool-core:5.8.34'
-    implementation 'cn.hutool:hutool-json:5.8.34'
-    implementation 'cn.hutool:hutool-crypto:5.8.34'
-    implementation 'org.bouncycastle:bcprov-jdk18on:1.79'
+    implementation 'com.squareup.okhttp3:okhttp:5.3.2'
+    implementation 'cn.hutool:hutool-core:5.8.42'
+    implementation 'cn.hutool:hutool-json:5.8.42'
+    implementation 'cn.hutool:hutool-crypto:5.8.42'
+    implementation 'org.bouncycastle:bcprov-jdk18on:1.83'
     implementation 'org.lionsoul:ip2region:2.7.0'
+    implementation 'com.github.xiaoymin:knife4j-openapi3-jakarta-spring-boot-starter:4.5.0'
     // Third Party
     implementation 'com.aliyun:aliyun-java-sdk-dysmsapi:2.2.1'
     implementation 'com.aliyun.oss:aliyun-sdk-oss:3.18.1'

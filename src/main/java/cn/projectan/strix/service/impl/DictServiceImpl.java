@@ -195,10 +195,10 @@ public class DictServiceImpl extends ServiceImpl<DictMapper, Dict> implements Di
                 .set(Dict::getVersion, dict.getVersion() + 1)
                 .update();
 
-        Assert.isTrue(dictDataService.lambdaUpdate()
+        dictDataService.lambdaUpdate()
                 .eq(DictData::getKey, dictData.getKey())
                 .eq(DictData::getValue, dictData.getValue())
-                .remove(), "删除失败");
+                .remove();
     }
 
 

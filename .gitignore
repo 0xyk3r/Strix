@@ -44,3 +44,4 @@ out/
 /logs/
 /others/
 *.bak
+jrebel-classpath-*.jar

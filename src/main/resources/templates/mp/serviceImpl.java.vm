@@ -6,6 +6,8 @@ import ${package.Mapper}.${table.mapperName};
 import ${package.Service}.${table.serviceName};
 #end
 import ${superServiceImplClassPackage};
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 /**
@@ -16,7 +18,9 @@ import org.springframework.stereotype.Service;
  * @author ${author}
  * @since ${date}
  */
+@Slf4j
 @Service
+@RequiredArgsConstructor
 #if(${kotlin})
 open class ${table.serviceImplName} : ${superServiceImplClass}<${table.mapperName}, ${entity}>()#if(${table.serviceInterface}), ${table.serviceName}#end {
 

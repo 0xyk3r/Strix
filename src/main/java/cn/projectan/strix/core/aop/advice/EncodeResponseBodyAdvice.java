@@ -5,11 +5,15 @@ import cn.projectan.strix.core.ret.RetCode;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.core.security.ApiSecurity;
 import cn.projectan.strix.model.annotation.IgnoreDataEncryption;
+import cn.projectan.strix.model.constant.PasswordConst;
+import cn.projectan.strix.util.ServletUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.Nonnull;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
@@ -37,10 +41,16 @@ public class EncodeResponseBodyAdvice implements ResponseBodyAdvice<Object> {
 
     @SneakyThrows
     @Override
-    public boolean supports(MethodParameter methodParameter, @Nonnull Class aClass) {
+    public boolean supports(@NotNull MethodParameter methodParameter, @Nonnull Class aClass) {
+        HttpServletRequest request = ServletUtils.getRequest();
+        if (PasswordConst.IGNORE_ENCRYPTION.equals(request.getHeader("ss-pwd"))) {
+            return false;
+        }
+
         String className = methodParameter.getContainingClass().getName();
-        return !className.equals("cn.projectan.strix.core.aop.aspect.ApiSecurityCheckAspect") &&
-                !className.equals("cn.projectan.strix.core.aop.advice.GlobalExceptionHandler") &&
+        return className.startsWith("cn.projectan.strix.controller") &&
+//               !className.equals("cn.projectan.strix.core.aop.aspect.ApiSecurityCheckAspect") &&
+//               !className.equals("cn.projectan.strix.core.aop.advice.GlobalExceptionHandler") &&
                 !methodParameter.getContainingClass().isAnnotationPresent(IgnoreDataEncryption.class) &&
                 !methodParameter.hasMethodAnnotation(IgnoreDataEncryption.class);
     }

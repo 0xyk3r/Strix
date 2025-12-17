@@ -16,12 +16,6 @@ import com.aliyuncs.dysmsapi.model.v20170525.QuerySmsSignListResponse;
 import com.aliyuncs.dysmsapi.model.v20170525.QuerySmsTemplateListResponse;
 import com.aliyuncs.http.clients.ApacheHttpClient;
 import com.zaxxer.hikari.HikariConfig;
-import io.jsonwebtoken.impl.DefaultClaimsBuilder;
-import io.jsonwebtoken.impl.DefaultJwtBuilder;
-import io.jsonwebtoken.impl.DefaultJwtHeaderBuilder;
-import io.jsonwebtoken.impl.DefaultJwtParserBuilder;
-import io.jsonwebtoken.impl.io.StandardCompressionAlgorithms;
-import io.jsonwebtoken.impl.security.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.jcajce.provider.asymmetric.RSA;
@@ -168,27 +162,6 @@ public class StrixAOTConfig {
             hints.reflection().registerType(X509.class, MemberCategory.values());
             hints.reflection().registerType(X509.Mappings.class, MemberCategory.values());
             hints.reflection().registerType(KeyAgreementSpi.class, MemberCategory.values());
-
-            // JWT
-            hints.reflection().registerType(DefaultKeyOperationPolicyBuilder.class, MemberCategory.values());
-            hints.reflection().registerType(StandardSecureDigestAlgorithms.class, MemberCategory.values());
-            hints.reflection().registerType(StandardCompressionAlgorithms.class, MemberCategory.values());
-            hints.reflection().registerType(StandardEncryptionAlgorithms.class, MemberCategory.values());
-            hints.reflection().registerType(DefaultKeyOperationBuilder.class, MemberCategory.values());
-            hints.reflection().registerType(StandardCurves.class, MemberCategory.values());
-            hints.reflection().registerType(StandardHashAlgorithms.class, MemberCategory.values());
-            hints.reflection().registerType(StandardKeyOperations.class, MemberCategory.values());
-            hints.reflection().registerType(StandardKeyAlgorithms.class, MemberCategory.values());
-            hints.reflection().registerType(DefaultJwtHeaderBuilder.class, MemberCategory.values());
-            hints.reflection().registerType(DefaultClaimsBuilder.class, MemberCategory.values());
-            hints.reflection().registerType(DefaultJwtBuilder.class, MemberCategory.values());
-            hints.reflection().registerType(DefaultJwtParserBuilder.class, MemberCategory.values());
-            hints.reflection().registerType(JwksBridge.class, MemberCategory.values());
-            hints.reflection().registerType(KeysBridge.class, MemberCategory.values());
-            hints.reflection().registerType(DefaultDynamicJwkBuilder.class, MemberCategory.values());
-            hints.reflection().registerType(DefaultJwkParserBuilder.class, MemberCategory.values());
-            hints.reflection().registerType(DefaultJwkSetBuilder.class, MemberCategory.values());
-            hints.reflection().registerType(DefaultJwkSetParserBuilder.class, MemberCategory.values());
 
             // Redisson 内置的 Netty 客户端需要用到 sun.net.dns
             // 还需要添加 --initialize-at-run-time=sun.net.dns.ResolverConfigurationImpl

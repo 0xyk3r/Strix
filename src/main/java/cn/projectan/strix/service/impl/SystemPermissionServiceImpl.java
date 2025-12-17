@@ -9,11 +9,11 @@ import cn.projectan.strix.service.SystemPermissionService;
 import cn.projectan.strix.service.SystemRolePermissionService;
 import cn.projectan.strix.util.SpringUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import io.jsonwebtoken.lang.Assert;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 
 import java.util.Collection;
 import java.util.List;

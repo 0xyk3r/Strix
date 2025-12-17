@@ -1,6 +1,6 @@
 server:
   port: 9889
-  shutdown: graceful
+  shutdown: immediate
   tomcat:
     # 线程配置
     threads:
@@ -32,7 +32,7 @@ spring:
           #          driver-class-name: com.p6spy.engine.spy.P6SpyDriver
           #          url: jdbc:p6spy:mysql://192.168.31.188:3366/strix?useSSL=true&serverTimezone=Asia/Shanghai&autoReconnect=true&rewriteBatchedStatements=true
           driver-class-name: com.mysql.cj.jdbc.Driver
-          url: jdbc:mysql://192.168.31.188:3366/strix?useSSL=true&serverTimezone=Asia/Shanghai&autoReconnect=true&rewriteBatchedStatements=true
+          url: jdbc:mysql://192.168.31.188:3306/strix?useSSL=true&serverTimezone=Asia/Shanghai&autoReconnect=true&rewriteBatchedStatements=true
           username: root
           password: AnAn@8899#
           type: com.zaxxer.hikari.HikariDataSource

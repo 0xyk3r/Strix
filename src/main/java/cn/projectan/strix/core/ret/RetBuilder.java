@@ -1,7 +1,5 @@
 package cn.projectan.strix.core.ret;
 
-import java.util.List;
-
 /**
  * 响应生成器
  *
@@ -34,14 +32,6 @@ public class RetBuilder {
 
     public static <T> RetResult<T> build(int code, String msg, T data) {
         return new RetResult<>(code, msg, data);
-    }
-
-    public static <T> RetPageResult<T> successPage(long total, List<T> rows) {
-        return new RetPageResult<>(RetCode.SUCCESS, SUCCESS, total, rows);
-    }
-
-    public static <T> RetPageResult<T> errorPage(String msg) {
-        return new RetPageResult<>(RetCode.SERVER_ERROR, msg, 0, null);
     }
 
 }
