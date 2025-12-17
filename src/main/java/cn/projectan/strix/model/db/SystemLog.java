@@ -17,7 +17,6 @@ import java.time.LocalDateTime;
  * <p>
  * Strix 系统日志
  * </p>
- * <p>In ClickHouse</p>
  *
  * @author ProjectAn
  * @since 2023-06-16
@@ -34,9 +33,14 @@ public class SystemLog implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
+     * 主键
+     */
+    @TableId(type = IdType.ASSIGN_ID)
+    private String id;
+
+    /**
      * 应用ID
      */
-    @TableId(value = "app_id", type = IdType.INPUT)
     private String appId;
 
     /**
@@ -93,11 +97,6 @@ public class SystemLog implements Serializable {
      * 操作设备
      */
     private String clientDevice;
-
-    /**
-     * 操作位置
-     */
-    private String clientLocation;
 
     /**
      * 操作用户

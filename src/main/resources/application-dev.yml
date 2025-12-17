@@ -24,39 +24,19 @@ server:
       protocol-header: X-Forwarded-Proto
 spring:
   datasource:
-    dynamic:
-      primary: master
-      strict: false
-      datasource:
-        master:
-          #          driver-class-name: com.p6spy.engine.spy.P6SpyDriver
-          #          url: jdbc:p6spy:mysql://192.168.31.188:3366/strix?useSSL=true&serverTimezone=Asia/Shanghai&autoReconnect=true&rewriteBatchedStatements=true
-          driver-class-name: com.mysql.cj.jdbc.Driver
-          url: jdbc:mysql://192.168.31.188:3306/strix?useSSL=true&serverTimezone=Asia/Shanghai&autoReconnect=true&rewriteBatchedStatements=true
-          username: root
-          password: AnAn@8899#
-          type: com.zaxxer.hikari.HikariDataSource
-          hikari:
-            connection-timeout: 30000
-            max-lifetime: 1800000
-            idle-timeout: 600000
-            minimum-idle: 4
-            maximum-pool-size: 10
-            connection-test-query: SELECT 1
-            validation-timeout: 5000
-            leak-detection-threshold: 60000
-            keepalive-time: 30000
-        clickhouse:
-          driver-class-name: com.clickhouse.jdbc.ClickHouseDriver
-          url: jdbc:clickhouse://192.168.31.188:8123/strix?socket_timeout=300000
-          username: root
-          password: password
-          type: com.zaxxer.hikari.HikariDataSource
-          lazy: true
-          hikari:
-            keepalive-time: 60000
-            max-lifetime: 120000
-            maximum-pool-size: 4
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://192.168.31.188:3306/strix?useSSL=true&serverTimezone=Asia/Shanghai&autoReconnect=true&rewriteBatchedStatements=true
+    username: root
+    password: AnAn@8899#
+    hikari:
+      pool-name: HikariCP
+      minimum-idle: 2
+      maximum-pool-size: 10
+      connection-timeout: 5000
+      idle-timeout: 300000
+      max-lifetime: 1800000
+      connection-test-query: SELECT 1
+      initialization-fail-timeout: 1
   data:
     redis:
       database: 0

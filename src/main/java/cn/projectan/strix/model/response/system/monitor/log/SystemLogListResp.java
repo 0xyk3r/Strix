@@ -25,7 +25,7 @@ public class SystemLogListResp extends BasePageResp {
     public SystemLogListResp(List<SystemLog> data, Long total) {
         items = data.stream().map(d ->
                 new SystemLogItem(d.getAppId(), d.getAppVersion(), d.getOperationType(), d.getOperationGroup(), d.getOperationName(), d.getOperationSpend(), d.getOperationMethod(), d.getOperationUrl(), d.getOperationParam(),
-                        d.getOperationTime(), d.getClientIp(), d.getClientDevice(), d.getClientLocation(), d.getClientUser(), d.getClientUsername(), d.getResponseCode(), d.getResponseMsg(), d.getResponseData())
+                        d.getOperationTime(), d.getClientIp(), d.getClientDevice(), d.getClientUser(), d.getClientUsername(), d.getResponseCode(), d.getResponseMsg(), d.getResponseData())
         ).collect(Collectors.toList());
         this.setTotal(total);
     }
@@ -58,8 +58,6 @@ public class SystemLogListResp extends BasePageResp {
         private String clientIp;
 
         private String clientDevice;
-
-        private String clientLocation;
 
         private String clientUser;
 

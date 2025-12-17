@@ -66,6 +66,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-mail'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
     // Spring Boot - Test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
@@ -78,13 +79,7 @@ dependencies {
     implementation 'com.baomidou:mybatis-plus-spring-boot3-starter'
     implementation 'com.baomidou:mybatis-plus-jsqlparser'
     implementation 'com.baomidou:mybatis-plus-generator'
-    implementation 'com.baomidou:dynamic-datasource-spring-boot3-starter:4.3.1'
     developmentOnly 'org.apache.velocity:velocity-engine-core:2.4.1'
-    // Database - ClickHouse
-    implementation 'com.clickhouse:clickhouse-jdbc:0.7.1'
-    implementation 'org.apache.httpcomponents.core5:httpcore5:5.3.1'
-    implementation 'org.apache.httpcomponents.client5:httpclient5:5.4.1'
-    runtimeOnly 'org.lz4:lz4-java:1.8.0'
     // Quartz
     implementation('org.quartz-scheduler:quartz') {
         exclude group: 'com.mchange', module: 'c3p0'
