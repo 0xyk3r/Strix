@@ -63,7 +63,7 @@ public class SystemManagerUpdateReq {
     /**
      * 平台账户拥有的地区权限
      */
-    @UpdateField
+    @UpdateField(allowEmpty = true)
     private String regionId;
 
 }
