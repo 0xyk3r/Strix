@@ -15,13 +15,13 @@ public class CommonSwitch implements BaseDict {
 
     @DictData(label = "启用", sort = 1, style = DictDataStyle.SUCCESS)
     public static final
-    int ENABLE = 1;
+    short ENABLE = 1;
 
     @DictData(label = "禁用", sort = 2, style = DictDataStyle.ERROR)
     public static final
-    int DISABLE = 2;
+    short DISABLE = 2;
 
-    public static boolean valid(int value) {
+    public static boolean valid(short value) {
         return value == ENABLE || value == DISABLE;
     }
 

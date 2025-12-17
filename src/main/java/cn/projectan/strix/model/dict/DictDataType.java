@@ -41,8 +41,12 @@ public class DictDataType implements BaseDict {
     public static final
     int BYTE = 7;
 
+    @DictData(label = "短整数", sort = 8, style = DictDataStyle.INFO)
+    public static final
+    int SHORT = 8;
+
     public static boolean valid(int value) {
-        return value == STRING || value == INTEGER || value == LONG || value == FLOAT || value == DOUBLE || value == BOOLEAN || value == BYTE;
+        return value == STRING || value == INTEGER || value == LONG || value == FLOAT || value == DOUBLE || value == BOOLEAN || value == BYTE || value == SHORT;
     }
 
 }

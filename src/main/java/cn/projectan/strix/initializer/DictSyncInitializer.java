@@ -151,6 +151,7 @@ public class DictSyncInitializer implements ApplicationRunner {
             case "java.lang.Double", "double" -> 5;
             case "java.lang.Boolean", "boolean" -> 6;
             case "java.lang.Byte", "byte" -> 7;
+            case "java.lang.Short", "short" -> 8;
             default -> 0;
         };
     }
