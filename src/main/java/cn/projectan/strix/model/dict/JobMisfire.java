@@ -3,13 +3,11 @@ package cn.projectan.strix.model.dict;
 import cn.projectan.strix.model.annotation.Dict;
 import cn.projectan.strix.model.annotation.DictData;
 import cn.projectan.strix.model.dict.base.BaseDict;
-import org.springframework.stereotype.Component;
 
 /**
  * @author ProjectAn
  * @since 2023/8/1 14:33
  */
-@Component
 @Dict(key = "JobMisfire", value = "系统定时任务-错过执行策略")
 public class JobMisfire implements BaseDict {
 

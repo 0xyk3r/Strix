@@ -3,13 +3,11 @@ package cn.projectan.strix.model.dict;
 import cn.projectan.strix.model.annotation.Dict;
 import cn.projectan.strix.model.annotation.DictData;
 import cn.projectan.strix.model.dict.base.BaseDict;
-import org.springframework.stereotype.Component;
 
 /**
  * @author ProjectAn
  * @since 2023/6/17 15:14
  */
-@Component
 @Dict(key = "SysLogOperType", value = "系统日志-操作类型")
 public class SysLogOperType implements BaseDict {
 

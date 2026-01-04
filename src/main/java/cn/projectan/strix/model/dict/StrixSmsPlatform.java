@@ -3,13 +3,11 @@ package cn.projectan.strix.model.dict;
 import cn.projectan.strix.model.annotation.Dict;
 import cn.projectan.strix.model.annotation.DictData;
 import cn.projectan.strix.model.dict.base.BaseDict;
-import org.springframework.stereotype.Component;
 
 /**
  * @author ProjectAn
  * @since 2023/5/20 15:15
  */
-@Component
 @Dict(key = "StrixSmsPlatform", value = "短信服务-平台")
 public class StrixSmsPlatform implements BaseDict {
 

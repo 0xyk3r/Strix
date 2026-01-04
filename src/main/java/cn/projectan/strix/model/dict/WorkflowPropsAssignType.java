@@ -3,13 +3,11 @@ package cn.projectan.strix.model.dict;
 import cn.projectan.strix.model.annotation.Dict;
 import cn.projectan.strix.model.annotation.DictData;
 import cn.projectan.strix.model.dict.base.BaseDict;
-import org.springframework.stereotype.Component;
 
 /**
  * @author ProjectAn
  * @since 2024-10-09 13:34:31
  */
-@Component
 @Dict(key = "WorkflowPropsAssignType", value = "工作流-配置-指派人员类型")
 public class WorkflowPropsAssignType implements BaseDict {
 

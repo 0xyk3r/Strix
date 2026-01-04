@@ -3,13 +3,11 @@ package cn.projectan.strix.model.dict;
 import cn.projectan.strix.model.annotation.Dict;
 import cn.projectan.strix.model.annotation.DictData;
 import cn.projectan.strix.model.dict.base.BaseDict;
-import org.springframework.stereotype.Component;
 
 /**
  * @author ProjectAn
  * @since 2024-10-15 14:53:53
  */
-@Component
 @Dict(key = "WorkflowPropsTimeLimitUnit", value = "工作流-配置-超时时间单位")
 public class WorkflowPropsTimeLimitUnit implements BaseDict {
 

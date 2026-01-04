@@ -3,7 +3,6 @@ package cn.projectan.strix.model.dict;
 import cn.projectan.strix.model.annotation.Dict;
 import cn.projectan.strix.model.annotation.DictData;
 import cn.projectan.strix.model.dict.base.BaseDict;
-import org.springframework.stereotype.Component;
 
 /**
  * OAuth推送状态
@@ -11,7 +10,6 @@ import org.springframework.stereotype.Component;
  * @author ProjectAn
  * @since 2024/4/8 下午5:37
  */
-@Component
 @Dict(key = "OAuthPushStatus", value = "OAuth推送状态")
 public class OAuthPushStatus implements BaseDict {
 

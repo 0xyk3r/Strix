@@ -3,7 +3,6 @@ package cn.projectan.strix.model.dict;
 import cn.projectan.strix.model.annotation.Dict;
 import cn.projectan.strix.model.annotation.DictData;
 import cn.projectan.strix.model.dict.base.BaseDict;
-import org.springframework.stereotype.Component;
 
 /**
  * 系统管理用户 类型
@@ -11,7 +10,6 @@ import org.springframework.stereotype.Component;
  * @author ProjectAn
  * @since 2021/6/16 15:32
  */
-@Component
 @Dict(key = "SystemRoleRegionPermissionType", value = "系统角色-地区权限类型")
 public class SystemRoleRegionPermissionType implements BaseDict {
 

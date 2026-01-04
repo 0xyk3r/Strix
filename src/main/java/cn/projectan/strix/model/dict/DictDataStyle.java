@@ -3,13 +3,11 @@ package cn.projectan.strix.model.dict;
 import cn.projectan.strix.model.annotation.Dict;
 import cn.projectan.strix.model.annotation.DictData;
 import cn.projectan.strix.model.dict.base.BaseDict;
-import org.springframework.stereotype.Component;
 
 /**
  * @author ProjectAn
  * @since 2023/6/9 17:12
  */
-@Component
 @Dict(key = "DictDataStyle", value = "系统字典-数据-样式")
 public class DictDataStyle implements BaseDict {
 

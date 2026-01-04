@@ -3,7 +3,6 @@ package cn.projectan.strix.model.dict;
 import cn.projectan.strix.model.annotation.Dict;
 import cn.projectan.strix.model.annotation.DictData;
 import cn.projectan.strix.model.dict.base.BaseDict;
-import org.springframework.stereotype.Component;
 
 /**
  * 系统管理用户 类型
@@ -11,7 +10,7 @@ import org.springframework.stereotype.Component;
  * @author ProjectAn
  * @since 2021/6/16 15:32
  */
-@Component
+
 @Dict(key = "SystemManagerType", value = "系统人员-类型")
 public class SystemManagerType implements BaseDict {
 

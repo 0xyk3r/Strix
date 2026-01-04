@@ -3,7 +3,6 @@ package cn.projectan.strix.model.dict;
 import cn.projectan.strix.model.annotation.Dict;
 import cn.projectan.strix.model.annotation.DictData;
 import cn.projectan.strix.model.dict.base.BaseDict;
-import org.springframework.stereotype.Component;
 
 /**
  * 支付订单状态
@@ -11,7 +10,6 @@ import org.springframework.stereotype.Component;
  * @author ProjectAn
  * @since 2021/9/3 11:02
  */
-@Component
 @Dict(key = "PayOrderStatus", value = "支付订单状态")
 public class PayOrderStatus implements BaseDict {
 

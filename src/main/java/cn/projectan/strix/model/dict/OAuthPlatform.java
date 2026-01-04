@@ -3,13 +3,11 @@ package cn.projectan.strix.model.dict;
 import cn.projectan.strix.model.annotation.Dict;
 import cn.projectan.strix.model.annotation.DictData;
 import cn.projectan.strix.model.dict.base.BaseDict;
-import org.springframework.stereotype.Component;
 
 /**
  * @author ProjectAn
  * @since 2024/4/3 17:04
  */
-@Component
 @Dict(key = "OAuthPlatform", value = "OAuth平台")
 public class OAuthPlatform implements BaseDict {
 

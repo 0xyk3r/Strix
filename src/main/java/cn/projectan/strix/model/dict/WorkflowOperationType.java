@@ -3,13 +3,11 @@ package cn.projectan.strix.model.dict;
 import cn.projectan.strix.model.annotation.Dict;
 import cn.projectan.strix.model.annotation.DictData;
 import cn.projectan.strix.model.dict.base.BaseDict;
-import org.springframework.stereotype.Component;
 
 /**
  * @author ProjectAn
  * @since 2024-10-09 11:22:42
  */
-@Component
 @Dict(key = "WorkflowOperationType", value = "工作流-操作-类型")
 public class WorkflowOperationType implements BaseDict {
 

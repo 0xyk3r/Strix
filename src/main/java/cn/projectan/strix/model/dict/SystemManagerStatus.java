@@ -3,7 +3,6 @@ package cn.projectan.strix.model.dict;
 import cn.projectan.strix.model.annotation.Dict;
 import cn.projectan.strix.model.annotation.DictData;
 import cn.projectan.strix.model.dict.base.BaseDict;
-import org.springframework.stereotype.Component;
 
 /**
  * 系统管理用户 状态
@@ -11,7 +10,6 @@ import org.springframework.stereotype.Component;
  * @author ProjectAn
  * @since 2021/5/12 18:52
  */
-@Component
 @Dict(key = "SystemManagerStatus", value = "系统人员-状态")
 public class SystemManagerStatus implements BaseDict {
 
