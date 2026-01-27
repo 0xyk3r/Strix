@@ -30,7 +30,7 @@ spring:
       datasource:
         master:
           driver-class-name: com.mysql.cj.jdbc.Driver
-          url: jdbc:mysql://192.168.31.188:3366/strix?useSSL=true&serverTimezone=Asia/Shanghai&autoReconnect=true&rewriteBatchedStatements=true
+          url: jdbc:mysql://192.168.31.99:3366/strix?useSSL=true&serverTimezone=Asia/Shanghai&autoReconnect=true&rewriteBatchedStatements=true
           username: root
           password: password
           type: com.zaxxer.hikari.HikariDataSource
@@ -46,7 +46,7 @@ spring:
             keepalive-time: 30000
         clickhouse:
           driver-class-name: com.clickhouse.jdbc.ClickHouseDriver
-          url: jdbc:clickhouse://192.168.31.188:8123/strix?socket_timeout=300000
+          url: jdbc:clickhouse://192.168.31.99:8123/strix?socket_timeout=300000
           username: root
           password: password
           type: com.zaxxer.hikari.HikariDataSource

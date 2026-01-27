@@ -25,7 +25,7 @@ server:
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://192.168.31.188:3306/strix?useSSL=true&serverTimezone=Asia/Shanghai&autoReconnect=true&rewriteBatchedStatements=true
+    url: jdbc:mysql://192.168.31.99:3306/strix?useSSL=true&serverTimezone=Asia/Shanghai&autoReconnect=true&rewriteBatchedStatements=true
     username: root
     password: AnAn@8899#
     hikari:
@@ -40,7 +40,7 @@ spring:
   data:
     redis:
       database: 0
-      host: 192.168.31.188
+      host: 192.168.31.99
       port: 6379
       password: str1Xredis
       lettuce:

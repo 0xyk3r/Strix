@@ -163,7 +163,7 @@ tasks.named('bootBuildImage') {
     builder = "paketobuildpacks/builder-jammy-base:latest"
     buildpacks = ["gcr.io/paketo-buildpacks/java-native-image:latest"]
     docker {
-        host = 'tcp://192.168.31.188:2375'
+        host = 'tcp://192.168.31.99:2375'
         tlsVerify = false
     }
     environment = [
