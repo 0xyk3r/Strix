@@ -1,9 +1,9 @@
 package cn.projectan.strix.core.module.oauth;
 
-import cn.projectan.strix.model.db.OauthPush;
-import cn.projectan.strix.model.other.module.oauth.AlipayOAuthConfig;
-import cn.projectan.strix.model.other.module.oauth.BaseOAuthConfig;
-import cn.projectan.strix.model.other.module.oauth.BaseOAuthUserInfo;
+import cn.projectan.strix.model.db.system.OauthPush;
+import cn.projectan.strix.model.other.system.module.oauth.AlipayOAuthConfig;
+import cn.projectan.strix.model.other.system.module.oauth.BaseOAuthConfig;
+import cn.projectan.strix.model.other.system.module.oauth.BaseOAuthUserInfo;
 import com.alipay.api.CertAlipayRequest;
 import com.alipay.api.DefaultAlipayClient;
 import com.alipay.api.request.AlipaySystemOauthTokenRequest;
@@ -114,7 +114,7 @@ public class AlipayOAuthClient extends StrixOAuthClient {
 
     @Override
     public void generatePush(String openId, String content) {
-        log.warn("Strix OAuth: 支付宝 OAuth 服务实例不支持推送服务.");
+        log.warn("Strix OAuth: 支付宝 OAuth 服务实例不支持生成推送服务.");
     }
 
     @Override

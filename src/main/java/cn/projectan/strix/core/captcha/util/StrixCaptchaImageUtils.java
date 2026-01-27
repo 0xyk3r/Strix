@@ -1,6 +1,6 @@
 package cn.projectan.strix.core.captcha.util;
 
-import cn.projectan.strix.model.enums.CaptchaBaseMapEnum;
+import cn.projectan.strix.model.enums.system.StrixCaptchaBaseMapEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StringUtils;
 
@@ -42,9 +42,9 @@ public class StrixCaptchaImageUtils {
         } else {
             picClickCacheMap.putAll(getImagesFile(captchaOriginalPathClick));
         }
-        fileNameMap.put(CaptchaBaseMapEnum.ORIGINAL.getCodeValue(), originalCacheMap.keySet().toArray(new String[0]));
-        fileNameMap.put(CaptchaBaseMapEnum.SLIDING_BLOCK.getCodeValue(), slidingBlockCacheMap.keySet().toArray(new String[0]));
-        fileNameMap.put(CaptchaBaseMapEnum.PIC_CLICK.getCodeValue(), picClickCacheMap.keySet().toArray(new String[0]));
+        fileNameMap.put(StrixCaptchaBaseMapEnum.ORIGINAL.getCodeValue(), originalCacheMap.keySet().toArray(new String[0]));
+        fileNameMap.put(StrixCaptchaBaseMapEnum.SLIDING_BLOCK.getCodeValue(), slidingBlockCacheMap.keySet().toArray(new String[0]));
+        fileNameMap.put(StrixCaptchaBaseMapEnum.PIC_CLICK.getCodeValue(), picClickCacheMap.keySet().toArray(new String[0]));
 //        logger.info("初始化底图:{}", JsonUtil.toJSONString(fileNameMap));
     }
 
@@ -52,14 +52,14 @@ public class StrixCaptchaImageUtils {
         originalCacheMap.putAll(originalMap);
         slidingBlockCacheMap.putAll(slidingBlockMap);
         picClickCacheMap.putAll(picClickMap);
-        fileNameMap.put(CaptchaBaseMapEnum.ORIGINAL.getCodeValue(), originalCacheMap.keySet().toArray(new String[0]));
-        fileNameMap.put(CaptchaBaseMapEnum.SLIDING_BLOCK.getCodeValue(), slidingBlockCacheMap.keySet().toArray(new String[0]));
-        fileNameMap.put(CaptchaBaseMapEnum.PIC_CLICK.getCodeValue(), picClickCacheMap.keySet().toArray(new String[0]));
+        fileNameMap.put(StrixCaptchaBaseMapEnum.ORIGINAL.getCodeValue(), originalCacheMap.keySet().toArray(new String[0]));
+        fileNameMap.put(StrixCaptchaBaseMapEnum.SLIDING_BLOCK.getCodeValue(), slidingBlockCacheMap.keySet().toArray(new String[0]));
+        fileNameMap.put(StrixCaptchaBaseMapEnum.PIC_CLICK.getCodeValue(), picClickCacheMap.keySet().toArray(new String[0]));
 //        logger.info("自定义resource底图:{}", JsonUtil.toJSONString(fileNameMap));
     }
 
     public static BufferedImage getOriginal() {
-        String[] strings = fileNameMap.get(CaptchaBaseMapEnum.ORIGINAL.getCodeValue());
+        String[] strings = fileNameMap.get(StrixCaptchaBaseMapEnum.ORIGINAL.getCodeValue());
         if (null == strings || strings.length == 0) {
             return null;
         }
@@ -69,7 +69,7 @@ public class StrixCaptchaImageUtils {
     }
 
     public static String getSlidingBlock() {
-        String[] strings = fileNameMap.get(CaptchaBaseMapEnum.SLIDING_BLOCK.getCodeValue());
+        String[] strings = fileNameMap.get(StrixCaptchaBaseMapEnum.SLIDING_BLOCK.getCodeValue());
         if (null == strings || strings.length == 0) {
             return null;
         }
@@ -78,7 +78,7 @@ public class StrixCaptchaImageUtils {
     }
 
     public static BufferedImage getPicClick() {
-        String[] strings = fileNameMap.get(CaptchaBaseMapEnum.PIC_CLICK.getCodeValue());
+        String[] strings = fileNameMap.get(StrixCaptchaBaseMapEnum.PIC_CLICK.getCodeValue());
         if (null == strings || strings.length == 0) {
             return null;
         }

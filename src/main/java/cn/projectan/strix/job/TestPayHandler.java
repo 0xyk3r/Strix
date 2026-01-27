@@ -1,8 +1,8 @@
 package cn.projectan.strix.job;
 
 import cn.projectan.strix.model.annotation.StrixJob;
-import cn.projectan.strix.model.db.PayOrder;
-import cn.projectan.strix.service.PayOrderService;
+import cn.projectan.strix.model.db.system.PayOrder;
+import cn.projectan.strix.service.system.PayOrderService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

@@ -1,7 +1,7 @@
 package cn.projectan.strix.util.job;
 
-import cn.projectan.strix.model.constant.JobConstants;
-import cn.projectan.strix.model.db.Job;
+import cn.projectan.strix.model.constant.system.StrixJobConst;
+import cn.projectan.strix.model.db.system.Job;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.JobExecutionContext;
 
@@ -17,7 +17,7 @@ public abstract class AbstractQuartzJob implements org.quartz.Job {
 
     @Override
     public void execute(JobExecutionContext context) {
-        Object o = context.getMergedJobDataMap().get(JobConstants.TASK_PROPERTIES);
+        Object o = context.getMergedJobDataMap().get(StrixJobConst.TASK_PROPERTIES);
         if (o instanceof Job job) {
             try {
                 before(context, job);
@@ -75,8 +75,7 @@ public abstract class AbstractQuartzJob implements org.quartz.Job {
      *
      * @param context 工作执行上下文对象
      * @param job     系统计划任务
-     * @throws Exception 执行过程中的异常
      */
-    protected abstract void doExecute(JobExecutionContext context, Job job) throws Exception;
+    protected abstract void doExecute(JobExecutionContext context, Job job);
 
 }

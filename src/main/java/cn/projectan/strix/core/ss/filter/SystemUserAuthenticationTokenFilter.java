@@ -1,8 +1,8 @@
 package cn.projectan.strix.core.ss.filter;
 
 import cn.projectan.strix.core.ss.token.SystemUserAuthenticationToken;
-import cn.projectan.strix.model.db.SystemUser;
-import cn.projectan.strix.util.RedisUtil;
+import cn.projectan.strix.model.db.system.SystemUser;
+import cn.projectan.strix.util.common.RedisUtil;
 import jakarta.annotation.Nonnull;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

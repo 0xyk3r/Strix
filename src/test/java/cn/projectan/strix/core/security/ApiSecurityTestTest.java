@@ -1,8 +1,9 @@
 package cn.projectan.strix.core.security;
 
-import cn.projectan.strix.util.ApiSignUtil;
+import cn.projectan.strix.util.system.ApiSignUtil;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
@@ -12,6 +13,7 @@ import java.util.TreeMap;
  * @author ProjectAn
  * @since 2024/4/9 下午5:23
  */
+@Slf4j
 class ApiSecurityTestTest {
 
     @Test
@@ -61,7 +63,7 @@ class ApiSecurityTestTest {
             });
             System.out.println(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(m1));
         } catch (Throwable e) {
-            e.printStackTrace();
+            log.error("解密失败", e);
         }
 
     }

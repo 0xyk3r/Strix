@@ -1,8 +1,8 @@
 package cn.projectan.strix.core.module.oauth;
 
-import cn.projectan.strix.model.db.OauthPush;
-import cn.projectan.strix.model.other.module.oauth.BaseOAuthConfig;
-import cn.projectan.strix.model.other.module.oauth.BaseOAuthUserInfo;
+import cn.projectan.strix.model.db.system.OauthPush;
+import cn.projectan.strix.model.other.system.module.oauth.BaseOAuthConfig;
+import cn.projectan.strix.model.other.system.module.oauth.BaseOAuthUserInfo;
 
 import java.util.Map;
 

@@ -1,5 +1,7 @@
 package cn.projectan.strix.model.other.system.workflow;
 
+import cn.projectan.strix.model.dict.system.WorkflowPropsTimeLimitHandler;
+import cn.projectan.strix.model.dict.system.WorkflowPropsTimeLimitUnit;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -220,13 +222,13 @@ public class WorkflowProps {
         /**
          * 时限单位
          *
-         * @see cn.projectan.strix.model.dict.WorkflowPropsTimeLimitUnit
+         * @see WorkflowPropsTimeLimitUnit
          */
         private String unit;
         /**
          * 超时处理
          *
-         * @see cn.projectan.strix.model.dict.WorkflowPropsTimeLimitHandler
+         * @see WorkflowPropsTimeLimitHandler
          */
         private String handler;
     }

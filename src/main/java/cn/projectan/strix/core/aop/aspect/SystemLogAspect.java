@@ -8,13 +8,14 @@ import cn.projectan.strix.core.exception.StrixNoAuthException;
 import cn.projectan.strix.core.ret.RetCode;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.model.annotation.StrixLog;
-import cn.projectan.strix.model.db.SystemLog;
-import cn.projectan.strix.model.db.SystemManager;
-import cn.projectan.strix.model.other.ua.UserAgent;
-import cn.projectan.strix.service.AsyncSystemLogService;
-import cn.projectan.strix.util.SecurityUtils;
-import cn.projectan.strix.util.ServletUtils;
+import cn.projectan.strix.model.db.system.SystemLog;
+import cn.projectan.strix.model.db.system.SystemManager;
+import cn.projectan.strix.model.other.system.ua.UserAgent;
+import cn.projectan.strix.model.properties.system.StrixLogProperties;
+import cn.projectan.strix.service.system.AsyncSystemLogService;
+import cn.projectan.strix.util.http.ServletUtils;
 import cn.projectan.strix.util.ip.IpUtils;
+import cn.projectan.strix.util.system.SecurityUtils;
 import cn.projectan.strix.util.ua.UserAgentUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +26,7 @@ import org.aspectj.lang.annotation.AfterThrowing;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.core.NamedThreadLocal;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -44,6 +46,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 @Slf4j
 @Aspect
 @Component
+@EnableConfigurationProperties(StrixLogProperties.class)
 @ConditionalOnProperty(prefix = "strix.log", name = "enable", havingValue = "true")
 @RequiredArgsConstructor
 public class SystemLogAspect {

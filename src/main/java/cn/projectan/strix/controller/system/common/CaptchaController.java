@@ -4,10 +4,10 @@ import cn.projectan.strix.controller.system.base.BaseSystemController;
 import cn.projectan.strix.core.captcha.CaptchaService;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.model.annotation.Anonymous;
-import cn.projectan.strix.model.other.captcha.CaptchaInfoVO;
-import cn.projectan.strix.model.request.module.captcha.CheckCaptchaReq;
-import cn.projectan.strix.model.request.module.captcha.GetCaptchaReq;
-import cn.projectan.strix.model.response.module.captcha.StrixCaptchaResp;
+import cn.projectan.strix.model.other.system.captcha.StrixCaptchaInfoVO;
+import cn.projectan.strix.model.request.system.module.captcha.CheckCaptchaReq;
+import cn.projectan.strix.model.request.system.module.captcha.GetCaptchaReq;
+import cn.projectan.strix.model.response.system.module.captcha.StrixCaptchaResp;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.util.Assert;
@@ -37,7 +37,7 @@ public class CaptchaController extends BaseSystemController {
     @PostMapping("get")
     public RetResult<StrixCaptchaResp> get(@RequestBody GetCaptchaReq req, HttpServletRequest request) {
         Assert.notNull(request.getRemoteHost(), "请求无效");
-        CaptchaInfoVO data = new CaptchaInfoVO();
+        StrixCaptchaInfoVO data = new StrixCaptchaInfoVO();
         data.setCaptchaType(req.getCaptchaType());
         data.setBrowserInfo(getRemoteId(request));
         return captchaService.get(data).toRetResult();
@@ -48,7 +48,7 @@ public class CaptchaController extends BaseSystemController {
      */
     @PostMapping("check")
     public RetResult<StrixCaptchaResp> check(@RequestBody CheckCaptchaReq req, HttpServletRequest request) {
-        CaptchaInfoVO data = new CaptchaInfoVO();
+        StrixCaptchaInfoVO data = new StrixCaptchaInfoVO();
         data.setCaptchaType(req.getCaptchaType());
         data.setPointJson(req.getPointJson());
         data.setToken(req.getToken());
@@ -57,7 +57,7 @@ public class CaptchaController extends BaseSystemController {
     }
 
     // @PostMapping("verify")
-    public RetResult<StrixCaptchaResp> verify(@RequestBody CaptchaInfoVO data, HttpServletRequest request) {
+    public RetResult<StrixCaptchaResp> verify(@RequestBody StrixCaptchaInfoVO data, HttpServletRequest request) {
         return captchaService.verification(data).toRetResult();
     }
 

@@ -1,7 +1,7 @@
 package cn.projectan.strix;
 
-import cn.projectan.strix.model.properties.StrixDelayedTaskProperties;
-import cn.projectan.strix.model.properties.StrixModuleProperties;
+import cn.projectan.strix.model.properties.system.StrixDelayedTaskProperties;
+import cn.projectan.strix.model.properties.system.StrixModuleProperties;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;

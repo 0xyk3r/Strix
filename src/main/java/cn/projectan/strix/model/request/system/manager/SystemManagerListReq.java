@@ -1,6 +1,6 @@
 package cn.projectan.strix.model.request.system.manager;
 
-import cn.projectan.strix.model.db.SystemManager;
+import cn.projectan.strix.model.db.system.SystemManager;
 import cn.projectan.strix.model.request.base.BasePageReq;
 import lombok.Data;
 

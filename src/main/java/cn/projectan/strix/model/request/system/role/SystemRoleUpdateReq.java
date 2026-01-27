@@ -4,7 +4,7 @@ import cn.projectan.strix.core.validation.annotation.ConstantDictValue;
 import cn.projectan.strix.core.validation.group.InsertGroup;
 import cn.projectan.strix.core.validation.group.UpdateGroup;
 import cn.projectan.strix.model.annotation.UpdateField;
-import cn.projectan.strix.model.dict.SystemRoleRegionPermissionType;
+import cn.projectan.strix.model.dict.system.SystemRoleRegionPermissionType;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;

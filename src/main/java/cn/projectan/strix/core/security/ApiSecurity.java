@@ -63,7 +63,7 @@ public class ApiSecurity {
             map.put("data", data);
             return map;
         } catch (Exception e) {
-            log.error("加密数据时出现异常：" + e.getMessage(), e);
+            log.error("加密数据时出现异常：{}", e.getMessage(), e);
             return null;
         }
     }
@@ -86,7 +86,7 @@ public class ApiSecurity {
                 content = aes.decryptStr(data, StandardCharsets.UTF_8);
             }
         } catch (Exception e) {
-            log.error("解密数据时出现异常：" + body, e);
+            log.error("解密数据时出现异常：{}", body, e);
         }
         return content;
     }

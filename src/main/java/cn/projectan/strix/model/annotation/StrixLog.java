@@ -1,6 +1,6 @@
 package cn.projectan.strix.model.annotation;
 
-import cn.projectan.strix.model.dict.SysLogOperType;
+import cn.projectan.strix.model.dict.system.SysLogOperType;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

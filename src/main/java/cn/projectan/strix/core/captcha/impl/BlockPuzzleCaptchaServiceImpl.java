@@ -6,11 +6,11 @@ import cn.projectan.strix.core.captcha.util.StrixCaptchaAESUtil;
 import cn.projectan.strix.core.captcha.util.StrixCaptchaImageUtils;
 import cn.projectan.strix.core.captcha.util.StrixCaptchaJsonUtil;
 import cn.projectan.strix.core.captcha.util.StrixCaptchaRandomUtils;
-import cn.projectan.strix.model.enums.CaptchaRepCodeEnum;
-import cn.projectan.strix.model.enums.CaptchaTypeEnum;
-import cn.projectan.strix.model.other.captcha.CaptchaInfoVO;
-import cn.projectan.strix.model.other.captcha.CaptchaPointVO;
-import cn.projectan.strix.model.response.module.captcha.StrixCaptchaResp;
+import cn.projectan.strix.model.enums.system.StrixCaptchaRepCodeEnum;
+import cn.projectan.strix.model.enums.system.StrixCaptchaTypeEnum;
+import cn.projectan.strix.model.other.system.captcha.StrixCaptchaInfoVO;
+import cn.projectan.strix.model.other.system.captcha.StrixCaptchaPointVO;
+import cn.projectan.strix.model.response.system.module.captcha.StrixCaptchaResp;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -40,18 +40,13 @@ public class BlockPuzzleCaptchaServiceImpl extends AbstractCaptchaService {
     }
 
     @Override
-    public void destroy(Properties config) {
-//        logger.info("start-clear-history-data-", captchaType());
-    }
-
-    @Override
     public String captchaType() {
-        return CaptchaTypeEnum.BLOCKPUZZLE.getCodeValue();
+        return StrixCaptchaTypeEnum.BLOCK_PUZZLE.getCodeValue();
     }
 
     @Override
-    public StrixCaptchaResp get(CaptchaInfoVO captchaInfoVO) {
-        StrixCaptchaResp r = super.get(captchaInfoVO);
+    public StrixCaptchaResp get(StrixCaptchaInfoVO strixCaptchaInfoVO) {
+        StrixCaptchaResp r = super.get(strixCaptchaInfoVO);
         if (!validatedReq(r)) {
             return r;
         }
@@ -59,96 +54,91 @@ public class BlockPuzzleCaptchaServiceImpl extends AbstractCaptchaService {
         BufferedImage originalImage = StrixCaptchaImageUtils.getOriginal();
         if (null == originalImage) {
             log.error("Strix Captcha: 滑动底图未初始化成功，请检查路径");
-            return StrixCaptchaResp.errorMsg(CaptchaRepCodeEnum.API_CAPTCHA_BASEMAP_NULL);
+            return StrixCaptchaResp.errorMsg(StrixCaptchaRepCodeEnum.API_CAPTCHA_BASEMAP_NULL);
         }
-        // 设置水印
-//        Graphics backgroundGraphics = originalImage.getGraphics();
         int width = originalImage.getWidth();
         int height = originalImage.getHeight();
-//        backgroundGraphics.setFont(waterMarkFont);
-//        backgroundGraphics.setColor(Color.white);
-//        backgroundGraphics.drawString(waterMark, width - getEnOrChLength(waterMark), height - (HAN_ZI_SIZE / 2) + 7);
 
         // 抠图图片
         String jigsawImageBase64 = StrixCaptchaImageUtils.getSlidingBlock();
         BufferedImage jigsawImage = StrixCaptchaImageUtils.getBase64StrToImage(jigsawImageBase64);
         if (null == jigsawImage) {
             log.error("Strix Captcha: 滑动底图未初始化成功，请检查路径");
-            return StrixCaptchaResp.errorMsg(CaptchaRepCodeEnum.API_CAPTCHA_BASEMAP_NULL);
+            return StrixCaptchaResp.errorMsg(StrixCaptchaRepCodeEnum.API_CAPTCHA_BASEMAP_NULL);
         }
-        CaptchaInfoVO captcha = pictureTemplatesCut(originalImage, jigsawImage, jigsawImageBase64);
+        StrixCaptchaInfoVO captcha = pictureTemplatesCut(originalImage, jigsawImage, jigsawImageBase64);
         if (captcha == null
                 || !StringUtils.hasText(captcha.getJigsawImageBase64())
                 || !StringUtils.hasText(captcha.getOriginalImageBase64())) {
-            return StrixCaptchaResp.errorMsg(CaptchaRepCodeEnum.API_CAPTCHA_ERROR);
+            return StrixCaptchaResp.errorMsg(StrixCaptchaRepCodeEnum.API_CAPTCHA_ERROR);
         }
         return StrixCaptchaResp.successData(captcha);
     }
 
     @Override
-    public StrixCaptchaResp check(CaptchaInfoVO captchaInfoVO) {
-        StrixCaptchaResp r = super.check(captchaInfoVO);
+    public StrixCaptchaResp check(StrixCaptchaInfoVO strixCaptchaInfoVO) {
+        StrixCaptchaResp r = super.check(strixCaptchaInfoVO);
         if (!validatedReq(r)) {
             return r;
         }
         // 取坐标信息
-        String codeKey = String.format(REDIS_CAPTCHA_KEY, captchaInfoVO.getToken());
+        String codeKey = String.format(REDIS_CAPTCHA_KEY, strixCaptchaInfoVO.getToken());
         if (!CaptchaServiceFactory.getCache(cacheType).exists(codeKey)) {
-            return StrixCaptchaResp.errorMsg(CaptchaRepCodeEnum.API_CAPTCHA_INVALID);
+            return StrixCaptchaResp.errorMsg(StrixCaptchaRepCodeEnum.API_CAPTCHA_INVALID);
         }
         String s = CaptchaServiceFactory.getCache(cacheType).get(codeKey);
         // 验证码只用一次，即刻失效
         CaptchaServiceFactory.getCache(cacheType).delete(codeKey);
-        CaptchaPointVO point;
-        CaptchaPointVO point1;
+        StrixCaptchaPointVO point;
+        StrixCaptchaPointVO point1;
         String pointJson;
         try {
-            point = StrixCaptchaJsonUtil.parseObject(s, CaptchaPointVO.class);
+            point = StrixCaptchaJsonUtil.parseObject(s, StrixCaptchaPointVO.class);
             //aes解密
-            pointJson = decrypt(captchaInfoVO.getPointJson(), point.getSecretKey());
-            point1 = StrixCaptchaJsonUtil.parseObject(pointJson, CaptchaPointVO.class);
+            pointJson = decrypt(strixCaptchaInfoVO.getPointJson(), point.getSecretKey());
+            point1 = StrixCaptchaJsonUtil.parseObject(pointJson, StrixCaptchaPointVO.class);
         } catch (Exception e) {
             log.error("Strix Captcha: 验证码坐标解析失败", e);
-            afterValidateFail(captchaInfoVO);
+            afterValidateFail(strixCaptchaInfoVO);
             return StrixCaptchaResp.errorMsg(e.getMessage());
         }
         if (point1 == null) {
-            afterValidateFail(captchaInfoVO);
-            return StrixCaptchaResp.errorMsg(CaptchaRepCodeEnum.API_CAPTCHA_COORDINATE_ERROR);
+            afterValidateFail(strixCaptchaInfoVO);
+            return StrixCaptchaResp.errorMsg(StrixCaptchaRepCodeEnum.API_CAPTCHA_COORDINATE_ERROR);
         }
         if (point.x - Integer.parseInt(slipOffset) > point1.x
                 || point1.x > point.x + Integer.parseInt(slipOffset)
                 || point.y != point1.y) {
-            afterValidateFail(captchaInfoVO);
-            return StrixCaptchaResp.errorMsg(CaptchaRepCodeEnum.API_CAPTCHA_COORDINATE_ERROR);
+            afterValidateFail(strixCaptchaInfoVO);
+            return StrixCaptchaResp.errorMsg(StrixCaptchaRepCodeEnum.API_CAPTCHA_COORDINATE_ERROR);
         }
         // 校验成功，将信息存入缓存
         String secretKey = point.getSecretKey();
         String value;
         try {
-            value = StrixCaptchaAESUtil.aesEncrypt(captchaInfoVO.getToken().concat("---").concat(pointJson), secretKey);
+            value = StrixCaptchaAESUtil.aesEncrypt(strixCaptchaInfoVO.getToken().concat("---").concat(pointJson), secretKey);
         } catch (Exception e) {
             log.error("Strix Captcha: AES加密失败", e);
-            afterValidateFail(captchaInfoVO);
+            afterValidateFail(strixCaptchaInfoVO);
             return StrixCaptchaResp.errorMsg(e.getMessage());
         }
         String secondKey = String.format(REDIS_SECOND_CAPTCHA_KEY, value);
-        CaptchaServiceFactory.getCache(cacheType).set(secondKey, captchaInfoVO.getToken(), EXPIRESIN_THREE);
-        captchaInfoVO.setResult(true);
-        captchaInfoVO.resetClientFlag();
-        return StrixCaptchaResp.successData(captchaInfoVO);
+        CaptchaServiceFactory.getCache(cacheType).set(secondKey, strixCaptchaInfoVO.getToken(), EXPIRES_THREE);
+        strixCaptchaInfoVO.setResult(true);
+        strixCaptchaInfoVO.resetClientFlag();
+        return StrixCaptchaResp.successData(strixCaptchaInfoVO);
     }
 
     @Override
-    public StrixCaptchaResp verification(CaptchaInfoVO captchaInfoVO) {
-        StrixCaptchaResp r = super.verification(captchaInfoVO);
+    public StrixCaptchaResp verification(StrixCaptchaInfoVO strixCaptchaInfoVO) {
+        StrixCaptchaResp r = super.verification(strixCaptchaInfoVO);
         if (!validatedReq(r)) {
             return r;
         }
         try {
-            String codeKey = String.format(REDIS_SECOND_CAPTCHA_KEY, captchaInfoVO.getCaptchaVerification());
+            String codeKey = String.format(REDIS_SECOND_CAPTCHA_KEY, strixCaptchaInfoVO.getCaptchaVerification());
             if (!CaptchaServiceFactory.getCache(cacheType).exists(codeKey)) {
-                return StrixCaptchaResp.errorMsg(CaptchaRepCodeEnum.API_CAPTCHA_INVALID);
+                return StrixCaptchaResp.errorMsg(StrixCaptchaRepCodeEnum.API_CAPTCHA_INVALID);
             }
             // 二次校验取值后，即刻失效
             CaptchaServiceFactory.getCache(cacheType).delete(codeKey);
@@ -162,9 +152,9 @@ public class BlockPuzzleCaptchaServiceImpl extends AbstractCaptchaService {
     /**
      * 根据模板切图
      */
-    public CaptchaInfoVO pictureTemplatesCut(BufferedImage originalImage, BufferedImage jigsawImage, String jigsawImageBase64) {
+    public StrixCaptchaInfoVO pictureTemplatesCut(BufferedImage originalImage, BufferedImage jigsawImage, String jigsawImageBase64) {
         try {
-            CaptchaInfoVO dataVO = new CaptchaInfoVO();
+            StrixCaptchaInfoVO dataVO = new StrixCaptchaInfoVO();
 
             int originalWidth = originalImage.getWidth();
             int originalHeight = originalImage.getHeight();
@@ -172,7 +162,7 @@ public class BlockPuzzleCaptchaServiceImpl extends AbstractCaptchaService {
             int jigsawHeight = jigsawImage.getHeight();
 
             //随机生成拼图坐标
-            CaptchaPointVO point = generateJigsawPoint(originalWidth, originalHeight, jigsawWidth, jigsawHeight);
+            StrixCaptchaPointVO point = generateJigsawPoint(originalWidth, originalHeight, jigsawWidth, jigsawHeight);
             int x = point.getX();
             int y = point.getY();
 
@@ -230,18 +220,13 @@ public class BlockPuzzleCaptchaServiceImpl extends AbstractCaptchaService {
             byte[] oriCopyImages = oriImagesOs.toByteArray();
             Base64.Encoder encoder = Base64.getEncoder();
             dataVO.setOriginalImageBase64(encoder.encodeToString(oriCopyImages).replaceAll("\r|\n", ""));
-            // point信息不传到前端，只做后端check校验
-//            dataVO.setPoint(point);
             dataVO.setJigsawImageBase64(encoder.encodeToString(jigsawImages).replaceAll("\r|\n", ""));
             dataVO.setToken(StrixCaptchaRandomUtils.getUUID());
             dataVO.setSecretKey(point.getSecretKey());
-//            base64StrToImage(encoder.encodeToString(oriCopyImages), "D:\\原图.png");
-//            base64StrToImage(encoder.encodeToString(jigsawImages), "D:\\滑动.png");
 
-            //将坐标信息存入redis中
+            // 将坐标信息存入redis中
             String codeKey = String.format(REDIS_CAPTCHA_KEY, dataVO.getToken());
-            CaptchaServiceFactory.getCache(cacheType).set(codeKey, StrixCaptchaJsonUtil.toJSONString(point), EXPIRESIN_SECONDS);
-//            logger.debug("token：{},point:{}", dataVO.getToken(), JsonUtil.toJSONString(point));
+            CaptchaServiceFactory.getCache(cacheType).set(codeKey, StrixCaptchaJsonUtil.toJSONString(point), EXPIRES_SECONDS);
             return dataVO;
         } catch (Exception e) {
             log.warn("Strix Captcha: 滑动验证码生成失败", e);
@@ -258,7 +243,7 @@ public class BlockPuzzleCaptchaServiceImpl extends AbstractCaptchaService {
      * @param jigsawHeight   拼图高度
      * @return 拼图坐标
      */
-    private static CaptchaPointVO generateJigsawPoint(int originalWidth, int originalHeight, int jigsawWidth, int jigsawHeight) {
+    private static StrixCaptchaPointVO generateJigsawPoint(int originalWidth, int originalHeight, int jigsawWidth, int jigsawHeight) {
         Random random = new Random();
         int widthDifference = originalWidth - jigsawWidth;
         int heightDifference = originalHeight - jigsawHeight;
@@ -277,7 +262,7 @@ public class BlockPuzzleCaptchaServiceImpl extends AbstractCaptchaService {
         if (captchaAesStatus) {
             key = StrixCaptchaAESUtil.getKey();
         }
-        return new CaptchaPointVO(x, y, key);
+        return new StrixCaptchaPointVO(x, y, key);
     }
 
     /**

@@ -1,7 +1,7 @@
 package cn.projectan.strix.core.delayedtask;
 
-import cn.projectan.strix.model.properties.StrixDelayedTaskProperties;
-import cn.projectan.strix.util.ThreadUtil;
+import cn.projectan.strix.model.properties.system.StrixDelayedTaskProperties;
+import cn.projectan.strix.util.system.ThreadUtil;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;

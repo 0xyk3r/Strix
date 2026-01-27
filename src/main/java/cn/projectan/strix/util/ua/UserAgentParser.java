@@ -1,6 +1,6 @@
 package cn.projectan.strix.util.ua;
 
-import cn.projectan.strix.model.other.ua.*;
+import cn.projectan.strix.model.other.system.ua.*;
 import org.springframework.util.StringUtils;
 
 /**

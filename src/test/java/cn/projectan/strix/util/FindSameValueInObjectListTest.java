@@ -1,6 +1,8 @@
 package cn.projectan.strix.util;
 
 import cn.projectan.strix.util.algo.FindSameValueInObjectList;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -15,106 +17,23 @@ import java.util.stream.Collectors;
  */
 public class FindSameValueInObjectListTest {
 
+    @Data
+    @AllArgsConstructor
     static class AAA {
         private String a1;
         private String a2;
         private String a3;
         private String a4;
-
-        public AAA(String a1, String a2, String a3, String a4) {
-            this.a1 = a1;
-            this.a2 = a2;
-            this.a3 = a3;
-            this.a4 = a4;
-        }
-
-        public String getA1() {
-            return a1;
-        }
-
-        public void setA1(String a1) {
-            this.a1 = a1;
-        }
-
-        public String getA2() {
-            return a2;
-        }
-
-        public void setA2(String a2) {
-            this.a2 = a2;
-        }
-
-        public String getA3() {
-            return a3;
-        }
-
-        public void setA3(String a3) {
-            this.a3 = a3;
-        }
-
-        public String getA4() {
-            return a4;
-        }
-
-        public void setA4(String a4) {
-            this.a4 = a4;
-        }
     }
 
+    @Data
+    @AllArgsConstructor
     static class BBB {
         private String b1;
         private String a2;
         private String b3;
         private String a4;
         private String b5;
-
-        public BBB(String b1, String a2, String b3, String a4, String b5) {
-            this.b1 = b1;
-            this.a2 = a2;
-            this.b3 = b3;
-            this.a4 = a4;
-            this.b5 = b5;
-        }
-
-        public String getB1() {
-            return b1;
-        }
-
-        public void setB1(String b1) {
-            this.b1 = b1;
-        }
-
-        public String getA2() {
-            return a2;
-        }
-
-        public void setA2(String a2) {
-            this.a2 = a2;
-        }
-
-        public String getB3() {
-            return b3;
-        }
-
-        public void setB3(String b3) {
-            this.b3 = b3;
-        }
-
-        public String getA4() {
-            return a4;
-        }
-
-        public void setA4(String a4) {
-            this.a4 = a4;
-        }
-
-        public String getB5() {
-            return b5;
-        }
-
-        public void setB5(String b5) {
-            this.b5 = b5;
-        }
     }
 
     @Test

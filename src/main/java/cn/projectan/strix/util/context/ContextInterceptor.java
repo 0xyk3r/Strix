@@ -14,7 +14,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 public class ContextInterceptor implements HandlerInterceptor {
 
     @Override
-    public void afterCompletion(@Nonnull HttpServletRequest request, @Nonnull HttpServletResponse response, @Nonnull Object handler, Exception ex) throws Exception {
+    public void afterCompletion(@Nonnull HttpServletRequest request, @Nonnull HttpServletResponse response, @Nonnull Object handler, Exception ex) {
         // 在请求结束时，清理数据
         ContextHolder.clear();
     }

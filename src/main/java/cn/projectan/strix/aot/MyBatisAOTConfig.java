@@ -46,6 +46,7 @@ import org.apache.ibatis.reflection.TypeParameterResolver;
 import org.apache.ibatis.scripting.defaults.RawLanguageDriver;
 import org.apache.ibatis.scripting.xmltags.XMLLanguageDriver;
 import org.apache.ibatis.session.SqlSessionFactory;
+import org.jetbrains.annotations.NotNull;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.mapper.MapperFactoryBean;
 import org.mybatis.spring.mapper.MapperScannerConfigurer;
@@ -289,12 +290,12 @@ public class MyBatisAOTConfig {
         private ConfigurableBeanFactory beanFactory;
 
         @Override
-        public void setBeanFactory(BeanFactory beanFactory) {
+        public void setBeanFactory(@NotNull BeanFactory beanFactory) {
             this.beanFactory = (ConfigurableBeanFactory) beanFactory;
         }
 
         @Override
-        public void postProcessMergedBeanDefinition(RootBeanDefinition beanDefinition, Class<?> beanType, String beanName) {
+        public void postProcessMergedBeanDefinition(@NotNull RootBeanDefinition beanDefinition, @NotNull Class<?> beanType, @NotNull String beanName) {
             if (ClassUtils.isPresent(MAPPER_FACTORY_BEAN, this.beanFactory.getBeanClassLoader())) {
                 resolveMapperFactoryBeanTypeIfNecessary(beanDefinition);
             }

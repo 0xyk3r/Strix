@@ -1,6 +1,6 @@
 package cn.projectan.strix.util.math;
 
-import cn.projectan.strix.model.enums.NumCategory;
+import cn.projectan.strix.model.enums.common.NumCategory;
 
 /**
  * Number 工具类

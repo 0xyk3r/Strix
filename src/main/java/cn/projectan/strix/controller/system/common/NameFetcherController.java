@@ -3,7 +3,7 @@ package cn.projectan.strix.controller.system.common;
 import cn.projectan.strix.controller.system.base.BaseSystemController;
 import cn.projectan.strix.core.ret.RetBuilder;
 import cn.projectan.strix.core.ret.RetResult;
-import cn.projectan.strix.util.NameFetcherUtil;
+import cn.projectan.strix.util.common.NameFetcherUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;

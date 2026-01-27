@@ -1,6 +1,6 @@
 package cn.projectan.strix.model.response.system.monitor.log;
 
-import cn.projectan.strix.model.db.SystemLog;
+import cn.projectan.strix.model.db.system.SystemLog;
 import cn.projectan.strix.model.response.base.BasePageResp;
 import lombok.AllArgsConstructor;
 import lombok.Data;

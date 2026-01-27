@@ -1,6 +1,7 @@
 package cn.projectan.strix.core.threadpool;
 
-import cn.projectan.strix.util.ThreadUtil;
+import cn.projectan.strix.util.system.ThreadUtil;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableAsync;
@@ -47,7 +48,7 @@ public class StrixLogThreadPoolConfig {
             private final AtomicInteger counter = new AtomicInteger(0);
 
             @Override
-            public Thread newThread(Runnable r) {
+            public Thread newThread(@NotNull Runnable r) {
                 Thread thread = new Thread(r);
                 thread.setName("strix-schedule-pool-" + counter.getAndIncrement());
                 thread.setDaemon(true);

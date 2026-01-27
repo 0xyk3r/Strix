@@ -1,7 +1,7 @@
 package cn.projectan.strix.core.module.oauth;
 
 import cn.hutool.core.map.MapUtil;
-import cn.projectan.strix.util.OkHttpUtil;
+import cn.projectan.strix.util.http.OkHttpUtil;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;

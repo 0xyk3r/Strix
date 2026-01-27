@@ -1,6 +1,6 @@
 package cn.projectan.strix.model.response.system.permission;
 
-import cn.projectan.strix.model.db.SystemPermission;
+import cn.projectan.strix.model.db.system.SystemPermission;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;

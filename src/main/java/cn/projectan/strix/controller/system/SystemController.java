@@ -2,32 +2,33 @@ package cn.projectan.strix.controller.system;
 
 import cn.hutool.core.util.IdUtil;
 import cn.projectan.strix.controller.system.base.BaseSystemController;
-import cn.projectan.strix.core.cache.SystemConfigCache;
+import cn.projectan.strix.core.cache.system.SystemConfigCache;
 import cn.projectan.strix.core.captcha.CaptchaService;
 import cn.projectan.strix.core.ret.RetBuilder;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.core.ss.details.LoginSystemManager;
 import cn.projectan.strix.model.annotation.Anonymous;
-import cn.projectan.strix.model.annotation.IgnoreDataEncryption;
+import cn.projectan.strix.model.annotation.IgnoreEncryption;
 import cn.projectan.strix.model.annotation.StrixLog;
-import cn.projectan.strix.model.db.SystemManager;
-import cn.projectan.strix.model.db.SystemMenu;
-import cn.projectan.strix.model.dict.SysLogOperType;
-import cn.projectan.strix.model.dict.SystemManagerStatus;
-import cn.projectan.strix.model.other.captcha.CaptchaInfoVO;
-import cn.projectan.strix.model.request.system.SystemLoginReq;
-import cn.projectan.strix.model.response.module.captcha.StrixCaptchaResp;
+import cn.projectan.strix.model.db.system.SystemManager;
+import cn.projectan.strix.model.db.system.SystemMenu;
+import cn.projectan.strix.model.dict.system.SysLogOperType;
+import cn.projectan.strix.model.dict.system.SystemManagerStatus;
+import cn.projectan.strix.model.other.system.captcha.StrixCaptchaInfoVO;
+import cn.projectan.strix.model.request.system.login.SystemLoginReq;
 import cn.projectan.strix.model.response.system.SystemLoginResp;
 import cn.projectan.strix.model.response.system.SystemMenuResp;
-import cn.projectan.strix.service.SystemManagerService;
-import cn.projectan.strix.service.SystemMenuService;
-import cn.projectan.strix.util.RedisUtil;
-import cn.projectan.strix.util.SecurityUtils;
-import cn.projectan.strix.util.SpringUtil;
+import cn.projectan.strix.model.response.system.module.captcha.StrixCaptchaResp;
+import cn.projectan.strix.service.system.SystemManagerService;
+import cn.projectan.strix.service.system.SystemMenuService;
+import cn.projectan.strix.util.common.RedisUtil;
+import cn.projectan.strix.util.common.SpringUtil;
+import cn.projectan.strix.util.system.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.ApplicationContext;
+import org.springframework.http.HttpHeaders;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -66,9 +67,9 @@ public class SystemController extends BaseSystemController {
     public RetResult<SystemLoginResp> login(@RequestBody SystemLoginReq req) {
         // 验证码校验
         Assert.hasText(req.getCaptchaVerification(), "行为验证不通过，请重新验证");
-        CaptchaInfoVO captchaInfoVO = new CaptchaInfoVO();
-        captchaInfoVO.setCaptchaVerification(req.getCaptchaVerification());
-        StrixCaptchaResp strixCaptchaResp = captchaService.verification(captchaInfoVO);
+        StrixCaptchaInfoVO strixCaptchaInfoVO = new StrixCaptchaInfoVO();
+        strixCaptchaInfoVO.setCaptchaVerification(req.getCaptchaVerification());
+        StrixCaptchaResp strixCaptchaResp = captchaService.verification(strixCaptchaInfoVO);
         Assert.isTrue(strixCaptchaResp.isSuccess(), "行为验证不通过，请重新验证");
 
         SystemManager systemManager = systemManagerService.lambdaQuery()
@@ -164,11 +165,11 @@ public class SystemController extends BaseSystemController {
     }
 
     @Anonymous
-    @IgnoreDataEncryption
+    @IgnoreEncryption
     @GetMapping("shutdown/{pwd}")
     public void shutdown(@PathVariable String pwd) throws NoHandlerFoundException {
         if (!StringUtils.hasText(pwd) || !pwd.equals("ProjectAn")) {
-            throw new NoHandlerFoundException("GET", "/system/shutdown/" + pwd, null);
+            throw new NoHandlerFoundException("GET", "/system/shutdown/" + pwd, HttpHeaders.EMPTY);
         }
         log.warn("使用 Strix Shutdown API 关闭了系统.");
         ApplicationContext context = SpringUtil.getApplicationContext();

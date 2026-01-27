@@ -1,6 +1,6 @@
 package cn.projectan.strix.model.response.system.tool.popularity;
 
-import cn.projectan.strix.model.db.PopularityConfig;
+import cn.projectan.strix.model.db.system.PopularityConfig;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

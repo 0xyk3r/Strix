@@ -1,6 +1,6 @@
 package cn.projectan.strix.model.request.system.dict;
 
-import cn.projectan.strix.model.db.Dict;
+import cn.projectan.strix.model.db.system.Dict;
 import cn.projectan.strix.model.request.base.BasePageReq;
 import lombok.Data;
 

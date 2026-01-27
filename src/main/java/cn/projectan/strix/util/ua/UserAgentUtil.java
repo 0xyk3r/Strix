@@ -1,6 +1,6 @@
 package cn.projectan.strix.util.ua;
 
-import cn.projectan.strix.model.other.ua.UserAgent;
+import cn.projectan.strix.model.other.system.ua.UserAgent;
 
 /**
  * User-Agent 工具类

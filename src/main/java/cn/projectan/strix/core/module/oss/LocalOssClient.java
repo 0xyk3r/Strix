@@ -2,7 +2,7 @@ package cn.projectan.strix.core.module.oss;
 
 import cn.hutool.core.io.FileUtil;
 import cn.projectan.strix.core.exception.StrixException;
-import cn.projectan.strix.model.other.module.oss.StrixOssBucket;
+import cn.projectan.strix.model.other.system.module.oss.StrixOssBucket;
 import cn.projectan.strix.util.tempurl.TempUrlUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -10,10 +10,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.List;
 
 /**
@@ -79,7 +76,7 @@ public class LocalOssClient implements StrixOssClient {
         }
 
         @Override
-        public void upload(String bucketName, String objectName, InputStream inputStream) {
+        public void upload(String bucketName, String objectName, InputStream inputStream, long contentLength) {
             try {
                 File newFile = createFile(objectName);
                 FileUtil.writeFromStream(inputStream, newFile);
@@ -87,6 +84,12 @@ public class LocalOssClient implements StrixOssClient {
                 log.error(e.getMessage(), e);
                 throw new StrixException("Strix OSS: 上传文件失败.");
             }
+        }
+
+        @Override
+        @Deprecated
+        public void upload(String bucketName, String objectName, InputStream inputStream) {
+            upload(bucketName, objectName, inputStream, -1);
         }
 
         @Override
@@ -118,6 +121,39 @@ public class LocalOssClient implements StrixOssClient {
         }
 
         @Override
+        public InputStream downloadAsStream(String bucketName, String objectName) {
+            File file = new File(objectName);
+            if (!file.exists()) {
+                throw new StrixException("Strix OSS: 文件不存在.");
+            }
+            try {
+                return new FileInputStream(file);
+            } catch (IOException e) {
+                log.error(e.getMessage(), e);
+                throw new StrixException("Strix OSS: 下载文件失败.");
+            }
+        }
+
+        @Override
+        public void downloadToStream(String bucketName, String objectName, OutputStream outputStream) {
+            File file = new File(objectName);
+            if (!file.exists()) {
+                throw new StrixException("Strix OSS: 文件不存在.");
+            }
+            try (InputStream inputStream = new FileInputStream(file)) {
+                byte[] buffer = new byte[8192];
+                int bytesRead;
+                while ((bytesRead = inputStream.read(buffer)) != -1) {
+                    outputStream.write(buffer, 0, bytesRead);
+                }
+            } catch (IOException e) {
+                log.error(e.getMessage(), e);
+                throw new StrixException("Strix OSS: 下载文件失败.");
+            }
+        }
+
+        @Override
+        @Deprecated
         public File downloadStream(String bucketName, String objectName, String filePath) {
             return download(bucketName, objectName, filePath);
         }

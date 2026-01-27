@@ -1,10 +1,10 @@
 package cn.projectan.strix.core.captcha;
 
 
-import cn.projectan.strix.model.constant.StrixCaptchaConst;
-import cn.projectan.strix.model.enums.CaptchaRepCodeEnum;
-import cn.projectan.strix.model.other.captcha.CaptchaInfoVO;
-import cn.projectan.strix.model.response.module.captcha.StrixCaptchaResp;
+import cn.projectan.strix.model.constant.system.StrixCaptchaConst;
+import cn.projectan.strix.model.enums.system.StrixCaptchaRepCodeEnum;
+import cn.projectan.strix.model.other.system.captcha.StrixCaptchaInfoVO;
+import cn.projectan.strix.model.response.system.module.captcha.StrixCaptchaResp;
 import org.springframework.util.StringUtils;
 
 import java.util.Objects;
@@ -17,26 +17,26 @@ public interface FrequencyLimitHandler {
     /**
      * get 接口限流
      *
-     * @param captchaInfoVO captchaVO
+     * @param strixCaptchaInfoVO captchaVO
      * @return ResponseResp
      */
-    StrixCaptchaResp validateGet(CaptchaInfoVO captchaInfoVO);
+    StrixCaptchaResp validateGet(StrixCaptchaInfoVO strixCaptchaInfoVO);
 
     /**
-     * check接口限流
+     * check 接口限流
      *
-     * @param captchaInfoVO captchaVO
+     * @param strixCaptchaInfoVO captchaVO
      * @return ResponseResp
      */
-    StrixCaptchaResp validateCheck(CaptchaInfoVO captchaInfoVO);
+    StrixCaptchaResp validateCheck(StrixCaptchaInfoVO strixCaptchaInfoVO);
 
     /**
-     * verify接口限流
+     * verify 接口限流
      *
-     * @param captchaInfoVO captchaVO
+     * @param strixCaptchaInfoVO captchaVO
      * @return ResponseResp
      */
-    StrixCaptchaResp validateVerify(CaptchaInfoVO captchaInfoVO);
+    StrixCaptchaResp validateVerify(StrixCaptchaInfoVO strixCaptchaInfoVO);
 
     /***
      * 验证码接口限流:
@@ -59,12 +59,12 @@ public interface FrequencyLimitHandler {
             this.cacheService = cacheService;
         }
 
-        private String getClientCId(CaptchaInfoVO input, String type) {
+        private String getClientCId(StrixCaptchaInfoVO input, String type) {
             return String.format(LIMIT_KEY, type, input.getClientUid());
         }
 
         @Override
-        public StrixCaptchaResp validateGet(CaptchaInfoVO d) {
+        public StrixCaptchaResp validateGet(StrixCaptchaInfoVO d) {
             // 无客户端身份标识，不限制
             if (!StringUtils.hasText(d.getClientUid())) {
                 return null;
@@ -73,45 +73,41 @@ public interface FrequencyLimitHandler {
             String lockKey = getClientCId(d, "LOCK");
             // 失败次数过多，锁定
             if (Objects.nonNull(cacheService.get(lockKey))) {
-                return StrixCaptchaResp.errorMsg(CaptchaRepCodeEnum.API_REQ_LOCK_GET_ERROR);
+                return StrixCaptchaResp.errorMsg(StrixCaptchaRepCodeEnum.API_REQ_LOCK_GET_ERROR);
             }
-            String getCnts = cacheService.get(getKey);
-            if (Objects.isNull(getCnts)) {
+            String getCount = cacheService.get(getKey);
+            if (Objects.isNull(getCount)) {
                 cacheService.set(getKey, "1", 60);
-                getCnts = "1";
+                getCount = "1";
             }
             cacheService.increment(getKey, 1);
             // 1分钟内请求次数过多
-            if (Long.parseLong(getCnts) > Long.parseLong(config.getProperty(StrixCaptchaConst.REQ_GET_MINUTE_LIMIT, "120"))) {
-                return StrixCaptchaResp.errorMsg(CaptchaRepCodeEnum.API_REQ_LIMIT_GET_ERROR);
+            if (Long.parseLong(getCount) > Long.parseLong(config.getProperty(StrixCaptchaConst.REQ_GET_MINUTE_LIMIT, "120"))) {
+                return StrixCaptchaResp.errorMsg(StrixCaptchaRepCodeEnum.API_REQ_LIMIT_GET_ERROR);
             }
 
             // 失败次数验证
             String failKey = getClientCId(d, "FAIL");
-            String failCnts = cacheService.get(failKey);
+            String failCount = cacheService.get(failKey);
             // 没有验证失败，通过校验
-            if (Objects.isNull(failCnts)) {
+            if (Objects.isNull(failCount)) {
                 return null;
             }
             // 1分钟内失败5次
-            if (Long.parseLong(failCnts) > Long.parseLong(config.getProperty(StrixCaptchaConst.REQ_GET_LOCK_LIMIT, "5"))) {
+            if (Long.parseLong(failCount) > Long.parseLong(config.getProperty(StrixCaptchaConst.REQ_GET_LOCK_LIMIT, "5"))) {
                 // get接口锁定5分钟
                 cacheService.set(lockKey, "1", Long.parseLong(config.getProperty(StrixCaptchaConst.REQ_GET_LOCK_SECONDS, "300")));
-                return StrixCaptchaResp.errorMsg(CaptchaRepCodeEnum.API_REQ_LOCK_GET_ERROR);
+                return StrixCaptchaResp.errorMsg(StrixCaptchaRepCodeEnum.API_REQ_LOCK_GET_ERROR);
             }
             return null;
         }
 
         @Override
-        public StrixCaptchaResp validateCheck(CaptchaInfoVO d) {
+        public StrixCaptchaResp validateCheck(StrixCaptchaInfoVO d) {
             // 无客户端身份标识，不限制
             if (!StringUtils.hasText(d.getClientUid())) {
                 return null;
             }
-            /*String getKey = getClientCId(d, "GET");
-            if(Objects.isNull(cacheService.get(getKey))){
-                return ResponseResp.errorMsg(RepCodeEnum.API_REQ_INVALID);
-            }*/
             String key = getClientCId(d, "CHECK");
             String v = cacheService.get(key);
             if (Objects.isNull(v)) {
@@ -120,17 +116,13 @@ public interface FrequencyLimitHandler {
             }
             cacheService.increment(key, 1);
             if (Long.parseLong(v) > Long.parseLong(config.getProperty(StrixCaptchaConst.REQ_CHECK_MINUTE_LIMIT, "600"))) {
-                return StrixCaptchaResp.errorMsg(CaptchaRepCodeEnum.API_REQ_LIMIT_CHECK_ERROR);
+                return StrixCaptchaResp.errorMsg(StrixCaptchaRepCodeEnum.API_REQ_LIMIT_CHECK_ERROR);
             }
             return null;
         }
 
         @Override
-        public StrixCaptchaResp validateVerify(CaptchaInfoVO d) {
-            /*String getKey = getClientCId(d, "GET");
-            if(Objects.isNull(cacheService.get(getKey))){
-                return ResponseResp.errorMsg(RepCodeEnum.API_REQ_INVALID);
-            }*/
+        public StrixCaptchaResp validateVerify(StrixCaptchaInfoVO d) {
             String key = getClientCId(d, "VERIFY");
             String v = cacheService.get(key);
             if (Objects.isNull(v)) {
@@ -139,7 +131,7 @@ public interface FrequencyLimitHandler {
             }
             cacheService.increment(key, 1);
             if (Long.parseLong(v) > Long.parseLong(config.getProperty(StrixCaptchaConst.REQ_VALIDATE_MINUTE_LIMIT, "600"))) {
-                return StrixCaptchaResp.errorMsg(CaptchaRepCodeEnum.API_REQ_LIMIT_VERIFY_ERROR);
+                return StrixCaptchaResp.errorMsg(StrixCaptchaRepCodeEnum.API_REQ_LIMIT_VERIFY_ERROR);
             }
             return null;
         }

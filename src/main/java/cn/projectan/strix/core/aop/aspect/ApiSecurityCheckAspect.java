@@ -2,12 +2,12 @@ package cn.projectan.strix.core.aop.aspect;
 
 import cn.projectan.strix.core.ret.RetBuilder;
 import cn.projectan.strix.core.ret.RetCode;
-import cn.projectan.strix.model.annotation.IgnoreDataEncryption;
-import cn.projectan.strix.model.constant.PasswordConst;
-import cn.projectan.strix.util.ApiSignUtil;
-import cn.projectan.strix.util.I18nUtil;
-import cn.projectan.strix.util.ServletUtils;
-import cn.projectan.strix.util.SpringUtil;
+import cn.projectan.strix.model.annotation.IgnoreEncryption;
+import cn.projectan.strix.model.constant.system.StrixPasswordConst;
+import cn.projectan.strix.util.common.I18nUtil;
+import cn.projectan.strix.util.common.SpringUtil;
+import cn.projectan.strix.util.http.ServletUtils;
+import cn.projectan.strix.util.system.ApiSignUtil;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -52,6 +52,7 @@ public class ApiSecurityCheckAspect {
         this.objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
     }
 
+    @SuppressWarnings("EmptyMethod")
     @Pointcut("execution(public * cn.projectan..controller..*(..))")
     public void controller() {
     }
@@ -66,13 +67,13 @@ public class ApiSecurityCheckAspect {
         MethodSignature signature = (MethodSignature) pjp.getSignature();
 
         // 非加密接口直接放行
-        if (signature.getMethod().isAnnotationPresent(IgnoreDataEncryption.class) ||
-                signature.getMethod().getDeclaringClass().isAnnotationPresent(IgnoreDataEncryption.class)) {
+        if (signature.getMethod().isAnnotationPresent(IgnoreEncryption.class) ||
+                signature.getMethod().getDeclaringClass().isAnnotationPresent(IgnoreEncryption.class)) {
             return pjp.proceed();
         }
 
         // 填写了密码直接放行
-        if (PasswordConst.IGNORE_ENCRYPTION.equals(request.getHeader("ss-pwd"))) {
+        if (StrixPasswordConst.IGNORE_ENCRYPTION.equals(request.getHeader("ss-pwd"))) {
             return pjp.proceed();
         }
 

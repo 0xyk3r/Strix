@@ -6,9 +6,9 @@ import cn.projectan.strix.core.ss.details.LoginSystemManager;
 import cn.projectan.strix.core.ss.details.LoginSystemUser;
 import cn.projectan.strix.core.validation.validator.ConstantDictValueValidator;
 import cn.projectan.strix.core.validation.validator.DynamicDictValueValidator;
-import cn.projectan.strix.mapper.SystemLogMapper;
-import cn.projectan.strix.model.properties.StrixPackageScanProperties;
-import cn.projectan.strix.util.SpringUtil;
+import cn.projectan.strix.mapper.system.SystemLogMapper;
+import cn.projectan.strix.model.properties.system.StrixPackageScanProperties;
+import cn.projectan.strix.util.common.SpringUtil;
 import com.alipay.api.domain.*;
 import com.alipay.api.request.*;
 import com.alipay.api.response.*;
@@ -25,6 +25,7 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.springframework.aot.hint.MemberCategory;
 import org.springframework.aot.hint.RuntimeHints;
 import org.springframework.aot.hint.RuntimeHintsRegistrar;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportRuntimeHints;
 
@@ -39,6 +40,7 @@ import java.util.Set;
  */
 @Slf4j
 @Configuration(proxyBeanMethods = false)
+@EnableConfigurationProperties(StrixPackageScanProperties.class)
 @ImportRuntimeHints(StrixAOTConfig.StrixRuntimeHintsRegistrar.class)
 @RequiredArgsConstructor
 public class StrixAOTConfig {
@@ -59,7 +61,7 @@ public class StrixAOTConfig {
             // MP 动态数据源 非默认数据源使用的 Mapper 需要注册反射和代理
             hints.reflection().registerType(SystemLogMapper.class, MemberCategory.values());
             hints.proxies().registerJdkProxy(
-                    cn.projectan.strix.mapper.SystemLogMapper.class,
+                    SystemLogMapper.class,
                     org.springframework.aop.SpringProxy.class,
                     org.springframework.aop.framework.Advised.class,
                     org.springframework.core.DecoratingProxy.class
@@ -77,7 +79,7 @@ public class StrixAOTConfig {
                 hints.reflection().registerType(Class.forName("net.jpountz.lz4.LZ4JavaUnsafeFastDecompressor", true, classLoader), MemberCategory.values());
                 hints.reflection().registerType(Class.forName("net.jpountz.lz4.LZ4JavaUnsafeSafeDecompressor", true, classLoader), MemberCategory.values());
             } catch (Exception e) {
-                log.warn("Register ClickHouse LZ4 Class Error: " + e.getMessage());
+                log.warn("Register ClickHouse LZ4 Class Error: {}", e.getMessage());
             }
 
             // Aliyun OSS
@@ -86,7 +88,7 @@ public class StrixAOTConfig {
 
             // IJPay 微信支付SDK 请求/响应类
             Set<Class<?>> ijpayModelClazzSet = ClassUtil.scanPackage("com.ijpay.wxpay");
-            log.info("Scan IJPay WxPay Model Class Count: " + ijpayModelClazzSet.size());
+            log.info("Scan IJPay WxPay Model Class Count: {}", ijpayModelClazzSet.size());
             ijpayModelClazzSet.forEach(clazz -> hints.reflection().registerType(clazz, MemberCategory.values()));
 
             // Alipay 支付宝SDK 请求/响应类

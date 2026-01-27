@@ -4,12 +4,11 @@ import cn.projectan.strix.core.ret.RetBuilder;
 import cn.projectan.strix.core.ret.RetCode;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.core.security.ApiSecurity;
-import cn.projectan.strix.model.annotation.IgnoreDataEncryption;
-import cn.projectan.strix.model.constant.PasswordConst;
-import cn.projectan.strix.util.ServletUtils;
+import cn.projectan.strix.model.annotation.IgnoreEncryption;
+import cn.projectan.strix.model.constant.system.StrixPasswordConst;
+import cn.projectan.strix.util.http.ServletUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.Nonnull;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -42,23 +41,19 @@ public class EncodeResponseBodyAdvice implements ResponseBodyAdvice<Object> {
     @SneakyThrows
     @Override
     public boolean supports(@NotNull MethodParameter methodParameter, @Nonnull Class aClass) {
-        HttpServletRequest request = ServletUtils.getRequest();
-        if (PasswordConst.IGNORE_ENCRYPTION.equals(request.getHeader("ss-pwd"))) {
+        if (StrixPasswordConst.IGNORE_ENCRYPTION.equals(ServletUtils.getRequest().getHeader("ss-pwd"))) {
             return false;
         }
-
         String className = methodParameter.getContainingClass().getName();
         return className.startsWith("cn.projectan.strix.controller") &&
-//               !className.equals("cn.projectan.strix.core.aop.aspect.ApiSecurityCheckAspect") &&
-//               !className.equals("cn.projectan.strix.core.aop.advice.GlobalExceptionHandler") &&
-                !methodParameter.getContainingClass().isAnnotationPresent(IgnoreDataEncryption.class) &&
-                !methodParameter.hasMethodAnnotation(IgnoreDataEncryption.class);
+                !methodParameter.getContainingClass().isAnnotationPresent(IgnoreEncryption.class) &&
+                !methodParameter.hasMethodAnnotation(IgnoreEncryption.class);
     }
 
     @Override
     public Object beforeBodyWrite(Object body, @Nonnull MethodParameter methodParameter, @Nonnull MediaType mediaType, @Nonnull Class aClass, @Nonnull ServerHttpRequest serverHttpRequest, @Nonnull ServerHttpResponse serverHttpResponse) {
         try {
-            if (showResponse) {
+            if (showResponse && methodParameter.getMethod() != null) {
                 String fullMethodName = methodParameter.getContainingClass().getName() + "." + methodParameter.getMethod().getName();
                 log.info("""
                                 

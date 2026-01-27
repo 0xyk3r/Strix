@@ -4,12 +4,12 @@ import cn.hutool.core.lang.Assert;
 import cn.projectan.strix.core.ret.RetBuilder;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.model.annotation.Anonymous;
-import cn.projectan.strix.model.annotation.IgnoreDataEncryption;
+import cn.projectan.strix.model.annotation.IgnoreEncryption;
 import cn.projectan.strix.model.response.common.CommonOperatorInfoResp;
-import cn.projectan.strix.service.OperatorService;
-import cn.projectan.strix.service.WorkflowInstanceService;
-import cn.projectan.strix.service.WorkflowTaskService;
-import cn.projectan.strix.util.SpringUtil;
+import cn.projectan.strix.service.common.OperatorService;
+import cn.projectan.strix.service.system.WorkflowInstanceService;
+import cn.projectan.strix.service.system.WorkflowTaskService;
+import cn.projectan.strix.util.common.SpringUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @Slf4j
 @Anonymous
-@IgnoreDataEncryption
+@IgnoreEncryption
 @RestController
 @RequestMapping("debug")
 @ConditionalOnProperty(prefix = "spring.profiles", name = "active", havingValue = "dev")
@@ -41,7 +41,7 @@ public class DebugController extends BaseController {
 
     @GetMapping("wf/create/{workflowId}")
     public RetResult<Object> create(@PathVariable String workflowId) {
-        workflowInstanceService.createInstance(workflowId, "DEBUG发起的流程", "anjiongyi");
+        workflowInstanceService.createInstance(workflowId, "DEBUG发起的流程");
         return RetBuilder.success();
     }
 
@@ -49,10 +49,6 @@ public class DebugController extends BaseController {
     public RetResult<Object> approval(@PathVariable String taskId, @PathVariable Byte operationType) {
         workflowTaskService.completeTask(taskId, "anjiongyi", operationType, "test comment");
         return RetBuilder.success();
-    }
-
-    @GetMapping("wf/createInstance")
-    public void createInstance() {
     }
 
     @GetMapping("shutdown")

@@ -1,7 +1,7 @@
 package cn.projectan.strix.core.ss;
 
 import cn.projectan.strix.core.ss.details.LoginSystemManager;
-import cn.projectan.strix.util.SecurityUtils;
+import cn.projectan.strix.util.system.SecurityUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;

@@ -3,9 +3,9 @@ package cn.projectan.strix.core.aop.advice;
 import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.projectan.strix.core.security.ApiSecurity;
-import cn.projectan.strix.model.annotation.IgnoreDataEncryption;
-import cn.projectan.strix.model.constant.PasswordConst;
-import cn.projectan.strix.util.ServletUtils;
+import cn.projectan.strix.model.annotation.IgnoreEncryption;
+import cn.projectan.strix.model.constant.system.StrixPasswordConst;
+import cn.projectan.strix.util.http.ServletUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.Nonnull;
 import jakarta.servlet.http.HttpServletRequest;
@@ -46,17 +46,13 @@ public class DecodeRequestBodyAdvice implements RequestBodyAdvice {
 
     @Override
     public boolean supports(@NotNull MethodParameter methodParameter, @Nonnull Type type, @Nonnull Class<? extends HttpMessageConverter<?>> aClass) {
-        HttpServletRequest request = ServletUtils.getRequest();
-        if (PasswordConst.IGNORE_ENCRYPTION.equals(request.getHeader("ss-pwd"))) {
+        if (StrixPasswordConst.IGNORE_ENCRYPTION.equals(ServletUtils.getRequest().getHeader("ss-pwd"))) {
             return false;
         }
-
         String className = methodParameter.getContainingClass().getName();
         return className.startsWith("cn.projectan.strix.controller") &&
-//                !className.equals("cn.projectan.strix.core.aop.aspect.ApiSecurityCheckAspect") &&
-//                !className.equals("cn.projectan.strix.core.aop.advice.GlobalExceptionHandler") &&
-                !methodParameter.getContainingClass().isAnnotationPresent(IgnoreDataEncryption.class) &&
-                !methodParameter.hasMethodAnnotation(IgnoreDataEncryption.class);
+                !methodParameter.getContainingClass().isAnnotationPresent(IgnoreEncryption.class) &&
+                !methodParameter.hasMethodAnnotation(IgnoreEncryption.class);
     }
 
     @Nonnull

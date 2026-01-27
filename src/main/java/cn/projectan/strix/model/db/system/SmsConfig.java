@@ -1,0 +1,77 @@
+package cn.projectan.strix.model.db.system;
+
+import cn.projectan.strix.model.annotation.UniqueField;
+import cn.projectan.strix.model.db.base.BaseModel;
+import cn.projectan.strix.model.dict.system.StrixSmsPlatform;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.Accessors;
+
+import java.io.Serial;
+
+/**
+ * <p>
+ * Strix SMS 配置
+ * </p>
+ *
+ * @author ProjectAn
+ * @since 2023/5/22 11:59
+ */
+@Getter
+@Setter
+@Accessors(chain = true)
+@NoArgsConstructor
+@AllArgsConstructor
+@TableName("sys_sms_config")
+public class SmsConfig extends BaseModel<SmsConfig> {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * key
+     */
+    @TableField("`key`")
+    @UniqueField("配置 Key ")
+    private String key;
+
+    /**
+     * 短信服务名称
+     */
+    @TableField("`name`")
+    private String name;
+
+    /**
+     * 短信服务平台
+     *
+     * @see StrixSmsPlatform
+     */
+    @UniqueField(value = "服务平台", group = 1)
+    private Integer platform;
+
+    /**
+     * 短信服务地区ID
+     */
+    @UniqueField(value = "服务地域", group = 1)
+    private String regionId;
+
+    /**
+     * 授权令牌key
+     */
+    private String accessKey;
+
+    /**
+     * 授权令牌秘钥
+     */
+    private String accessSecret;
+
+    /**
+     * 备注
+     */
+    private String remark;
+
+}

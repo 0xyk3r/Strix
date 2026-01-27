@@ -1,17 +1,16 @@
 package cn.projectan.strix.controller.system;
 
 import cn.projectan.strix.controller.system.base.BaseSystemController;
-import cn.projectan.strix.core.cache.SystemRegionCache;
+import cn.projectan.strix.core.cache.system.SystemRegionCache;
 import cn.projectan.strix.core.listener.StrixCommonListener;
 import cn.projectan.strix.core.ret.RetBuilder;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.core.validation.group.InsertGroup;
 import cn.projectan.strix.core.validation.group.UpdateGroup;
 import cn.projectan.strix.model.annotation.StrixLog;
-import cn.projectan.strix.model.db.SystemManager;
-import cn.projectan.strix.model.db.SystemRegion;
-import cn.projectan.strix.model.dict.SysLogOperType;
-import cn.projectan.strix.model.request.common.SingleFieldModifyReq;
+import cn.projectan.strix.model.db.system.SystemManager;
+import cn.projectan.strix.model.db.system.SystemRegion;
+import cn.projectan.strix.model.dict.system.SysLogOperType;
 import cn.projectan.strix.model.request.system.region.SystemRegionListReq;
 import cn.projectan.strix.model.request.system.region.SystemRegionUpdateReq;
 import cn.projectan.strix.model.response.common.CommonCascaderDataResp;
@@ -19,11 +18,9 @@ import cn.projectan.strix.model.response.common.CommonTreeDataResp;
 import cn.projectan.strix.model.response.system.region.SystemRegionChildrenListResp;
 import cn.projectan.strix.model.response.system.region.SystemRegionListResp;
 import cn.projectan.strix.model.response.system.region.SystemRegionResp;
-import cn.projectan.strix.service.SystemManagerService;
-import cn.projectan.strix.service.SystemRegionService;
-import cn.projectan.strix.util.UniqueChecker;
-import cn.projectan.strix.util.UpdateBuilder;
-import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import cn.projectan.strix.service.system.SystemManagerService;
+import cn.projectan.strix.service.system.SystemRegionService;
+import cn.projectan.strix.util.common.UniqueChecker;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -87,23 +84,8 @@ public class SystemRegionController extends BaseSystemController {
                 .in(!CollectionUtils.isEmpty(loginManagerRegionPermissions), SystemRegion::getId, loginManagerRegionPermissions)
                 .like(StringUtils.hasText(req.getKeyword()), SystemRegion::getName, req.getKeyword())
                 .eq(notSuperManager() && !StringUtils.hasText(req.getKeyword()), SystemRegion::getLevel, maxRegionLevel)
-                .eq(isSuperManager() && !StringUtils.hasText(req.getKeyword()), SystemRegion::getParentId, "0")
+                .eq(isSuperManager() && !StringUtils.hasText(req.getKeyword()), SystemRegion::getParentId, SystemRegionService.ROOT_PARENT_ID)
                 .page(req.getPage());
-
-
-        // 这里是搜索子节点时, 完整查询从根节点开始的所有地区, 暂时注释掉.
-//        if (StringUtils.hasText(req.getKeyword())) {
-//            // 深拷贝
-//            List<SystemRegion> records = ObjectUtil.clone(page.getRecords());
-//            records.forEach(r -> {
-//                String[] parentIds = r.getFullPath().split(",");
-//                List<SystemRegion> parents = systemRegionService.listByIds(Arrays.asList(parentIds));
-//                page.getRecords().addAll(parents);
-//            });
-//            // 去重
-//            page.setRecords(new ArrayList<>(page.getRecords().stream().filter(r -> r.getLevel() == 1)
-//                    .collect(Collectors.toMap(SystemRegion::getId, a -> a, (o1, o2) -> o1)).values()));
-//        }
 
         SystemRegionListResp resp = new SystemRegionListResp(page.getRecords(), page.getTotal());
 
@@ -145,37 +127,6 @@ public class SystemRegionController extends BaseSystemController {
     }
 
     /**
-     * 更改地区信息
-     */
-    @PostMapping("modify/{id}")
-    @PreAuthorize("@ss.hasPermission('system:region:update')")
-    @StrixLog(operationGroup = "系统地区", operationName = "更改地区信息", operationType = SysLogOperType.UPDATE)
-    public RetResult<Object> modifyField(@PathVariable String id, @RequestBody SingleFieldModifyReq singleFieldModifyReq) {
-        Assert.hasText(singleFieldModifyReq.getField(), "参数错误");
-        Assert.isTrue("parentId".equals(singleFieldModifyReq.getField()), "参数错误");
-
-        SystemRegion systemRegion = systemRegionService.getById(id);
-        Assert.notNull(systemRegion, "系统地区信息不存在");
-        checkLoginManagerRegionPermission(id);
-
-        Map<String, String> fullInfo = systemRegionService.getFullInfo(id);
-        Assert.isTrue(
-                systemRegionService.lambdaUpdate()
-                        .eq(SystemRegion::getId, id)
-                        .set(SystemRegion::getParentId, id)
-                        .set(SystemRegion::getFullName, fullInfo.get("name"))
-                        .set(SystemRegion::getFullPath, fullInfo.get("path"))
-                        .set(SystemRegion::getLevel, fullInfo.get("level"))
-                        .update(),
-                "修改失败"
-        );
-
-        systemRegionCache.refreshRedisCacheById(id);
-
-        return RetBuilder.success();
-    }
-
-    /**
      * 新增地区
      */
     @PostMapping("update")
@@ -185,9 +136,10 @@ public class SystemRegionController extends BaseSystemController {
         Assert.notNull(req, "参数错误");
         if (!StringUtils.hasText(req.getParentId())) {
             if (notSuperManager()) {
+                Assert.hasText(loginManagerRegionId(), "当前登录管理员无地区权限，无法新增地区");
                 req.setParentId(loginManagerRegionId());
             } else {
-                req.setParentId("0");
+                req.setParentId(SystemRegionService.ROOT_PARENT_ID);
             }
         }
         checkLoginManagerRegionPermission(req.getParentId());
@@ -230,24 +182,68 @@ public class SystemRegionController extends BaseSystemController {
         Assert.notNull(req, "参数错误");
         SystemRegion systemRegion = systemRegionService.getById(id);
         Assert.notNull(systemRegion, "系统地区信息不存在");
+        checkLoginManagerRegionPermission(id);
+
         if (!StringUtils.hasText(req.getParentId())) {
             if (notSuperManager()) {
+                Assert.hasText(loginManagerRegionId(), "当前登录管理员无地区权限，无法新增地区");
                 req.setParentId(loginManagerRegionId());
             } else {
-                req.setParentId("0");
+                req.setParentId(SystemRegionService.ROOT_PARENT_ID);
             }
         }
-        checkLoginManagerRegionPermission(req.getParentId());
+        if (!"0".equals(req.getParentId())) {
+            checkLoginManagerRegionPermission(req.getParentId());
+        }
 
-        boolean parentChanged = !systemRegion.getParentId().equals(req.getParentId());
+        // 保存旧数据用于更新子节点
+        String oldName = systemRegion.getName();
+        String oldFullPath = systemRegion.getFullPath();
+        String oldFullName = systemRegion.getFullName();
+        String oldParentId = systemRegion.getParentId();
+        String oldRemarks = systemRegion.getRemarks();
 
-        LambdaUpdateWrapper<SystemRegion> updateWrapper = UpdateBuilder.build(systemRegion, req);
+        boolean nameChanged = !oldName.equals(req.getName());
+        boolean parentChanged = !oldParentId.equals(req.getParentId());
+        boolean remarksChanged = !java.util.Objects.equals(oldRemarks, req.getRemarks());
+
+        // 检查唯一性约束
+        systemRegion.setName(req.getName());
+        systemRegion.setParentId(req.getParentId());
+        systemRegion.setRemarks(req.getRemarks());
         UniqueChecker.check(systemRegion);
 
+        // 恢复旧数据，让 Service 层处理更新逻辑
+        systemRegion.setName(oldName);
+        systemRegion.setParentId(oldParentId);
+        systemRegion.setFullPath(oldFullPath);
+        systemRegion.setFullName(oldFullName);
+        systemRegion.setRemarks(oldRemarks);
+
         if (parentChanged) {
-            systemRegionService.updateRelevantRegion(systemRegion, req.getParentId(), updateWrapper);
-        } else {
-            Assert.isTrue(systemRegionService.update(updateWrapper), "保存失败");
+            // 父节点变更：需要更新自身及子节点的 fullPath, fullName, level
+            // 如果同时改了名称，先处理父节点变更（使用新名称）
+            if (nameChanged) {
+                systemRegion.setName(req.getName());
+            }
+            systemRegionService.updateRelevantRegion(systemRegion, oldFullPath, oldFullName, req.getParentId());
+            // 如果还有备注变更，单独更新
+            if (remarksChanged) {
+                systemRegion.setRemarks(req.getRemarks());
+                systemRegionService.updateBasicInfo(systemRegion);
+            }
+        } else if (nameChanged) {
+            // 仅名称变更：需要更新自身及子节点的 fullName
+            systemRegionService.updateRegionName(systemRegion, req.getName());
+            // 如果还有备注变更，单独更新
+            if (remarksChanged) {
+                systemRegion.setRemarks(req.getRemarks());
+                systemRegionService.updateBasicInfo(systemRegion);
+            }
+        } else if (remarksChanged) {
+            // 仅更新基本信息（如备注）
+            systemRegion.setRemarks(req.getRemarks());
+            systemRegionService.updateBasicInfo(systemRegion);
         }
 
         return RetBuilder.success();

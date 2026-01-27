@@ -1,6 +1,6 @@
 package cn.projectan.strix.model.request.system.workflow.task;
 
-import cn.projectan.strix.model.db.Workflow;
+import cn.projectan.strix.model.db.system.Workflow;
 import cn.projectan.strix.model.request.base.BasePageReq;
 import lombok.Data;
 

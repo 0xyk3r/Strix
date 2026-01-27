@@ -2,8 +2,8 @@ package cn.projectan.strix.core.validation.validator;
 
 import cn.projectan.strix.core.validation.annotation.DynamicDictValue;
 import cn.projectan.strix.model.response.common.CommonDictResp;
-import cn.projectan.strix.service.DictService;
-import cn.projectan.strix.util.SpringUtil;
+import cn.projectan.strix.service.system.DictService;
+import cn.projectan.strix.util.common.SpringUtil;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import lombok.extern.slf4j.Slf4j;

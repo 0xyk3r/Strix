@@ -1,7 +1,7 @@
 package cn.projectan.strix.util.job;
 
-import cn.projectan.strix.model.db.Job;
-import cn.projectan.strix.util.InvokeUtil;
+import cn.projectan.strix.model.db.system.Job;
+import cn.projectan.strix.util.reflect.InvokeUtil;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobExecutionContext;
 
@@ -14,7 +14,7 @@ import org.quartz.JobExecutionContext;
 public class QuartzDisallowConcurrentExecution extends AbstractQuartzJob {
 
     @Override
-    protected void doExecute(JobExecutionContext context, Job job) throws Exception {
+    protected void doExecute(JobExecutionContext context, Job job) {
         InvokeUtil.invokeMethod(job.getInvokeTarget());
     }
 

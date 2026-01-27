@@ -1,6 +1,6 @@
 package cn.projectan.strix.model.response.system.workflow;
 
-import cn.projectan.strix.model.db.WorkflowConfig;
+import cn.projectan.strix.model.db.system.WorkflowConfig;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

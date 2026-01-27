@@ -1,10 +1,10 @@
 package cn.projectan.strix.job;
 
 import cn.projectan.strix.model.annotation.StrixJob;
-import cn.projectan.strix.model.db.SystemConfig;
-import cn.projectan.strix.model.db.SystemManager;
-import cn.projectan.strix.service.SystemConfigService;
-import cn.projectan.strix.util.SecurityUtils;
+import cn.projectan.strix.model.db.system.SystemConfig;
+import cn.projectan.strix.model.db.system.SystemManager;
+import cn.projectan.strix.service.system.SystemConfigService;
+import cn.projectan.strix.util.system.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

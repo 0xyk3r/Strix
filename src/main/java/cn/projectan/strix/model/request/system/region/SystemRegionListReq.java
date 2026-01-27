@@ -1,6 +1,6 @@
 package cn.projectan.strix.model.request.system.region;
 
-import cn.projectan.strix.model.db.SystemRegion;
+import cn.projectan.strix.model.db.system.SystemRegion;
 import cn.projectan.strix.model.request.base.BasePageReq;
 import lombok.Data;
 

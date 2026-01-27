@@ -1,6 +1,6 @@
 package cn.projectan.strix.model.response.common;
 
-import cn.projectan.strix.model.db.Dict;
+import cn.projectan.strix.model.db.system.Dict;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;

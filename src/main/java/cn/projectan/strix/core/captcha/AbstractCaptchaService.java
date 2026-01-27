@@ -6,11 +6,11 @@ import cn.projectan.strix.core.captcha.util.StrixCaptchaAESUtil;
 import cn.projectan.strix.core.captcha.util.StrixCaptchaCacheUtil;
 import cn.projectan.strix.core.captcha.util.StrixCaptchaImageUtils;
 import cn.projectan.strix.core.captcha.util.StrixCaptchaMD5Util;
-import cn.projectan.strix.model.constant.StrixCaptchaConst;
-import cn.projectan.strix.model.enums.CaptchaRepCodeEnum;
-import cn.projectan.strix.model.enums.CaptchaTypeEnum;
-import cn.projectan.strix.model.other.captcha.CaptchaInfoVO;
-import cn.projectan.strix.model.response.module.captcha.StrixCaptchaResp;
+import cn.projectan.strix.model.constant.system.StrixCaptchaConst;
+import cn.projectan.strix.model.enums.system.StrixCaptchaRepCodeEnum;
+import cn.projectan.strix.model.enums.system.StrixCaptchaTypeEnum;
+import cn.projectan.strix.model.other.system.captcha.StrixCaptchaInfoVO;
+import cn.projectan.strix.model.response.system.module.captcha.StrixCaptchaResp;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StringUtils;
 
@@ -34,31 +34,19 @@ public abstract class AbstractCaptchaService implements CaptchaService {
 
     protected static final int HAN_ZI_SIZE = 25;
 
-    protected static int HAN_ZI_SIZE_HALF = HAN_ZI_SIZE / 2;
-
     // check校验坐标
     protected static final String REDIS_CAPTCHA_KEY = "strix:captcha:running:%s";
 
     // 后台二次校验坐标
     protected static final String REDIS_SECOND_CAPTCHA_KEY = "strix:captcha:running:second-%s";
 
-    protected static final Long EXPIRESIN_SECONDS = 2 * 60L;
+    protected static final Long EXPIRES_SECONDS = 2 * 60L;
 
-    protected static final Long EXPIRESIN_THREE = 3 * 60L;
-
-    protected static String waterMark = "Strix";
-
-//    protected static String waterMarkFontStr = "WenQuanZhengHei.ttf";
-
-//    protected Font waterMarkFont;//水印字体
+    protected static final Long EXPIRES_THREE = 3 * 60L;
 
     protected static String slipOffset = "5";
 
     protected static Boolean captchaAesStatus = true;
-
-//    protected static String clickWordFontStr = "WenQuanZhengHei.ttf";
-
-//    protected Font clickWordFont;//点选文字字体
 
     protected static String cacheType = "local";
 
@@ -72,20 +60,15 @@ public abstract class AbstractCaptchaService implements CaptchaService {
             StrixCaptchaImageUtils.cacheImage(config.getProperty(StrixCaptchaConst.ORIGINAL_PATH_JIGSAW),
                     config.getProperty(StrixCaptchaConst.ORIGINAL_PATH_PIC_CLICK));
         }
-//        waterMark = config.getProperty(Const.CAPTCHA_WATER_MARK, "Strix");
         slipOffset = config.getProperty(StrixCaptchaConst.CAPTCHA_SLIP_OFFSET, "5");
-//        waterMarkFontStr = config.getProperty(Const.CAPTCHA_WATER_FONT, "WenQuanZhengHei.ttf");
         captchaAesStatus = Boolean.parseBoolean(config.getProperty(StrixCaptchaConst.CAPTCHA_AES_STATUS, "true"));
-//        clickWordFontStr = config.getProperty(Const.CAPTCHA_FONT_TYPE, "WenQuanZhengHei.ttf");
-        //clickWordFontStr = config.getProperty(Const.CAPTCHA_FONT_TYPE, "SourceHanSansCN-Normal.otf");
         cacheType = config.getProperty(StrixCaptchaConst.CAPTCHA_CACHE_TYPE, "local");
         captchaInterferenceOptions = Integer.parseInt(
                 config.getProperty(StrixCaptchaConst.CAPTCHA_INTERFERENCE_OPTIONS, "0"));
 
-        // 部署在linux中，如果没有安装中文字段，水印和点选文字，中文无法显示，
-        // 通过加载resources下的font字体解决，无需在linux中安装字体
-        // FIXME Native 构建无法使用 AWT 字体
-//        loadWaterMarkFont();
+        // 部署在 Linux 中，如果没有安装中文字段，水印和点选文字，中文无法显示，
+        // 通过加载resources下的font字体解决，无需在 Linux 中安装字体
+        // loadWaterMarkFont();
 
         if (cacheType.equals("local")) {
             // 初始化local缓存
@@ -102,7 +85,7 @@ public abstract class AbstractCaptchaService implements CaptchaService {
                 limitHandler = new FrequencyLimitHandler.DefaultLimitHandler(config, getCacheService(cacheType));
             }
         }
-        log.info("Strix Captcha: 初始化 <{}> 验证码底图完成.", CaptchaTypeEnum.getCodeDescByCodeValue(captchaType()));
+        log.info("Strix Captcha: 初始化 <{}> 验证码底图完成.", StrixCaptchaTypeEnum.getCodeDescByCodeValue(captchaType()));
     }
 
     protected CaptchaCacheService getCacheService(String cacheType) {
@@ -117,39 +100,34 @@ public abstract class AbstractCaptchaService implements CaptchaService {
     private static FrequencyLimitHandler limitHandler;
 
     @Override
-    public StrixCaptchaResp get(CaptchaInfoVO captchaInfoVO) {
+    public StrixCaptchaResp get(StrixCaptchaInfoVO strixCaptchaInfoVO) {
         if (limitHandler != null) {
-            captchaInfoVO.setClientUid(getValidateClientId(captchaInfoVO));
-            return limitHandler.validateGet(captchaInfoVO);
+            strixCaptchaInfoVO.setClientUid(getValidateClientId(strixCaptchaInfoVO));
+            return limitHandler.validateGet(strixCaptchaInfoVO);
         }
         return null;
     }
 
     @Override
-    public StrixCaptchaResp check(CaptchaInfoVO captchaInfoVO) {
+    public StrixCaptchaResp check(StrixCaptchaInfoVO strixCaptchaInfoVO) {
         if (limitHandler != null) {
-            // 验证客户端
-           /* ResponseModel ret = limitHandler.validateCheck(captchaVO);
-            if(!validatedReq(ret)){
-                return ret;
-            }
-            // 服务端参数验证*/
-            captchaInfoVO.setClientUid(getValidateClientId(captchaInfoVO));
-            return limitHandler.validateCheck(captchaInfoVO);
+            // 服务端参数验证
+            strixCaptchaInfoVO.setClientUid(getValidateClientId(strixCaptchaInfoVO));
+            return limitHandler.validateCheck(strixCaptchaInfoVO);
         }
         return null;
     }
 
     @Override
-    public StrixCaptchaResp verification(CaptchaInfoVO captchaInfoVO) {
-        if (captchaInfoVO == null) {
-            return CaptchaRepCodeEnum.NULL_ERROR.parseError("captchaVO");
+    public StrixCaptchaResp verification(StrixCaptchaInfoVO strixCaptchaInfoVO) {
+        if (strixCaptchaInfoVO == null) {
+            return StrixCaptchaRepCodeEnum.NULL_ERROR.parseError("captchaVO");
         }
-        if (!StringUtils.hasText(captchaInfoVO.getCaptchaVerification())) {
-            return CaptchaRepCodeEnum.NULL_ERROR.parseError("captchaVerification");
+        if (!StringUtils.hasText(strixCaptchaInfoVO.getCaptchaVerification())) {
+            return StrixCaptchaRepCodeEnum.NULL_ERROR.parseError("captchaVerification");
         }
         if (limitHandler != null) {
-            return limitHandler.validateVerify(captchaInfoVO);
+            return limitHandler.validateVerify(strixCaptchaInfoVO);
         }
         return null;
     }
@@ -158,7 +136,7 @@ public abstract class AbstractCaptchaService implements CaptchaService {
         return resp == null || resp.isSuccess();
     }
 
-    protected String getValidateClientId(CaptchaInfoVO req) {
+    protected String getValidateClientId(StrixCaptchaInfoVO req) {
         // 以服务端获取的客户端标识 做识别标志
         if (StringUtils.hasText(req.getBrowserInfo())) {
             return StrixCaptchaMD5Util.md5(req.getBrowserInfo());
@@ -170,7 +148,7 @@ public abstract class AbstractCaptchaService implements CaptchaService {
         return null;
     }
 
-    protected void afterValidateFail(CaptchaInfoVO data) {
+    protected void afterValidateFail(StrixCaptchaInfoVO data) {
         if (limitHandler != null) {
             // 验证失败 分钟内计数
             String fails = String.format(FrequencyLimitHandler.LIMIT_KEY, "FAIL", data.getClientUid());
@@ -182,26 +160,6 @@ public abstract class AbstractCaptchaService implements CaptchaService {
         }
     }
 
-    /**
-     * 加载resources下的font字体，add by lide1202@hotmail.com
-     * 部署在linux中，如果没有安装中文字段，水印和点选文字，中文无法显示，
-     * 通过加载resources下的font字体解决，无需在linux中安装字体
-     */
-//    private void loadWaterMarkFont() {
-//        try {
-//            if (waterMarkFontStr.toLowerCase().endsWith(".ttf") || waterMarkFontStr.toLowerCase().endsWith(".ttc")
-//                    || waterMarkFontStr.toLowerCase().endsWith(".otf")) {
-//                this.waterMarkFont = Font.createFont(Font.TRUETYPE_FONT,
-//                                getClass().getResourceAsStream("/fonts/" + waterMarkFontStr))
-//                        .deriveFont(Font.BOLD, HAN_ZI_SIZE / 2);
-//            } else {
-//                this.waterMarkFont = new Font(waterMarkFontStr, Font.BOLD, HAN_ZI_SIZE / 2);
-//            }
-//
-//        } catch (Exception e) {
-//            logger.error("Strix Captcha: 加载字体时异常:{}", e);
-//        }
-//    }
     public static boolean base64StrToImage(String imgStr, String path) {
         if (imgStr == null) {
             return false;
@@ -220,6 +178,7 @@ public abstract class AbstractCaptchaService implements CaptchaService {
             // 文件夹不存在则自动创建
             File tempFile = new File(path);
             if (!tempFile.getParentFile().exists()) {
+                //noinspection ResultOfMethodCallIgnored
                 tempFile.getParentFile().mkdirs();
             }
             OutputStream out = new FileOutputStream(tempFile);

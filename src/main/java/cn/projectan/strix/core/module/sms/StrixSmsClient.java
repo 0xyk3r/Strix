@@ -1,8 +1,8 @@
 package cn.projectan.strix.core.module.sms;
 
-import cn.projectan.strix.model.db.SmsLog;
-import cn.projectan.strix.model.other.module.sms.StrixSmsSign;
-import cn.projectan.strix.model.other.module.sms.StrixSmsTemplate;
+import cn.projectan.strix.model.db.system.SmsLog;
+import cn.projectan.strix.model.other.system.module.sms.StrixSmsSign;
+import cn.projectan.strix.model.other.system.module.sms.StrixSmsTemplate;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -26,6 +26,7 @@ public abstract class StrixSmsClient {
 
     public abstract List<StrixSmsTemplate> getTemplateList();
 
+    @SuppressWarnings("EmptyMethod")
     public abstract void close();
 
 }

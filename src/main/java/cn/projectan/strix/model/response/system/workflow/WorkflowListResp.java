@@ -1,7 +1,7 @@
 package cn.projectan.strix.model.response.system.workflow;
 
-import cn.projectan.strix.model.db.Workflow;
-import cn.projectan.strix.model.db.WorkflowConfig;
+import cn.projectan.strix.model.db.system.Workflow;
+import cn.projectan.strix.model.db.system.WorkflowConfig;
 import cn.projectan.strix.model.response.base.BasePageResp;
 import lombok.AllArgsConstructor;
 import lombok.Data;

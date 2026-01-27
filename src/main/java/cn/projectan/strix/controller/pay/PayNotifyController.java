@@ -4,10 +4,10 @@ import cn.projectan.strix.controller.BaseController;
 import cn.projectan.strix.core.module.pay.StrixPayClient;
 import cn.projectan.strix.core.module.pay.StrixPayStore;
 import cn.projectan.strix.model.annotation.Anonymous;
-import cn.projectan.strix.model.annotation.IgnoreDataEncryption;
-import cn.projectan.strix.model.other.module.pay.BasePayResult;
-import cn.projectan.strix.service.PayOrderService;
-import cn.projectan.strix.util.I18nUtil;
+import cn.projectan.strix.model.annotation.IgnoreEncryption;
+import cn.projectan.strix.model.other.system.module.pay.BasePayResult;
+import cn.projectan.strix.service.system.PayOrderService;
+import cn.projectan.strix.util.common.I18nUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @Slf4j
 @Anonymous
-@IgnoreDataEncryption
+@IgnoreEncryption
 @RestController
 @RequestMapping("pay/{configId}")
 @ConditionalOnProperty(prefix = "strix.module", name = "pay", havingValue = "true")

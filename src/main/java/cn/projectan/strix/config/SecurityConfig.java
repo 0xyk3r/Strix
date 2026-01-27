@@ -5,7 +5,7 @@ import cn.projectan.strix.core.ss.error.AuthenticationEntryPointImpl;
 import cn.projectan.strix.core.ss.filter.SystemManagerAuthenticationTokenFilter;
 import cn.projectan.strix.core.ss.filter.SystemUserAuthenticationTokenFilter;
 import cn.projectan.strix.core.ss.handler.SystemManagerLogoutSuccessHandler;
-import cn.projectan.strix.initializer.SecurityRuleInitializer;
+import cn.projectan.strix.initializer.system.StrixSecurityRuleInitializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -55,7 +55,7 @@ public class SecurityConfig {
                                                    SystemUserAuthenticationTokenFilter systemUserAuthenticationTokenFilter,
                                                    AccessDeniedHandlerImpl accessDeniedHandler,
                                                    AuthenticationEntryPointImpl authenticationEntryPoint,
-                                                   SecurityRuleInitializer securityRuleInitializer,
+                                                   StrixSecurityRuleInitializer strixSecurityRuleInitializer,
                                                    SystemManagerLogoutSuccessHandler logoutSuccessHandler) throws Exception {
         http
                 .cors(Customizer.withDefaults())
@@ -67,10 +67,10 @@ public class SecurityConfig {
                 .sessionManagement((sessionManagement) -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests((authorizeRequests) -> {
                     // 配置匿名访问的URL
-                    securityRuleInitializer.getAnonymousUrlList().forEach(url -> authorizeRequests.requestMatchers(url).permitAll());
+                    strixSecurityRuleInitializer.getAnonymousUrlList().forEach(url -> authorizeRequests.requestMatchers(url).permitAll());
                     // 配置需要指定角色才可访问的URL
-                    securityRuleInitializer.getUrlRoleMap().forEach((url, role) -> authorizeRequests.requestMatchers(url).hasRole(role));
-                    securityRuleInitializer.getUrlAnyRoleMap().forEach((url, role) -> authorizeRequests.requestMatchers(url).hasAnyRole(role.split(",")));
+                    strixSecurityRuleInitializer.getUrlRoleMap().forEach((url, role) -> authorizeRequests.requestMatchers(url).hasRole(role));
+                    strixSecurityRuleInitializer.getUrlAnyRoleMap().forEach((url, role) -> authorizeRequests.requestMatchers(url).hasAnyRole(role.split(",")));
                     // 其他所有请求全部需要鉴权认证
                     authorizeRequests.anyRequest().authenticated();
                 })

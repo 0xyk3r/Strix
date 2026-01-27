@@ -1,5 +1,6 @@
 package cn.projectan.strix.model.other.system.workflow;
 
+import cn.projectan.strix.model.dict.system.WorkflowNodeType;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import lombok.Data;
@@ -28,7 +29,7 @@ public class WorkflowNode {
     /**
      * 节点类型
      *
-     * @see cn.projectan.strix.model.dict.WorkflowNodeType
+     * @see WorkflowNodeType
      */
     private String type;
     /**

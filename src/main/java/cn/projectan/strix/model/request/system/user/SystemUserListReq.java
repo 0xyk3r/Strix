@@ -1,6 +1,6 @@
 package cn.projectan.strix.model.request.system.user;
 
-import cn.projectan.strix.model.db.SystemUser;
+import cn.projectan.strix.model.db.system.SystemUser;
 import cn.projectan.strix.model.request.base.BasePageReq;
 import lombok.Data;
 

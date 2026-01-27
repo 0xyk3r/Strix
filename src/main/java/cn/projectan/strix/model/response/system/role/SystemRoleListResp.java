@@ -1,6 +1,6 @@
 package cn.projectan.strix.model.response.system.role;
 
-import cn.projectan.strix.model.db.SystemRole;
+import cn.projectan.strix.model.db.system.SystemRole;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
@@ -37,7 +37,7 @@ public class SystemRoleListResp {
 
         private Byte regionPermissionType;
 
-        private Byte builtin;
+        private Short builtin;
 
     }
 

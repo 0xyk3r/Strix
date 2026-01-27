@@ -1,8 +1,8 @@
 package cn.projectan.strix.util.tempurl;
 
 import cn.hutool.core.lang.UUID;
-import cn.projectan.strix.model.constant.RedisKeyConstants;
-import cn.projectan.strix.util.RedisUtil;
+import cn.projectan.strix.model.constant.system.StrixRedisKeyConst;
+import cn.projectan.strix.util.common.RedisUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -31,7 +31,7 @@ public class TempUrlUtil {
      */
     public String create(String url, long ttl) {
         String key = UUID.fastUUID().toString();
-        redisUtil.set(RedisKeyConstants.STR_TEMP_URL_PUBLIC_PREFIX + key, url, ttl);
+        redisUtil.set(StrixRedisKeyConst.STR_TEMP_URL_PUBLIC_PREFIX + key, url, ttl);
         return key;
     }
 
@@ -45,7 +45,7 @@ public class TempUrlUtil {
      */
     public String createSecret(String url, String uid, long ttl) {
         String key = UUID.fastUUID().toString();
-        redisUtil.set(RedisKeyConstants.STR_TEMP_URL_PRIVATE_PREFIX + key + ":" + uid, url, ttl);
+        redisUtil.set(StrixRedisKeyConst.STR_TEMP_URL_PRIVATE_PREFIX + key + ":" + uid, url, ttl);
         return key;
     }
 
@@ -56,7 +56,7 @@ public class TempUrlUtil {
      * @return URL
      */
     public String get(String key) {
-        Object o = redisUtil.get(RedisKeyConstants.STR_TEMP_URL_PUBLIC_PREFIX + key);
+        Object o = redisUtil.get(StrixRedisKeyConst.STR_TEMP_URL_PUBLIC_PREFIX + key);
         return Optional.ofNullable(o).map(Object::toString).orElse(null);
     }
 
@@ -68,7 +68,7 @@ public class TempUrlUtil {
      * @return URL
      */
     public String getSecret(String key, String uid) {
-        Object o = redisUtil.get(RedisKeyConstants.STR_TEMP_URL_PRIVATE_PREFIX + key + ":" + uid);
+        Object o = redisUtil.get(StrixRedisKeyConst.STR_TEMP_URL_PRIVATE_PREFIX + key + ":" + uid);
         return Optional.ofNullable(o).map(Object::toString).orElse(null);
     }
 

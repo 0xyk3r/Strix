@@ -1,7 +1,8 @@
 package cn.projectan.strix.core.module.oss;
 
 import cn.projectan.strix.core.exception.StrixException;
-import cn.projectan.strix.model.other.module.oss.StrixOssBucket;
+import cn.projectan.strix.model.other.system.module.oss.StrixOssBucket;
+import cn.projectan.strix.util.file.FileUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
@@ -15,10 +16,7 @@ import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.time.Duration;
 import java.time.ZoneId;
 import java.util.Collections;
@@ -107,13 +105,28 @@ public class AliyunOssClient implements StrixOssClient {
         }
 
         @Override
-        public void upload(String bucketName, String objectName, InputStream inputStream) {
+        public void upload(String bucketName, String objectName, InputStream inputStream, long contentLength) {
             try {
                 PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                         .bucket(bucketName)
                         .key(objectName)
+                        .contentLength(contentLength)
                         .build();
-                client.putObject(putObjectRequest, RequestBody.fromInputStream(inputStream, inputStream.available()));
+                client.putObject(putObjectRequest, RequestBody.fromInputStream(inputStream, contentLength));
+            } catch (Exception e) {
+                log.error(e.getMessage(), e);
+                throw new StrixException("Strix OSS: 上传文件失败.");
+            }
+        }
+
+        @Override
+        @Deprecated
+        public void upload(String bucketName, String objectName, InputStream inputStream) {
+            try {
+                // 将流读入字节数组以获取准确的长度
+                // 注意: 这种方式不适合大文件，推荐使用 upload(bucketName, objectName, inputStream, contentLength)
+                byte[] bytes = FileUtil.toByteArray(inputStream);
+                upload(bucketName, objectName, bytes);
             } catch (Exception e) {
                 log.error(e.getMessage(), e);
                 throw new StrixException("Strix OSS: 上传文件失败.");
@@ -172,22 +185,37 @@ public class AliyunOssClient implements StrixOssClient {
         }
 
         @Override
-        public File downloadStream(String bucketName, String objectName, String filePath) {
+        public InputStream downloadAsStream(String bucketName, String objectName) {
             try {
-                File file = new File(filePath);
                 GetObjectRequest getObjectRequest = GetObjectRequest.builder()
                         .bucket(bucketName)
                         .key(objectName)
                         .build();
-                try (ResponseInputStream<GetObjectResponse> s3Object = client.getObject(getObjectRequest);
-                     FileOutputStream fileOutputStream = new FileOutputStream(file)
-                ) {
-                    // 读取文件内容到字节数组。
-                    byte[] readBuffer = new byte[1024];
-                    int bytesRead;
-                    while ((bytesRead = s3Object.read(readBuffer)) != -1) {
-                        fileOutputStream.write(readBuffer, 0, bytesRead);
-                    }
+                return client.getObject(getObjectRequest);
+            } catch (Exception e) {
+                log.error(e.getMessage(), e);
+                throw new StrixException("Strix OSS: 下载文件失败.");
+            }
+        }
+
+        @Override
+        public void downloadToStream(String bucketName, String objectName, OutputStream outputStream) {
+            try (InputStream inputStream = downloadAsStream(bucketName, objectName)) {
+                FileUtil.copy(inputStream, outputStream);
+            } catch (Exception e) {
+                log.error(e.getMessage(), e);
+                throw new StrixException("Strix OSS: 下载文件失败.");
+            }
+        }
+
+        @Override
+        @Deprecated
+        public File downloadStream(String bucketName, String objectName, String filePath) {
+            try {
+                File file = new File(filePath);
+                try (InputStream s3InputStream = downloadAsStream(bucketName, objectName);
+                     FileOutputStream fileOutputStream = new FileOutputStream(file)) {
+                    FileUtil.copy(s3InputStream, fileOutputStream);
                 }
                 Assert.isTrue(file.exists(), "Strix OSS: 流式下载文件失败.");
                 return file;
@@ -207,7 +235,14 @@ public class AliyunOssClient implements StrixOssClient {
                         .build();
                 HeadObjectResponse headObjectResponse = client.headObject(headObjectRequest);
                 long fileSize = headObjectResponse.contentLength();
+                // 设置响应头
                 response.setContentLengthLong(fileSize);
+                // 设置适当的 Content-Type
+                String contentType = headObjectResponse.contentType();
+                if (!StringUtils.hasText(contentType)) {
+                    contentType = "application/octet-stream";
+                }
+                response.setContentType(contentType);
             } catch (Exception e) {
                 log.error(e.getMessage(), e);
                 throw new StrixException("Strix OSS: 获取文件元信息失败.");

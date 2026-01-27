@@ -9,14 +9,14 @@ import cn.projectan.strix.core.module.oauth.WechatOAuthTools;
 import cn.projectan.strix.core.ret.RetBuilder;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.model.annotation.Anonymous;
-import cn.projectan.strix.model.annotation.IgnoreDataEncryption;
-import cn.projectan.strix.model.db.OauthUser;
-import cn.projectan.strix.model.db.SystemUser;
-import cn.projectan.strix.model.other.module.oauth.BaseOAuthUserInfo;
-import cn.projectan.strix.model.other.module.oauth.WechatOAuthConfig;
-import cn.projectan.strix.service.OauthUserService;
-import cn.projectan.strix.service.SystemUserService;
-import cn.projectan.strix.util.RedisUtil;
+import cn.projectan.strix.model.annotation.IgnoreEncryption;
+import cn.projectan.strix.model.db.system.OauthUser;
+import cn.projectan.strix.model.db.system.SystemUser;
+import cn.projectan.strix.model.other.system.module.oauth.BaseOAuthUserInfo;
+import cn.projectan.strix.model.other.system.module.oauth.WechatOAuthConfig;
+import cn.projectan.strix.service.system.OauthUserService;
+import cn.projectan.strix.service.system.SystemUserService;
+import cn.projectan.strix.util.common.RedisUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -60,7 +60,7 @@ public class WechatController extends BaseWechatController {
      * 统一跳转入口
      */
     @Anonymous
-    @IgnoreDataEncryption
+    @IgnoreEncryption
     @RequestMapping("jump/{model}")
     public void jumpToModel(@PathVariable String configId, @PathVariable String model, @RequestParam(defaultValue = "") String params, HttpServletResponse response) {
         WechatOAuthClient instance = (WechatOAuthClient) strixOAuthStore.getInstance(configId);
@@ -77,7 +77,7 @@ public class WechatController extends BaseWechatController {
      * 统一授权接口
      */
     @Anonymous
-    @IgnoreDataEncryption
+    @IgnoreEncryption
     @RequestMapping("auth")
     public void userAuth(@PathVariable String configId, String model, String params,
                          HttpServletRequest request, HttpServletResponse response) {
@@ -131,7 +131,7 @@ public class WechatController extends BaseWechatController {
      * 初始化H5 js-sdk 使用的api
      */
     @Anonymous
-    @IgnoreDataEncryption
+    @IgnoreEncryption
     @ResponseBody
     @RequestMapping("config")
     public Map<String, String> config(@PathVariable String configId, String webUrl) {
@@ -164,7 +164,7 @@ public class WechatController extends BaseWechatController {
      * 本地开发时使用
      */
     @Anonymous
-    @IgnoreDataEncryption
+    @IgnoreEncryption
     @RequestMapping("giveMeSessionTokenOnDevMode")
     public void devMode(@PathVariable String configId, HttpServletResponse response) throws IOException {
         if ("dev".equals(env)) {

@@ -1,0 +1,240 @@
+package cn.projectan.strix.service.system;
+
+import cn.projectan.strix.mapper.system.DictMapper;
+import cn.projectan.strix.model.db.system.Dict;
+import cn.projectan.strix.model.db.system.DictData;
+import cn.projectan.strix.model.dict.system.DictStatus;
+import cn.projectan.strix.model.request.system.dict.DictDataUpdateReq;
+import cn.projectan.strix.model.request.system.dict.DictUpdateReq;
+import cn.projectan.strix.model.response.common.CommonDictResp;
+import cn.projectan.strix.model.response.common.CommonDictVersionResp;
+import cn.projectan.strix.model.response.system.dict.DictDataListResp;
+import cn.projectan.strix.util.common.UniqueChecker;
+import cn.projectan.strix.util.common.UpdateBuilder;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
+
+import java.util.List;
+
+/**
+ * <p>
+ * Strix 字典 服务类
+ * </p>
+ *
+ * @author ProjectAn
+ * @since 2021-08-31
+ */
+@Slf4j
+@Service
+@RequiredArgsConstructor
+public class DictService extends ServiceImpl<DictMapper, Dict> {
+
+    private final DictDataService dictDataService;
+
+    /**
+     * 获取字典版本
+     *
+     * @return 字典版本
+     */
+    @Cacheable(value = "strix:dict:versionMap")
+    public CommonDictVersionResp getDictVersionMapResp() {
+        List<Dict> dictList = lambdaQuery()
+                .select(Dict::getKey, Dict::getVersion)
+                .eq(Dict::getStatus, DictStatus.ENABLE)
+                .list();
+        return new CommonDictVersionResp(dictList);
+    }
+
+    /**
+     * 获取字典数据
+     *
+     * @param key 字典key
+     * @return 字典
+     */
+    @Cacheable(value = "strix:dict:dictResp", key = "#key")
+    public CommonDictResp getDictResp(String key) {
+        Dict dict = lambdaQuery()
+                .eq(Dict::getKey, key)
+                .eq(Dict::getStatus, DictStatus.ENABLE)
+                .one();
+
+        List<DictData> dictDataList = dictDataService.lambdaQuery()
+                .eq(DictData::getKey, key)
+                .eq(DictData::getStatus, DictStatus.ENABLE)
+                .orderByAsc(DictData::getSort)
+                .list();
+
+        if (dict == null || CollectionUtils.isEmpty(dictDataList)) {
+            return null;
+        }
+
+        return new CommonDictResp(
+                dict.getId(),
+                dict.getKey(),
+                dict.getDataType(),
+                dict.getVersion(),
+                new DictDataListResp(dictDataList, dictDataList.size()).getItems());
+    }
+
+    /**
+     * 保存字典
+     *
+     * @param dict 字典
+     */
+    @Caching(
+            evict = {
+                    @CacheEvict(value = "strix:dict:dictResp", key = "#dict.key"),
+                    @CacheEvict(value = "strix:dict:versionMap", allEntries = true)
+            }
+    )
+    public void saveDict(Dict dict) {
+        UniqueChecker.check(dict);
+        Assert.isTrue(save(dict), "保存失败");
+    }
+
+    /**
+     * 更新字典
+     *
+     * @param dict 字典
+     * @param req  字典更新请求
+     */
+    @Caching(
+            evict = {
+                    @CacheEvict(value = "strix:dict:dictResp", key = "#dict.key"),
+                    @CacheEvict(value = "strix:dict:versionMap", allEntries = true)
+            }
+    )
+    @Transactional(rollbackFor = Exception.class)
+    public void updateDict(Dict dict, DictUpdateReq req) {
+        // 如果key发生变化，需要同步更新dict_data表中的key
+        if (StringUtils.hasText(req.getKey()) && !req.getKey().equals(dict.getKey())) {
+            dictDataService.lambdaUpdate()
+                    .eq(DictData::getKey, dict.getKey())
+                    .set(DictData::getKey, req.getKey())
+                    .update();
+        }
+
+        LambdaUpdateWrapper<Dict> updateWrapper = UpdateBuilder.build(dict, req);
+        UniqueChecker.check(dict);
+        updateWrapper.set(Dict::getVersion, dict.getVersion() + 1);
+        Assert.isTrue(update(updateWrapper), "保存失败");
+    }
+
+    /**
+     * 删除字典
+     *
+     * @param dict 字典
+     */
+    @Caching(
+            evict = {
+                    @CacheEvict(value = "strix:dict:dictResp", key = "#dict.key"),
+                    @CacheEvict(value = "strix:dict:versionMap", allEntries = true)
+            }
+    )
+    public void removeDict(Dict dict) {
+        Assert.isTrue(dictDataService.lambdaUpdate()
+                .eq(DictData::getKey, dict.getKey())
+                .remove(), "删除失败");
+
+        dictDataService.lambdaUpdate()
+                .eq(DictData::getKey, dict.getKey())
+                .remove();
+    }
+
+    /**
+     * 保存字典数据
+     *
+     * @param dictData 字典数据
+     */
+    @Caching(
+            evict = {
+                    @CacheEvict(value = "strix:dict:dictResp", key = "#dictData.key"),
+                    @CacheEvict(value = "strix:dict:versionMap", allEntries = true)
+            }
+    )
+    @Transactional(rollbackFor = Exception.class)
+    public void saveDictData(DictData dictData) {
+        UniqueChecker.check(dictData);
+
+        Dict dict = lambdaQuery()
+                .eq(Dict::getKey, dictData.getKey())
+                .one();
+        Assert.notNull(dict, "字典不存在");
+        lambdaUpdate()
+                .eq(Dict::getKey, dictData.getKey())
+                .set(Dict::getVersion, dict.getVersion() + 1)
+                .update();
+
+        Assert.isTrue(dictDataService.save(dictData), "保存失败");
+    }
+
+    /**
+     * 更新字典数据
+     *
+     * @param dictData 字典数据
+     * @param req      字典数据更新请求
+     */
+    @Caching(
+            evict = {
+                    @CacheEvict(value = "strix:dict:dictResp", key = "#dictData.key"),
+                    @CacheEvict(value = "strix:dict:versionMap", allEntries = true)
+            }
+    )
+    @Transactional(rollbackFor = Exception.class)
+    public void updateDictData(DictData dictData, DictDataUpdateReq req) {
+        LambdaUpdateWrapper<DictData> updateWrapper = UpdateBuilder.build(dictData, req);
+        UniqueChecker.check(dictData);
+
+
+        Dict dict = lambdaQuery()
+                .eq(Dict::getKey, dictData.getKey())
+                .one();
+        Assert.notNull(dict, "字典不存在");
+        lambdaUpdate()
+                .eq(Dict::getKey, dictData.getKey())
+                .set(Dict::getVersion, dict.getVersion() + 1)
+                .update();
+
+        Assert.isTrue(dictDataService.update(updateWrapper), "保存失败");
+    }
+
+    /**
+     * 删除字典数据
+     *
+     * @param dictData 字典数据
+     */
+    @Caching(
+            evict = {
+                    @CacheEvict(value = "strix:dict:dictResp", key = "#dictData.key"),
+                    @CacheEvict(value = "strix:dict:versionMap", allEntries = true)
+            }
+    )
+    @Transactional(rollbackFor = Exception.class)
+    public void removeDictData(DictData dictData) {
+        Dict dict = lambdaQuery()
+                .eq(Dict::getKey, dictData.getKey())
+                .one();
+        Assert.notNull(dict, "字典不存在");
+        lambdaUpdate()
+                .eq(Dict::getKey, dictData.getKey())
+                .set(Dict::getVersion, dict.getVersion() + 1)
+                .update();
+
+        dictDataService.lambdaUpdate()
+                .eq(DictData::getKey, dictData.getKey())
+                .eq(DictData::getValue, dictData.getValue())
+                .remove();
+    }
+
+
+}

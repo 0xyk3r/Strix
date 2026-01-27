@@ -3,9 +3,9 @@ package cn.projectan.strix.controller.system.base;
 import cn.projectan.strix.controller.BaseController;
 import cn.projectan.strix.core.exception.StrixException;
 import cn.projectan.strix.core.ss.details.LoginSystemManager;
-import cn.projectan.strix.model.db.SystemManager;
-import cn.projectan.strix.model.dict.SystemRoleRegionPermissionType;
-import cn.projectan.strix.util.SecurityUtils;
+import cn.projectan.strix.model.db.system.SystemManager;
+import cn.projectan.strix.model.dict.system.SystemRoleRegionPermissionType;
+import cn.projectan.strix.util.system.SecurityUtils;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 

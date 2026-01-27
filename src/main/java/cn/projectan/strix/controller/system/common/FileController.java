@@ -5,20 +5,23 @@ import cn.hutool.core.io.IoUtil;
 import cn.projectan.strix.controller.system.base.BaseSystemController;
 import cn.projectan.strix.core.ret.RetBuilder;
 import cn.projectan.strix.core.ret.RetResult;
-import cn.projectan.strix.model.annotation.IgnoreDataEncryption;
-import cn.projectan.strix.model.db.OssFile;
-import cn.projectan.strix.model.dict.StrixOssFileGroupSecretType;
-import cn.projectan.strix.service.OssFileService;
-import cn.projectan.strix.util.MimeUtil;
+import cn.projectan.strix.model.annotation.IgnoreEncryption;
+import cn.projectan.strix.model.db.system.OssFile;
+import cn.projectan.strix.model.dict.system.StrixOssFileGroupSecretType;
+import cn.projectan.strix.service.system.OssFileService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
+import org.springframework.http.MediaTypeFactory;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import java.io.File;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * 系统文件
@@ -38,20 +41,25 @@ public class FileController extends BaseSystemController {
      * 获取文件
      */
     @GetMapping("{fileId}")
-    public void getFile(@PathVariable String fileId, HttpServletResponse response) throws Exception {
+    public StreamingResponseBody download(@PathVariable String fileId, HttpServletResponse response) throws Exception {
         OssFile ossFile = ossFileService.getById(fileId);
         Assert.notNull(ossFile, "下载文件失败, 文件不存在.");
 
-        response.setContentType(MimeUtil.ext2Mime(ossFile.getExt()));
-        response.sendRedirect(ossFileService.getUrl(fileId, StrixOssFileGroupSecretType.MANAGER, loginManagerId(), "https://oss.huiboche.cn/System/404.png"));
+        Optional<MediaType> mediaType = MediaTypeFactory.getMediaType(ossFile.getPath());
+        mediaType.ifPresentOrElse(
+                mt -> response.setContentType(mt.toString()),
+                () -> response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE)
+        );
+
+        return ossFileService.getStreamingDownload(fileId, StrixOssFileGroupSecretType.MANAGER, loginManagerId());
     }
 
     /**
      * 上传文件
      */
     @PostMapping("{groupId}/upload")
-    @IgnoreDataEncryption
-    public RetResult<Object> uploadImage(@PathVariable String groupId, MultipartFile file) {
+    @IgnoreEncryption
+    public RetResult<Object> upload(@PathVariable String groupId, MultipartFile file) {
         Assert.hasText(groupId, "参数错误");
         Assert.notNull(file, "未选择文件");
 

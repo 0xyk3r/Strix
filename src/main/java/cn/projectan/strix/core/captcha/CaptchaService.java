@@ -1,8 +1,8 @@
 package cn.projectan.strix.core.captcha;
 
 
-import cn.projectan.strix.model.other.captcha.CaptchaInfoVO;
-import cn.projectan.strix.model.response.module.captcha.StrixCaptchaResp;
+import cn.projectan.strix.model.other.system.captcha.StrixCaptchaInfoVO;
+import cn.projectan.strix.model.response.system.module.captcha.StrixCaptchaResp;
 
 import java.util.Properties;
 
@@ -22,26 +22,26 @@ public interface CaptchaService {
     /**
      * 获取验证码
      *
-     * @param captchaInfoVO 验证码VO
+     * @param strixCaptchaInfoVO 验证码VO
      * @return ResponseResp
      */
-    StrixCaptchaResp get(CaptchaInfoVO captchaInfoVO);
+    StrixCaptchaResp get(StrixCaptchaInfoVO strixCaptchaInfoVO);
 
     /**
      * 核对验证码 (前端)
      *
-     * @param captchaInfoVO 验证码VO
+     * @param strixCaptchaInfoVO 验证码VO
      * @return ResponseResp
      */
-    StrixCaptchaResp check(CaptchaInfoVO captchaInfoVO);
+    StrixCaptchaResp check(StrixCaptchaInfoVO strixCaptchaInfoVO);
 
     /**
      * 二次校验验证码 (后端)
      *
-     * @param captchaInfoVO 验证码VO
+     * @param strixCaptchaInfoVO 验证码VO
      * @return ResponseResp
      */
-    StrixCaptchaResp verification(CaptchaInfoVO captchaInfoVO);
+    StrixCaptchaResp verification(StrixCaptchaInfoVO strixCaptchaInfoVO);
 
     /***
      * 验证码类型

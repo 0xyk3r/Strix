@@ -2,7 +2,7 @@ package cn.projectan.strix.core.delayedtask.initializer;
 
 import cn.projectan.strix.core.delayedtask.DelayedTaskManager;
 import cn.projectan.strix.model.constant.DelayedTaskConst;
-import cn.projectan.strix.service.PayOrderService;
+import cn.projectan.strix.service.system.PayOrderService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;

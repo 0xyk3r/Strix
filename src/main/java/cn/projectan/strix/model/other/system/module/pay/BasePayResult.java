@@ -1,0 +1,28 @@
+package cn.projectan.strix.model.other.system.module.pay;
+
+import lombok.Data;
+
+/**
+ * 支付结果
+ *
+ * @author ProjectAn
+ * @since 2024/4/13 下午5:26
+ */
+@Data
+public class BasePayResult {
+
+    private Boolean success;
+
+    private String orderId;
+
+    private String platformOrderNo;
+
+    private Integer totalAmount;
+
+    private String platformUserId;
+
+    private String attach;
+
+    private String originalResult;
+
+}

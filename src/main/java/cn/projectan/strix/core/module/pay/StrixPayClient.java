@@ -1,7 +1,7 @@
 package cn.projectan.strix.core.module.pay;
 
-import cn.projectan.strix.model.db.PayOrder;
-import cn.projectan.strix.model.other.module.pay.BasePayResult;
+import cn.projectan.strix.model.db.system.PayOrder;
+import cn.projectan.strix.model.other.system.module.pay.BasePayResult;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 

@@ -1,9 +1,9 @@
 package cn.projectan.strix.core.ss.details;
 
-import cn.projectan.strix.model.db.SystemManager;
-import cn.projectan.strix.model.db.SystemRegion;
-import cn.projectan.strix.model.dict.SystemManagerStatus;
-import cn.projectan.strix.model.dict.SystemManagerType;
+import cn.projectan.strix.model.db.system.SystemManager;
+import cn.projectan.strix.model.db.system.SystemRegion;
+import cn.projectan.strix.model.dict.system.SystemManagerStatus;
+import cn.projectan.strix.model.dict.system.SystemManagerType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;

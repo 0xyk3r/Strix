@@ -1,12 +1,12 @@
 package cn.projectan.strix.util.job;
 
 import cn.projectan.strix.core.exception.StrixJobException;
-import cn.projectan.strix.model.constant.JobConstants;
-import cn.projectan.strix.model.db.Job;
-import cn.projectan.strix.model.dict.CommonSwitch;
-import cn.projectan.strix.model.dict.JobMisfire;
-import cn.projectan.strix.model.dict.JobStatus;
-import cn.projectan.strix.util.CronUtil;
+import cn.projectan.strix.model.constant.system.StrixJobConst;
+import cn.projectan.strix.model.db.system.Job;
+import cn.projectan.strix.model.dict.common.CommonSwitch;
+import cn.projectan.strix.model.dict.system.JobMisfire;
+import cn.projectan.strix.model.dict.system.JobStatus;
+import cn.projectan.strix.util.common.CronUtil;
 import org.quartz.*;
 
 /**
@@ -31,14 +31,14 @@ public class ScheduleUtils {
      * 构建任务触发对象
      */
     public static TriggerKey getTriggerKey(String jobId, String jobGroup) {
-        return TriggerKey.triggerKey(JobConstants.TASK_CLASS_NAME + jobId, jobGroup);
+        return TriggerKey.triggerKey(StrixJobConst.TASK_CLASS_NAME + jobId, jobGroup);
     }
 
     /**
      * 构建任务键对象
      */
     public static JobKey getJobKey(String jobId, String jobGroup) {
-        return JobKey.jobKey(JobConstants.TASK_CLASS_NAME + jobId, jobGroup);
+        return JobKey.jobKey(StrixJobConst.TASK_CLASS_NAME + jobId, jobGroup);
     }
 
     /**
@@ -60,7 +60,7 @@ public class ScheduleUtils {
                 .withSchedule(cronScheduleBuilder).build();
 
         // 放入参数，运行时的方法可以获取
-        jobDetail.getJobDataMap().put(JobConstants.TASK_PROPERTIES, job);
+        jobDetail.getJobDataMap().put(StrixJobConst.TASK_PROPERTIES, job);
 
         // 判断 quartz job 是否存在
         if (scheduler.checkExists(getJobKey(jobId, jobGroup))) {

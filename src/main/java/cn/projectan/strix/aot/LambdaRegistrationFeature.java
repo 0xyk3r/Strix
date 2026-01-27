@@ -3,11 +3,11 @@ package cn.projectan.strix.aot;
 
 import cn.hutool.core.util.ClassUtil;
 import cn.projectan.strix.StrixApplication;
-import cn.projectan.strix.core.cache.SystemMenuCache;
-import cn.projectan.strix.initializer.DictSyncInitializer;
-import cn.projectan.strix.initializer.SecurityRuleInitializer;
-import cn.projectan.strix.task.StrixOAuthPushTask;
-import cn.projectan.strix.util.PopularityUtil;
+import cn.projectan.strix.core.cache.system.SystemMenuCache;
+import cn.projectan.strix.initializer.system.StrixDictSyncInitializer;
+import cn.projectan.strix.initializer.system.StrixSecurityRuleInitializer;
+import cn.projectan.strix.task.system.StrixOAuthPushTask;
+import cn.projectan.strix.util.common.PopularityUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.graalvm.nativeimage.hosted.Feature;
 import org.graalvm.nativeimage.hosted.RuntimeSerialization;
@@ -34,16 +34,16 @@ public class LambdaRegistrationFeature implements Feature {
         );
         controllerClazzSet.forEach(RuntimeSerialization::registerLambdaCapturingClass);
 
-        // 扫描 ServiceImpl 的子类
+        // 扫描 ServiceImpl 的实现类
         Set<Class<?>> serviceImplClazzSet = ClassUtil.scanPackage(
-                "cn.projectan.strix.service.impl",
+                "cn.projectan.strix.service",
                 clazz -> ClassUtil.isAssignable(ServiceImpl.class, clazz)
         );
         serviceImplClazzSet.forEach(RuntimeSerialization::registerLambdaCapturingClass);
 
         // TODO 在此补充其他使用了 Lambda 表达式的类
-        RuntimeSerialization.registerLambdaCapturingClass(DictSyncInitializer.class);
-        RuntimeSerialization.registerLambdaCapturingClass(SecurityRuleInitializer.class);
+        RuntimeSerialization.registerLambdaCapturingClass(StrixDictSyncInitializer.class);
+        RuntimeSerialization.registerLambdaCapturingClass(StrixSecurityRuleInitializer.class);
         RuntimeSerialization.registerLambdaCapturingClass(SystemMenuCache.class);
         RuntimeSerialization.registerLambdaCapturingClass(PopularityUtil.class);
         RuntimeSerialization.registerLambdaCapturingClass(StrixOAuthPushTask.class);

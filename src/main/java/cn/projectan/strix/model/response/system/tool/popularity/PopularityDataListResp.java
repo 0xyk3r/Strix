@@ -1,6 +1,6 @@
 package cn.projectan.strix.model.response.system.tool.popularity;
 
-import cn.projectan.strix.model.db.PopularityData;
+import cn.projectan.strix.model.db.system.PopularityData;
 import cn.projectan.strix.model.response.base.BasePageResp;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.AllArgsConstructor;

@@ -12,6 +12,7 @@ import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.responses.ApiResponses;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springdoc.core.models.ControllerAdviceInfo;
@@ -63,6 +64,7 @@ import static org.springdoc.core.utils.SpringDocAnnotationsUtils.*;
  *
  * @author bnasslahsen
  */
+@SuppressWarnings("unchecked")
 public class GenericResponseService implements ApplicationContextAware {
 
     /**
@@ -669,7 +671,7 @@ public class GenericResponseService implements ApplicationContextAware {
                             objClz = org.springframework.aop.support.AopUtils.getTargetClass(controllerInfo.getControllerAdvice());
                         return beanType.equals(objClz);
                     })
-                    .collect(Collectors.toList());
+                    .toList();
 
             Map<String, ApiResponse> genericApiResponseMap = controllerAdviceInfosInThisBean.stream()
                     .map(ControllerAdviceInfo::getApiResponseMap)
@@ -743,7 +745,7 @@ public class GenericResponseService implements ApplicationContextAware {
     }
 
     @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+    public void setApplicationContext(@NotNull ApplicationContext applicationContext) throws BeansException {
         controllerAdviceBeans = ControllerAdviceBean.findAnnotatedBeans(applicationContext);
     }
 

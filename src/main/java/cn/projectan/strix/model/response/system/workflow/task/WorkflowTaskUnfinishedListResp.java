@@ -1,8 +1,8 @@
 package cn.projectan.strix.model.response.system.workflow.task;
 
-import cn.projectan.strix.model.db.WorkflowInstance;
-import cn.projectan.strix.model.db.WorkflowTask;
-import cn.projectan.strix.model.db.WorkflowTaskAssign;
+import cn.projectan.strix.model.db.system.WorkflowInstance;
+import cn.projectan.strix.model.db.system.WorkflowTask;
+import cn.projectan.strix.model.db.system.WorkflowTaskAssign;
 import cn.projectan.strix.model.response.base.BasePageResp;
 import lombok.AllArgsConstructor;
 import lombok.Data;

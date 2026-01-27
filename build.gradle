@@ -2,11 +2,11 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.5.8'
     id 'io.spring.dependency-management' version '1.1.7'
-    id 'org.graalvm.buildtools.native' version '0.10.4'
+    id 'org.graalvm.buildtools.native' version '0.11.4'
 }
 
 group = 'cn.projectan'
-version = '2.9.0'
+version = '3.0.0'
 description = 'Strix'
 
 java {
@@ -15,17 +15,17 @@ java {
     }
 }
 
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
 repositories {
     maven { url = "https://maven.aliyun.com/repository/public" }
     maven { url = "https://maven.aliyun.com/repository/central" }
     maven { url = "https://maven.aliyun.com/repository/gradle-plugin" }
     mavenCentral()
-}
-
-configurations {
-    compileOnly {
-        extendsFrom annotationProcessor
-    }
 }
 
 bootJar {
@@ -62,16 +62,15 @@ dependencies {
     testAnnotationProcessor 'org.projectlombok:lombok'
     // Spring Boot
     implementation 'org.springframework.boot:spring-boot-starter'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-aop'
     implementation 'org.springframework.boot:spring-boot-starter-mail'
     implementation 'org.springframework.boot:spring-boot-starter-security'
+    testImplementation 'org.springframework.security:spring-security-test'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
     testAnnotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
-    // Spring Boot - Test
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation 'org.springframework.security:spring-security-test'
     // Redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'org.redisson:redisson-spring-boot-starter:4.0.0'
@@ -117,8 +116,12 @@ dependencies {
 }
 
 test {
-    enabled = false
     useJUnitPlatform()
+}
+
+// 禁用测试 AOT 处理
+tasks.named('processTestAot') {
+    enabled = false
 }
 
 // 直接运行时, 跳过 AOT 编译

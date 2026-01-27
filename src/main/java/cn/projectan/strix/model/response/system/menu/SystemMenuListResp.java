@@ -1,7 +1,7 @@
 package cn.projectan.strix.model.response.system.menu;
 
-import cn.projectan.strix.model.db.SystemMenu;
-import cn.projectan.strix.model.db.SystemPermission;
+import cn.projectan.strix.model.db.system.SystemMenu;
+import cn.projectan.strix.model.db.system.SystemPermission;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;

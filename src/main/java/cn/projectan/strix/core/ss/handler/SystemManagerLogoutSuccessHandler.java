@@ -1,8 +1,8 @@
 package cn.projectan.strix.core.ss.handler;
 
 import cn.projectan.strix.core.ss.details.LoginSystemManager;
-import cn.projectan.strix.model.db.SystemManager;
-import cn.projectan.strix.util.RedisUtil;
+import cn.projectan.strix.model.db.system.SystemManager;
+import cn.projectan.strix.util.common.RedisUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;

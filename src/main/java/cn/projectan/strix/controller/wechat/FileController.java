@@ -1,19 +1,15 @@
 package cn.projectan.strix.controller.wechat;
 
 import cn.projectan.strix.controller.wechat.base.BaseWechatController;
-import cn.projectan.strix.core.ret.RetBuilder;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.model.annotation.Anonymous;
-import cn.projectan.strix.model.annotation.IgnoreDataEncryption;
-import cn.projectan.strix.model.db.OssFile;
-import cn.projectan.strix.service.OssFileService;
+import cn.projectan.strix.model.annotation.IgnoreEncryption;
+import cn.projectan.strix.service.system.OssFileService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Map;
 
 /**
  * 文件
@@ -32,20 +28,19 @@ public class FileController extends BaseWechatController {
     /**
      * 上传图片
      */
-    @IgnoreDataEncryption
+    @IgnoreEncryption
     @PostMapping("upload")
     public RetResult<Object> uploadImage(String imageBase64) {
         Assert.hasText(imageBase64, "参数错误");
 
-        OssFile ossFile = ossFileService.upload("Wechat", imageBase64);
-        return RetBuilder.success(Map.of("fileId", ossFile.getId()));
+        throw new UnsupportedOperationException("图片上传功能已下线，请使用其他方式上传图片");
     }
 
     /**
      * 获取图片
      */
     @Anonymous
-    @IgnoreDataEncryption
+    @IgnoreEncryption
     @GetMapping("{fileId}")
     public void getImage(@PathVariable String fileId, HttpServletResponse response) throws Exception {
         response.setContentType("image/jpeg");

@@ -1,7 +1,7 @@
 package cn.projectan.strix.util.async;
 
-import cn.projectan.strix.util.SpringUtil;
-import cn.projectan.strix.util.ThreadUtil;
+import cn.projectan.strix.util.common.SpringUtil;
+import cn.projectan.strix.util.system.ThreadUtil;
 
 import java.util.TimerTask;
 import java.util.concurrent.ScheduledExecutorService;

@@ -1,6 +1,6 @@
 package cn.projectan.strix.util.algo;
 
-import cn.projectan.strix.util.ReflectUtil;
+import cn.projectan.strix.util.reflect.ReflectUtil;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashSet;

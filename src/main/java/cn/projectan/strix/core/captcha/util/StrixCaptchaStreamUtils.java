@@ -1,5 +1,7 @@
 package cn.projectan.strix.core.captcha.util;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.*;
 import java.nio.charset.Charset;
 
@@ -95,16 +97,6 @@ public abstract class StrixCaptchaStreamUtils {
         }
     }
 
-    public static int drain(InputStream in) throws IOException {
-        byte[] buffer = new byte[4096];
-        int byteCount;
-        int bytesRead;
-        for (byteCount = 0; (bytesRead = in.read(buffer)) != -1; byteCount += bytesRead) {
-        }
-
-        return byteCount;
-    }
-
     public static InputStream emptyInput() {
         return new ByteArrayInputStream(EMPTY_CONTENT);
     }
@@ -122,11 +114,11 @@ public abstract class StrixCaptchaStreamUtils {
             super(out);
         }
 
-        public void write(byte[] b, int off, int let) throws IOException {
+        public void write(@NotNull byte[] b, int off, int let) throws IOException {
             this.out.write(b, off, let);
         }
 
-        public void close() throws IOException {
+        public void close() {
         }
     }
 
@@ -135,7 +127,7 @@ public abstract class StrixCaptchaStreamUtils {
             super(in);
         }
 
-        public void close() throws IOException {
+        public void close() {
         }
     }
 

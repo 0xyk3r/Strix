@@ -1,6 +1,6 @@
 package cn.projectan.strix.model.response.system.manager;
 
-import cn.projectan.strix.model.db.SystemManager;
+import cn.projectan.strix.model.db.system.SystemManager;
 import cn.projectan.strix.model.response.base.BasePageResp;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -46,7 +46,7 @@ public class SystemManagerListResp extends BasePageResp {
 
         private String regionId;
 
-        private Byte builtin;
+        private Short builtin;
 
         private LocalDateTime createdTime;
 

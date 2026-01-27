@@ -94,7 +94,7 @@ strix:
     enable: false
   # strix 验证码配置
   captcha:
-    type: blockPuzzle
+    type: block_puzzle
     cache-type: redis
     aes-status: true
     water-mark: Strix

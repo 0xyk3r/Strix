@@ -3,8 +3,8 @@ package cn.projectan.strix.controller.system.common;
 import cn.hutool.core.io.FileUtil;
 import cn.projectan.strix.controller.system.base.BaseSystemController;
 import cn.projectan.strix.model.annotation.Anonymous;
-import cn.projectan.strix.model.annotation.IgnoreDataEncryption;
-import cn.projectan.strix.service.OssFileService;
+import cn.projectan.strix.model.annotation.IgnoreEncryption;
+import cn.projectan.strix.service.system.OssFileService;
 import cn.projectan.strix.util.tempurl.TempUrlUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -40,7 +40,7 @@ public class TempUrlController extends BaseSystemController {
      * 文件下载
      */
     @Anonymous
-    @IgnoreDataEncryption
+    @IgnoreEncryption
     @GetMapping("file/{key}")
     public void file(@PathVariable String key, HttpServletResponse response) throws Exception {
         String tempFilePath = tempUrlUtil.get(key);

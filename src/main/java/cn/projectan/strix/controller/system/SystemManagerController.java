@@ -1,32 +1,32 @@
 package cn.projectan.strix.controller.system;
 
 import cn.projectan.strix.controller.system.base.BaseSystemController;
-import cn.projectan.strix.core.cache.SystemMenuCache;
-import cn.projectan.strix.core.cache.SystemPermissionCache;
+import cn.projectan.strix.core.cache.system.SystemMenuCache;
+import cn.projectan.strix.core.cache.system.SystemPermissionCache;
 import cn.projectan.strix.core.ret.RetBuilder;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.core.validation.group.InsertGroup;
 import cn.projectan.strix.core.validation.group.UpdateGroup;
 import cn.projectan.strix.model.annotation.StrixLog;
-import cn.projectan.strix.model.constant.BuiltinConstant;
-import cn.projectan.strix.model.db.SystemManager;
-import cn.projectan.strix.model.db.SystemManagerRole;
-import cn.projectan.strix.model.dict.SysLogOperType;
-import cn.projectan.strix.model.dict.SystemManagerStatus;
-import cn.projectan.strix.model.dict.SystemManagerType;
-import cn.projectan.strix.model.enums.NumCategory;
+import cn.projectan.strix.model.db.system.SystemManager;
+import cn.projectan.strix.model.db.system.SystemManagerRole;
+import cn.projectan.strix.model.dict.common.CommonFlag;
+import cn.projectan.strix.model.dict.system.SysLogOperType;
+import cn.projectan.strix.model.dict.system.SystemManagerStatus;
+import cn.projectan.strix.model.dict.system.SystemManagerType;
+import cn.projectan.strix.model.enums.common.NumCategory;
 import cn.projectan.strix.model.request.common.SingleFieldModifyReq;
 import cn.projectan.strix.model.request.system.manager.SystemManagerListReq;
 import cn.projectan.strix.model.request.system.manager.SystemManagerUpdateReq;
 import cn.projectan.strix.model.response.common.CommonTransferDataResp;
 import cn.projectan.strix.model.response.system.manager.SystemManagerListResp;
 import cn.projectan.strix.model.response.system.manager.SystemManagerResp;
-import cn.projectan.strix.service.SystemManagerRoleService;
-import cn.projectan.strix.service.SystemManagerService;
-import cn.projectan.strix.util.RedisUtil;
-import cn.projectan.strix.util.UniqueChecker;
-import cn.projectan.strix.util.UpdateBuilder;
+import cn.projectan.strix.service.system.SystemManagerRoleService;
+import cn.projectan.strix.service.system.SystemManagerService;
 import cn.projectan.strix.util.algo.KeyDiffUtil;
+import cn.projectan.strix.util.common.RedisUtil;
+import cn.projectan.strix.util.common.UniqueChecker;
+import cn.projectan.strix.util.common.UpdateBuilder;
 import cn.projectan.strix.util.math.NumUtil;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -73,7 +73,7 @@ public class SystemManagerController extends BaseSystemController {
         List<String> loginManagerRegionPermissions = loginManagerRegionPermissions();
 
         // 如果指定了角色ID，先查询拥有该角色的所有管理员ID
-        List<String> managerIdsByRole = null;
+        List<String> managerIdsByRole;
         if (StringUtils.hasText(req.getRoleId())) {
             managerIdsByRole = systemManagerRoleService.lambdaQuery()
                     .eq(SystemManagerRole::getSystemRoleId, req.getRoleId())
@@ -128,7 +128,7 @@ public class SystemManagerController extends BaseSystemController {
         Assert.hasText(req.getField(), "参数错误");
         SystemManager systemManager = systemManagerService.getById(managerId);
         Assert.notNull(systemManager, "系统人员信息不存在");
-        Assert.isTrue(BuiltinConstant.NO == systemManager.getBuiltin(), "内置用户不允许修改");
+        Assert.isTrue(systemManager.getBuiltin() == CommonFlag.NO, "内置用户不允许修改");
         checkLoginManagerRegionPermission(systemManager.getRegionId());
 
         LambdaUpdateWrapper<SystemManager> systemManagerUpdateWrapper = new LambdaUpdateWrapper<>();
@@ -151,14 +151,13 @@ public class SystemManagerController extends BaseSystemController {
                 // 修改管理用户的角色
                 List<String> systemManagerRoleIds = systemManagerService.getRoleIdListByManagerId(managerId);
                 KeyDiffUtil.handle(systemManagerRoleIds, Arrays.asList(req.getValue().split(",")),
-                        (removeKeys) -> {
-                            Assert.isTrue(
-                                    systemManagerRoleService.lambdaUpdate()
-                                            .eq(SystemManagerRole::getSystemManagerId, managerId)
-                                            .in(SystemManagerRole::getSystemRoleId, removeKeys)
-                                            .remove(),
-                                    "移除该管理用户的角色失败");
-                        },
+                        (removeKeys) ->
+                                Assert.isTrue(
+                                        systemManagerRoleService.lambdaUpdate()
+                                                .eq(SystemManagerRole::getSystemManagerId, managerId)
+                                                .in(SystemManagerRole::getSystemRoleId, removeKeys)
+                                                .remove(),
+                                        "移除该管理用户的角色失败"),
                         (addKeys) -> {
                             List<SystemManagerRole> systemManagerRoleList = addKeys.stream()
                                     .map(k -> new SystemManagerRole(managerId, k))
@@ -203,7 +202,7 @@ public class SystemManagerController extends BaseSystemController {
                 req.getStatus(),
                 req.getType(),
                 req.getRegionId(),
-                BuiltinConstant.NO
+                CommonFlag.NO
         );
 
         UniqueChecker.check(systemManager);
@@ -223,7 +222,7 @@ public class SystemManagerController extends BaseSystemController {
         Assert.notNull(req, "参数错误");
         SystemManager systemManager = systemManagerService.getById(managerId);
         Assert.notNull(systemManager, "系统人员信息不存在");
-        Assert.isTrue(BuiltinConstant.NO == systemManager.getBuiltin(), "内置用户不允许修改");
+        Assert.isTrue(systemManager.getBuiltin() == CommonFlag.NO, "内置用户不允许修改");
         checkLoginManagerRegionPermission(systemManager.getRegionId());
 
         LambdaUpdateWrapper<SystemManager> updateWrapper = UpdateBuilder.build(systemManager, req);
@@ -244,7 +243,7 @@ public class SystemManagerController extends BaseSystemController {
     public RetResult<Object> remove(@PathVariable String managerId) {
         SystemManager systemManager = systemManagerService.getById(managerId);
         Assert.notNull(systemManager, "系统人员信息不存在");
-        Assert.isTrue(BuiltinConstant.NO == systemManager.getBuiltin(), "内置用户不允许修改");
+        Assert.isTrue(systemManager.getBuiltin() == CommonFlag.NO, "内置用户不允许修改");
         checkLoginManagerRegionPermission(systemManager.getRegionId());
 
         systemManagerService.removeById(systemManager);

@@ -1,6 +1,6 @@
 package cn.projectan.strix.model.response.system;
 
-import cn.projectan.strix.model.db.SystemMenu;
+import cn.projectan.strix.model.db.system.SystemMenu;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;

@@ -55,7 +55,7 @@ public class ApiSecurityClient {
         try {
             return encrypt(objectMapper.writeValueAsString(body));
         } catch (Exception e) {
-            log.error("加密数据时出现异常：" + e.getMessage(), e);
+            log.error("加密数据时出现异常：{}", e.getMessage(), e);
         }
         return null;
     }
@@ -86,7 +86,7 @@ public class ApiSecurityClient {
             map.put("data", data);
             return map;
         } catch (Exception e) {
-            log.error("加密数据时出现异常：" + e.getMessage(), e);
+            log.error("加密数据时出现异常：{}", e.getMessage(), e);
         }
         return null;
     }
@@ -103,7 +103,7 @@ public class ApiSecurityClient {
             });
             return decrypt(bodyMap);
         } catch (Exception e) {
-            log.error("解密数据时出现异常：" + e.getMessage(), e);
+            log.error("解密数据时出现异常：{}", e.getMessage(), e);
         }
         return null;
     }
@@ -128,7 +128,7 @@ public class ApiSecurityClient {
                 return aes.decryptStr(data, CharsetUtil.CHARSET_UTF_8);
             }
         } catch (Exception e) {
-            log.error("解密数据时出现异常：" + e.getMessage(), e);
+            log.error("解密数据时出现异常：{}", e.getMessage(), e);
         }
         return null;
     }

@@ -1,14 +1,14 @@
 package cn.projectan.strix.core.module.oauth;
 
 import cn.hutool.core.map.MapUtil;
-import cn.projectan.strix.model.db.OauthPush;
-import cn.projectan.strix.model.dict.OAuthPushStatus;
-import cn.projectan.strix.model.other.module.oauth.BaseOAuthConfig;
-import cn.projectan.strix.model.other.module.oauth.BaseOAuthUserInfo;
-import cn.projectan.strix.model.other.module.oauth.WechatOAuthConfig;
-import cn.projectan.strix.service.OauthPushService;
-import cn.projectan.strix.util.OkHttpUtil;
-import cn.projectan.strix.util.SpringUtil;
+import cn.projectan.strix.model.db.system.OauthPush;
+import cn.projectan.strix.model.dict.system.OAuthPushStatus;
+import cn.projectan.strix.model.other.system.module.oauth.BaseOAuthConfig;
+import cn.projectan.strix.model.other.system.module.oauth.BaseOAuthUserInfo;
+import cn.projectan.strix.model.other.system.module.oauth.WechatOAuthConfig;
+import cn.projectan.strix.service.system.OauthPushService;
+import cn.projectan.strix.util.common.SpringUtil;
+import cn.projectan.strix.util.http.OkHttpUtil;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.Nonnull;

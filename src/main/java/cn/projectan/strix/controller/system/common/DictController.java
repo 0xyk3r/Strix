@@ -5,7 +5,7 @@ import cn.projectan.strix.core.ret.RetBuilder;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.model.response.common.CommonDictResp;
 import cn.projectan.strix.model.response.common.CommonDictVersionResp;
-import cn.projectan.strix.service.DictService;
+import cn.projectan.strix.service.system.DictService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
