@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <!-- 控制台输出 -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <!--设置输出格式-->
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <!--@formatter:off-->
+            <pattern>%cyan(%d{yy-MM-dd HH:mm:ss}) %highlight(%-5level) %green([%7.7thread{7}]) %boldMagenta(%-36.36logger{36}) : %yellow(%msg%n)</pattern>
+            <!--@formatter:on-->
+            <!--设置编码-->
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <!-- 设置日志级别 -->
+    <logger name="cn.projectan.strix" level="DEBUG"/>
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+    </root>
+</configuration>

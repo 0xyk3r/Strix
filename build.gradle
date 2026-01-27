@@ -6,7 +6,7 @@ plugins {
 }
 
 group = 'cn.projectan'
-version = '2.8.5'
+version = '2.9.0'
 description = 'Strix'
 
 java {
@@ -57,8 +57,9 @@ dependencyManagement {
 dependencies {
     // Lombok
     compileOnly 'org.projectlombok:lombok'
+    testCompileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
-    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
+    testAnnotationProcessor 'org.projectlombok:lombok'
     // Spring Boot
     implementation 'org.springframework.boot:spring-boot-starter'
     implementation 'org.springframework.boot:spring-boot-starter-web'
@@ -66,7 +67,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-mail'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
-    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
+    testAnnotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
     // Spring Boot - Test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
