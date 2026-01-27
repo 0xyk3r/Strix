@@ -22,7 +22,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Locale;
 import java.util.Set;
 import java.util.TimeZone;
 
@@ -36,6 +35,14 @@ import java.util.TimeZone;
 public class JacksonConfig {
 
     /**
+     * 日期时间格式常量
+     */
+    public static final String DATE_TIME_PATTERN = "yyyy-MM-dd HH:mm:ss";
+    public static final String DATE_PATTERN = "yyyy-MM-dd";
+    public static final String TIME_PATTERN = "HH:mm:ss";
+    public static final String TIME_ZONE = "GMT+8";
+
+    /**
      * 需要排除的字段
      */
     private final Set<String> excludeFields = Set.of(
@@ -47,30 +54,47 @@ public class JacksonConfig {
     );
 
     /**
+     * 创建配置好的 JavaTimeModule
+     * <p>统一配置 LocalDateTime, LocalDate, LocalTime 的序列化和反序列化
+     */
+    @Bean
+    public JavaTimeModule javaTimeModule() {
+        JavaTimeModule module = new JavaTimeModule();
+
+        // LocalDateTime
+        module.addSerializer(LocalDateTime.class, new LocalDateTimeSerializer(DateTimeFormatter.ofPattern(DATE_TIME_PATTERN)));
+        module.addDeserializer(LocalDateTime.class, new LocalDateTimeDeserializer(DateTimeFormatter.ofPattern(DATE_TIME_PATTERN)));
+
+        // LocalDate
+        module.addSerializer(LocalDate.class, new LocalDateSerializer(DateTimeFormatter.ofPattern(DATE_PATTERN)));
+        module.addDeserializer(LocalDate.class, new LocalDateDeserializer(DateTimeFormatter.ofPattern(DATE_PATTERN)));
+
+        // LocalTime
+        module.addSerializer(LocalTime.class, new LocalTimeSerializer(DateTimeFormatter.ofPattern(TIME_PATTERN)));
+        module.addDeserializer(LocalTime.class, new LocalTimeDeserializer(DateTimeFormatter.ofPattern(TIME_PATTERN)));
+
+        return module;
+    }
+
+    /**
      * Jackson 配置
      *
-     * @param builder Jackson2ObjectMapperBuilder
+     * @param builder        Jackson2ObjectMapperBuilder
+     * @param javaTimeModule 时间模块
      * @return ObjectMapper
      */
     @Bean
-    public ObjectMapper objectMapper(Jackson2ObjectMapperBuilder builder) {
+    public ObjectMapper objectMapper(Jackson2ObjectMapperBuilder builder, JavaTimeModule javaTimeModule) {
         ObjectMapper objectMapper = builder.createXmlMapper(false).build();
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        objectMapper.setTimeZone(TimeZone.getTimeZone("GMT+8"));
+        objectMapper.setTimeZone(TimeZone.getTimeZone(TIME_ZONE));
 
         // 过滤字段
         SimpleBeanPropertyFilter filter = SimpleBeanPropertyFilter.serializeAllExcept(excludeFields);
         FilterProvider filterProvider = new SimpleFilterProvider().addFilter("strixFilter", filter);
         objectMapper.setFilterProvider(filterProvider);
 
-        // 时间格式化
-        JavaTimeModule javaTimeModule = new JavaTimeModule();
-        javaTimeModule.addDeserializer(LocalDateTime.class, new LocalDateTimeDeserializer(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
-        javaTimeModule.addDeserializer(LocalDate.class, new LocalDateDeserializer(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
-        javaTimeModule.addDeserializer(LocalTime.class, new LocalTimeDeserializer(DateTimeFormatter.ofPattern("HH:mm:ss")));
-        javaTimeModule.addSerializer(LocalDateTime.class, new LocalDateTimeSerializer(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
-        javaTimeModule.addSerializer(LocalDate.class, new LocalDateSerializer(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
-        javaTimeModule.addSerializer(LocalTime.class, new LocalTimeSerializer(DateTimeFormatter.ofPattern("HH:mm:ss")));
+        // 注册时间模块
         objectMapper.registerModule(javaTimeModule);
 
         // 用于忽略使用 @JsonSubTypes 时该参数不存在报错的情况
@@ -80,66 +104,13 @@ public class JacksonConfig {
     }
 
     /**
-     * LocalDateTime 序列化
-     */
-    @Bean
-    public LocalDateTimeSerializer localDateTimeSerializer() {
-        return new LocalDateTimeSerializer(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withLocale(Locale.CHINA));
-    }
-
-    /**
-     * LocalDateTime 反序列化
-     */
-    @Bean
-    public LocalDateTimeDeserializer localDateTimeDeserializer() {
-        return new LocalDateTimeDeserializer(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withLocale(Locale.CHINA));
-    }
-
-    /**
-     * LocalDate 序列化
-     */
-    @Bean
-    public LocalDateSerializer localDateSerializer() {
-        return new LocalDateSerializer(DateTimeFormatter.ofPattern("yyyy-MM-dd").withLocale(Locale.CHINA));
-    }
-
-    /**
-     * LocalDate 反序列化
-     */
-    @Bean
-    public LocalDateDeserializer localDateDeserializer() {
-        return new LocalDateDeserializer(DateTimeFormatter.ofPattern("yyyy-MM-dd").withLocale(Locale.CHINA));
-    }
-
-    /**
-     * LocalTime 序列化
-     */
-    @Bean
-    public LocalTimeSerializer localTimeSerializer() {
-        return new LocalTimeSerializer(DateTimeFormatter.ofPattern("HH:mm:ss").withLocale(Locale.CHINA));
-    }
-
-    /**
-     * LocalTime 反序列化
-     */
-    @Bean
-    public LocalTimeDeserializer localTimeDeserializer() {
-        return new LocalTimeDeserializer(DateTimeFormatter.ofPattern("HH:mm:ss").withLocale(Locale.CHINA));
-    }
-
-    /**
      * Jackson 自定义配置
      */
     @Bean
-    public Jackson2ObjectMapperBuilderCustomizer jackson2ObjectMapperBuilderCustomizer() {
+    public Jackson2ObjectMapperBuilderCustomizer jackson2ObjectMapperBuilderCustomizer(JavaTimeModule javaTimeModule) {
         return builder -> builder
-                .timeZone("GMT+8")
-                .serializerByType(LocalDateTime.class, localDateTimeSerializer())
-                .deserializerByType(LocalDateTime.class, localDateTimeDeserializer())
-                .serializerByType(LocalDate.class, localDateSerializer())
-                .deserializerByType(LocalDate.class, localDateDeserializer())
-                .serializerByType(LocalTime.class, localTimeSerializer())
-                .deserializerByType(LocalTime.class, localTimeDeserializer());
+                .timeZone(TIME_ZONE)
+                .modules(javaTimeModule);
     }
 
 }

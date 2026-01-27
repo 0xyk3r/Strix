@@ -42,4 +42,5 @@ public class ApplicationVersionConfig {
         // 如果读取不到，使用配置的版本（通常是开发环境）
         return applicationVersion != null ? applicationVersion : "UNKNOWN";
     }
+
 }
