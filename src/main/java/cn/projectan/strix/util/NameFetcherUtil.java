@@ -32,7 +32,7 @@ public class NameFetcherUtil {
                 serviceList.add(beanName);
             }
         }
-        log.info("Strix NameFetcher: init success, service count: {}", serviceList.size());
+        log.info("Strix NameFetcher: 初始化完成, 加载了 {} 个映射器.", serviceList.size());
     }
 
     public String get(String dataType, String dataId) {
