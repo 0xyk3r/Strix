@@ -22,7 +22,7 @@ public class SystemManagerUpdateReq {
      * 显示昵称
      */
     @NotEmpty(groups = {InsertGroup.class, UpdateGroup.class}, message = "管理人员昵称不可为空")
-    @Size(groups = {InsertGroup.class, UpdateGroup.class}, min = 2, max = 16, message = "管理人员昵称长度不符合要求")
+    @Size(groups = {InsertGroup.class, UpdateGroup.class}, min = 2, max = 20, message = "管理人员昵称长度不符合要求")
     @UpdateField
     private String nickname;
 
@@ -30,7 +30,7 @@ public class SystemManagerUpdateReq {
      * 登录账号
      */
     @NotEmpty(groups = {InsertGroup.class, UpdateGroup.class}, message = "管理人员登录账号不可为空")
-    @Size(groups = {InsertGroup.class, UpdateGroup.class}, min = 4, max = 16, message = "管理人员登录账号长度不符合要求")
+    @Size(groups = {InsertGroup.class, UpdateGroup.class}, min = 4, max = 20, message = "管理人员登录账号长度不符合要求")
     @UpdateField
     private String loginName;
 
@@ -38,7 +38,7 @@ public class SystemManagerUpdateReq {
      * 登录密码
      */
     @NotEmpty(groups = {InsertGroup.class}, message = "管理人员登录密码不可为空")
-    @Size(groups = {InsertGroup.class, UpdateGroup.class}, min = 4, max = 16, message = "管理人员登录密码长度不符合要求")
+    @Size(groups = {InsertGroup.class, UpdateGroup.class}, min = 4, max = 20, message = "管理人员登录密码长度不符合要求")
     @UpdateField
     private String loginPassword;
 
