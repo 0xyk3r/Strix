@@ -21,14 +21,15 @@ public class NameFetcherUtil {
 
     private final RedisUtil redisUtil;
 
-    private final static String SERVICE_SUFFIX = "ServiceImpl";
+    private final static String SERVICE_SUFFIX = "Service";
+    private final static String SERVICE_IMPL_SUFFIX = "ServiceImpl";
     private final List<String> serviceList = new ArrayList<>();
 
     @PostConstruct
     public void init() {
         String[] beanNamesForType = SpringUtil.getBeanNamesForType(NameFetcherService.class);
         for (String beanName : beanNamesForType) {
-            if (beanName.endsWith(SERVICE_SUFFIX)) {
+            if (beanName.endsWith(SERVICE_SUFFIX) || beanName.endsWith(SERVICE_IMPL_SUFFIX)) {
                 serviceList.add(beanName);
             }
         }
