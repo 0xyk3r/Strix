@@ -4,97 +4,97 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Strix is a business application framework built on Java 21 and Spring Boot 3.4.5. It provides modular functionality
-including SMS, OSS, OAuth, Push, Job scheduling, and Payment integrations.
+Strix is a Java 21 / Spring Boot 3 business middleware framework (中台应用框架). It provides pluggable modules for SMS,
+OSS, OAuth, Pay, Job scheduling, Captcha, and DelayedTask processing.
 
 ## Build Commands
 
 ```bash
-# Build the project
+# Build (with tests)
 ./gradlew build
 
-# Build executable JAR (outputs Strix.jar)
+# Build (skip tests)
+./gradlew build -x test
+
+# Create executable JAR
 ./gradlew bootJar
 
-# Build native image with GraalVM
+# Run tests
+./gradlew test
+
+# Run a single test class
+./gradlew test --tests "cn.projectan.strix.SomeTestClass"
+
+# GraalVM native image
 ./gradlew nativeCompile
 
-# Build Docker image with native compilation
+# Docker image with native support
 ./gradlew bootBuildImage
-
-# Run the application (AOT is auto-skipped)
-./gradlew bootRun
 ```
-
-Note: Tests are disabled by default in build.gradle (`test.enabled = false`).
-
-## Code Generation
-
-MyBatis-Plus code generators are available for database entities:
-
-- `MysqlGenerator.java` - Generate code from MySQL tables
-- `ClickHouseGenerator.java` - Generate code from ClickHouse tables
-
-Run directly in IDE. Templates are in `src/main/resources/templates/mp/`.
 
 ## Architecture
 
 ### Package Structure (`cn.projectan.strix`)
 
-- **aot/** - GraalVM native image features (Lambda registration, BouncyCastle)
-- **config/** - Spring configurations (Security, Redis, Jackson, MyBatis-Plus, CORS, Captcha)
-- **controller/** - REST controllers, `BaseController` is the parent class
-- **core/** - Framework core functionality:
-    - `aop/advice/` - Request/response encoding, global exception handling
-    - `aop/aspect/` - Security check, logging aspects
-    - `cache/` - System-level caches (config, menu, permission, region, workflow)
-    - `captcha/` - Captcha service (block puzzle implementation)
-    - `datamask/` - Data masking for sensitive fields via `@DataMask` annotation
-    - `exception/` - Custom exceptions (`StrixException`, `StrixJobException`, `StrixNoAuthException`)
-    - `module/` - Pluggable modules (oauth, oss, pay, sms, workflow)
-    - `ret/` - API response builders (`RetBuilder`, `RetCode`)
-    - `security/` - Security utilities
-    - `ss/` - Spring Security token/details classes
-    - `validation/` - Custom validators and validation groups
-- **initializer/** - Module initializers (Banner, OAuth, OSS, Pay, SMS)
-- **job/** - Scheduled job handlers
-- **mapper/** - MyBatis-Plus mappers
-- **model/** - Data models:
-    - `annotation/` - Custom annotations (`@StrixJob`, `@StrixLog`, `@Anonymous`, `@NeedSystemPermission`)
-    - `constant/` - Constants
-    - `db/` - Database entities (extend `BaseModel`)
-    - `dict/` - Dictionary models
-    - `enums/` - Enumerations
-    - `properties/` - Configuration properties classes
-    - `request/` - Request DTOs
-    - `response/` - Response DTOs
-- **service/** - Service interfaces with implementations in `service/impl/`
-- **task/** - Async tasks
-- **util/** - Utility classes (Redis, Security, OkHttp, Token, i18n, etc.)
+- **controller/** - REST endpoints organized by domain (api/, system/, pay/, wechat/)
+- **service/** - Business logic layer (base/, common/, system/)
+- **mapper/** - MyBatis DAO interfaces
+- **model/** - Data models
+  - `db/` - Database entities
+  - `request/` - Request DTOs
+  - `response/` - Response DTOs
+  - `dict/` - Dictionary models
+  - `constant/` - Constants
+  - `annotation/` - Custom annotations
+  - `enums/` - Enumerations
+  - `properties/` - Configuration property classes
+- **core/** - Framework core
+  - `ret/` - Response pattern (RetResult, RetCode, RetBuilder)
+  - `ss/` - Spring Security integration
+  - `encrypt/` - Field encryption system
+  - `datamask/` - Data masking
+  - `module/` - Pluggable modules (OAuth, OSS, Pay, SMS, Workflow)
+  - `validation/` - Custom validators
+  - `aop/` - Aspects and interceptors
+- **util/** - Utilities organized by category (algo/, async/, encrypt/, http/, etc.)
+- **aot/** - GraalVM AOT compilation features
+- **config/** - Spring configuration classes
 
 ### Key Patterns
 
-1. **Module Toggle**: Modules are enabled/disabled via `strix.module.*` properties in application.yml
-2. **Entity Generation**: Use MyBatis-Plus generator; entities extend `BaseModel` with auto-filled fields (id,
-   created_time, updated_time, deleted_status)
-3. **Annotations**:
-    - `@Anonymous` - Skip authentication
-    - `@StrixJob` - Mark job handler methods
-    - `@StrixLog` - Enable operation logging
-    - `@NeedSystemPermission` - Require specific permissions
-4. **Response Format**: Use `RetBuilder` for consistent API responses
-5. **i18n**: Messages in `src/main/resources/i18n/strix*.properties`
+**Response Format**: All API responses use `RetResult<T>` with `RetCode` enums and `RetBuilder` for construction.
 
-### Database
+**Security**: Stateless token-based auth with two user types - SystemManager and SystemUser. CSRF disabled, CORS
+enabled.
 
-- Primary: MySQL with MyBatis-Plus
-- Analytics: ClickHouse support
-- Dynamic datasource via `dynamic-datasource-spring-boot3-starter`
-- SQL logging via P6Spy in development
+**Data Layer**: MyBatis Plus with automatic field encryption (`@EncryptField`), data masking, soft delete, audit
+fields (createdBy/updatedBy/createdTime/updatedTime), and optimistic locking.
 
-### Configuration Profiles
+**Modules**: Enable/disable via `strix.module.*` configuration (sms, oss, job, oauth, push, pay).
 
-- `application.yml` - Base config
-- `application-dev.yml` - Development
-- `application-test.yml` - Testing
-- `application-prod.yml` - Production
+### Tech Stack
+
+- Spring Boot 3.5.8, Java 21
+- MyBatis Plus 3.5.15 (MySQL 8+)
+- Redis/Redisson for caching
+- Knife4j 4.5.0 for API docs
+- Quartz for job scheduling
+- Hutool 5.8.42 utilities
+- AWS SDK v2 for S3
+- Alipay/WeChat SDKs for payments
+
+## Code Generation
+
+Use `MysqlGenerator.java` to generate entity/mapper/service boilerplate from database tables.
+
+## Configuration
+
+Profiles: `application-{dev,prod,test}.yml`
+
+Key `strix.*` properties:
+
+- `module.*` - Enable/disable modules
+- `captcha.*` - CAPTCHA settings
+- `delayed-task.*` - Async task processing
+- `package-scan.job/model` - Dynamic class scanning
+- `default-locale` - i18n (default: zh_CN)
