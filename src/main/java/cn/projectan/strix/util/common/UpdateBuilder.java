@@ -34,8 +34,11 @@ public class UpdateBuilder {
      * @param <V>  请求体类型
      * @return 用于执行update操作的UpdateWrapper
      */
+    @SuppressWarnings("unchecked")
     public static <T, V> LambdaUpdateWrapper<T> build(T bean, V req) {
         UpdateWrapper<T> updateWrapper = new UpdateWrapper<>();
+        // 设置实体类，以便拦截器（如加密拦截器）能正确获取实体类信息
+        updateWrapper.setEntityClass((Class<T>) bean.getClass());
         // 设置要修改的数据 ID
         String id = ReflectUtil.getString(bean, "id");
         if (!StringUtils.hasText(id)) {

@@ -1,5 +1,6 @@
 package cn.projectan.strix.config;
 
+import cn.projectan.strix.core.encrypt.FieldEncryptionInterceptor;
 import cn.projectan.strix.util.system.SecurityUtils;
 import com.baomidou.mybatisplus.annotation.DbType;
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
@@ -43,6 +44,16 @@ public class MybatisPlusConfig {
         interceptor.addInnerInterceptor(optimisticLockerInnerInterceptor);
 
         return interceptor;
+    }
+
+    /**
+     * 字段加密解密拦截器
+     * <p>
+     * 自动对带有 @EncryptField 注解的字段进行加密解密
+     */
+    @Bean
+    public FieldEncryptionInterceptor fieldEncryptionInterceptor() {
+        return new FieldEncryptionInterceptor();
     }
 
     /**
