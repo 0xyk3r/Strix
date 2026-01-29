@@ -1,4 +1,4 @@
-package cn.projectan.strix.model.response.system;
+package cn.projectan.strix.model.response.system.login;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -14,7 +14,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class SystemLoginResp {
+public class SystemManagerLoginResp {
 
     private LoginManagerInfo info;
 

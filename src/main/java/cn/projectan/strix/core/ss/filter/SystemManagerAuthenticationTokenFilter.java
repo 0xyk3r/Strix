@@ -2,6 +2,7 @@ package cn.projectan.strix.core.ss.filter;
 
 import cn.projectan.strix.core.ss.details.LoginSystemManager;
 import cn.projectan.strix.core.ss.token.SystemManagerAuthenticationToken;
+import cn.projectan.strix.model.constant.system.LoginRedisKeys;
 import cn.projectan.strix.util.common.RedisUtil;
 import jakarta.annotation.Nonnull;
 import jakarta.servlet.FilterChain;
@@ -39,7 +40,7 @@ public class SystemManagerAuthenticationTokenFilter extends OncePerRequestFilter
         }
 
         // 从redis中获取用户信息
-        Object loginInfo = redisUtil.get("strix:system:manager:login_token:token:" + token);
+        Object loginInfo = redisUtil.get(LoginRedisKeys.LOGIN_MANAGER_TOKEN_TO_USER_INFO_PREFIX + token);
         if (!(loginInfo instanceof LoginSystemManager loginSystemManager)) {
             filterChain.doFilter(request, response);
             return;

@@ -1,7 +1,8 @@
 package cn.projectan.strix.core.ss.filter;
 
+import cn.projectan.strix.core.ss.details.LoginSystemUser;
 import cn.projectan.strix.core.ss.token.SystemUserAuthenticationToken;
-import cn.projectan.strix.model.db.system.SystemUser;
+import cn.projectan.strix.model.constant.system.LoginRedisKeys;
 import cn.projectan.strix.util.common.RedisUtil;
 import jakarta.annotation.Nonnull;
 import jakarta.servlet.FilterChain;
@@ -41,15 +42,15 @@ public class SystemUserAuthenticationTokenFilter extends OncePerRequestFilter {
         }
 
         // 从redis中获取用户信息
-        Object loginInfo = redisUtil.get("strix:system:user:login_token:token:" + token);
-        if (!(loginInfo instanceof SystemUser systemUser)) {
+        Object loginInfo = redisUtil.get(LoginRedisKeys.LOGIN_USER_TOKEN_TO_USER_INFO_PREFIX + token);
+        if (!(loginInfo instanceof LoginSystemUser loginSystemUser)) {
             filterChain.doFilter(request, response);
             return;
         }
 
         // 存入SecurityContextHolder
         SystemUserAuthenticationToken authentication =
-                new SystemUserAuthenticationToken(systemUser, null, Collections.singletonList(new SimpleGrantedAuthority("ROLE_SYSTEM_USER")));
+                new SystemUserAuthenticationToken(loginSystemUser, null, Collections.singletonList(new SimpleGrantedAuthority("ROLE_SYSTEM_USER")));
 
         SecurityContext context = SecurityContextHolder.getContext();
         context.setAuthentication(authentication);

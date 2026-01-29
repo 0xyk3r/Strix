@@ -1,13 +1,16 @@
-package cn.projectan.strix.model.other.system.module.oauth;
+package cn.projectan.strix.model.other.system.module.oauth.wechat.oa;
 
+import cn.projectan.strix.model.other.system.module.oauth.BaseOAuthConfig;
 import lombok.Data;
 
 /**
+ * 微信公众平台 OAuth 配置
+ *
  * @author ProjectAn
  * @since 2024/4/3 17:32
  */
 @Data
-public class WechatOAuthConfig extends BaseOAuthConfig {
+public class WechatOAOAuthConfig extends BaseOAuthConfig {
 
     /**
      * 微信公众号开发者ID (AppID)

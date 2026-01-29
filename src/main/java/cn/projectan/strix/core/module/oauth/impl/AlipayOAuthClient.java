@@ -1,8 +1,9 @@
-package cn.projectan.strix.core.module.oauth;
+package cn.projectan.strix.core.module.oauth.impl;
 
+import cn.projectan.strix.core.exception.StrixOAuthException;
+import cn.projectan.strix.core.module.oauth.StrixOAuthClient;
 import cn.projectan.strix.model.db.system.OauthPush;
 import cn.projectan.strix.model.other.system.module.oauth.AlipayOAuthConfig;
-import cn.projectan.strix.model.other.system.module.oauth.BaseOAuthConfig;
 import cn.projectan.strix.model.other.system.module.oauth.BaseOAuthUserInfo;
 import com.alipay.api.CertAlipayRequest;
 import com.alipay.api.DefaultAlipayClient;
@@ -13,6 +14,7 @@ import com.alipay.api.response.AlipayUserInfoShareResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -22,15 +24,15 @@ import java.util.Map;
  * @since 2024/4/3 16:41
  */
 @Slf4j
-public class AlipayOAuthClient extends StrixOAuthClient {
+public class AlipayOAuthClient extends StrixOAuthClient<AlipayOAuthConfig> {
 
-    protected final AlipayOAuthConfig config;
+    private static final String GRANT_TYPE_AUTHORIZATION_CODE = "authorization_code";
+
     protected final DefaultAlipayClient client;
 
     public AlipayOAuthClient(AlipayOAuthConfig config) {
-        super();
+        super(config);
         Assert.notNull(config, "Strix OAuth: 初始化支付宝 OAuth 服务实例失败. (配置信息为空)");
-        this.config = config;
         try {
             CertAlipayRequest certAlipayRequest = new CertAlipayRequest();
             certAlipayRequest.setServerUrl(config.getServerUrl());
@@ -44,23 +46,72 @@ public class AlipayOAuthClient extends StrixOAuthClient {
             certAlipayRequest.setRootCertPath(config.getAlipayRootCertPath());
             client = new DefaultAlipayClient(certAlipayRequest);
         } catch (Exception e) {
-            throw new RuntimeException("Strix OAuth: 初始化支付宝 OAuth 服务实例失败. (配置信息错误)", e);
+            throw new StrixOAuthException("Strix OAuth: 初始化支付宝 OAuth 服务实例失败. (配置信息错误)", e);
         }
     }
 
     @Override
-    public String getConfigId() {
-        return config.getId();
+    public BaseOAuthUserInfo auth(String code) {
+        AlipaySystemOauthTokenRequest request = new AlipaySystemOauthTokenRequest();
+        request.setCode(code);
+        request.setGrantType(GRANT_TYPE_AUTHORIZATION_CODE);
+
+        try {
+            AlipaySystemOauthTokenResponse response = client.certificateExecute(request);
+            if (!response.isSuccess()) {
+                String errorMsg = String.format("Strix OAuth: 获取支付宝 OAuth Token 失败. (code: %s, subCode: %s, subMsg: %s)",
+                        response.getCode(), response.getSubCode(), response.getSubMsg());
+                throw new StrixOAuthException(errorMsg);
+            }
+
+            log.debug("Strix OAuth: 获取支付宝 OAuth Token 成功. Response: {}", response.getBody());
+
+            BaseOAuthUserInfo oAuthUserInfo = new BaseOAuthUserInfo();
+            oAuthUserInfo.setConfigId(config.getId());
+            oAuthUserInfo.setAppId(config.getAppId());
+            oAuthUserInfo.setOpenId(response.getOpenId());
+            Assert.hasText(oAuthUserInfo.getOpenId(), "Strix OAuth: 获取支付宝 OAuth 授权凭证失败, OpenId 为空.");
+            oAuthUserInfo.setAccessToken(response.getAccessToken());
+            oAuthUserInfo.setRefreshToken(response.getRefreshToken());
+            oAuthUserInfo.setExpiresIn(Integer.parseInt(response.getExpiresIn()));
+            oAuthUserInfo.setUnionId(response.getUnionId());
+            return oAuthUserInfo;
+        } catch (Exception e) {
+            log.error("Strix OAuth: 获取支付宝 OAuth Token 失败. (code: {})", code, e);
+            throw new StrixOAuthException("Strix OAuth: 获取支付宝 OAuth Token 失败.", e);
+        }
     }
 
     @Override
-    public String getConfigName() {
-        return config.getName();
+    public Map<String, String> getUserInfo(String accessToken) {
+        AlipayUserInfoShareRequest request = new AlipayUserInfoShareRequest();
+        try {
+            AlipayUserInfoShareResponse response = client.certificateExecute(request, accessToken);
+            if (!response.isSuccess()) {
+                String errorMsg = String.format("Strix OAuth: 获取支付宝 OAuth 用户信息失败. (subCode: %s, subMsg: %s)",
+                        response.getSubCode(), response.getSubMsg());
+                throw new StrixOAuthException(errorMsg);
+            }
+
+            log.debug("Strix OAuth: 获取支付宝 OAuth 用户信息成功. Response: {}", response.getBody());
+
+            Map<String, String> userInfo = new HashMap<>();
+            userInfo.put("userId", response.getUserId());
+            userInfo.put("nickName", response.getNickName());
+            userInfo.put("avatar", response.getAvatar());
+            userInfo.put("province", response.getProvince());
+            userInfo.put("city", response.getCity());
+            userInfo.put("gender", response.getGender());
+            return userInfo;
+        } catch (Exception e) {
+            log.error("Strix OAuth: 获取支付宝 OAuth 用户信息失败. (accessToken: {})", accessToken, e);
+            throw new StrixOAuthException("Strix OAuth: 获取支付宝 OAuth 用户信息失败.", e);
+        }
     }
 
     @Override
-    public short getPlatform() {
-        return config.getPlatform();
+    public String getPhoneNumber(String code) {
+        throw new UnsupportedOperationException("Strix OAuth: 支付宝 OAuth 服务实例不支持获取用户手机号.");
     }
 
     @Override
@@ -69,57 +120,13 @@ public class AlipayOAuthClient extends StrixOAuthClient {
     }
 
     @Override
-    public BaseOAuthConfig getConfig() {
-        return config;
-    }
-
-    @Override
-    public BaseOAuthUserInfo grantBaseUserInfo(String code) {
-        AlipaySystemOauthTokenRequest request = new AlipaySystemOauthTokenRequest();
-        request.setCode(code);
-        request.setGrantType("authorization_code");
-        try {
-            AlipaySystemOauthTokenResponse response = client.certificateExecute(request);
-            Assert.isTrue(response.isSuccess(), "Strix OAuth: 获取支付宝 OAuth Token 失败. (response: " + response.getBody() + ")");
-            log.info(response.toString());
-
-            BaseOAuthUserInfo oAuthUserInfo = new BaseOAuthUserInfo();
-            oAuthUserInfo.setConfigId(config.getId());
-            oAuthUserInfo.setAppId(config.getAppId());
-            oAuthUserInfo.setOpenId(response.getOpenId());
-            Assert.hasText(oAuthUserInfo.getOpenId(), "Strix OAuth: 获取微信 OAuth 授权凭证失败, OpenId 为空.");
-            oAuthUserInfo.setAccessToken(response.getAccessToken());
-            oAuthUserInfo.setRefreshToken(response.getRefreshToken());
-            oAuthUserInfo.setExpiresIn(Integer.parseInt(response.getExpiresIn()));
-            oAuthUserInfo.setUnionId(response.getUnionId());
-            return oAuthUserInfo;
-        } catch (Exception e) {
-            log.error("Strix OAuth: 获取支付宝 OAuth Token 失败. (code: {})", code, e);
-        }
-        return null;
-    }
-
-    @Override
-    public Map<String, String> grantMoreUserInfo(String accessToken) {
-        AlipayUserInfoShareRequest request = new AlipayUserInfoShareRequest();
-        try {
-            AlipayUserInfoShareResponse response = client.certificateExecute(request, accessToken);
-            Assert.isTrue(response.isSuccess(), "Strix OAuth: 获取支付宝 OAuth 用户信息失败. (response: " + response.getBody() + ")");
-            log.info(response.toString());
-        } catch (Exception e) {
-            log.error("Strix OAuth: 获取支付宝 OAuth 用户信息失败. (accessToken: {})", accessToken, e);
-        }
-        return null;
-    }
-
-    @Override
     public void generatePush(String openId, String content) {
-        log.warn("Strix OAuth: 支付宝 OAuth 服务实例不支持生成推送服务.");
+        throw new UnsupportedOperationException("Strix OAuth: 支付宝 OAuth 服务实例不支持生成推送服务.");
     }
 
     @Override
     public void push(OauthPush oauthPush) {
-        log.warn("Strix OAuth: 支付宝 OAuth 服务实例不支持推送服务.");
+        throw new UnsupportedOperationException("Strix OAuth: 支付宝 OAuth 服务实例不支持推送服务.");
     }
 
 }

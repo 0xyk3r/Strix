@@ -31,6 +31,12 @@ public class OauthConfig extends BaseModel<OauthConfig> {
     private static final long serialVersionUID = 1L;
 
     /**
+     * OAuth 服务 Key
+     */
+    @TableField("`key`")
+    private String key;
+
+    /**
      * OAuth 服务名称
      */
     @TableField("`name`")

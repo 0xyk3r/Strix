@@ -1,5 +1,6 @@
 package cn.projectan.strix.service.system;
 
+import cn.projectan.strix.core.ss.details.LoginSystemUser;
 import cn.projectan.strix.mapper.system.SystemUserMapper;
 import cn.projectan.strix.model.constant.system.OperatorType;
 import cn.projectan.strix.model.db.system.SystemUser;
@@ -101,6 +102,17 @@ public class SystemUserService extends ServiceImpl<SystemUserMapper, SystemUser>
             return getBaseMapper().selectById(systemUserRelation.getSystemUserId());
         }
         return null;
+    }
+
+    /**
+     * 登陆时获取用户完整权限信息
+     *
+     * @param userId 用户 ID
+     * @return 登陆用户信息
+     */
+    public LoginSystemUser getLoginInfo(String userId) {
+        SystemUser systemUser = getById(userId);
+        return new LoginSystemUser(systemUser);
     }
 
 }

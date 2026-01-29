@@ -1,13 +1,15 @@
 package cn.projectan.strix.service.system;
 
-import cn.projectan.strix.core.module.oauth.AlipayOAuthClient;
 import cn.projectan.strix.core.module.oauth.StrixOAuthStore;
-import cn.projectan.strix.core.module.oauth.WechatOAuthClient;
+import cn.projectan.strix.core.module.oauth.impl.AlipayOAuthClient;
+import cn.projectan.strix.core.module.oauth.impl.WechatMPOAuthClient;
+import cn.projectan.strix.core.module.oauth.impl.WechatOAOAuthClient;
 import cn.projectan.strix.mapper.system.OauthConfigMapper;
 import cn.projectan.strix.model.db.system.OauthConfig;
 import cn.projectan.strix.model.dict.system.OAuthPlatform;
 import cn.projectan.strix.model.other.system.module.oauth.AlipayOAuthConfig;
-import cn.projectan.strix.model.other.system.module.oauth.WechatOAuthConfig;
+import cn.projectan.strix.model.other.system.module.oauth.wechat.mp.WechatMPOAuthConfig;
+import cn.projectan.strix.model.other.system.module.oauth.wechat.oa.WechatOAOAuthConfig;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -41,21 +43,32 @@ public class OauthConfigService extends ServiceImpl<OauthConfigMapper, OauthConf
         for (OauthConfig oauthConfig : oauthConfigList) {
             try {
                 switch (oauthConfig.getPlatform()) {
-                    case OAuthPlatform.WECHAT -> {
-                        WechatOAuthConfig wechatOAuthConfig = objectMapper.readValue(oauthConfig.getConfigData(), WechatOAuthConfig.class);
-                        wechatOAuthConfig.setId(oauthConfig.getId());
-                        wechatOAuthConfig.setName(oauthConfig.getName());
-                        wechatOAuthConfig.setPlatform(oauthConfig.getPlatform());
-                        strixOAuthStore.addInstance(oauthConfig.getId(), new WechatOAuthClient(wechatOAuthConfig));
-                        log.info("Strix OAuth: 初始化 WeChat 服务实例 <{}> 成功.", oauthConfig.getName());
+                    case OAuthPlatform.WECHAT_OA -> {
+                        WechatOAOAuthConfig wechatOAOAuthConfig = objectMapper.readValue(oauthConfig.getConfigData(), WechatOAOAuthConfig.class);
+                        wechatOAOAuthConfig.setId(oauthConfig.getId());
+                        wechatOAOAuthConfig.setKey(oauthConfig.getKey());
+                        wechatOAOAuthConfig.setName(oauthConfig.getName());
+                        wechatOAOAuthConfig.setPlatform(oauthConfig.getPlatform());
+                        strixOAuthStore.addInstance(oauthConfig.getKey(), new WechatOAOAuthClient(wechatOAOAuthConfig));
+                        log.info("Strix OAuth: 初始化 <微信公众号> 服务实例 <{}> 成功.", oauthConfig.getName());
+                    }
+                    case OAuthPlatform.WECHAT_MP -> {
+                        WechatMPOAuthConfig wechatMPOAuthConfig = objectMapper.readValue(oauthConfig.getConfigData(), WechatMPOAuthConfig.class);
+                        wechatMPOAuthConfig.setId(oauthConfig.getId());
+                        wechatMPOAuthConfig.setKey(oauthConfig.getKey());
+                        wechatMPOAuthConfig.setName(oauthConfig.getName());
+                        wechatMPOAuthConfig.setPlatform(oauthConfig.getPlatform());
+                        strixOAuthStore.addInstance(oauthConfig.getKey(), new WechatMPOAuthClient(wechatMPOAuthConfig));
+                        log.info("Strix OAuth: 初始化 <微信小程序> 服务实例 <{}> 成功.", oauthConfig.getName());
                     }
                     case OAuthPlatform.ALIPAY -> {
                         AlipayOAuthConfig alipayOAuthConfig = objectMapper.readValue(oauthConfig.getConfigData(), AlipayOAuthConfig.class);
                         alipayOAuthConfig.setId(oauthConfig.getId());
+                        alipayOAuthConfig.setKey(oauthConfig.getKey());
                         alipayOAuthConfig.setName(oauthConfig.getName());
                         alipayOAuthConfig.setPlatform(oauthConfig.getPlatform());
-                        strixOAuthStore.addInstance(oauthConfig.getId(), new AlipayOAuthClient(alipayOAuthConfig));
-                        log.info("Strix OAuth: 初始化 AliPay 服务实例 <{}> 成功.", oauthConfig.getName());
+                        strixOAuthStore.addInstance(oauthConfig.getKey(), new AlipayOAuthClient(alipayOAuthConfig));
+                        log.info("Strix OAuth: 初始化 <支付宝> 服务实例 <{}> 成功.", oauthConfig.getName());
                     }
                 }
             } catch (Exception e) {

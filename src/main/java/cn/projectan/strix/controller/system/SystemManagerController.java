@@ -8,6 +8,7 @@ import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.core.validation.group.InsertGroup;
 import cn.projectan.strix.core.validation.group.UpdateGroup;
 import cn.projectan.strix.model.annotation.StrixLog;
+import cn.projectan.strix.model.constant.system.LoginRedisKeys;
 import cn.projectan.strix.model.db.system.SystemManager;
 import cn.projectan.strix.model.db.system.SystemManagerRole;
 import cn.projectan.strix.model.dict.common.CommonFlag;
@@ -254,10 +255,10 @@ public class SystemManagerController extends BaseSystemController {
                 .remove();
 
         // 使登录Token失效
-        Object existToken = redisUtil.get("strix:system:manager:login_token:login:id_" + systemManager.getId());
+        Object existToken = redisUtil.get(LoginRedisKeys.LOGIN_MANAGER_ID_TO_TOKEN_PREFIX + systemManager.getId());
         if (existToken != null) {
-            redisUtil.del("strix:system:manager:login_token:token:" + existToken);
-            redisUtil.del("strix:system:manager:login_token:login:id_" + systemManager.getId());
+            redisUtil.del(LoginRedisKeys.LOGIN_MANAGER_TOKEN_TO_USER_INFO_PREFIX + existToken);
+            redisUtil.del(LoginRedisKeys.LOGIN_MANAGER_ID_TO_TOKEN_PREFIX + systemManager.getId());
         }
 
         return RetBuilder.success();

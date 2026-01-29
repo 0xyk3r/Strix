@@ -11,16 +11,20 @@ import cn.projectan.strix.model.dict.base.BaseDict;
 @Dict(key = "OAuthPlatform", value = "OAuth平台")
 public class OAuthPlatform implements BaseDict {
 
-    @DictData(label = "微信", sort = 1, style = DictDataStyle.SUCCESS)
+    @DictData(label = "微信公众号", sort = 1, style = DictDataStyle.SUCCESS)
     public static final
-    short WECHAT = 1;
+    short WECHAT_OA = 1;
 
-    @DictData(label = "支付宝", sort = 2, style = DictDataStyle.INFO)
+    @DictData(label = "微信小程序", sort = 2, style = DictDataStyle.SUCCESS)
     public static final
-    short ALIPAY = 2;
+    short WECHAT_MP = 2;
+
+    @DictData(label = "支付宝", sort = 11, style = DictDataStyle.INFO)
+    public static final
+    short ALIPAY = 11;
 
     public static boolean valid(short value) {
-        return value == WECHAT || value == ALIPAY;
+        return value == WECHAT_OA || value == WECHAT_MP || value == ALIPAY;
     }
 
 }

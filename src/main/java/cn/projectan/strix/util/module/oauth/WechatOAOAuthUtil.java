@@ -1,6 +1,7 @@
-package cn.projectan.strix.core.module.oauth;
+package cn.projectan.strix.util.module.oauth;
 
 import cn.hutool.core.map.MapUtil;
+import cn.projectan.strix.core.exception.StrixOAuthException;
 import cn.projectan.strix.util.http.OkHttpUtil;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -15,58 +16,42 @@ import java.util.Random;
 import java.util.Set;
 
 /**
- * 微信 OAuth 工具类
+ * 微信公众号 OAuth 工具类
  *
  * @author ProjectAn
  * @since 2024/4/4 2:27
  */
 @Slf4j
-public class WechatOAuthTools {
+public class WechatOAOAuthUtil {
 
     private static final String SYMBOLS = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
     private static final Random RANDOM = new SecureRandom();
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-
-    /**
-     * 获取全局AccessToken
-     *
-     * @param appId     公众号的AppID
-     * @param appSecret 公众号的AppSecret
-     */
-    public static String getAccessToken(String appId, String appSecret) {
-        String url = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=" + appId + "&secret=" + appSecret;
-        try {
-            String responseStr = OkHttpUtil.get(url);
-            Assert.hasText(responseStr, "远程服务器返回数据为空");
-            Map<String, Object> responseMap = OBJECT_MAPPER.readValue(responseStr, new TypeReference<>() {
-            });
-            String accessToken = MapUtil.getStr(responseMap, "access_token");
-            Assert.hasText(accessToken, "远程服务器返回数据异常");
-            return accessToken;
-        } catch (Exception e) {
-            log.error("Strix OAuth: 获取微信 AccessToken 失败", e);
-            return null;
-        }
-    }
+    private static final String JS_API_TICKET_URL = "https://api.weixin.qq.com/cgi-bin/ticket/getticket?access_token=%s&type=jsapi";
 
     /**
      * 获取JS_API_TICKET
      *
      * @param accessToken 全局AccessToken
+     * @return JsApiTicket
+     * @throws StrixOAuthException 获取失败时抛出异常
      */
     public static String getJsApiTicket(String accessToken) {
-        String url = "https://api.weixin.qq.com/cgi-bin/ticket/getticket?access_token=" + accessToken + "&type=jsapi";
+        String url = String.format(JS_API_TICKET_URL, accessToken);
         try {
             String responseStr = OkHttpUtil.get(url);
-            Assert.hasText(responseStr, "远程服务器返回数据为空");
+            Assert.hasText(responseStr, "Strix OAuth: 获取微信 JsApiTicket 时远程服务器返回数据为空.");
+
             Map<String, Object> responseMap = OBJECT_MAPPER.readValue(responseStr, new TypeReference<>() {
             });
             String ticket = MapUtil.getStr(responseMap, "ticket");
-            Assert.hasText(ticket, "远程服务器返回数据异常");
+            Assert.hasText(ticket, "Strix OAuth: 获取微信 JsApiTicket 时远程服务器返回数据异常.");
+
+            log.debug("Strix OAuth: 获取微信 JsApiTicket 成功.");
             return ticket;
         } catch (Exception e) {
             log.error("Strix OAuth: 获取微信 JsApiTicket 失败", e);
-            return null;
+            throw new StrixOAuthException("Strix OAuth: 获取微信 JsApiTicket 失败", e);
         }
     }
 
@@ -92,7 +77,6 @@ public class WechatOAuthTools {
         return new String(nonceChars);
     }
 
-
     /**
      * 用SHA1算法验证Token
      *
@@ -100,6 +84,7 @@ public class WechatOAuthTools {
      * @param timestamp 时间戳
      * @param nonce     随机字符串
      * @return 签名
+     * @throws StrixOAuthException 签名失败时抛出异常
      */
     public static String signBySha1(String token, String timestamp, String nonce) {
         Map<String, String> data = Map.of("token", token, "timestamp", timestamp, "nonce", nonce);
@@ -111,6 +96,7 @@ public class WechatOAuthTools {
      *
      * @param data 待签名数据
      * @return 签名
+     * @throws StrixOAuthException 签名失败时抛出异常
      */
     public static String signBySha1(Map<String, String> data) {
         try {
@@ -124,8 +110,9 @@ public class WechatOAuthTools {
                     continue;
                 }
                 // 参数值为空，则不参与签名
-                if (!data.get(s).trim().isEmpty()) {
-                    sb.append(s).append("=").append(data.get(s).trim()).append("&");
+                String value = data.get(s);
+                if (value != null && !value.trim().isEmpty()) {
+                    sb.append(s).append("=").append(value.trim()).append("&");
                 }
             }
             String sortedKvStr = sb.toString();
@@ -148,8 +135,8 @@ public class WechatOAuthTools {
             }
             return hexStr.toString();
         } catch (Exception e) {
-            log.error("生成JsAPI签名失败, {}", data.toString(), e);
-            return null;
+            log.error("Strix OAuth: 生成JsAPI签名失败, data: {}", data, e);
+            throw new StrixOAuthException("Strix OAuth: 生成JsAPI签名失败", e);
         }
     }
 

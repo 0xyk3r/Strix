@@ -1,0 +1,99 @@
+package cn.projectan.strix.controller.srv.wechat;
+
+import cn.hutool.core.util.IdUtil;
+import cn.projectan.strix.controller.srv.wechat.base.BaseWechatController;
+import cn.projectan.strix.core.cache.system.SystemConfigCache;
+import cn.projectan.strix.core.module.oauth.StrixOAuthStore;
+import cn.projectan.strix.core.module.oauth.impl.WechatMPOAuthClient;
+import cn.projectan.strix.core.ret.RetBuilder;
+import cn.projectan.strix.core.ret.RetResult;
+import cn.projectan.strix.core.ss.details.LoginSystemUser;
+import cn.projectan.strix.model.annotation.Anonymous;
+import cn.projectan.strix.model.constant.system.LoginRedisKeys;
+import cn.projectan.strix.model.db.system.SystemUser;
+import cn.projectan.strix.model.dict.system.OAuthPlatform;
+import cn.projectan.strix.model.other.system.module.oauth.BaseOAuthUserInfo;
+import cn.projectan.strix.model.request.api.wechat.WechatMPAuthReq;
+import cn.projectan.strix.model.response.system.login.SystemUserLoginResp;
+import cn.projectan.strix.service.system.OauthUserService;
+import cn.projectan.strix.service.system.SystemUserService;
+import cn.projectan.strix.util.common.RedisUtil;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.Assert;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDateTime;
+import java.util.concurrent.TimeUnit;
+
+/**
+ * @author ProjectAn
+ * @since 2026/1/29 09:25
+ */
+@Slf4j
+@RestController
+@RequestMapping("srv/wechat/mp/{configKey}")
+@RequiredArgsConstructor
+public class WechatMPController extends BaseWechatController {
+
+    private final SystemUserService systemUserService;
+    private final OauthUserService oauthUserService;
+    private final StrixOAuthStore strixOAuthStore;
+    private final SystemConfigCache systemConfigCache;
+    private final RedisUtil redisUtil;
+
+    @GetMapping("test")
+    public RetResult<Void> test(@PathVariable String configKey) {
+        log.info("test{}", configKey);
+        log.info("test user: {}", getLoginSystemUserId());
+
+        return RetBuilder.success();
+    }
+
+    @Anonymous
+    @PostMapping("auth")
+    public RetResult<SystemUserLoginResp> auth(@PathVariable String configKey, @RequestBody WechatMPAuthReq req) {
+        WechatMPOAuthClient instance = (WechatMPOAuthClient) strixOAuthStore.getInstance(configKey, OAuthPlatform.WECHAT_MP);
+        BaseOAuthUserInfo userInfo = instance.auth(req.getCode());
+        Assert.notNull(userInfo, "获取用户信息失败");
+
+        SystemUser systemUser = oauthUserService.loginOrCreateSystemUser(userInfo, OAuthPlatform.WECHAT_MP);
+        LoginSystemUser loginInfo = systemUserService.getLoginInfo(systemUser.getId());
+
+        long tokenTTL = systemConfigCache.getLong("SYSTEM_USER_LOGIN_EFFECTIVE_TIME", 1440L);
+
+        // 优先返回已存在的 token
+        Object existingTokenObj = redisUtil.get(LoginRedisKeys.LOGIN_USER_ID_TO_TOKEN_PREFIX + systemUser.getId());
+        if (existingTokenObj instanceof String existingToken) {
+            // 验证 token 是否仍然有效
+            Object cachedLoginInfoObj = redisUtil.get(LoginRedisKeys.LOGIN_USER_TOKEN_TO_USER_INFO_PREFIX + existingToken);
+            if (cachedLoginInfoObj instanceof LoginSystemUser cachedLoginInfo) {
+                // 刷新过期时间
+                redisUtil.set(LoginRedisKeys.LOGIN_USER_TOKEN_TO_USER_INFO_PREFIX + existingToken, cachedLoginInfo, tokenTTL, TimeUnit.MINUTES);
+                redisUtil.setExpire(LoginRedisKeys.LOGIN_USER_ID_TO_TOKEN_PREFIX + systemUser.getId(), tokenTTL, TimeUnit.MINUTES);
+                redisUtil.setExpire(LoginRedisKeys.LOGIN_USER_TOKEN_TO_USER_INFO_PREFIX + existingToken, tokenTTL, TimeUnit.MINUTES);
+                LocalDateTime expireTime = LocalDateTime.now().plusMinutes(tokenTTL);
+
+                return RetBuilder.success(
+                        new SystemUserLoginResp(
+                                new SystemUserLoginResp.LoginUserInfo(loginInfo),
+                                existingToken,
+                                expireTime
+                        ));
+            }
+        }
+
+        // 创建新 token
+        String token = IdUtil.fastSimpleUUID();
+        redisUtil.set(LoginRedisKeys.LOGIN_USER_ID_TO_TOKEN_PREFIX + systemUser.getId(), token, tokenTTL, TimeUnit.MINUTES);
+        redisUtil.set(LoginRedisKeys.LOGIN_USER_TOKEN_TO_USER_INFO_PREFIX + token, loginInfo, tokenTTL, TimeUnit.MINUTES);
+
+        return RetBuilder.success(
+                new SystemUserLoginResp(
+                        new SystemUserLoginResp.LoginUserInfo(loginInfo),
+                        token,
+                        LocalDateTime.now().plusMinutes(tokenTTL)
+                ));
+    }
+
+}

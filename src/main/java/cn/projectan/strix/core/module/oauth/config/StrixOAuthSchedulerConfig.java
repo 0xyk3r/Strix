@@ -1,4 +1,4 @@
-package cn.projectan.strix.core.module.oauth;
+package cn.projectan.strix.core.module.oauth.config;
 
 import jakarta.annotation.PreDestroy;
 import lombok.extern.slf4j.Slf4j;
@@ -27,11 +27,12 @@ public class StrixOAuthSchedulerConfig {
      */
     @Bean(name = "strixOAuthScheduler")
     public ScheduledExecutorService strixOAuthScheduler() {
-        scheduler = Executors.newScheduledThreadPool(1, r -> {
-            Thread thread = new Thread(r);
-            thread.setName("strix-oauth-scheduler");
-            return thread;
-        });
+        scheduler = Executors.newScheduledThreadPool(
+                0,
+                Thread.ofVirtual()
+                        .name("strix-oauth-scheduler-", 0)
+                        .factory()
+        );
         return scheduler;
     }
 

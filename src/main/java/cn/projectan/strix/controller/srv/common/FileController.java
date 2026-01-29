@@ -1,6 +1,6 @@
-package cn.projectan.strix.controller.api.common;
+package cn.projectan.strix.controller.srv.common;
 
-import cn.projectan.strix.controller.api.base.BaseApiController;
+import cn.projectan.strix.controller.srv.base.BaseSrvController;
 import cn.projectan.strix.model.annotation.Anonymous;
 import cn.projectan.strix.model.annotation.IgnoreEncryption;
 import cn.projectan.strix.service.system.OssFileService;
@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController("ApiCommonFileController")
 @RequestMapping("api/common/file")
 @RequiredArgsConstructor
-public class FileController extends BaseApiController {
+public class FileController extends BaseSrvController {
 
     private final OssFileService ossFileService;
 

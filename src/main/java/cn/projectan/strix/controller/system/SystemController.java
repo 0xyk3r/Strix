@@ -10,14 +10,15 @@ import cn.projectan.strix.core.ss.details.LoginSystemManager;
 import cn.projectan.strix.model.annotation.Anonymous;
 import cn.projectan.strix.model.annotation.IgnoreEncryption;
 import cn.projectan.strix.model.annotation.StrixLog;
+import cn.projectan.strix.model.constant.system.LoginRedisKeys;
 import cn.projectan.strix.model.db.system.SystemManager;
 import cn.projectan.strix.model.db.system.SystemMenu;
 import cn.projectan.strix.model.dict.system.SystemLogOperType;
 import cn.projectan.strix.model.dict.system.SystemManagerStatus;
 import cn.projectan.strix.model.other.system.captcha.StrixCaptchaInfoVO;
 import cn.projectan.strix.model.request.system.login.SystemLoginReq;
-import cn.projectan.strix.model.response.system.SystemLoginResp;
 import cn.projectan.strix.model.response.system.SystemMenuResp;
+import cn.projectan.strix.model.response.system.login.SystemManagerLoginResp;
 import cn.projectan.strix.model.response.system.module.captcha.StrixCaptchaResp;
 import cn.projectan.strix.service.system.SystemManagerService;
 import cn.projectan.strix.service.system.SystemMenuService;
@@ -64,7 +65,7 @@ public class SystemController extends BaseSystemController {
     @Anonymous
     @PostMapping("login")
     @StrixLog(operationGroup = "系统登录", operationName = "系统登录", operationType = SystemLogOperType.LOGIN)
-    public RetResult<SystemLoginResp> login(@RequestBody SystemLoginReq req) {
+    public RetResult<SystemManagerLoginResp> login(@RequestBody SystemLoginReq req) {
         // 验证码校验
         Assert.hasText(req.getCaptchaVerification(), "行为验证不通过，请重新验证");
         StrixCaptchaInfoVO strixCaptchaInfoVO = new StrixCaptchaInfoVO();
@@ -83,10 +84,10 @@ public class SystemController extends BaseSystemController {
         Boolean supportMultipleLogin = systemConfigCache.getBoolean("SYSTEM_MANAGER_SUPPORT_MULTIPLE_LOGIN", false);
         if (!supportMultipleLogin) {
             // 使上次登录生成的Token失效
-            Object existToken = redisUtil.get("strix:system:manager:login_token:login:id_" + systemManager.getId());
+            Object existToken = redisUtil.get(LoginRedisKeys.LOGIN_MANAGER_ID_TO_TOKEN_PREFIX + systemManager.getId());
             if (existToken != null) {
-                redisUtil.del("strix:system:manager:login_token:token:" + existToken);
-                redisUtil.del("strix:system:manager:login_token:login:id_" + systemManager.getId());
+                redisUtil.del(LoginRedisKeys.LOGIN_MANAGER_TOKEN_TO_USER_INFO_PREFIX + existToken);
+                redisUtil.del(LoginRedisKeys.LOGIN_MANAGER_ID_TO_TOKEN_PREFIX + systemManager.getId());
             }
         }
 
@@ -94,8 +95,8 @@ public class SystemController extends BaseSystemController {
 
         String token = IdUtil.fastSimpleUUID();
         long tokenTTL = systemConfigCache.getLong("SYSTEM_MANAGER_LOGIN_EFFECTIVE_TIME", 1440L);
-        redisUtil.set("strix:system:manager:login_token:login:id_" + systemManager.getId(), token, tokenTTL, TimeUnit.MINUTES);
-        redisUtil.set("strix:system:manager:login_token:token:" + token, loginSystemManager, tokenTTL, TimeUnit.MINUTES);
+        redisUtil.set(LoginRedisKeys.LOGIN_MANAGER_ID_TO_TOKEN_PREFIX + systemManager.getId(), token, tokenTTL, TimeUnit.MINUTES);
+        redisUtil.set(LoginRedisKeys.LOGIN_MANAGER_TOKEN_TO_USER_INFO_PREFIX + token, loginSystemManager, tokenTTL, TimeUnit.MINUTES);
 
         // 合并菜单权限
         List<String> permissionKeys = new ArrayList<>();
@@ -103,8 +104,8 @@ public class SystemController extends BaseSystemController {
         permissionKeys.addAll(loginSystemManager.getPermissionKeys());
 
         return RetBuilder.success(
-                new SystemLoginResp(
-                        new SystemLoginResp.LoginManagerInfo(
+                new SystemManagerLoginResp(
+                        new SystemManagerLoginResp.LoginManagerInfo(
                                 systemManager.getId(), systemManager.getNickname(), systemManager.getType(), systemManager.getRegionId(), permissionKeys
                         ),
                         token,
@@ -116,21 +117,21 @@ public class SystemController extends BaseSystemController {
      * 重新获取Token
      */
     @PostMapping("renewToken")
-    public RetResult<SystemLoginResp> renewToken() {
+    public RetResult<SystemManagerLoginResp> renewToken() {
         String loginSystemManagerId = loginManagerId();
         Assert.hasText(loginSystemManagerId, "请重新登陆");
         SystemManager systemManager = systemManagerService.getById(loginSystemManagerId);
 
-        Object oldTokenObj = redisUtil.get("strix:system:manager:login_token:login:id_" + systemManager.getId());
+        Object oldTokenObj = redisUtil.get(LoginRedisKeys.LOGIN_MANAGER_ID_TO_TOKEN_PREFIX + systemManager.getId());
         Assert.notNull(oldTokenObj, "旧token已失效，请重新登陆");
-        Object oldTokenInfoObj = redisUtil.get("strix:system:manager:login_token:token:" + oldTokenObj);
+        Object oldTokenInfoObj = redisUtil.get(LoginRedisKeys.LOGIN_MANAGER_TOKEN_TO_USER_INFO_PREFIX + oldTokenObj);
         Assert.notNull(oldTokenInfoObj, "旧token已失效，请重新登陆");
         LoginSystemManager loginSystemManager = (LoginSystemManager) oldTokenInfoObj;
         Assert.notNull(loginSystemManager, "旧token已失效，请重新登陆");
 
         long effectiveTime = systemConfigCache.getLong("SYSTEM_MANAGER_LOGIN_EFFECTIVE_TIME", 525600L);
-        redisUtil.setExpire("strix:system:manager:login_token:login:id_" + systemManager.getId(), effectiveTime, TimeUnit.MINUTES);
-        redisUtil.setExpire("strix:system:manager:login_token:token:" + oldTokenObj, effectiveTime, TimeUnit.MINUTES);
+        redisUtil.setExpire(LoginRedisKeys.LOGIN_MANAGER_ID_TO_TOKEN_PREFIX + systemManager.getId(), effectiveTime, TimeUnit.MINUTES);
+        redisUtil.setExpire(LoginRedisKeys.LOGIN_MANAGER_TOKEN_TO_USER_INFO_PREFIX + oldTokenObj, effectiveTime, TimeUnit.MINUTES);
 
         // 合并菜单权限
         List<String> permissionKeys = new ArrayList<>();
@@ -138,8 +139,8 @@ public class SystemController extends BaseSystemController {
         permissionKeys.addAll(loginSystemManager.getPermissionKeys());
 
         return RetBuilder.success(
-                new SystemLoginResp(
-                        new SystemLoginResp.LoginManagerInfo(
+                new SystemManagerLoginResp(
+                        new SystemManagerLoginResp.LoginManagerInfo(
                                 systemManager.getId(), systemManager.getNickname(), systemManager.getType(), systemManager.getRegionId(), permissionKeys
                         ),
                         oldTokenObj.toString(),

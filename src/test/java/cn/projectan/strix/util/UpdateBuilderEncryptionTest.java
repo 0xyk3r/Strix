@@ -3,6 +3,8 @@ package cn.projectan.strix.util;
 import cn.projectan.strix.core.encrypt.FieldEncryptUtil;
 import cn.projectan.strix.model.annotation.UpdateField;
 import cn.projectan.strix.model.db.system.SystemManager;
+import cn.projectan.strix.model.dict.system.SystemManagerStatus;
+import cn.projectan.strix.model.dict.system.SystemManagerType;
 import cn.projectan.strix.service.system.SystemManagerService;
 import cn.projectan.strix.util.common.UpdateBuilder;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -52,8 +54,8 @@ class UpdateBuilderEncryptionTest {
         manager.setNickname("UpdateBuilder测试用户");
         manager.setLoginName("updatebuilder_test");
         manager.setLoginPassword("initialPassword123");
-        manager.setStatus(1);
-        manager.setType(2);
+        manager.setStatus(SystemManagerStatus.NORMAL);
+        manager.setType(SystemManagerType.NORMAL_ACCOUNT);
 
         systemManagerService.save(manager);
         testUserId = manager.getId();

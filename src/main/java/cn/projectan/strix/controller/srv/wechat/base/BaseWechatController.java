@@ -1,4 +1,4 @@
-package cn.projectan.strix.controller.wechat.base;
+package cn.projectan.strix.controller.srv.wechat.base;
 
 import cn.projectan.strix.controller.BaseController;
 import cn.projectan.strix.model.db.system.SystemUser;
@@ -17,15 +17,15 @@ public class BaseWechatController extends BaseController {
      * 获取登录用户信息
      */
     protected SystemUser getLoginSystemUser() {
-        SystemUser systemUser = (SystemUser) SecurityUtils.getAuthentication().getPrincipal();
+        SystemUser systemUser = SecurityUtils.getSystemUser();
         Assert.notNull(systemUser, "获取登录信息失败");
         return systemUser;
     }
 
     /**
-     * 获取登录用户ID
+     * 获取登录用户 ID
      */
-    protected String getLoginWechatUserId() {
+    protected String getLoginSystemUserId() {
         return getLoginSystemUser().getId();
     }
 

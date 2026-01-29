@@ -1,4 +1,4 @@
-package cn.projectan.strix.controller.api.base;
+package cn.projectan.strix.controller.srv.base;
 
 import cn.projectan.strix.controller.BaseController;
 import cn.projectan.strix.model.db.system.SystemUser;
@@ -12,7 +12,7 @@ import org.springframework.util.Assert;
  * @author ProjectAn
  * @since 2023/4/6 13:43
  */
-public class BaseApiController extends BaseController {
+public class BaseSrvController extends BaseController {
 
     /**
      * 获取当前登录用户

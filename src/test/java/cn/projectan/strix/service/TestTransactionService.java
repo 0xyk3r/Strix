@@ -34,7 +34,7 @@ public class TestTransactionService extends ServiceImpl<OauthUserMapper, OauthUs
         oauthUser.setConfigId("1");
         oauthUser.setAppId("TEST_APP");
         oauthUser.setOpenId(openId);
-        oauthUser.setPlatform(OAuthPlatform.WECHAT);
+        oauthUser.setPlatform(OAuthPlatform.WECHAT_OA);
         proxy.save(oauthUser);
 
         log.info("使用 proxy.save() 保存数据后，准备抛出异常...");
@@ -50,7 +50,7 @@ public class TestTransactionService extends ServiceImpl<OauthUserMapper, OauthUs
         oauthUser.setConfigId("1");
         oauthUser.setAppId("TEST_APP");
         oauthUser.setOpenId(openId);
-        oauthUser.setPlatform(OAuthPlatform.WECHAT);
+        oauthUser.setPlatform(OAuthPlatform.WECHAT_OA);
         save(oauthUser);  // 直接调用，不使用 proxy
 
         log.info("直接使用 save() 保存数据后，准备抛出异常...");
@@ -68,7 +68,7 @@ public class TestTransactionService extends ServiceImpl<OauthUserMapper, OauthUs
         oauthUser.setConfigId("1");
         oauthUser.setAppId("TEST_APP");
         oauthUser.setOpenId(openId);
-        oauthUser.setPlatform(OAuthPlatform.WECHAT);
+        oauthUser.setPlatform(OAuthPlatform.WECHAT_OA);
         proxy.save(oauthUser);
 
         log.info("使用 proxy.save() 保存数据成功");
@@ -83,7 +83,7 @@ public class TestTransactionService extends ServiceImpl<OauthUserMapper, OauthUs
         oauthUser.setConfigId("1");
         oauthUser.setAppId("TEST_APP");
         oauthUser.setOpenId(openId);
-        oauthUser.setPlatform(OAuthPlatform.WECHAT);
+        oauthUser.setPlatform(OAuthPlatform.WECHAT_OA);
         save(oauthUser);  // 直接调用，不使用 proxy
 
         log.info("直接使用 save() 保存数据成功");

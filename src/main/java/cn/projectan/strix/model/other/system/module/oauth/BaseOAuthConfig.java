@@ -11,6 +11,8 @@ public class BaseOAuthConfig {
 
     private String id;
 
+    private String key;
+
     private String name;
 
     private Short platform;
