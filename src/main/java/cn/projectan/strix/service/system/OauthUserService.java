@@ -5,7 +5,7 @@ import cn.projectan.strix.model.db.system.OauthUser;
 import cn.projectan.strix.model.db.system.SystemUser;
 import cn.projectan.strix.model.db.system.SystemUserRelation;
 import cn.projectan.strix.model.other.system.module.oauth.BaseOAuthUserInfo;
-import cn.projectan.strix.util.common.SnowflakeUtil;
+import cn.projectan.strix.util.common.NicknameGenerator;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -75,7 +75,7 @@ public class OauthUserService extends ServiceImpl<OauthUserMapper, OauthUser> {
         oauthUser.setPlatform(platform);
         save(oauthUser);
 
-        SystemUser systemUser = systemUserService.createSystemUser("u" + SnowflakeUtil.nextSystemUserId(), null);
+        SystemUser systemUser = systemUserService.createSystemUser(NicknameGenerator.generateWithPaddedSuffix(), null);
         systemUserService.bindThirdUser(systemUser.getId(), platform, oauthUser.getId());
 
         return systemUser;
