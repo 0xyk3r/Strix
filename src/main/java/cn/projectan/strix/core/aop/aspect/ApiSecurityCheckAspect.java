@@ -24,6 +24,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.web.servlet.HandlerMapping;
 
 import java.lang.reflect.Parameter;
 import java.util.Map;
@@ -98,7 +99,9 @@ public class ApiSecurityCheckAspect {
             return RetBuilder.error(RetCode.BAT_REQUEST, I18nUtil.get("error.badRequest") + "1");
         }
 
-        String url = request.getRequestURI();
+        String url = (String) request.getAttribute(
+                HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE
+        );
         String timestamp = request.getHeader("timestamp");
         String sign = request.getHeader("sign");
         if (!StringUtils.hasText(sign) || !StringUtils.hasText(timestamp)) {
