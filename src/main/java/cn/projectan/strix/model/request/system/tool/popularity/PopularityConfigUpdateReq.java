@@ -28,12 +28,12 @@ public class PopularityConfigUpdateReq {
     @NotNull(groups = {InsertGroup.class, UpdateGroup.class}, message = " 初始值不可为空")
     @Min(groups = {InsertGroup.class, UpdateGroup.class}, value = 0, message = "初始值超出范围")
     @UpdateField
-    private Integer initialValue;
+    private Long initialValue;
 
     @NotNull(groups = {InsertGroup.class, UpdateGroup.class}, message = " 附加值不可为空")
     @Min(groups = {InsertGroup.class, UpdateGroup.class}, value = 0, message = "附加值超出范围")
     @UpdateField
-    private Integer extraValue;
+    private Long extraValue;
 
     @NotNull(groups = {InsertGroup.class, UpdateGroup.class}, message = " 倍率不可为空")
     @DecimalMin(groups = {InsertGroup.class, UpdateGroup.class}, value = "0.01", message = "倍率超出范围")

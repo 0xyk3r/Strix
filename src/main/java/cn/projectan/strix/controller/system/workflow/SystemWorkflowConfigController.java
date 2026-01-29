@@ -10,7 +10,7 @@ import cn.projectan.strix.model.annotation.StrixLog;
 import cn.projectan.strix.model.db.system.Workflow;
 import cn.projectan.strix.model.db.system.WorkflowConfig;
 import cn.projectan.strix.model.db.system.WorkflowInstance;
-import cn.projectan.strix.model.dict.system.SysLogOperType;
+import cn.projectan.strix.model.dict.system.SystemLogOperType;
 import cn.projectan.strix.model.request.system.workflow.WorkflowConfigUpdateReq;
 import cn.projectan.strix.model.request.system.workflow.WorkflowListReq;
 import cn.projectan.strix.model.request.system.workflow.WorkflowUpdateReq;
@@ -88,7 +88,7 @@ public class SystemWorkflowConfigController extends BaseSystemController {
      */
     @PostMapping("update")
     @PreAuthorize("@ss.hasPermission('system:workflow:config:add')")
-    @StrixLog(operationGroup = "工作流引擎", operationName = "新增工作流引擎", operationType = SysLogOperType.ADD)
+    @StrixLog(operationGroup = "工作流引擎", operationName = "新增工作流引擎", operationType = SystemLogOperType.ADD)
     public RetResult<Object> update(@RequestBody @Validated(InsertGroup.class) WorkflowUpdateReq req) {
         Workflow workflow = new Workflow();
         workflow.setName(req.getName());
@@ -105,7 +105,7 @@ public class SystemWorkflowConfigController extends BaseSystemController {
      */
     @PostMapping("update/{id}")
     @PreAuthorize("@ss.hasPermission('system:workflow:config:update')")
-    @StrixLog(operationGroup = "工作流引擎", operationName = "修改工作流引擎", operationType = SysLogOperType.UPDATE)
+    @StrixLog(operationGroup = "工作流引擎", operationName = "修改工作流引擎", operationType = SystemLogOperType.UPDATE)
     public RetResult<Object> update(@PathVariable String id, @RequestBody @Validated(UpdateGroup.class) WorkflowUpdateReq req) {
         Workflow workflow = workflowService.getById(id);
         Assert.notNull(workflow, "原记录不存在");
@@ -123,7 +123,7 @@ public class SystemWorkflowConfigController extends BaseSystemController {
      */
     @PostMapping("remove/{id}")
     @PreAuthorize("@ss.hasPermission('system:workflow:config:remove')")
-    @StrixLog(operationGroup = "工作流引擎", operationName = "删除工作流引擎", operationType = SysLogOperType.DELETE)
+    @StrixLog(operationGroup = "工作流引擎", operationName = "删除工作流引擎", operationType = SystemLogOperType.DELETE)
     public RetResult<Object> remove(@PathVariable String id) {
         workflowService.removeById(id);
         // 删除关联的配置信息、实例信息等
@@ -164,7 +164,7 @@ public class SystemWorkflowConfigController extends BaseSystemController {
      */
     @PostMapping("update/{id}/config")
     @PreAuthorize("@ss.hasPermission('system:workflow:config:update')")
-    @StrixLog(operationGroup = "工作流引擎", operationName = "添加工作流配置", operationType = SysLogOperType.ADD)
+    @StrixLog(operationGroup = "工作流引擎", operationName = "添加工作流配置", operationType = SystemLogOperType.ADD)
     public RetResult<Object> updateConfig(@PathVariable String id, @RequestBody @Validated(UpdateGroup.class) WorkflowConfigUpdateReq req) {
         workflowService.saveConfig(id, req.getContent());
         workflowConfigCache.refresh();

@@ -7,7 +7,7 @@ import cn.projectan.strix.core.module.oss.StrixOssClient;
 import cn.projectan.strix.core.module.oss.StrixOssStore;
 import cn.projectan.strix.mapper.system.OssConfigMapper;
 import cn.projectan.strix.model.db.system.OssConfig;
-import cn.projectan.strix.model.dict.system.StrixOssPlatform;
+import cn.projectan.strix.model.dict.system.OssPlatform;
 import cn.projectan.strix.model.response.common.CommonSelectDataResp;
 import cn.projectan.strix.task.system.StrixOssTask;
 import cn.projectan.strix.util.algo.KeyDiffUtil;
@@ -86,7 +86,7 @@ public class OssConfigService extends ServiceImpl<OssConfigMapper, OssConfig> {
             boolean success = true;
             try {
                 switch (ossConfig.getPlatform()) {
-                    case StrixOssPlatform.ALIYUN -> {
+                    case OssPlatform.ALIYUN -> {
                         S3Client publicClient = S3Client.builder()
                                 .endpointOverride(URI.create(ossConfig.getPublicEndpoint()))
                                 .credentialsProvider(
@@ -161,9 +161,9 @@ public class OssConfigService extends ServiceImpl<OssConfigMapper, OssConfig> {
                         Assert.notNull(privatePresigner, "Strix OSS: 初始化对象存储服务实例 <" + ossConfig.getKey() + "> 失败.");
                         strixOssStore.addInstance(ossConfig.getKey(), new AliyunOssClient(publicClient, publicPresigner, privateClient, privatePresigner));
                     }
-                    case StrixOssPlatform.TENCENT ->
+                    case OssPlatform.TENCENT ->
                             throw new StrixException("Strix OSS: 初始化对象存储服务实例 <" + ossConfig.getKey() + "> 失败. (暂不支持腾讯云对象存储服务)");
-                    case StrixOssPlatform.LOCAL ->
+                    case OssPlatform.LOCAL ->
                             strixOssStore.addInstance(ossConfig.getKey(), new LocalOssClient(ossConfig.getPublicEndpoint(), ossConfig.getPrivateEndpoint(), tempUrlUtil));
                     default ->
                             throw new StrixException("Strix OSS: 初始化对象存储服务实例 <" + ossConfig.getKey() + "> 失败. (暂不支持该对象存储服务平台)");

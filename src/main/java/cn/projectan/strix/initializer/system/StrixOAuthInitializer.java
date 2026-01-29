@@ -29,7 +29,7 @@ public class StrixOAuthInitializer implements ApplicationRunner {
     private final OauthConfigService oauthConfigService;
 
     @Override
-    public void run(ApplicationArguments args) throws Exception {
+    public void run(ApplicationArguments args) {
         List<OauthConfig> oauthConfigList = oauthConfigService.list();
         oauthConfigService.createInstance(oauthConfigList);
     }

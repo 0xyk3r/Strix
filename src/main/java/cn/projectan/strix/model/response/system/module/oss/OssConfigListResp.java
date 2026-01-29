@@ -38,7 +38,7 @@ public class OssConfigListResp extends BasePageResp {
 
         private String name;
 
-        private Integer platform;
+        private Short platform;
 
         private String region;
 

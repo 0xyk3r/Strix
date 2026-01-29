@@ -38,11 +38,15 @@ public class SystemRole extends BaseModel<SystemRole> {
 
     /**
      * 地区权限类型
+     *
+     * @see cn.projectan.strix.model.dict.system.SystemRoleRegionPermissionType
      */
-    private Byte regionPermissionType;
+    private Short regionPermissionType;
 
     /**
      * 是否系统内置角色
+     *
+     * @see cn.projectan.strix.model.dict.common.CommonFlag
      */
     private Short builtin;
 

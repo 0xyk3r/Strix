@@ -59,7 +59,7 @@ public class AlipayOAuthClient extends StrixOAuthClient {
     }
 
     @Override
-    public int getPlatform() {
+    public short getPlatform() {
         return config.getPlatform();
     }
 

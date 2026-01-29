@@ -4,8 +4,7 @@ import cn.projectan.strix.mapper.system.NotificationMapper;
 import cn.projectan.strix.mapper.system.NotificationReceiverMapper;
 import cn.projectan.strix.model.db.system.Notification;
 import cn.projectan.strix.model.db.system.NotificationReceiver;
-import cn.projectan.strix.model.dict.system.NotificationReadStatus;
-import cn.projectan.strix.model.dict.system.NotificationStatus;
+import cn.projectan.strix.model.dict.common.CommonFlag;
 import cn.projectan.strix.model.request.system.notification.ListNotificationReq;
 import cn.projectan.strix.model.response.system.notification.NotificationListResp;
 import cn.projectan.strix.util.system.SecurityUtils;
@@ -87,9 +86,9 @@ public class NotificationReceiverService extends ServiceImpl<NotificationReceive
         lambdaUpdate()
                 .eq(NotificationReceiver::getNotificationId, notificationId)
                 .eq(NotificationReceiver::getReceiverId, receiverId)
-                .eq(NotificationReceiver::getReadStatus, NotificationReadStatus.UNREAD)
-                .eq(NotificationReceiver::getValidStatus, NotificationStatus.VALID)
-                .set(NotificationReceiver::getReadStatus, NotificationReadStatus.READ)
+                .eq(NotificationReceiver::getReadStatus, CommonFlag.NO)
+                .eq(NotificationReceiver::getValidStatus, CommonFlag.YES)
+                .set(NotificationReceiver::getReadStatus, CommonFlag.YES)
                 .set(NotificationReceiver::getReadAt, LocalDateTime.now())
                 .update();
     }
@@ -104,9 +103,9 @@ public class NotificationReceiverService extends ServiceImpl<NotificationReceive
         // 更新为已读
         lambdaUpdate()
                 .eq(NotificationReceiver::getReceiverId, receiverId)
-                .eq(NotificationReceiver::getReadStatus, NotificationReadStatus.UNREAD)
-                .eq(NotificationReceiver::getValidStatus, NotificationStatus.VALID)
-                .set(NotificationReceiver::getReadStatus, NotificationReadStatus.READ)
+                .eq(NotificationReceiver::getReadStatus, CommonFlag.NO)
+                .eq(NotificationReceiver::getValidStatus, CommonFlag.YES)
+                .set(NotificationReceiver::getReadStatus, CommonFlag.YES)
                 .set(NotificationReceiver::getReadAt, LocalDateTime.now())
                 .update();
     }
@@ -122,8 +121,8 @@ public class NotificationReceiverService extends ServiceImpl<NotificationReceive
 
         return lambdaQuery()
                 .eq(NotificationReceiver::getReceiverId, receiverId)
-                .eq(NotificationReceiver::getReadStatus, NotificationReadStatus.UNREAD)
-                .eq(NotificationReceiver::getValidStatus, NotificationStatus.VALID)
+                .eq(NotificationReceiver::getReadStatus, CommonFlag.NO)
+                .eq(NotificationReceiver::getValidStatus, CommonFlag.YES)
                 .count();
     }
 

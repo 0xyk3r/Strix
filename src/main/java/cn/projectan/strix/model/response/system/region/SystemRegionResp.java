@@ -17,7 +17,7 @@ public class SystemRegionResp {
 
     private String name;
 
-    private Integer level;
+    private Short level;
 
     private String parentId;
 

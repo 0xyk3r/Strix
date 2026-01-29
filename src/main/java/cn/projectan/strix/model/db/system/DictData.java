@@ -53,7 +53,7 @@ public class DictData extends BaseModel<DictData> {
     /**
      * 字典排序值
      */
-    private Integer sort;
+    private Short sort;
 
     /**
      * 字典样式
@@ -62,8 +62,10 @@ public class DictData extends BaseModel<DictData> {
 
     /**
      * 字典状态
+     *
+     * @see cn.projectan.strix.model.dict.common.CommonSwitch
      */
-    private Integer status;
+    private Short status;
 
     /**
      * 字典备注

@@ -13,6 +13,6 @@ public class SystemUserListReq extends BasePageReq<SystemUser> {
 
     private String keyword;
 
-    private Integer status;
+    private Short status;
 
 }

@@ -30,12 +30,12 @@ public class SystemRoleMenu extends BaseModel<SystemRoleMenu> {
     private static final long serialVersionUID = 1L;
 
     /**
-     * 系统角色id
+     * 系统角色 ID
      */
     private String systemRoleId;
 
     /**
-     * 系统菜单id列表
+     * 系统菜单 ID
      */
     private String systemMenuId;
 

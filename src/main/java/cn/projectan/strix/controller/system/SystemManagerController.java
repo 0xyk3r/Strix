@@ -11,7 +11,7 @@ import cn.projectan.strix.model.annotation.StrixLog;
 import cn.projectan.strix.model.db.system.SystemManager;
 import cn.projectan.strix.model.db.system.SystemManagerRole;
 import cn.projectan.strix.model.dict.common.CommonFlag;
-import cn.projectan.strix.model.dict.system.SysLogOperType;
+import cn.projectan.strix.model.dict.system.SystemLogOperType;
 import cn.projectan.strix.model.dict.system.SystemManagerStatus;
 import cn.projectan.strix.model.dict.system.SystemManagerType;
 import cn.projectan.strix.model.enums.common.NumCategory;
@@ -123,7 +123,7 @@ public class SystemManagerController extends BaseSystemController {
      */
     @PostMapping("modify/{managerId}")
     @PreAuthorize("@ss.hasPermission('system:manager:update')")
-    @StrixLog(operationGroup = "系统人员", operationName = "更改人员信息", operationType = SysLogOperType.UPDATE)
+    @StrixLog(operationGroup = "系统人员", operationName = "更改人员信息", operationType = SystemLogOperType.UPDATE)
     public RetResult<Object> modifyField(@PathVariable String managerId, @RequestBody SingleFieldModifyReq req) {
         Assert.hasText(req.getField(), "参数错误");
         SystemManager systemManager = systemManagerService.getById(managerId);
@@ -138,12 +138,12 @@ public class SystemManagerController extends BaseSystemController {
 
         switch (req.getField()) {
             case "status" -> {
-                Assert.isTrue(SystemManagerStatus.valid(Integer.valueOf(req.getValue())), "参数错误");
+                Assert.isTrue(SystemManagerStatus.valid(Short.parseShort(req.getValue())), "参数错误");
                 systemManagerUpdateWrapper.set(SystemManager::getStatus, req.getValue());
                 Assert.isTrue(systemManagerService.update(systemManagerUpdateWrapper), "修改失败");
             }
             case "type" -> {
-                Assert.isTrue(SystemManagerType.valid(Integer.parseInt(req.getValue())), "参数错误");
+                Assert.isTrue(SystemManagerType.valid(Short.parseShort(req.getValue())), "参数错误");
                 systemManagerUpdateWrapper.set(SystemManager::getType, req.getValue());
                 Assert.isTrue(systemManagerService.update(systemManagerUpdateWrapper), "修改失败");
             }
@@ -190,7 +190,7 @@ public class SystemManagerController extends BaseSystemController {
      */
     @PostMapping("update")
     @PreAuthorize("@ss.hasPermission('system:manager:add')")
-    @StrixLog(operationGroup = "系统人员", operationName = "新增人员", operationType = SysLogOperType.ADD)
+    @StrixLog(operationGroup = "系统人员", operationName = "新增人员", operationType = SystemLogOperType.ADD)
     public RetResult<Object> update(@RequestBody @Validated(InsertGroup.class) SystemManagerUpdateReq req) {
         Assert.notNull(req, "参数错误");
         checkLoginManagerRegionPermission(req.getRegionId());
@@ -217,7 +217,7 @@ public class SystemManagerController extends BaseSystemController {
      */
     @PostMapping("update/{managerId}")
     @PreAuthorize("@ss.hasPermission('system:manager:update')")
-    @StrixLog(operationGroup = "系统人员", operationName = "修改人员", operationType = SysLogOperType.UPDATE)
+    @StrixLog(operationGroup = "系统人员", operationName = "修改人员", operationType = SystemLogOperType.UPDATE)
     public RetResult<Object> update(@PathVariable String managerId, @RequestBody @Validated(UpdateGroup.class) SystemManagerUpdateReq req) {
         Assert.notNull(req, "参数错误");
         SystemManager systemManager = systemManagerService.getById(managerId);
@@ -239,7 +239,7 @@ public class SystemManagerController extends BaseSystemController {
      */
     @PostMapping("remove/{managerId}")
     @PreAuthorize("@ss.hasPermission('system:manager:remove')")
-    @StrixLog(operationGroup = "系统人员", operationName = "删除人员", operationType = SysLogOperType.DELETE)
+    @StrixLog(operationGroup = "系统人员", operationName = "删除人员", operationType = SystemLogOperType.DELETE)
     public RetResult<Object> remove(@PathVariable String managerId) {
         SystemManager systemManager = systemManagerService.getById(managerId);
         Assert.notNull(systemManager, "系统人员信息不存在");

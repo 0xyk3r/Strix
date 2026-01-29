@@ -52,9 +52,11 @@ public class OauthPush extends BaseModel<OauthPush> {
 
     /**
      * 推送状态 1待推送 2推送成功 3推送失败
+     *
+     * @see cn.projectan.strix.model.dict.system.OAuthPushStatus
      */
     @TableField("`status`")
-    private Byte status;
+    private Short status;
 
     /**
      * 第三方服务返回结果

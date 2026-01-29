@@ -112,10 +112,9 @@ public class JobService extends ServiceImpl<JobMapper, Job> {
      */
     @Transactional(rollbackFor = Exception.class)
     public void changeStatus(Job job) throws SchedulerException {
-        Integer status = job.getStatus();
-        if (status == JobStatus.PAUSE) {
+        if (job.getStatus() == JobStatus.PAUSE) {
             Assert.isTrue(resumeJob(job), "切换任务状态失败");
-        } else if (status == JobStatus.NORMAL) {
+        } else if (job.getStatus() == JobStatus.NORMAL) {
             Assert.isTrue(pauseJob(job), "切换任务状态失败");
         }
     }

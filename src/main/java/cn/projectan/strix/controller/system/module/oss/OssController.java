@@ -11,7 +11,7 @@ import cn.projectan.strix.model.db.system.OssBucket;
 import cn.projectan.strix.model.db.system.OssConfig;
 import cn.projectan.strix.model.db.system.OssFile;
 import cn.projectan.strix.model.db.system.OssFileGroup;
-import cn.projectan.strix.model.dict.system.SysLogOperType;
+import cn.projectan.strix.model.dict.system.SystemLogOperType;
 import cn.projectan.strix.model.request.system.module.oss.OssConfigListReq;
 import cn.projectan.strix.model.request.system.module.oss.OssConfigUpdateReq;
 import cn.projectan.strix.model.request.system.module.oss.OssFileListReq;
@@ -112,7 +112,7 @@ public class OssController extends BaseSystemController {
      */
     @PostMapping("update")
     @PreAuthorize("@ss.hasPermission('system:module:oss:config:add')")
-    @StrixLog(operationGroup = "系统存储", operationName = "新增存储配置", operationType = SysLogOperType.ADD)
+    @StrixLog(operationGroup = "系统存储", operationName = "新增存储配置", operationType = SystemLogOperType.ADD)
     public RetResult<Object> update(@RequestBody @Validated(InsertGroup.class) OssConfigUpdateReq req) {
         OssConfig ossConfig = new OssConfig(
                 req.getKey(),
@@ -141,7 +141,7 @@ public class OssController extends BaseSystemController {
      */
     @PostMapping("update/{id}")
     @PreAuthorize("@ss.hasPermission('system:module:oss:config:update')")
-    @StrixLog(operationGroup = "系统存储", operationName = "修改存储配置", operationType = SysLogOperType.UPDATE)
+    @StrixLog(operationGroup = "系统存储", operationName = "修改存储配置", operationType = SystemLogOperType.UPDATE)
     public RetResult<Object> update(@PathVariable String id, @RequestBody @Validated(UpdateGroup.class) OssConfigUpdateReq req) {
         OssConfig ossConfig = ossConfigService.getById(id);
         Assert.notNull(ossConfig, "原记录不存在");
@@ -163,7 +163,7 @@ public class OssController extends BaseSystemController {
      */
     @PostMapping("remove/{id}")
     @PreAuthorize("@ss.hasPermission('system:module:oss:config:remove')")
-    @StrixLog(operationGroup = "系统存储", operationName = "删除存储配置", operationType = SysLogOperType.DELETE)
+    @StrixLog(operationGroup = "系统存储", operationName = "删除存储配置", operationType = SystemLogOperType.DELETE)
     public RetResult<Object> remove(@PathVariable String id) {
         OssConfig ossConfig = ossConfigService.getById(id);
         Assert.notNull(ossConfig, "原记录不存在");
@@ -211,7 +211,7 @@ public class OssController extends BaseSystemController {
      */
     @PostMapping("file/remove/{id}")
     @PreAuthorize("@ss.hasPermission('system:module:oss:file:remove')")
-    @StrixLog(operationGroup = "系统存储", operationName = "删除存储文件", operationType = SysLogOperType.DELETE)
+    @StrixLog(operationGroup = "系统存储", operationName = "删除存储文件", operationType = SystemLogOperType.DELETE)
     public RetResult<Object> removeFile(@PathVariable String id) {
         ossFileService.delete(id);
         return RetBuilder.success();

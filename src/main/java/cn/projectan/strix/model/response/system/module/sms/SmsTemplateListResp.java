@@ -42,9 +42,9 @@ public class SmsTemplateListResp extends BasePageResp {
 
         private String name;
 
-        private Integer type;
+        private Short type;
 
-        private Integer status;
+        private Short status;
 
         private String content;
 

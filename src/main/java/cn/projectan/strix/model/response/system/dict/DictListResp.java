@@ -40,15 +40,15 @@ public class DictListResp extends BasePageResp {
 
         private String name;
 
-        private Integer dataType;
+        private Short dataType;
 
-        private Integer status;
+        private Short status;
 
         private String remark;
 
         private Integer version;
 
-        private Integer provided;
+        private Short provided;
 
         private LocalDateTime createdTime;
 

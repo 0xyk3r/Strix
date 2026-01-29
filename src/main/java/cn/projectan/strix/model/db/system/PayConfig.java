@@ -35,9 +35,11 @@ public class PayConfig extends BaseModel<PayConfig> {
     private String name;
 
     /**
-     * 1微信支付 2支付宝 3QQ钱包 4银联 5京东 6PayPal
+     * 支付平台 1微信支付 2支付宝 3QQ钱包 4银联 5京东 6PayPal
+     *
+     * @see cn.projectan.strix.model.dict.system.PayPlatform
      */
-    private Integer platform;
+    private Short platform;
 
     /**
      * 序列化后的配置信息

@@ -13,17 +13,17 @@ public class PayType implements BaseDict {
 
     @DictData(label = "移动端网页", sort = 1, style = DictDataStyle.SUCCESS)
     public static final
-    int WAP = 1;
+    short WAP = 1;
 
     @DictData(label = "PC端网页", sort = 2, style = DictDataStyle.INFO)
     public static final
-    int WEB = 2;
+    short WEB = 2;
 
     @DictData(label = "APP端", sort = 3, style = DictDataStyle.ERROR)
     public static final
-    int APP = 3;
+    short APP = 3;
 
-    public static boolean valid(int value) {
+    public static boolean valid(short value) {
         return value == WAP || value == WEB || value == APP;
     }
 

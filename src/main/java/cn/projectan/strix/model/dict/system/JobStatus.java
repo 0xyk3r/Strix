@@ -13,13 +13,13 @@ public class JobStatus implements BaseDict {
 
     @DictData(label = "正常", sort = 1, style = DictDataStyle.SUCCESS)
     public static final
-    int NORMAL = 1;
+    short NORMAL = 1;
 
     @DictData(label = "暂停", sort = 2, style = DictDataStyle.WARNING)
     public static final
-    int PAUSE = 2;
+    short PAUSE = 2;
 
-    public static boolean valid(int value) {
+    public static boolean valid(short value) {
         return value == NORMAL || value == PAUSE;
     }
 

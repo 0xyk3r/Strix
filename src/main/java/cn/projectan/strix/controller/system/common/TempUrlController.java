@@ -42,7 +42,7 @@ public class TempUrlController extends BaseSystemController {
     @Anonymous
     @IgnoreEncryption
     @GetMapping("file/{key}")
-    public void file(@PathVariable String key, HttpServletResponse response) throws Exception {
+    public void file(@PathVariable String key, HttpServletResponse response) {
         String tempFilePath = tempUrlUtil.get(key);
         File file = new File(tempFilePath);
         Assert.isTrue(file.exists(), "文件不存在");

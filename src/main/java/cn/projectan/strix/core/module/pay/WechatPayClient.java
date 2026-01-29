@@ -78,7 +78,7 @@ public class WechatPayClient extends StrixPayClient {
     }
 
     @Override
-    public int getPlatform() {
+    public short getPlatform() {
         return PayPlatform.WX_PAY;
     }
 
@@ -96,7 +96,7 @@ public class WechatPayClient extends StrixPayClient {
                     .setTime_expire(expireTime)
                     .setAttach(payOrder.getAttach())
                     .setNotify_url(config.getCallbackUrl())
-                    .setAmount(new Amount().setTotal(payOrder.getTotalAmount()))
+                    .setAmount(new Amount().setTotal(Math.toIntExact(payOrder.getTotalAmount())))
                     .setPayer(new Payer().setOpenid(pd.getOpenId()));
 
             IJPayHttpResponse response = WxPayApi.v3(
@@ -139,7 +139,7 @@ public class WechatPayClient extends StrixPayClient {
                     .setTime_expire(expireTime)
                     .setAttach(payOrder.getAttach())
                     .setNotify_url(config.getCallbackUrl())
-                    .setAmount(new Amount().setTotal(payOrder.getTotalAmount()));
+                    .setAmount(new Amount().setTotal(Math.toIntExact(payOrder.getTotalAmount())));
 
             IJPayHttpResponse response = WxPayApi.v3(
                     RequestMethodEnum.POST,
@@ -208,7 +208,7 @@ public class WechatPayClient extends StrixPayClient {
             });
             // 注意: 这里使用的是 `total` 参数，而不是 `payer_total` 参数
             // 因为 `payer_total` 参数是用户实际支付的金额，在用户使用某些优惠时可能导致实际支付金额与订单金额不一致
-            result.setTotalAmount(MapUtil.getInt(amountMap, "total"));
+            result.setTotalAmount(MapUtil.getLong(amountMap, "total"));
             Map<String, Object> payerMap = MapUtil.get(params, "payer", new cn.hutool.core.lang.TypeReference<>() {
             });
             result.setPlatformUserId(MapUtil.getStr(payerMap, "openid"));
@@ -330,7 +330,7 @@ public class WechatPayClient extends StrixPayClient {
             boolean verifySignature = WxPayKit.verifySignature(response, config.getV3PlatformCertPath());
             System.out.println("verifySignature:" + verifySignature + "\nbody:" + body);
 
-            //TODO 解析body 判断是否有证书更新 并调用savePlatformCert方法存储最新文件
+            // TODO 解析 body 判断是否有证书更新 并调用 savePlatformCert 方法存储最新文件
         } catch (Exception e) {
             log.error("获取微信支付平台证书时发生异常", e);
         }

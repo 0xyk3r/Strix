@@ -52,6 +52,8 @@ public class Notification extends BaseModel<Notification> {
 
     /**
      * 跳转类型 (PAGE / URL / NONE)
+     *
+     * @see cn.projectan.strix.model.dict.system.NotificationJumpType
      */
     private String jumpType;
 
@@ -71,7 +73,9 @@ public class Notification extends BaseModel<Notification> {
     private String senderId;
 
     /**
-     * 通知状态 (1有效 2已终止)
+     * 通知状态 (0无效 1有效)
+     *
+     * @see cn.projectan.strix.model.dict.common.CommonFlag
      */
     @TableField("`status`")
     private Short status;

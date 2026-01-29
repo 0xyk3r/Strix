@@ -13,13 +13,13 @@ public class OAuthPlatform implements BaseDict {
 
     @DictData(label = "微信", sort = 1, style = DictDataStyle.SUCCESS)
     public static final
-    int WECHAT = 1;
+    short WECHAT = 1;
 
     @DictData(label = "支付宝", sort = 2, style = DictDataStyle.INFO)
     public static final
-    int ALIPAY = 2;
+    short ALIPAY = 2;
 
-    public static boolean valid(int value) {
+    public static boolean valid(short value) {
         return value == WECHAT || value == ALIPAY;
     }
 

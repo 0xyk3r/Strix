@@ -13,7 +13,7 @@ public class SmsLogListReq extends BasePageReq<SmsLog> {
 
     private String keyword;
 
-    private Integer status;
+    private Short status;
 
     private String configKey;
 

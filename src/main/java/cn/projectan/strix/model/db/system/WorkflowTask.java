@@ -62,8 +62,10 @@ public class WorkflowTask extends BaseModel<WorkflowTask> {
 
     /**
      * 操作类型
+     *
+     * @see cn.projectan.strix.model.dict.system.WorkflowOperationType
      */
-    private Byte operationType;
+    private Short operationType;
 
     /**
      * 任务开始时间

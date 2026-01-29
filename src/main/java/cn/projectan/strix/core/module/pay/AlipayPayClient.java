@@ -73,7 +73,7 @@ public class AlipayPayClient extends StrixPayClient {
     }
 
     @Override
-    public int getPlatform() {
+    public short getPlatform() {
         return PayPlatform.ALI_PAY;
     }
 
@@ -150,7 +150,7 @@ public class AlipayPayClient extends StrixPayClient {
         result.setSuccess("TRADE_SUCCESS".equals(MapUtil.getStr(params, "trade_status")));
         result.setOrderId(MapUtil.getStr(params, "out_trade_no"));
         result.setPlatformOrderNo(MapUtil.getStr(params, "trade_no"));
-        result.setTotalAmount((int) (MapUtil.getDouble(params, "total_amount") * 100));
+        result.setTotalAmount((long) (MapUtil.getDouble(params, "total_amount") * 100));
         result.setPlatformUserId(MapUtil.getStr(params, "buyer_id"));
         result.setAttach(MapUtil.getStr(params, "passback_params"));
         try {

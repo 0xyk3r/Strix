@@ -32,12 +32,12 @@ public class DictUpdateReq {
 
     @NotNull(groups = {InsertGroup.class, UpdateGroup.class}, message = "字典数据类型不可为空")
     @UpdateField
-    private Integer dataType;
+    private Short dataType;
 
     @NotNull(groups = {InsertGroup.class, UpdateGroup.class}, message = "字典状态不可为空")
     @DynamicDictValue(groups = {InsertGroup.class, UpdateGroup.class}, dictName = "DictStatus", message = "字典状态不合法")
     @UpdateField
-    private Integer status;
+    private Short status;
 
     @Size(groups = {InsertGroup.class, UpdateGroup.class}, max = 255, message = "字典备注长度不符合要求")
     @UpdateField(allowEmpty = true)

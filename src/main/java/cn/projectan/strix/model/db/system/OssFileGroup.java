@@ -72,12 +72,12 @@ public class OssFileGroup extends BaseModel<OssFileGroup> {
     /**
      * 查看权限类型 1管理端文件 2用户端文件
      */
-    private Integer secretType;
+    private Short secretType;
 
     /**
      * 查看权限等级 越大等级越高
      */
-    private Integer secretLevel;
+    private Short secretLevel;
 
     /**
      * 备注

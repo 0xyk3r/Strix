@@ -46,12 +46,12 @@ public class PopularityConfig extends BaseModel<PopularityConfig> {
     /**
      * 初始的数值（参与乘算）
      */
-    private Integer initialValue;
+    private Long initialValue;
 
     /**
      * 附加的额外数值（不参与乘算）
      */
-    private Integer extraValue;
+    private Long extraValue;
 
     /**
      * 数值倍率

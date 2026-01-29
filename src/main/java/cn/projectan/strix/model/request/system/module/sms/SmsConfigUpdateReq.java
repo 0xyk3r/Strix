@@ -4,7 +4,6 @@ import cn.projectan.strix.core.validation.annotation.DynamicDictValue;
 import cn.projectan.strix.core.validation.group.InsertGroup;
 import cn.projectan.strix.core.validation.group.UpdateGroup;
 import cn.projectan.strix.model.annotation.UpdateField;
-import cn.projectan.strix.model.dict.system.StrixSmsPlatform;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -36,12 +35,12 @@ public class SmsConfigUpdateReq {
     /**
      * 短信服务平台
      *
-     * @see StrixSmsPlatform
+     * @see cn.projectan.strix.model.dict.system.SmsPlatform
      */
     @NotNull(groups = {InsertGroup.class, UpdateGroup.class}, message = "短信服务平台不可为空")
-    @DynamicDictValue(groups = {InsertGroup.class, UpdateGroup.class}, dictName = "StrixSmsPlatform", message = "短信服务平台不合法")
+    @DynamicDictValue(groups = {InsertGroup.class, UpdateGroup.class}, dictName = "SmsPlatform", message = "短信服务平台不合法")
     @UpdateField
-    private Integer platform;
+    private Short platform;
 
     /**
      * 短信服务地区ID

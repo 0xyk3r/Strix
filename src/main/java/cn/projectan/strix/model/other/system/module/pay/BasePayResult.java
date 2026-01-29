@@ -17,7 +17,7 @@ public class BasePayResult {
 
     private String platformOrderNo;
 
-    private Integer totalAmount;
+    private Long totalAmount;
 
     private String platformUserId;
 

@@ -18,7 +18,7 @@ public class SystemUserResp {
 
     private String nickname;
 
-    private Integer status;
+    private Short status;
 
     private String phoneNumber;
 

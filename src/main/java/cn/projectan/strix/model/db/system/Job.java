@@ -2,9 +2,6 @@ package cn.projectan.strix.model.db.system;
 
 import cn.projectan.strix.model.annotation.UniqueField;
 import cn.projectan.strix.model.db.base.BaseModel;
-import cn.projectan.strix.model.dict.common.CommonSwitch;
-import cn.projectan.strix.model.dict.system.JobMisfire;
-import cn.projectan.strix.model.dict.system.JobStatus;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
@@ -60,24 +57,24 @@ public class Job extends BaseModel<Job> {
     /**
      * 计划执行错误策略
      *
-     * @see JobMisfire
+     * @see cn.projectan.strix.model.dict.system.JobMisfire
      */
-    private Integer misfirePolicy;
+    private Short misfirePolicy;
 
     /**
      * 是否并发执行
      *
-     * @see CommonSwitch
+     * @see cn.projectan.strix.model.dict.common.CommonSwitch
      */
     @TableField("`concurrent`")
-    private Integer concurrent;
+    private Short concurrent;
 
     /**
      * 状态
      *
-     * @see JobStatus
+     * @see cn.projectan.strix.model.dict.system.JobStatus
      */
     @TableField("`status`")
-    private Integer status;
+    private Short status;
 
 }

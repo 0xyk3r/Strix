@@ -48,9 +48,9 @@ public class OssFileGroupListResp extends BasePageResp {
 
         private String allowExtension;
 
-        private Integer secretType;
+        private Short secretType;
 
-        private Integer secretLevel;
+        private Short secretLevel;
 
         private String remark;
 

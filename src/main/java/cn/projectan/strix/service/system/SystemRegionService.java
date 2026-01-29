@@ -170,7 +170,7 @@ public class SystemRegionService extends ServiceImpl<SystemRegionMapper, SystemR
             newParentRegion = new SystemRegion();
             newParentRegion.setFullPath(PATH_SEPARATOR);
             newParentRegion.setFullName("");
-            newParentRegion.setLevel(0);
+            newParentRegion.setLevel((short) 0);
         } else {
             Assert.notNull(newParentRegion, "父级系统地区信息不存在");
         }
@@ -183,14 +183,14 @@ public class SystemRegionService extends ServiceImpl<SystemRegionMapper, SystemR
         String newCurrRegionName = StringUtils.hasText(newParentRegion.getFullName())
                 ? newParentRegion.getFullName() + NAME_SEPARATOR + systemRegion.getName()
                 : systemRegion.getName();
-        Integer oldLevel = (int) (oldFullPath.chars().filter(c -> c == ',').count() - 1);
-        Integer newLevelOffset = newParentRegion.getLevel() - oldLevel + 1;
+        short oldLevel = (short) (oldFullPath.chars().filter(c -> c == ',').count() - 1);
+        short newLevelOffset = (short) (newParentRegion.getLevel() - oldLevel + 1);
 
         // 遍历修改子节点（包括当前）
         for (SystemRegion r : relevantRegions) {
             r.setFullPath(r.getFullPath().replaceFirst(java.util.regex.Pattern.quote(oldFullPath), newCurrRegionPath));
             r.setFullName(r.getFullName().replaceFirst(java.util.regex.Pattern.quote(oldFullName), newCurrRegionName));
-            r.setLevel(r.getLevel() + newLevelOffset);
+            r.setLevel((short) (r.getLevel() + newLevelOffset));
             // 如果是当前节点，还需要更新 parentId
             if (r.getId().equals(systemRegion.getId())) {
                 r.setParentId(newParentId);
@@ -201,7 +201,7 @@ public class SystemRegionService extends ServiceImpl<SystemRegionMapper, SystemR
         systemRegion.setParentId(newParentId);
         systemRegion.setFullPath(newCurrRegionPath);
         systemRegion.setFullName(newCurrRegionName);
-        systemRegion.setLevel(newParentRegion.getLevel() + 1);
+        systemRegion.setLevel((short) (newParentRegion.getLevel() + 1));
 
         // 批量保存
         Assert.isTrue(updateBatchById(relevantRegions), "保存系统地区相关信息失败");

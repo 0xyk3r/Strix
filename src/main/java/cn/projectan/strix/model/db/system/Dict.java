@@ -2,8 +2,6 @@ package cn.projectan.strix.model.db.system;
 
 import cn.projectan.strix.model.annotation.UniqueField;
 import cn.projectan.strix.model.db.base.BaseModel;
-import cn.projectan.strix.model.dict.system.DictProvided;
-import cn.projectan.strix.model.dict.system.DictStatus;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
@@ -49,15 +47,17 @@ public class Dict extends BaseModel<Dict> {
 
     /**
      * 字典数据类型
+     *
+     * @see cn.projectan.strix.model.dict.system.DictDataType
      */
-    private Integer dataType;
+    private Short dataType;
 
     /**
      * 字典状态
      *
-     * @see DictStatus
+     * @see cn.projectan.strix.model.dict.common.CommonSwitch
      */
-    private Integer status;
+    private Short status;
 
     /**
      * 字典备注
@@ -70,10 +70,10 @@ public class Dict extends BaseModel<Dict> {
     private Integer version;
 
     /**
-     * 数据删除状态 0正常 1删除
+     * 是否系统内置 0否 1是
      *
-     * @see DictProvided
+     * @see cn.projectan.strix.model.dict.common.CommonFlag
      */
-    private Integer provided;
+    private Short provided;
 
 }

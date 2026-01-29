@@ -8,8 +8,8 @@ import cn.projectan.strix.core.validation.group.UpdateGroup;
 import cn.projectan.strix.model.annotation.StrixLog;
 import cn.projectan.strix.model.db.system.Dict;
 import cn.projectan.strix.model.db.system.DictData;
-import cn.projectan.strix.model.dict.system.DictProvided;
-import cn.projectan.strix.model.dict.system.SysLogOperType;
+import cn.projectan.strix.model.dict.common.CommonFlag;
+import cn.projectan.strix.model.dict.system.SystemLogOperType;
 import cn.projectan.strix.model.enums.common.NumCategory;
 import cn.projectan.strix.model.request.system.dict.DictDataListReq;
 import cn.projectan.strix.model.request.system.dict.DictDataUpdateReq;
@@ -58,8 +58,8 @@ public class SystemDictController extends BaseSystemController {
         Page<Dict> page = dictService.lambdaQuery()
                 .like(StringUtils.hasText(req.getKeyword()), Dict::getKey, req.getKeyword())
                 .or(StringUtils.hasText(req.getKeyword()), q -> q.like(Dict::getName, req.getKeyword()))
-                .eq(NumUtil.checkCategory(req.getStatus(), NumCategory.POSITIVE), Dict::getStatus, req.getStatus())
-                .eq(NumUtil.checkCategory(req.getProvided(), NumCategory.POSITIVE), Dict::getProvided, req.getProvided())
+                .eq(NumUtil.checkCategory(req.getStatus(), NumCategory.NON_NEGATIVE), Dict::getStatus, req.getStatus())
+                .eq(NumUtil.checkCategory(req.getProvided(), NumCategory.NON_NEGATIVE), Dict::getProvided, req.getProvided())
                 .page(req.getPage());
 
         return RetBuilder.success(
@@ -101,7 +101,7 @@ public class SystemDictController extends BaseSystemController {
      */
     @PostMapping("update")
     @PreAuthorize("@ss.hasPermission('system:dict:add')")
-    @StrixLog(operationGroup = "系统字典", operationName = "新增字典", operationType = SysLogOperType.ADD)
+    @StrixLog(operationGroup = "系统字典", operationName = "新增字典", operationType = SystemLogOperType.ADD)
     public RetResult<Object> update(@RequestBody @Validated(InsertGroup.class) DictUpdateReq req) {
         Dict dict = new Dict(
                 req.getKey(),
@@ -110,7 +110,7 @@ public class SystemDictController extends BaseSystemController {
                 req.getStatus(),
                 req.getRemark(),
                 0,
-                DictProvided.NO
+                CommonFlag.NO
         );
 
         dictService.saveDict(dict);
@@ -123,7 +123,7 @@ public class SystemDictController extends BaseSystemController {
      */
     @PostMapping("update/{id}")
     @PreAuthorize("@ss.hasPermission('system:dict:update')")
-    @StrixLog(operationGroup = "系统字典", operationName = "修改字典", operationType = SysLogOperType.UPDATE)
+    @StrixLog(operationGroup = "系统字典", operationName = "修改字典", operationType = SystemLogOperType.UPDATE)
     public RetResult<Object> update(@PathVariable String id, @RequestBody @Validated(UpdateGroup.class) DictUpdateReq req) {
         Dict dict = dictService.getById(id);
         Assert.notNull(dict, "原数据不存在");
@@ -138,7 +138,7 @@ public class SystemDictController extends BaseSystemController {
      */
     @PostMapping("remove/{id}")
     @PreAuthorize("@ss.hasPermission('system:dict:remove')")
-    @StrixLog(operationGroup = "系统字典", operationName = "删除字典", operationType = SysLogOperType.DELETE)
+    @StrixLog(operationGroup = "系统字典", operationName = "删除字典", operationType = SystemLogOperType.DELETE)
     public RetResult<Object> remove(@PathVariable String id) {
         Assert.hasText(id, "参数错误");
 
@@ -161,7 +161,7 @@ public class SystemDictController extends BaseSystemController {
                 .eq(DictData::getKey, key)
                 .like(StringUtils.hasText(req.getKeyword()), DictData::getValue, req.getKeyword())
                 .or(StringUtils.hasText(req.getKeyword()), q -> q.like(DictData::getLabel, req.getKeyword()))
-                .eq(NumUtil.checkCategory(req.getStatus(), NumCategory.POSITIVE), DictData::getStatus, req.getStatus())
+                .eq(NumUtil.checkCategory(req.getStatus(), NumCategory.NON_NEGATIVE), DictData::getStatus, req.getStatus())
                 .orderByAsc(DictData::getSort)
                 .page(req.getPage());
 
@@ -199,7 +199,7 @@ public class SystemDictController extends BaseSystemController {
      */
     @PostMapping("data/{key}/update")
     @PreAuthorize("@ss.hasPermission('system:dict:data:add')")
-    @StrixLog(operationGroup = "系统字典", operationName = "新增字典数据", operationType = SysLogOperType.ADD)
+    @StrixLog(operationGroup = "系统字典", operationName = "新增字典数据", operationType = SystemLogOperType.ADD)
     public RetResult<Object> updateDictData(@RequestBody @Validated(InsertGroup.class) DictDataUpdateReq req) {
         DictData dictData = new DictData(
                 req.getKey(),
@@ -221,7 +221,7 @@ public class SystemDictController extends BaseSystemController {
      */
     @PostMapping("data/{key}/update/{id}")
     @PreAuthorize("@ss.hasPermission('system:dict:data:update')")
-    @StrixLog(operationGroup = "系统字典", operationName = "修改字典数据", operationType = SysLogOperType.UPDATE)
+    @StrixLog(operationGroup = "系统字典", operationName = "修改字典数据", operationType = SystemLogOperType.UPDATE)
     public RetResult<Object> updateDictData(@PathVariable String id, @RequestBody @Validated(UpdateGroup.class) DictDataUpdateReq req) {
         DictData dictData = dictDataService.getById(id);
         Assert.notNull(dictData, "原数据不存在");
@@ -236,7 +236,7 @@ public class SystemDictController extends BaseSystemController {
      */
     @PostMapping("data/{key}/remove/{id}")
     @PreAuthorize("@ss.hasPermission('system:dict:data:remove')")
-    @StrixLog(operationGroup = "系统字典", operationName = "删除字典数据", operationType = SysLogOperType.DELETE)
+    @StrixLog(operationGroup = "系统字典", operationName = "删除字典数据", operationType = SystemLogOperType.DELETE)
     public RetResult<Object> removeDictData(@PathVariable String id) {
         Assert.hasText(id, "参数错误");
 

@@ -377,10 +377,6 @@ public class AliyunOssClient implements StrixOssClient {
                 return Optional.ofNullable(buckets).orElse(Collections.emptyList()).stream().map(b ->
                         new StrixOssBucket(
                                 b.name(),
-                                null, // S3 API doesn't return extranet endpoint in list operation
-                                null, // S3 API doesn't return intranet endpoint in list operation
-                                null, // S3 API doesn't return region in list operation
-                                null, // S3 API doesn't return storage class in list operation
                                 b.creationDate().atZone(ZoneId.systemDefault()).toLocalDateTime()
                         )).collect(Collectors.toList());
             } catch (Exception e) {
@@ -390,12 +386,10 @@ public class AliyunOssClient implements StrixOssClient {
         }
 
         @Override
-        public void createBucket(String bucketName, String storageClass) {
+        public void createBucket(String bucketName) {
             try {
                 CreateBucketRequest.Builder builder = CreateBucketRequest.builder()
                         .bucket(bucketName);
-                // Note: Storage class for bucket is not set at bucket creation in S3
-                // It's set at object level or through lifecycle policies
                 client.createBucket(builder.build());
             } catch (BucketAlreadyExistsException | BucketAlreadyOwnedByYouException e) {
                 log.error(e.getMessage(), e);

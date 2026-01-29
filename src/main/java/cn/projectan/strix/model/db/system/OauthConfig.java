@@ -38,8 +38,10 @@ public class OauthConfig extends BaseModel<OauthConfig> {
 
     /**
      * OAuth 服务平台
+     *
+     * @see cn.projectan.strix.model.dict.system.OAuthPlatform
      */
-    private Integer platform;
+    private Short platform;
 
     /**
      * 序列化后的配置信息

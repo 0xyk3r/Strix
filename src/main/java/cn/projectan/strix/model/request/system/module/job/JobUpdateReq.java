@@ -36,14 +36,14 @@ public class JobUpdateReq {
 
     @NotNull(groups = {InsertGroup.class, UpdateGroup.class}, message = "计划错误策略不可为空")
     @UpdateField
-    private Integer misfirePolicy;
+    private Short misfirePolicy;
 
     @NotNull(groups = {InsertGroup.class, UpdateGroup.class}, message = "是否并发执行不可为空")
     @UpdateField
-    private Integer concurrent;
+    private Short concurrent;
 
     @NotNull(groups = {InsertGroup.class, UpdateGroup.class}, message = "任务状态不可为空")
     @UpdateField
-    private Integer status;
+    private Short status;
 
 }

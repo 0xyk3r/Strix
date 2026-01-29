@@ -22,7 +22,7 @@ public class SmsConfigResp {
 
     private String name;
 
-    private Integer platform;
+    private Short platform;
 
     private String regionId;
 

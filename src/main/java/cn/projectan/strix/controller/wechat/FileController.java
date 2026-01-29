@@ -44,7 +44,7 @@ public class FileController extends BaseWechatController {
     @GetMapping("{fileId}")
     public void getImage(@PathVariable String fileId, HttpServletResponse response) throws Exception {
         response.setContentType("image/jpeg");
-        // TODO 增加权限验证?
+        // 注意权限验证
         response.sendRedirect(ossFileService.getUrl(fileId, "https://oss.huiboche.cn/System/404.png"));
     }
 

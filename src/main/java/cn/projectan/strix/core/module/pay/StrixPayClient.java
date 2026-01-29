@@ -34,7 +34,7 @@ public abstract class StrixPayClient {
      *
      * @return 支付平台
      */
-    public abstract int getPlatform();
+    public abstract short getPlatform();
 
     public abstract Map<String, String> createWapPay(PayOrder payOrder);
 

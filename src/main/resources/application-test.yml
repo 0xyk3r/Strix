@@ -14,47 +14,25 @@ server:
     max-keep-alive-requests: 100
     max-swallow-size: 500MB  # 请求体最大大小
     max-http-form-post-size: 500MB
-    # 请求头配置
-    max-http-header-size: 16KB
-    # 使用高性能NIO连接器
-    protocol-header: X-Forwarded-Proto
-    protocol-header-https-value: https
     remoteip:
       remote-ip-header: X-Forwarded-For
       protocol-header: X-Forwarded-Proto
+  max-http-request-header-size: 16KB
 spring:
   datasource:
-    dynamic:
-      primary: master
-      strict: false
-      datasource:
-        master:
-          driver-class-name: com.mysql.cj.jdbc.Driver
-          url: jdbc:mysql://192.168.31.99:3366/strix?useSSL=true&serverTimezone=Asia/Shanghai&autoReconnect=true&rewriteBatchedStatements=true
-          username: root
-          password: password
-          type: com.zaxxer.hikari.HikariDataSource
-          hikari:
-            connection-timeout: 30000
-            max-lifetime: 1800000
-            idle-timeout: 600000
-            minimum-idle: 10
-            maximum-pool-size: 50
-            connection-test-query: SELECT 1
-            validation-timeout: 5000
-            leak-detection-threshold: 60000
-            keepalive-time: 30000
-        clickhouse:
-          driver-class-name: com.clickhouse.jdbc.ClickHouseDriver
-          url: jdbc:clickhouse://192.168.31.99:8123/strix?socket_timeout=300000
-          username: root
-          password: password
-          type: com.zaxxer.hikari.HikariDataSource
-          lazy: true
-          hikari:
-            keepalive-time: 60000
-            max-lifetime: 120000
-            maximum-pool-size: 4
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://192.168.31.99:3306/strix?useSSL=true&serverTimezone=Asia/Shanghai&autoReconnect=true&rewriteBatchedStatements=true
+    username: root
+    password: AnAn@8899#
+    hikari:
+      pool-name: HikariCP
+      minimum-idle: 5
+      maximum-pool-size: 10
+      connection-timeout: 5000
+      idle-timeout: 300000
+      max-lifetime: 1800000
+      connection-test-query: SELECT 1
+      initialization-fail-timeout: 1
   data:
     redis:
       database: 0

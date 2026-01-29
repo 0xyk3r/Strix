@@ -4,8 +4,6 @@ import cn.projectan.strix.core.validation.annotation.DynamicDictValue;
 import cn.projectan.strix.core.validation.group.InsertGroup;
 import cn.projectan.strix.core.validation.group.UpdateGroup;
 import cn.projectan.strix.model.annotation.UpdateField;
-import cn.projectan.strix.model.dict.system.SystemManagerStatus;
-import cn.projectan.strix.model.dict.system.SystemManagerType;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -45,22 +43,22 @@ public class SystemManagerUpdateReq {
     /**
      * 管理人员状态
      *
-     * @see SystemManagerStatus
+     * @see cn.projectan.strix.model.dict.system.SystemManagerStatus
      */
     @NotNull(groups = {InsertGroup.class}, message = "管理人员状态未选择")
     @DynamicDictValue(groups = {InsertGroup.class, UpdateGroup.class}, dictName = "SystemManagerStatus", message = "管理人员状态不合法")
     @UpdateField
-    private Integer status;
+    private Short status;
 
     /**
      * 管理人员类型
      *
-     * @see SystemManagerType
+     * @see cn.projectan.strix.model.dict.system.SystemManagerType
      */
     @NotNull(groups = {InsertGroup.class}, message = "管理人员类型未选择")
     @DynamicDictValue(groups = {InsertGroup.class, UpdateGroup.class}, dictName = "SystemManagerType", message = "管理人员类型不合法")
     @UpdateField
-    private Integer type;
+    private Short type;
 
     /**
      * 平台账户拥有的地区权限

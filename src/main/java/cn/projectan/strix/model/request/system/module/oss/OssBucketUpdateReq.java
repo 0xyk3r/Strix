@@ -26,11 +26,4 @@ public class OssBucketUpdateReq {
     @Size(groups = {InsertGroup.class}, min = 1, max = 64, message = "Bucket 名称长度不符合要求")
     private String name;
 
-    /**
-     * 存储类型
-     */
-    @NotEmpty(groups = {InsertGroup.class}, message = "存储类型不可为空")
-    @Size(groups = {InsertGroup.class}, min = 1, max = 32, message = "存储类型不符合要求")
-    private String storageClass;
-
 }

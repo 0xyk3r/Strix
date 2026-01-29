@@ -2,7 +2,6 @@ package cn.projectan.strix.model.db.system;
 
 import cn.projectan.strix.model.annotation.UniqueField;
 import cn.projectan.strix.model.db.base.BaseModel;
-import cn.projectan.strix.model.dict.system.StrixSmsPlatform;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
@@ -48,10 +47,10 @@ public class SmsConfig extends BaseModel<SmsConfig> {
     /**
      * 短信服务平台
      *
-     * @see StrixSmsPlatform
+     * @see cn.projectan.strix.model.dict.system.SmsPlatform
      */
     @UniqueField(value = "服务平台", group = 1)
-    private Integer platform;
+    private Short platform;
 
     /**
      * 短信服务地区ID

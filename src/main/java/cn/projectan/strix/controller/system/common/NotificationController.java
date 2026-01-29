@@ -4,7 +4,7 @@ import cn.projectan.strix.controller.system.base.BaseSystemController;
 import cn.projectan.strix.core.ret.RetBuilder;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.model.annotation.StrixLog;
-import cn.projectan.strix.model.dict.system.SysLogOperType;
+import cn.projectan.strix.model.dict.system.SystemLogOperType;
 import cn.projectan.strix.model.request.system.notification.ListNotificationReq;
 import cn.projectan.strix.model.response.system.notification.NotificationListResp;
 import cn.projectan.strix.model.response.system.notification.NotificationUnreadCountResp;
@@ -57,7 +57,7 @@ public class NotificationController extends BaseSystemController {
      * 标记单个通知为已读
      */
     @PostMapping("{notificationId}/read")
-    @StrixLog(operationGroup = "通知", operationName = "标记已读", operationType = SysLogOperType.UPDATE)
+    @StrixLog(operationGroup = "通知", operationName = "标记已读", operationType = SystemLogOperType.UPDATE)
     @Operation(summary = "标记单个通知为已读")
     @ApiOperationSupport(order = 3)
     public RetResult<Object> markAsRead(@PathVariable String notificationId) {
@@ -69,7 +69,7 @@ public class NotificationController extends BaseSystemController {
      * 标记全部通知为已读
      */
     @PostMapping("read-all")
-    @StrixLog(operationGroup = "通知", operationName = "全部已读", operationType = SysLogOperType.UPDATE)
+    @StrixLog(operationGroup = "通知", operationName = "全部已读", operationType = SystemLogOperType.UPDATE)
     @Operation(summary = "标记全部通知为已读")
     @ApiOperationSupport(order = 4)
     public RetResult<Object> markAllAsRead() {

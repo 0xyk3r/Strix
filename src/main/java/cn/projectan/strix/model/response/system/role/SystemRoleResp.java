@@ -21,7 +21,7 @@ public class SystemRoleResp {
 
     private String name;
 
-    private Byte regionPermissionType;
+    private Short regionPermissionType;
 
     /**
      * 角色权限列表

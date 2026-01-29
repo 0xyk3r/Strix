@@ -10,7 +10,7 @@ import cn.projectan.strix.core.validation.group.UpdateGroup;
 import cn.projectan.strix.model.annotation.StrixLog;
 import cn.projectan.strix.model.db.system.*;
 import cn.projectan.strix.model.dict.common.CommonFlag;
-import cn.projectan.strix.model.dict.system.SysLogOperType;
+import cn.projectan.strix.model.dict.system.SystemLogOperType;
 import cn.projectan.strix.model.request.system.role.SystemRoleUpdateMenuReq;
 import cn.projectan.strix.model.request.system.role.SystemRoleUpdateReq;
 import cn.projectan.strix.model.response.common.CommonSelectDataResp;
@@ -91,7 +91,7 @@ public class SystemRoleController extends BaseSystemController {
      */
     @PostMapping("update")
     @PreAuthorize("@ss.hasPermission('system:role:add')")
-    @StrixLog(operationGroup = "系统角色", operationName = "新增角色", operationType = SysLogOperType.ADD)
+    @StrixLog(operationGroup = "系统角色", operationName = "新增角色", operationType = SystemLogOperType.ADD)
     public RetResult<Object> update(@RequestBody @Validated(InsertGroup.class) SystemRoleUpdateReq req) {
         Assert.notNull(req, "参数错误");
 
@@ -113,7 +113,7 @@ public class SystemRoleController extends BaseSystemController {
      */
     @PostMapping("update/{roleId}")
     @PreAuthorize("@ss.hasPermission('system:role:update')")
-    @StrixLog(operationGroup = "系统角色", operationName = "修改角色", operationType = SysLogOperType.UPDATE)
+    @StrixLog(operationGroup = "系统角色", operationName = "修改角色", operationType = SystemLogOperType.UPDATE)
     public RetResult<Object> update(@PathVariable String roleId, @RequestBody @Validated(UpdateGroup.class) SystemRoleUpdateReq req) {
         Assert.notNull(req, "参数错误");
         SystemRole systemRole = systemRoleService.getById(roleId);
@@ -136,7 +136,7 @@ public class SystemRoleController extends BaseSystemController {
      */
     @PostMapping("update/{roleId}/menu")
     @PreAuthorize("@ss.hasPermission('system:role:update')")
-    @StrixLog(operationGroup = "系统角色", operationName = "修改角色菜单权限", operationType = SysLogOperType.UPDATE)
+    @StrixLog(operationGroup = "系统角色", operationName = "修改角色菜单权限", operationType = SystemLogOperType.UPDATE)
     public RetResult<Object> updateMenu(@PathVariable String roleId, @RequestBody @Validated(UpdateGroup.class) SystemRoleUpdateMenuReq req) {
         SystemRole systemRole = systemRoleService.getById(roleId);
         Assert.notNull(systemRole, "系统角色信息不存在");
@@ -216,7 +216,7 @@ public class SystemRoleController extends BaseSystemController {
      */
     @PostMapping("remove/{roleId}")
     @PreAuthorize("@ss.hasPermission('system:role:remove')")
-    @StrixLog(operationGroup = "系统角色", operationName = "删除角色", operationType = SysLogOperType.DELETE)
+    @StrixLog(operationGroup = "系统角色", operationName = "删除角色", operationType = SystemLogOperType.DELETE)
     public RetResult<Object> remove(@PathVariable String roleId) {
         SystemRole systemRole = systemRoleService.getById(roleId);
         Assert.notNull(systemRole, "系统角色信息不存在");
@@ -248,7 +248,7 @@ public class SystemRoleController extends BaseSystemController {
      */
     @PostMapping("remove/{roleId}/menu/{menuId}")
     @PreAuthorize("@ss.hasPermission('system:role:modifyPermission')")
-    @StrixLog(operationGroup = "系统角色", operationName = "移除角色的菜单权限", operationType = SysLogOperType.UPDATE)
+    @StrixLog(operationGroup = "系统角色", operationName = "移除角色的菜单权限", operationType = SystemLogOperType.UPDATE)
     public RetResult<SystemRoleResp> removeRoleMenu(@PathVariable String roleId, @PathVariable String menuId) {
         SystemRole systemRole = systemRoleService.getById(roleId);
         Assert.notNull(systemRole, "系统角色信息不存在");
@@ -285,7 +285,7 @@ public class SystemRoleController extends BaseSystemController {
      */
     @PostMapping("remove/{roleId}/permission/{permissionId}")
     @PreAuthorize("@ss.hasPermission('system:role:modifyPermission')")
-    @StrixLog(operationGroup = "系统角色", operationName = "移除角色的系统权限", operationType = SysLogOperType.UPDATE)
+    @StrixLog(operationGroup = "系统角色", operationName = "移除角色的系统权限", operationType = SystemLogOperType.UPDATE)
     public RetResult<SystemRoleResp> removeRolePermission(@PathVariable String roleId, @PathVariable String permissionId) {
         SystemRole systemRole = systemRoleService.getById(roleId);
         Assert.notNull(systemRole, "系统角色信息不存在");

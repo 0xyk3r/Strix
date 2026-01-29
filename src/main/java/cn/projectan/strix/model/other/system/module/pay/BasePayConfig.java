@@ -13,6 +13,6 @@ public class BasePayConfig {
 
     private String name;
 
-    private Integer platform;
+    private Short platform;
 
 }

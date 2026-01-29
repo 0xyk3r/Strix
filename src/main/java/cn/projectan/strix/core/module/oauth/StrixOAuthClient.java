@@ -33,7 +33,7 @@ public abstract class StrixOAuthClient {
      *
      * @return 平台
      */
-    public abstract int getPlatform();
+    public abstract short getPlatform();
 
     /**
      * 是否支持推送服务

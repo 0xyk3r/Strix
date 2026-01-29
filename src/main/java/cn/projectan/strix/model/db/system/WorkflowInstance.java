@@ -67,9 +67,11 @@ public class WorkflowInstance extends BaseModel<WorkflowInstance> {
     private LocalDateTime endTime;
 
     /**
-     * 状态	1-进行中	2-已完成	3-已取消
+     * 状态	1-进行中 2-已完成 3-已取消
+     *
+     * @see cn.projectan.strix.model.dict.system.WorkflowInstanceStatus
      */
     @TableField("`status`")
-    private Byte status;
+    private Short status;
 
 }

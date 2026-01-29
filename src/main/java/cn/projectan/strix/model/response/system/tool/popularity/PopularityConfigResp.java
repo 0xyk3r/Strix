@@ -22,9 +22,9 @@ public class PopularityConfigResp {
 
     private String configKey;
 
-    private Integer initialValue;
+    private Long initialValue;
 
-    private Integer extraValue;
+    private Long extraValue;
 
     private BigDecimal magValue;
 

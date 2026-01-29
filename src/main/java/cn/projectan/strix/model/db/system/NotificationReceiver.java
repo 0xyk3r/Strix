@@ -42,6 +42,8 @@ public class NotificationReceiver extends BaseModel<NotificationReceiver> {
 
     /**
      * 是否已读 (0未读 1已读)
+     *
+     * @see cn.projectan.strix.model.dict.common.CommonFlag
      */
     private Short readStatus;
 
@@ -51,7 +53,9 @@ public class NotificationReceiver extends BaseModel<NotificationReceiver> {
     private LocalDateTime readAt;
 
     /**
-     * 是否有效 (1有效 2失效)
+     * 是否有效 (0无效 1有效)
+     *
+     * @see cn.projectan.strix.model.dict.common.CommonFlag
      */
     private Short validStatus;
 

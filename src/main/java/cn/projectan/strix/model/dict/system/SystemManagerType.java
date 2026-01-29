@@ -16,14 +16,14 @@ public class SystemManagerType implements BaseDict {
 
     @DictData(label = "超级账号", sort = 99, style = DictDataStyle.SUCCESS)
     public static final
-    int SUPER_ACCOUNT = 1;
+    short SUPER_ACCOUNT = 1;
 
     @DictData(label = "普通账号", sort = 1, style = DictDataStyle.PRIMARY)
     public static final
-    int NORMAL_ACCOUNT = 2;
+    short NORMAL_ACCOUNT = 2;
 
-    public static boolean valid(int type) {
-        return type == SUPER_ACCOUNT || type == NORMAL_ACCOUNT;
+    public static boolean valid(short value) {
+        return value == SUPER_ACCOUNT || value == NORMAL_ACCOUNT;
     }
 
 }

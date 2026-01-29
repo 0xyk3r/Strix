@@ -1,5 +1,6 @@
 package cn.projectan.strix.util.dataset;
 
+import cn.projectan.strix.model.other.system.country.CountryInfo;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
@@ -32,15 +33,12 @@ public class CountryUtil {
             list.add(new CountryInfo(code2, code3, zhName));
         }
 
-        list.sort(Comparator.comparing(CountryInfo::zhName));
+        list.sort(Comparator.comparing(CountryInfo::getZhName));
 
         COUNTRY_INFOS = List.copyOf(list);
     }
 
     private CountryUtil() {
-    }
-
-    public record CountryInfo(String code2, String code3, String zhName) {
     }
 
 }

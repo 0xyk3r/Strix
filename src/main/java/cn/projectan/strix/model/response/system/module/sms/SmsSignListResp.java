@@ -40,7 +40,7 @@ public class SmsSignListResp extends BasePageResp {
 
         private String name;
 
-        private Integer status;
+        private Short status;
 
         private LocalDateTime createdTime;
 

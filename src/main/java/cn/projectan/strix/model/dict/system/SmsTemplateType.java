@@ -8,27 +8,27 @@ import cn.projectan.strix.model.dict.base.BaseDict;
  * @author ProjectAn
  * @since 2023/5/20 18:46
  */
-@Dict(key = "StrixSmsTemplateType", value = "短信服务-短信模板-类型")
-public class StrixSmsTemplateType implements BaseDict {
+@Dict(key = "SmsTemplateType", value = "短信服务-短信模板-类型")
+public class SmsTemplateType implements BaseDict {
 
     @DictData(label = "验证码", sort = 1, style = DictDataStyle.SUCCESS)
     public static final
-    int VERIFICATION_CODE = 1;
+    short VERIFICATION_CODE = 1;
 
     @DictData(label = "通知短信", sort = 2, style = DictDataStyle.PRIMARY)
     public static final
-    int NOTIFICATION = 2;
+    short NOTIFICATION = 2;
 
     @DictData(label = "营销短信", sort = 3, style = DictDataStyle.WARNING)
     public static final
-    int MARKETING = 3;
+    short MARKETING = 3;
 
     @DictData(label = "国际短信", sort = 4, style = DictDataStyle.ERROR)
     public static final
-    int INTERNATIONAL = 4;
+    short INTERNATIONAL = 4;
 
     @DictData(label = "数字短信", sort = 5, style = DictDataStyle.INFO)
     public static final
-    int DIGITAL = 5;
+    short DIGITAL = 5;
 
 }

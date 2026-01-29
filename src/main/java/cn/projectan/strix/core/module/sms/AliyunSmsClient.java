@@ -1,10 +1,10 @@
 package cn.projectan.strix.core.module.sms;
 
 import cn.projectan.strix.model.db.system.SmsLog;
-import cn.projectan.strix.model.dict.system.StrixSmsLogStatus;
-import cn.projectan.strix.model.dict.system.StrixSmsSignStatus;
-import cn.projectan.strix.model.dict.system.StrixSmsTemplateStatus;
-import cn.projectan.strix.model.dict.system.StrixSmsTemplateType;
+import cn.projectan.strix.model.dict.system.SmsLogStatus;
+import cn.projectan.strix.model.dict.system.SmsSignStatus;
+import cn.projectan.strix.model.dict.system.SmsTemplateStatus;
+import cn.projectan.strix.model.dict.system.SmsTemplateType;
 import cn.projectan.strix.model.other.system.module.sms.StrixSmsSign;
 import cn.projectan.strix.model.other.system.module.sms.StrixSmsTemplate;
 import com.aliyun.dysmsapi20170525.Client;
@@ -29,7 +29,7 @@ import java.util.Optional;
 @Slf4j
 public class AliyunSmsClient extends StrixSmsClient {
 
-    protected Client client;
+    protected final Client client;
 
     public AliyunSmsClient(Client client) {
         super();
@@ -54,20 +54,20 @@ public class AliyunSmsClient extends StrixSmsClient {
             SendSmsResponse response = client.sendSmsWithOptions(request, runtime);
             SendSmsResponseBody body = response.getBody();
 
-            sms.setStatus("OK".equalsIgnoreCase(body.getCode()) ? StrixSmsLogStatus.SUCCESS : StrixSmsLogStatus.FAIL);
+            sms.setStatus("OK".equalsIgnoreCase(body.getCode()) ? SmsLogStatus.SUCCESS : SmsLogStatus.FAIL);
             sms.setPlatformResponse(body.getMessage());
         } catch (Exception e) {
             log.error("Strix SMS: 发送短信失败. (发送短信时发生异常)", e);
-            sms.setStatus(StrixSmsLogStatus.FAIL);
+            sms.setStatus(SmsLogStatus.FAIL);
             sms.setPlatformResponse(e.getMessage());
         }
     }
 
-    private final static Map<String, Integer> SIGN_STATUS_MAP = Map.of(
-            "AUDIT_STATE_INIT", StrixSmsSignStatus.INIT,
-            "AUDIT_STATE_PASS", StrixSmsSignStatus.PASS,
-            "AUDIT_STATE_NOT_PASS", StrixSmsSignStatus.NOT_PASS,
-            "AUDIT_STATE_CANCEL", StrixSmsSignStatus.CANCEL
+    private final static Map<String, Short> SIGN_STATUS_MAP = Map.of(
+            "AUDIT_STATE_INIT", SmsSignStatus.INIT,
+            "AUDIT_STATE_PASS", SmsSignStatus.PASS,
+            "AUDIT_STATE_NOT_PASS", SmsSignStatus.NOT_PASS,
+            "AUDIT_STATE_CANCEL", SmsSignStatus.CANCEL
     );
 
     @Override
@@ -82,19 +82,19 @@ public class AliyunSmsClient extends StrixSmsClient {
                 )).toList();
     }
 
-    private final static Map<String, Integer> TEMPLATE_STATUS_MAP = Map.of(
-            "AUDIT_STATE_INIT", StrixSmsTemplateStatus.INIT,
-            "AUDIT_STATE_PASS", StrixSmsTemplateStatus.PASS,
-            "AUDIT_STATE_NOT_PASS", StrixSmsTemplateStatus.NOT_PASS,
-            "AUDIT_STATE_CANCEL", StrixSmsTemplateStatus.CANCEL,
-            "AUDIT_SATE_CANCEL", StrixSmsTemplateStatus.CANCEL
+    private final static Map<String, Short> TEMPLATE_STATUS_MAP = Map.of(
+            "AUDIT_STATE_INIT", SmsTemplateStatus.INIT,
+            "AUDIT_STATE_PASS", SmsTemplateStatus.PASS,
+            "AUDIT_STATE_NOT_PASS", SmsTemplateStatus.NOT_PASS,
+            "AUDIT_STATE_CANCEL", SmsTemplateStatus.CANCEL,
+            "AUDIT_SATE_CANCEL", SmsTemplateStatus.CANCEL
     );
-    private final static Map<Integer, Integer> TEMPLATE_TYPE_MAP = Map.of(
-            2, StrixSmsTemplateType.VERIFICATION_CODE,
-            0, StrixSmsTemplateType.NOTIFICATION,
-            1, StrixSmsTemplateType.MARKETING,
-            6, StrixSmsTemplateType.INTERNATIONAL,
-            7, StrixSmsTemplateType.DIGITAL
+    private final static Map<Integer, Short> TEMPLATE_TYPE_MAP = Map.of(
+            2, SmsTemplateType.VERIFICATION_CODE,
+            0, SmsTemplateType.NOTIFICATION,
+            1, SmsTemplateType.MARKETING,
+            6, SmsTemplateType.INTERNATIONAL,
+            7, SmsTemplateType.DIGITAL
     );
 
     @Override

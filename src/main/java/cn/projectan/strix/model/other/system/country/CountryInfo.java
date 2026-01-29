@@ -13,10 +13,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class CountryInfo {
 
-    private String name;
+    private String code2;
 
-    private String twoCode;
+    private String code3;
 
-    private String threeCode;
+    private String zhName;
 
 }

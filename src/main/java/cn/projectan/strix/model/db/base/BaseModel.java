@@ -27,7 +27,7 @@ public class BaseModel<T extends BaseModel<T>> implements java.io.Serializable {
      */
     @TableLogic
     @TableField(fill = FieldFill.INSERT)
-    private Integer deletedStatus;
+    private Short deletedStatus;
 
     /**
      * 数据创建时间
@@ -72,7 +72,7 @@ public class BaseModel<T extends BaseModel<T>> implements java.io.Serializable {
     }
 
     @SuppressWarnings("unchecked")
-    public T setDeletedStatus(Integer deletedStatus) {
+    public T setDeletedStatus(Short deletedStatus) {
         this.deletedStatus = deletedStatus;
         return (T) this;
     }

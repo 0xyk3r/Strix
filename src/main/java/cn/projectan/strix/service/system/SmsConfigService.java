@@ -5,7 +5,7 @@ import cn.projectan.strix.core.module.sms.AliyunSmsClient;
 import cn.projectan.strix.core.module.sms.StrixSmsStore;
 import cn.projectan.strix.mapper.system.SmsConfigMapper;
 import cn.projectan.strix.model.db.system.SmsConfig;
-import cn.projectan.strix.model.dict.system.StrixSmsPlatform;
+import cn.projectan.strix.model.dict.system.SmsPlatform;
 import cn.projectan.strix.model.response.common.CommonSelectDataResp;
 import cn.projectan.strix.task.system.StrixSmsTask;
 import cn.projectan.strix.util.common.SpringUtil;
@@ -44,7 +44,7 @@ public class SmsConfigService extends ServiceImpl<SmsConfigMapper, SmsConfig> {
             boolean success = true;
             try {
                 switch (smsConfig.getPlatform()) {
-                    case StrixSmsPlatform.ALIYUN -> {
+                    case SmsPlatform.ALIYUN -> {
                         com.aliyun.teaopenapi.models.Config config = new com.aliyun.teaopenapi.models.Config()
                                 .setAccessKeyId(smsConfig.getAccessKey())
                                 .setAccessKeySecret(smsConfig.getAccessSecret())
@@ -53,7 +53,7 @@ public class SmsConfigService extends ServiceImpl<SmsConfigMapper, SmsConfig> {
                         Assert.notNull(client, "Strix SMS: 初始化短信服务实例 <" + smsConfig.getKey() + "> 失败.");
                         strixSmsStore.addInstance(smsConfig.getKey(), new AliyunSmsClient(client));
                     }
-                    case StrixSmsPlatform.TENCENT ->
+                    case SmsPlatform.TENCENT ->
                             throw new StrixException("Strix SMS: 初始化短信服务实例 <" + smsConfig.getKey() + "> 失败. (暂不支持腾讯云短信服务)");
                     default ->
                             throw new StrixException("Strix SMS: 初始化短信服务实例 <" + smsConfig.getKey() + "> 失败. (暂不支持该短信服务平台)");

@@ -13,18 +13,18 @@ public class WorkflowInstanceStatus implements BaseDict {
 
     @DictData(label = "进行中", sort = 1, style = DictDataStyle.DEFAULT)
     public static final
-    byte ACTIVE = 1;
+    short ACTIVE = 1;
 
     @DictData(label = "已完成", sort = 2, style = DictDataStyle.SUCCESS)
     public static final
-    byte DONE = 2;
+    short DONE = 2;
 
     @DictData(label = "已取消", sort = 3, style = DictDataStyle.INFO)
     public static final
-    byte CANCEL = 3;
+    short CANCEL = 3;
 
-    public static boolean valid(Byte value) {
-        return value != null && (value.equals(ACTIVE) || value.equals(DONE) || value.equals(CANCEL));
+    public static boolean valid(short value) {
+        return value == ACTIVE || value == DONE || value == CANCEL;
     }
 
 }

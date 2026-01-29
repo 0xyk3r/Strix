@@ -3,8 +3,7 @@ package cn.projectan.strix.service.system;
 import cn.projectan.strix.mapper.system.NotificationMapper;
 import cn.projectan.strix.model.db.system.Notification;
 import cn.projectan.strix.model.db.system.NotificationReceiver;
-import cn.projectan.strix.model.dict.system.NotificationReadStatus;
-import cn.projectan.strix.model.dict.system.NotificationStatus;
+import cn.projectan.strix.model.dict.common.CommonFlag;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -67,7 +66,7 @@ public class NotificationService extends ServiceImpl<NotificationMapper, Notific
                 .setJumpTarget(jumpTarget)
                 .setJumpParams(jumpParams)
                 .setSenderId(senderId)
-                .setStatus(NotificationStatus.VALID);
+                .setStatus(CommonFlag.YES);
 
         Assert.isTrue(save(notification), "发送通知失败，请稍后重试");
 
@@ -76,8 +75,8 @@ public class NotificationService extends ServiceImpl<NotificationMapper, Notific
                 .map(receiverId -> new NotificationReceiver()
                         .setNotificationId(notification.getId())
                         .setReceiverId(receiverId)
-                        .setReadStatus(NotificationReadStatus.UNREAD)
-                        .setValidStatus(NotificationStatus.VALID))
+                        .setReadStatus(CommonFlag.NO)
+                        .setValidStatus(CommonFlag.YES))
                 .collect(Collectors.toList());
 
         Assert.isTrue(notificationReceiverService.saveBatch(receivers), "创建接收人记录失败，请稍后重试");
@@ -107,7 +106,7 @@ public class NotificationService extends ServiceImpl<NotificationMapper, Notific
             lambdaUpdate()
                     .eq(Notification::getBizType, bizType)
                     .eq(Notification::getBizId, bizId)
-                    .set(Notification::getStatus, NotificationStatus.TERMINATED)
+                    .set(Notification::getStatus, CommonFlag.NO)
                     .set(Notification::getEndBy, terminatedBy)
                     .set(Notification::getEndReason, reason)
                     .update();
@@ -118,7 +117,7 @@ public class NotificationService extends ServiceImpl<NotificationMapper, Notific
 
             notificationReceiverService.lambdaUpdate()
                     .in(NotificationReceiver::getNotificationId, notificationIds)
-                    .set(NotificationReceiver::getValidStatus, NotificationStatus.TERMINATED)
+                    .set(NotificationReceiver::getValidStatus, CommonFlag.NO)
                     .set(NotificationReceiver::getInvalidAt, LocalDateTime.now())
                     .set(NotificationReceiver::getInvalidBy, terminatedBy)
                     .update();
@@ -140,7 +139,7 @@ public class NotificationService extends ServiceImpl<NotificationMapper, Notific
         Assert.notNull(notification, "通知不存在");
 
         // 更新通知状态
-        notification.setStatus(NotificationStatus.TERMINATED)
+        notification.setStatus(CommonFlag.NO)
                 .setEndBy(terminatedBy)
                 .setEndReason(reason);
         Assert.isTrue(updateById(notification), "终止通知失败，请稍后重试");
@@ -149,7 +148,7 @@ public class NotificationService extends ServiceImpl<NotificationMapper, Notific
         LocalDateTime now = LocalDateTime.now();
         notificationReceiverService.lambdaUpdate()
                 .eq(NotificationReceiver::getNotificationId, notificationId)
-                .set(NotificationReceiver::getValidStatus, NotificationStatus.TERMINATED)
+                .set(NotificationReceiver::getValidStatus, CommonFlag.NO)
                 .set(NotificationReceiver::getInvalidAt, now)
                 .set(NotificationReceiver::getInvalidBy, terminatedBy)
                 .update();

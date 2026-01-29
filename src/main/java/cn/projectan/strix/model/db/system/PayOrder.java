@@ -1,7 +1,6 @@
 package cn.projectan.strix.model.db.system;
 
 import cn.projectan.strix.model.db.base.BaseModel;
-import cn.projectan.strix.model.dict.system.PayOrderStatus;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
@@ -39,11 +38,13 @@ public class PayOrder extends BaseModel<PayOrder> {
 
     /**
      * 支付平台
+     *
+     * @see cn.projectan.strix.model.dict.system.PayPlatform
      */
-    private Integer platform;
+    private Short platform;
 
     /**
-     * 业务处理器ID
+     * 业务处理器 ID
      */
     private String handlerId;
 
@@ -55,10 +56,10 @@ public class PayOrder extends BaseModel<PayOrder> {
     /**
      * 支付状态
      *
-     * @see PayOrderStatus
+     * @see cn.projectan.strix.model.dict.system.PayOrderStatus
      */
     @TableField("`status`")
-    private Integer status;
+    private Short status;
 
     /**
      * 支付内容标题
@@ -88,16 +89,16 @@ public class PayOrder extends BaseModel<PayOrder> {
     /**
      * 支付订单总金额
      */
-    private Integer totalAmount;
+    private Long totalAmount;
 
     /**
      * 已经支付的金额
      */
-    private Integer totalPayAmount;
+    private Long totalPayAmount;
 
     /**
      * 已经退款的总金额
      */
-    private Integer totalRefundAmount;
+    private Long totalRefundAmount;
 
 }

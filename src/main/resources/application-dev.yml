@@ -14,14 +14,10 @@ server:
     max-keep-alive-requests: 100
     max-swallow-size: 500MB  # 请求体最大大小
     max-http-form-post-size: 500MB
-    # 请求头配置
-    max-http-header-size: 16KB
-    # 使用高性能NIO连接器
-    protocol-header: X-Forwarded-Proto
-    protocol-header-https-value: https
     remoteip:
       remote-ip-header: X-Forwarded-For
       protocol-header: X-Forwarded-Proto
+  max-http-request-header-size: 16KB
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver

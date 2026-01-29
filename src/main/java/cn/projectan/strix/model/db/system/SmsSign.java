@@ -43,8 +43,10 @@ public class SmsSign extends BaseModel<SmsSign> {
 
     /**
      * 签名状态
+     *
+     * @see cn.projectan.strix.model.dict.system.SmsSignStatus
      */
     @TableField("`status`")
-    private Integer status;
+    private Short status;
 
 }

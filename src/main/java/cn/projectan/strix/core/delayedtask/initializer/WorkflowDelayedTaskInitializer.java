@@ -6,6 +6,7 @@ import cn.projectan.strix.core.module.workflow.WorkflowHandler;
 import cn.projectan.strix.core.module.workflow.WorkflowTool;
 import cn.projectan.strix.model.constant.DelayedTaskConst;
 import cn.projectan.strix.model.db.system.WorkflowTask;
+import cn.projectan.strix.model.dict.system.WorkflowOperationType;
 import cn.projectan.strix.model.dict.system.WorkflowPropsTimeLimitHandler;
 import cn.projectan.strix.model.other.system.workflow.WorkflowNode;
 import cn.projectan.strix.service.system.WorkflowTaskService;
@@ -91,11 +92,11 @@ public class WorkflowDelayedTaskInitializer implements ApplicationRunner {
                     log.info("Workflow task timeout notify: {}", taskId);
                 }
                 case WorkflowPropsTimeLimitHandler.AUTO_PASS -> {
-                    workflowTaskService.completeTask(taskId, "TimeLimit", (byte) 2, "超时自动通过");
+                    workflowTaskService.completeTask(taskId, "TimeLimit", WorkflowOperationType.APPROVED, "超时自动通过");
                     log.info("Workflow task auto passed due to timeout: {}", taskId);
                 }
                 case WorkflowPropsTimeLimitHandler.AUTO_REJECT -> {
-                    workflowTaskService.completeTask(taskId, "TimeLimit", (byte) 3, "超时自动拒绝");
+                    workflowTaskService.completeTask(taskId, "TimeLimit", WorkflowOperationType.REJECT, "超时自动拒绝");
                     log.info("Workflow task auto rejected due to timeout: {}", taskId);
                 }
             }

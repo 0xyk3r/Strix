@@ -13,6 +13,6 @@ public class BaseOAuthConfig {
 
     private String name;
 
-    private Integer platform;
+    private Short platform;
 
 }

@@ -33,6 +33,6 @@ public class SystemRoleUpdateReq {
     @NotNull(groups = {InsertGroup.class, UpdateGroup.class}, message = "地区权限类型不可为空")
     @ConstantDictValue(groups = {InsertGroup.class, UpdateGroup.class}, dict = SystemRoleRegionPermissionType.class, message = "地区权限类型不合法")
     @UpdateField
-    private Byte regionPermissionType;
+    private Short regionPermissionType;
 
 }

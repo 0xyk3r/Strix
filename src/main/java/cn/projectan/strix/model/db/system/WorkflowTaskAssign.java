@@ -1,7 +1,6 @@
 package cn.projectan.strix.model.db.system;
 
 import cn.projectan.strix.model.db.base.BaseModel;
-import cn.projectan.strix.model.dict.system.WorkflowOperationType;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -54,9 +53,9 @@ public class WorkflowTaskAssign extends BaseModel<WorkflowTaskAssign> {
     /**
      * 操作类型
      *
-     * @see WorkflowOperationType WorkflowOperationType
+     * @see cn.projectan.strix.model.dict.system.WorkflowOperationType
      */
-    private Byte operationType;
+    private Short operationType;
 
     /**
      * 任务开始时间

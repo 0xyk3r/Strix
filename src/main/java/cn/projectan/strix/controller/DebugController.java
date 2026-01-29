@@ -46,7 +46,7 @@ public class DebugController extends BaseController {
     }
 
     @GetMapping("wf/completeTask/{taskId}/{operationType}")
-    public RetResult<Object> approval(@PathVariable String taskId, @PathVariable Byte operationType) {
+    public RetResult<Object> approval(@PathVariable String taskId, @PathVariable Short operationType) {
         workflowTaskService.completeTask(taskId, "anjiongyi", operationType, "test comment");
         return RetBuilder.success();
     }

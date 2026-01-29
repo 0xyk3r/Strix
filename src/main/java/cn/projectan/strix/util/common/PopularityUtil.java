@@ -130,9 +130,9 @@ public class PopularityUtil {
                             new PopularityConfig()
                                     .setConfigKey(key)
                                     .setName(key)
-                                    .setInitialValue(0)
+                                    .setInitialValue(0L)
                                     .setMagValue(BigDecimal.ONE)
-                                    .setExtraValue(0)
+                                    .setExtraValue(0L)
                                     .setCreatedByType(OperatorType.SYSTEM)
                                     .setUpdatedByType(OperatorType.SYSTEM)
                     ).toList();

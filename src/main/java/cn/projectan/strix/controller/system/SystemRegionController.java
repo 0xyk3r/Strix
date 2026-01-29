@@ -10,7 +10,7 @@ import cn.projectan.strix.core.validation.group.UpdateGroup;
 import cn.projectan.strix.model.annotation.StrixLog;
 import cn.projectan.strix.model.db.system.SystemManager;
 import cn.projectan.strix.model.db.system.SystemRegion;
-import cn.projectan.strix.model.dict.system.SysLogOperType;
+import cn.projectan.strix.model.dict.system.SystemLogOperType;
 import cn.projectan.strix.model.request.system.region.SystemRegionListReq;
 import cn.projectan.strix.model.request.system.region.SystemRegionUpdateReq;
 import cn.projectan.strix.model.response.common.CommonCascaderDataResp;
@@ -77,7 +77,7 @@ public class SystemRegionController extends BaseSystemController {
                     .last("limit 1")
                     .oneOpt()
                     .map(SystemRegion::getLevel)
-                    .orElse(0);
+                    .orElse((short) 0);
         }
 
         Page<SystemRegion> page = systemRegionService.lambdaQuery()
@@ -131,7 +131,7 @@ public class SystemRegionController extends BaseSystemController {
      */
     @PostMapping("update")
     @PreAuthorize("@ss.hasPermission('system:region:add')")
-    @StrixLog(operationGroup = "系统地区", operationName = "新增地区", operationType = SysLogOperType.ADD)
+    @StrixLog(operationGroup = "系统地区", operationName = "新增地区", operationType = SystemLogOperType.ADD)
     public RetResult<Object> update(@RequestBody @Validated(InsertGroup.class) SystemRegionUpdateReq req) {
         Assert.notNull(req, "参数错误");
         if (!StringUtils.hasText(req.getParentId())) {
@@ -146,7 +146,7 @@ public class SystemRegionController extends BaseSystemController {
 
         SystemRegion systemRegion = new SystemRegion(
                 req.getName(),
-                0,
+                (short) 0,
                 req.getParentId(),
                 null,
                 null,
@@ -177,7 +177,7 @@ public class SystemRegionController extends BaseSystemController {
      */
     @PostMapping("update/{id}")
     @PreAuthorize("@ss.hasPermission('system:region:update')")
-    @StrixLog(operationGroup = "系统地区", operationName = "修改地区", operationType = SysLogOperType.UPDATE)
+    @StrixLog(operationGroup = "系统地区", operationName = "修改地区", operationType = SystemLogOperType.UPDATE)
     public RetResult<Object> update(@PathVariable String id, @RequestBody @Validated(UpdateGroup.class) SystemRegionUpdateReq req) {
         Assert.notNull(req, "参数错误");
         SystemRegion systemRegion = systemRegionService.getById(id);
@@ -254,7 +254,7 @@ public class SystemRegionController extends BaseSystemController {
      */
     @PostMapping("remove/{id}")
     @PreAuthorize("@ss.hasPermission('system:region:remove')")
-    @StrixLog(operationGroup = "系统地区", operationName = "删除地区", operationType = SysLogOperType.DELETE)
+    @StrixLog(operationGroup = "系统地区", operationName = "删除地区", operationType = SystemLogOperType.DELETE)
     public RetResult<Object> remove(@PathVariable String id) {
         checkLoginManagerRegionPermission(id);
 

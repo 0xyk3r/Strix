@@ -69,7 +69,7 @@ public class MybatisPlusConfig {
         public void insertFill(MetaObject metaObject) {
             this.strictInsertFill(metaObject, "createdTime", LocalDateTime.class, LocalDateTime.now());
             this.strictInsertFill(metaObject, "updatedTime", LocalDateTime.class, LocalDateTime.now());
-            this.strictInsertFill(metaObject, "deletedStatus", Integer.class, 0);
+            this.strictInsertFill(metaObject, "deletedStatus", Short.class, (short) 0);
 
             short operatorType = SecurityUtils.getOperatorType();
             String operatorId = Optional.ofNullable(SecurityUtils.getOperatorId()).orElse("0");

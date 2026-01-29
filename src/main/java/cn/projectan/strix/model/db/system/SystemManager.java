@@ -53,13 +53,17 @@ public class SystemManager extends BaseModel<SystemManager> {
 
     /**
      * 管理人员状态 1正常 2禁止登录
+     *
+     * @see cn.projectan.strix.model.dict.system.SystemManagerStatus
      */
-    private Integer status;
+    private Short status;
 
     /**
      * 管理人员类型 1超级账户 2普通账户
+     *
+     * @see cn.projectan.strix.model.dict.system.SystemManagerType
      */
-    private Integer type;
+    private Short type;
 
     /**
      * 平台账户拥有的地区权限
@@ -68,6 +72,8 @@ public class SystemManager extends BaseModel<SystemManager> {
 
     /**
      * 是否系统内置用户
+     *
+     * @see cn.projectan.strix.model.dict.common.CommonFlag
      */
     private Short builtin;
 

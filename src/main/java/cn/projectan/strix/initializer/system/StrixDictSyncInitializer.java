@@ -5,9 +5,9 @@ import cn.projectan.strix.model.constant.system.OperatorType;
 import cn.projectan.strix.model.db.system.Dict;
 import cn.projectan.strix.model.db.system.DictData;
 import cn.projectan.strix.model.dict.base.BaseDict;
-import cn.projectan.strix.model.dict.system.DictDataStatus;
-import cn.projectan.strix.model.dict.system.DictProvided;
-import cn.projectan.strix.model.dict.system.DictStatus;
+import cn.projectan.strix.model.dict.common.CommonFlag;
+import cn.projectan.strix.model.dict.common.CommonSwitch;
+import cn.projectan.strix.model.dict.system.DictDataType;
 import cn.projectan.strix.service.system.DictDataService;
 import cn.projectan.strix.service.system.DictService;
 import lombok.RequiredArgsConstructor;
@@ -115,7 +115,7 @@ public class StrixDictSyncInitializer implements ApplicationRunner {
      */
     private Map<String, Dict> loadDBDict() {
         return dictService.lambdaQuery()
-                .eq(Dict::getProvided, DictProvided.YES)
+                .eq(Dict::getProvided, CommonFlag.YES)
                 .list()
                 .stream()
                 .collect(Collectors.toMap(Dict::getKey, dict -> dict));
@@ -127,7 +127,7 @@ public class StrixDictSyncInitializer implements ApplicationRunner {
     private Map<String, List<DictData>> loadDbDictData() {
         List<DictData> allDictData = dictDataService.lambdaQuery()
                 .in(DictData::getKey, dictService.lambdaQuery()
-                        .eq(Dict::getProvided, DictProvided.YES)
+                        .eq(Dict::getProvided, CommonFlag.YES)
                         .list()
                         .stream()
                         .map(Dict::getKey)
@@ -150,7 +150,7 @@ public class StrixDictSyncInitializer implements ApplicationRunner {
         String name = StringUtils.hasText(annotationDict.value()) ? annotationDict.value() : clazz.getSimpleName();
 
         // 构建字典对象
-        Dict dict = new Dict(key, name, 0, DictStatus.ENABLE, null, 0, DictProvided.YES)
+        Dict dict = new Dict(key, name, null, CommonSwitch.ENABLE, null, 0, CommonFlag.YES)
                 .setCreatedByType(OperatorType.SYSTEM)
                 .setUpdatedByType(OperatorType.SYSTEM);
 
@@ -179,17 +179,17 @@ public class StrixDictSyncInitializer implements ApplicationRunner {
             // 第一个带有 @DictData 注解的字段决定字典的数据类型
             if (!dataTypeSet) {
                 String typeName = field.getType().getName();
-                int dataType = convertTypeName(typeName);
+                short dataType = convertTypeName(typeName);
                 dict.setDataType(dataType);
                 dataTypeSet = true;
             }
 
             String value = field.get(null).toString();
             String label = StringUtils.hasText(annotationDictData.label()) ? annotationDictData.label() : field.getName();
-            int sort = annotationDictData.sort() >= 0 ? annotationDictData.sort() : dictDataList.size();
+            short sort = (short) (annotationDictData.sort() >= 0 ? annotationDictData.sort() : dictDataList.size());
             String style = annotationDictData.style();
 
-            DictData dictData = new DictData(key, value, label, sort, style, DictDataStatus.ENABLE, null)
+            DictData dictData = new DictData(key, value, label, sort, style, CommonSwitch.ENABLE, null)
                     .setCreatedByType(OperatorType.SYSTEM)
                     .setUpdatedByType(OperatorType.SYSTEM);
             dictDataList.add(dictData);
@@ -202,13 +202,13 @@ public class StrixDictSyncInitializer implements ApplicationRunner {
      * 批量操作容器
      */
     private static class BatchOperations {
-        List<Dict> dictToInsert = new ArrayList<>();
-        List<Dict> dictToUpdate = new ArrayList<>();
-        List<DictData> dictDataToInsert = new ArrayList<>();
-        List<DictData> dictDataToUpdate = new ArrayList<>();
-        List<DictData> dictDataToDelete = new ArrayList<>();
+        final List<Dict> dictToInsert = new ArrayList<>();
+        final List<Dict> dictToUpdate = new ArrayList<>();
+        final List<DictData> dictDataToInsert = new ArrayList<>();
+        final List<DictData> dictDataToUpdate = new ArrayList<>();
+        final List<DictData> dictDataToDelete = new ArrayList<>();
         // 记录需要更新版本号的字典 key 集合
-        Set<String> dictKeysNeedVersionUpdate = new HashSet<>();
+        final Set<String> dictKeysNeedVersionUpdate = new HashSet<>();
     }
 
     /**
@@ -364,16 +364,16 @@ public class StrixDictSyncInitializer implements ApplicationRunner {
         }
     }
 
-    private int convertTypeName(String typeName) {
+    private short convertTypeName(String typeName) {
         return switch (typeName) {
-            case "java.lang.String" -> 1;
-            case "java.lang.Integer", "int" -> 2;
-            case "java.lang.Long", "long" -> 3;
-            case "java.lang.Float", "float" -> 4;
-            case "java.lang.Double", "double" -> 5;
-            case "java.lang.Boolean", "boolean" -> 6;
-            case "java.lang.Byte", "byte" -> 7;
-            case "java.lang.Short", "short" -> 8;
+            case "java.lang.String" -> DictDataType.STRING;
+            case "java.lang.Integer", "int" -> DictDataType.INTEGER;
+            case "java.lang.Long", "long" -> DictDataType.LONG;
+            case "java.lang.Float", "float" -> DictDataType.FLOAT;
+            case "java.lang.Double", "double" -> DictDataType.DOUBLE;
+            case "java.lang.Boolean", "boolean" -> DictDataType.BOOLEAN;
+            case "java.lang.Byte", "byte" -> DictDataType.BYTE;
+            case "java.lang.Short", "short" -> DictDataType.SHORT;
             default -> 0;
         };
     }

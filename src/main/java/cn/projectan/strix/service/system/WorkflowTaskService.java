@@ -53,9 +53,9 @@ public class WorkflowTaskService extends ServiceImpl<WorkflowTaskMapper, Workflo
         boolean isDone = WorkflowInstanceStatus.DONE == instance.getStatus();
         boolean isAutoComplete = WorkflowNodeType.CONDITIONS.equals(instance.getCurrentNodeType()) ||
                 WorkflowNodeType.CC.equals(instance.getCurrentNodeType());
-        Byte operationType = isRoot ? Byte.valueOf(WorkflowOperationType.INITIATE) :
-                WorkflowNodeType.CC.equals(instance.getCurrentNodeType()) ? Byte.valueOf(WorkflowOperationType.CC) :
-                        isAutoComplete ? WorkflowOperationType.AUTO : null;
+        Short operationType = isRoot ? WorkflowOperationType.INITIATE :
+                WorkflowNodeType.CC.equals(instance.getCurrentNodeType()) ? WorkflowOperationType.CC :
+                        isAutoComplete ? WorkflowOperationType.AUTO : -1;
 
         WorkflowTask task = new WorkflowTask()
                 .setWorkflowId(instance.getWorkflowId())
@@ -120,7 +120,7 @@ public class WorkflowTaskService extends ServiceImpl<WorkflowTaskMapper, Workflo
      * @see WorkflowOperationType 操作类型
      */
     @Transactional(rollbackFor = Exception.class)
-    public void completeTask(String taskId, String operatorId, Byte operationType, String comment) {
+    public void completeTask(String taskId, String operatorId, Short operationType, String comment) {
         WorkflowTask task = getById(taskId);
         Assert.notNull(task, "任务不存在");
         WorkflowTaskAssign assign = workflowTaskAssignService.lambdaQuery()

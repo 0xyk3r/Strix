@@ -8,8 +8,8 @@ import cn.projectan.strix.model.dict.base.BaseDict;
  * @author ProjectAn
  * @since 2023/6/17 15:14
  */
-@Dict(key = "SysLogOperType", value = "系统日志-操作类型")
-public class SysLogOperType implements BaseDict {
+@Dict(key = "SystemLogOperType", value = "系统日志-操作类型")
+public class SystemLogOperType implements BaseDict {
 
     @DictData(label = "查询", sort = 1, style = DictDataStyle.INFO)
     public static final

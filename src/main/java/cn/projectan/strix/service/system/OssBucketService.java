@@ -60,10 +60,6 @@ public class OssBucketService extends ServiceImpl<OssBucketMapper, OssBucket> {
                             .map(b -> new OssBucket()
                                     .setConfigKey(configKey)
                                     .setName(b.getName())
-                                    .setPublicEndpoint(b.getPublicEndpoint())
-                                    .setPrivateEndpoint(b.getPrivateEndpoint())
-                                    .setRegion(b.getRegion())
-                                    .setStorageClass(b.getStorageClass())
                                     .setCreatedTime(b.getCreatedTime())
                                     .setCreatedByType(OperatorType.SYSTEM)
                                     .setUpdatedByType(OperatorType.SYSTEM)
@@ -77,14 +73,13 @@ public class OssBucketService extends ServiceImpl<OssBucketMapper, OssBucket> {
     /**
      * 创建bucket
      *
-     * @param configKey    配置key
-     * @param bucketName   bucket名称
-     * @param storageClass 存储类型
+     * @param configKey  配置key
+     * @param bucketName bucket名称
      */
-    public void createBucket(String configKey, String bucketName, String storageClass) {
+    public void createBucket(String configKey, String bucketName) {
         StrixOssClient instance = SpringUtil.getBean(StrixOssStore.class).getInstance(configKey);
         Assert.notNull(instance, "创建存储空间失败. OSS服务配置不存在");
-        instance.getPrivate().createBucket(bucketName, storageClass);
+        instance.getPrivate().createBucket(bucketName);
     }
 
 }

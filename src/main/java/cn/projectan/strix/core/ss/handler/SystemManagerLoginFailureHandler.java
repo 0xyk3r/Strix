@@ -3,7 +3,6 @@ package cn.projectan.strix.core.ss.handler;
 import cn.projectan.strix.core.ret.RetBuilder;
 import cn.projectan.strix.util.http.ServletUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +23,7 @@ public class SystemManagerLoginFailureHandler implements AuthenticationFailureHa
     private final ObjectMapper objectMapper;
 
     @Override
-    public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
+    public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException {
         String result = objectMapper.writeValueAsString(RetBuilder.error(exception.getMessage()));
         ServletUtils.write(response, result);
     }

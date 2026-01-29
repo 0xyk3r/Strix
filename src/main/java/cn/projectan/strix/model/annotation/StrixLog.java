@@ -1,6 +1,6 @@
 package cn.projectan.strix.model.annotation;
 
-import cn.projectan.strix.model.dict.system.SysLogOperType;
+import cn.projectan.strix.model.dict.system.SystemLogOperType;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -19,7 +19,7 @@ public @interface StrixLog {
 
     String operationName() default "";
 
-    String operationType() default SysLogOperType.QUERY;
+    String operationType() default SystemLogOperType.QUERY;
 
     boolean saveRequestParam() default true;
 

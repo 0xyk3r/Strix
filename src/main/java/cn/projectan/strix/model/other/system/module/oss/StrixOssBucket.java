@@ -17,14 +17,6 @@ public class StrixOssBucket {
 
     private String name;
 
-    private String publicEndpoint;
-
-    private String privateEndpoint;
-
-    private String region;
-
-    private String storageClass;
-
     private LocalDateTime createdTime;
 
 }

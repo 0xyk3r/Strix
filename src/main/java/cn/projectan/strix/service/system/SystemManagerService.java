@@ -122,7 +122,7 @@ public class SystemManagerService extends ServiceImpl<SystemManagerMapper, Syste
         List<String> systemManagerRoleIdList = getRoleIdListByManagerId(managerId);
 
         // 获取地区权限类型
-        byte regionPermissionType = 0;
+        short regionPermissionType = 0;
         if (!CollectionUtils.isEmpty(systemManagerRoleIdList)) {
             regionPermissionType = Optional.ofNullable(
                             systemRoleService.lambdaQuery()
@@ -132,7 +132,7 @@ public class SystemManagerService extends ServiceImpl<SystemManagerMapper, Syste
                                     .last("limit 1")
                                     .one())
                     .map(SystemRole::getRegionPermissionType)
-                    .orElse((byte) 0);
+                    .orElse((short) 0);
         }
 
         List<String> menus;

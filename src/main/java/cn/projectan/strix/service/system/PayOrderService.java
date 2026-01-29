@@ -61,7 +61,7 @@ public class PayOrderService extends ServiceImpl<PayOrderMapper, PayOrder> {
      * @see PayType 支付类型
      */
     @Transactional(rollbackFor = Exception.class)
-    public Map<String, String> createOrder(String configId, String title, BasePayParam param, String attach, Integer amount, Integer expireMin, String handlerId, Integer payType) {
+    public Map<String, String> createOrder(String configId, String title, BasePayParam param, String attach, Long amount, Integer expireMin, String handlerId, Short payType) {
         StrixPayClient payClient = strixPayStore.getInstance(configId);
         Assert.notNull(payClient, "收款配置异常, 创建订单失败");
         Assert.isTrue(PayType.valid(payType), "支付类型不合法");
@@ -84,8 +84,8 @@ public class PayOrderService extends ServiceImpl<PayOrderMapper, PayOrder> {
         payOrder.setExpireTime(LocalDateTime.now().plusMinutes(expireMin));
         payOrder.setAttach(attach);
         payOrder.setTotalAmount(amount);
-        payOrder.setTotalPayAmount(0);
-        payOrder.setTotalRefundAmount(0);
+        payOrder.setTotalPayAmount(0L);
+        payOrder.setTotalRefundAmount(0L);
         Assert.isTrue(save(payOrder), "创建订单失败");
 
         delayedTaskManager.schedule(DelayedTaskConst.PAY_ORDER_EXPIRE, payOrder.getId(), expireMin, TimeUnit.MINUTES);

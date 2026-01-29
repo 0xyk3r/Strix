@@ -29,10 +29,19 @@ public class SecurityUrl extends BaseModel<SecurityUrl> {
     @Serial
     private static final long serialVersionUID = 1L;
 
+    /**
+     * URL 地址
+     */
     private String url;
 
+    /**
+     * 规则类型
+     */
     private String ruleType;
 
+    /**
+     * 规则值
+     */
     private String ruleValue;
 
 }

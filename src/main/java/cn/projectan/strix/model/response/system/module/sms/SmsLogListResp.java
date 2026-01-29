@@ -38,7 +38,7 @@ public class SmsLogListResp extends BasePageResp {
 
         private String configKey;
 
-        private Integer platform;
+        private Short platform;
 
         private String phoneNumber;
 
@@ -50,7 +50,7 @@ public class SmsLogListResp extends BasePageResp {
 
         private String templateParam;
 
-        private Integer status;
+        private Short status;
 
         private String platformResponse;
 

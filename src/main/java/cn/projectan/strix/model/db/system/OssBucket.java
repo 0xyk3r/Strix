@@ -42,26 +42,6 @@ public class OssBucket extends BaseModel<OssBucket> {
     private String name;
 
     /**
-     * 公网连接域名
-     */
-    private String publicEndpoint;
-
-    /**
-     * 内网连接域名
-     */
-    private String privateEndpoint;
-
-    /**
-     * 地域
-     */
-    private String region;
-
-    /**
-     * 存储类型
-     */
-    private String storageClass;
-
-    /**
      * 备注
      */
     private String remark;

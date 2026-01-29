@@ -12,13 +12,16 @@ import cn.projectan.strix.model.dict.base.BaseDict;
 public class WorkflowPropsTimeLimitUnit implements BaseDict {
 
     @DictData(label = "分钟", sort = 1, style = DictDataStyle.DEFAULT)
-    public static final String MINUTE = "MINUTE";
+    public static final
+    String MINUTE = "MINUTE";
 
     @DictData(label = "小时", sort = 2, style = DictDataStyle.DEFAULT)
-    public static final String HOUR = "HOUR";
+    public static final
+    String HOUR = "HOUR";
 
     @DictData(label = "天", sort = 3, style = DictDataStyle.DEFAULT)
-    public static final String DAY = "DAY";
+    public static final
+    String DAY = "DAY";
 
     public static boolean valid(String value) {
         return MINUTE.equals(value) || HOUR.equals(value) || DAY.equals(value);

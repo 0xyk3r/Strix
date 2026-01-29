@@ -13,9 +13,9 @@ public class SmsTemplateListReq extends BasePageReq<SmsTemplate> {
 
     private String keyword;
 
-    private Integer type;
+    private Short type;
 
-    private Integer status;
+    private Short status;
 
     private String configKey;
 

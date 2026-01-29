@@ -36,7 +36,7 @@ public class SystemRegionChildrenListResp {
 
         private String name;
 
-        private Integer level;
+        private Short level;
 
         private String parentId;
 
@@ -48,7 +48,7 @@ public class SystemRegionChildrenListResp {
 
         private boolean hasChildren = true;
 
-        public SystemRegionItem(String id, String name, Integer level, String parentId, String fullPath, String fullName, String remarks) {
+        public SystemRegionItem(String id, String name, Short level, String parentId, String fullPath, String fullName, String remarks) {
             this.id = id;
             this.name = name;
             this.level = level;

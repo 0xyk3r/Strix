@@ -41,11 +41,11 @@ public class JobListResp extends BasePageResp {
 
         private String cronExpression;
 
-        private Integer misfirePolicy;
+        private Short misfirePolicy;
 
-        private Integer concurrent;
+        private Short concurrent;
 
-        private Integer status;
+        private Short status;
 
     }
 

@@ -34,7 +34,7 @@ public class OauthUserService extends ServiceImpl<OauthUserMapper, OauthUser> {
      * @return 系统用户
      */
     @Transactional(rollbackFor = Exception.class)
-    public SystemUser createSystemUser(BaseOAuthUserInfo oauthUserInfo, Integer platform) {
+    public SystemUser createSystemUser(BaseOAuthUserInfo oauthUserInfo, Short platform) {
         OauthUser oauthUser = new OauthUser();
         oauthUser.setConfigId(oauthUserInfo.getConfigId());
         oauthUser.setAppId(oauthUserInfo.getAppId());

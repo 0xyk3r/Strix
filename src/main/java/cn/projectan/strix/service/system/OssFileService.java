@@ -6,7 +6,7 @@ import cn.projectan.strix.core.module.oss.StrixOssStore;
 import cn.projectan.strix.mapper.system.OssFileMapper;
 import cn.projectan.strix.model.db.system.OssFile;
 import cn.projectan.strix.model.db.system.OssFileGroup;
-import cn.projectan.strix.model.dict.system.StrixOssFileGroupSecretType;
+import cn.projectan.strix.model.dict.system.OssFileGroupSecretType;
 import cn.projectan.strix.util.common.SnowflakeUtil;
 import cn.projectan.strix.util.file.FileUtil;
 import cn.projectan.strix.util.http.ServletUtils;
@@ -73,12 +73,12 @@ public class OssFileService extends ServiceImpl<OssFileMapper, OssFile> {
      * 获取文件访问URL
      *
      * @param fileId         文件ID
-     * @param downloaderType 下载者类型 见{@link StrixOssFileGroupSecretType StrixOssFileGroupSecretType}
+     * @param downloaderType 下载者类型 见{@link OssFileGroupSecretType OssFileGroupSecretType}
      * @param downloaderId   下载者ID
      * @param defaultUrl     默认URL
      * @return 文件访问URL
      */
-    public String getUrl(String fileId, Integer downloaderType, String downloaderId, String defaultUrl) {
+    public String getUrl(String fileId, Short downloaderType, String downloaderId, String defaultUrl) {
         try {
             OssFile ossFile = getById(fileId);
             Assert.notNull(ossFile, "下载文件失败, 文件不存在.");
@@ -260,7 +260,7 @@ public class OssFileService extends ServiceImpl<OssFileMapper, OssFile> {
 
     /**
      * 下载文件
-     * <p>不推荐直接使用 请使用 {@link #download(String, String)} 或 {@link #download(String, String, Integer, String)}
+     * <p>不推荐直接使用 请使用 {@link #download(String, String)} 或 {@link #download(String, String, Short, String)}
      *
      * @param ossFile      文件
      * @param ossFileGroup 文件组
@@ -278,11 +278,11 @@ public class OssFileService extends ServiceImpl<OssFileMapper, OssFile> {
      *
      * @param fileId         文件ID
      * @param saveFile       保存文件路径
-     * @param downloaderType 下载者类型 见{@link StrixOssFileGroupSecretType StrixOssFileGroupSecretType}
+     * @param downloaderType 下载者类型 见{@link OssFileGroupSecretType OssFileGroupSecretType}
      * @param downloaderId   下载者ID
      * @return 保存的文件
      */
-    public File download(String fileId, String saveFile, Integer downloaderType, String downloaderId) {
+    public File download(String fileId, String saveFile, Short downloaderType, String downloaderId) {
         OssFile ossFile = getById(fileId);
         Assert.notNull(ossFile, "下载文件失败, 文件不存在.");
         OssFileGroup ossFileGroup = ossFileGroupService.getGroupByKey(ossFile.getGroupKey());
@@ -311,11 +311,11 @@ public class OssFileService extends ServiceImpl<OssFileMapper, OssFile> {
      * <p>注意: 调用者需要负责关闭返回的输入流
      *
      * @param fileId         文件ID
-     * @param downloaderType 下载者类型 见{@link StrixOssFileGroupSecretType StrixOssFileGroupSecretType}
+     * @param downloaderType 下载者类型 见{@link OssFileGroupSecretType OssFileGroupSecretType}
      * @param downloaderId   下载者ID
      * @return 文件输入流
      */
-    public InputStream downloadAsStream(String fileId, Integer downloaderType, String downloaderId) {
+    public InputStream downloadAsStream(String fileId, Short downloaderType, String downloaderId) {
         FileAndGroup fileAndGroup = getFileAndGroup(fileId, "下载文件失败");
         Assert.isTrue(checkPermission(fileAndGroup.ossFile(), fileAndGroup.ossFileGroup(), downloaderType, downloaderId), "下载文件失败, 文件不存在.");
 
@@ -340,10 +340,10 @@ public class OssFileService extends ServiceImpl<OssFileMapper, OssFile> {
      *
      * @param fileId         文件ID
      * @param outputStream   输出流
-     * @param downloaderType 下载者类型 见{@link StrixOssFileGroupSecretType StrixOssFileGroupSecretType}
+     * @param downloaderType 下载者类型 见{@link OssFileGroupSecretType OssFileGroupSecretType}
      * @param downloaderId   下载者ID
      */
-    public void downloadToStream(String fileId, OutputStream outputStream, Integer downloaderType, String downloaderId) {
+    public void downloadToStream(String fileId, OutputStream outputStream, Short downloaderType, String downloaderId) {
         FileAndGroup fileAndGroup = getFileAndGroup(fileId, "下载文件失败");
         Assert.isTrue(checkPermission(fileAndGroup.ossFile(), fileAndGroup.ossFileGroup(), downloaderType, downloaderId), "下载文件失败, 文件不存在.");
 
@@ -372,11 +372,11 @@ public class OssFileService extends ServiceImpl<OssFileMapper, OssFile> {
      * <p>适用于 Spring MVC 控制器返回流式响应
      *
      * @param fileId         文件ID
-     * @param downloaderType 下载者类型 见{@link StrixOssFileGroupSecretType StrixOssFileGroupSecretType}
+     * @param downloaderType 下载者类型 见{@link OssFileGroupSecretType OssFileGroupSecretType}
      * @param downloaderId   下载者ID
      * @return StreamingResponseBody
      */
-    public StreamingResponseBody getStreamingDownload(String fileId, Integer downloaderType, String downloaderId) {
+    public StreamingResponseBody getStreamingDownload(String fileId, Short downloaderType, String downloaderId) {
         FileAndGroup fileAndGroup = getFileAndGroup(fileId, "下载文件失败");
         Assert.isTrue(checkPermission(fileAndGroup.ossFile(), fileAndGroup.ossFileGroup(), downloaderType, downloaderId), "下载文件失败, 文件不存在.");
 
@@ -400,10 +400,10 @@ public class OssFileService extends ServiceImpl<OssFileMapper, OssFile> {
      * 删除文件
      *
      * @param fileId         文件ID
-     * @param downloaderType 下载者类型 见{@link StrixOssFileGroupSecretType StrixOssFileGroupSecretType}
+     * @param downloaderType 下载者类型 见{@link OssFileGroupSecretType OssFileGroupSecretType}
      * @param downloaderId   下载者ID
      */
-    public void delete(String fileId, Integer downloaderType, String downloaderId) {
+    public void delete(String fileId, Short downloaderType, String downloaderId) {
         try {
             OssFile ossFile = getById(fileId);
             Assert.notNull(ossFile, "删除文件失败, 文件不存在.");
@@ -428,18 +428,18 @@ public class OssFileService extends ServiceImpl<OssFileMapper, OssFile> {
      *
      * @param ossFile        文件
      * @param ossFileGroup   文件组
-     * @param downloaderType 下载者类型 见{@link StrixOssFileGroupSecretType StrixOssFileGroupSecretType}
+     * @param downloaderType 下载者类型 见{@link OssFileGroupSecretType OssFileGroupSecretType}
      * @param downloaderId   下载者ID
      * @return 是否有权限
      */
-    public boolean checkPermission(OssFile ossFile, OssFileGroup ossFileGroup, Integer downloaderType, String downloaderId) {
-        if (StrixOssFileGroupSecretType.MANAGER == ossFileGroup.getSecretType() && StrixOssFileGroupSecretType.MANAGER == downloaderType) {
+    public boolean checkPermission(OssFile ossFile, OssFileGroup ossFileGroup, Short downloaderType, String downloaderId) {
+        if (OssFileGroupSecretType.MANAGER == ossFileGroup.getSecretType() && OssFileGroupSecretType.MANAGER == downloaderType) {
             // 文件要求管理员权限 且下载用户为管理员 ACCEPT
             return true;
-        } else if (StrixOssFileGroupSecretType.USER == ossFileGroup.getSecretType() && StrixOssFileGroupSecretType.MANAGER == downloaderType) {
+        } else if (OssFileGroupSecretType.USER == ossFileGroup.getSecretType() && OssFileGroupSecretType.MANAGER == downloaderType) {
             // 文件要求用户权限 且下载用户为管理员 ACCEPT
             return true;
-        } else if (StrixOssFileGroupSecretType.USER == ossFileGroup.getSecretType() && StrixOssFileGroupSecretType.USER == downloaderType) {
+        } else if (OssFileGroupSecretType.USER == ossFileGroup.getSecretType() && OssFileGroupSecretType.USER == downloaderType) {
             // 文件要求用户权限 且下载用户为用户 ACCEPT
             // 要求下载用户为上传用户
             return Objects.equals(downloaderId, ossFile.getCreatedBy());

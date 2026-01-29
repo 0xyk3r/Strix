@@ -244,7 +244,7 @@ public class LocalOssClient implements StrixOssClient {
         }
 
         @Override
-        public void createBucket(String bucketName, String storageClass) {
+        public void createBucket(String bucketName) {
 
         }
 

@@ -8,7 +8,7 @@ import cn.projectan.strix.core.validation.group.InsertGroup;
 import cn.projectan.strix.core.validation.group.UpdateGroup;
 import cn.projectan.strix.model.annotation.StrixLog;
 import cn.projectan.strix.model.db.system.OssFileGroup;
-import cn.projectan.strix.model.dict.system.SysLogOperType;
+import cn.projectan.strix.model.dict.system.SystemLogOperType;
 import cn.projectan.strix.model.request.system.module.oss.OssFileGroupListReq;
 import cn.projectan.strix.model.request.system.module.oss.OssFileGroupUpdateReq;
 import cn.projectan.strix.model.response.common.CommonSelectDataResp;
@@ -89,7 +89,7 @@ public class OssFileGroupController extends BaseSystemController {
      */
     @PostMapping("update")
     @PreAuthorize("@ss.hasPermission('system:module:oss:filegroup:add')")
-    @StrixLog(operationGroup = "系统存储分组", operationName = "新增存储分组", operationType = SysLogOperType.ADD)
+    @StrixLog(operationGroup = "系统存储分组", operationName = "新增存储分组", operationType = SystemLogOperType.ADD)
     public RetResult<Object> update(@RequestBody @Validated(InsertGroup.class) OssFileGroupUpdateReq req) {
         OssFileGroup ossFileGroup = new OssFileGroup(
                 req.getKey(),
@@ -116,7 +116,7 @@ public class OssFileGroupController extends BaseSystemController {
      */
     @PostMapping("update/{id}")
     @PreAuthorize("@ss.hasPermission('system:module:oss:filegroup:update')")
-    @StrixLog(operationGroup = "系统存储分组", operationName = "修改存储分组", operationType = SysLogOperType.UPDATE)
+    @StrixLog(operationGroup = "系统存储分组", operationName = "修改存储分组", operationType = SystemLogOperType.UPDATE)
     public RetResult<Object> update(@PathVariable String id, @RequestBody @Validated(UpdateGroup.class) OssFileGroupUpdateReq req) {
         OssFileGroup ossFileGroup = ossFileGroupService.getById(id);
         Assert.notNull(ossFileGroup, "原记录不存在");
@@ -133,7 +133,7 @@ public class OssFileGroupController extends BaseSystemController {
      */
     @PostMapping("remove/{id}")
     @PreAuthorize("@ss.hasPermission('system:module:oss:filegroup:remove')")
-    @StrixLog(operationGroup = "系统存储分组", operationName = "删除存储分组", operationType = SysLogOperType.DELETE)
+    @StrixLog(operationGroup = "系统存储分组", operationName = "删除存储分组", operationType = SystemLogOperType.DELETE)
     public RetResult<Object> remove(@PathVariable String id) {
         ossFileGroupService.removeById(id);
         return RetBuilder.success();

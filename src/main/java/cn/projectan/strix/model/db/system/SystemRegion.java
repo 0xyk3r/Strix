@@ -39,7 +39,7 @@ public class SystemRegion extends BaseModel<SystemRegion> {
     /**
      * 地区等级 从1开始 从小到大
      */
-    private Integer level;
+    private Short level;
 
     /**
      * 父节点id

@@ -11,7 +11,7 @@ import cn.projectan.strix.model.db.system.SmsConfig;
 import cn.projectan.strix.model.db.system.SmsLog;
 import cn.projectan.strix.model.db.system.SmsSign;
 import cn.projectan.strix.model.db.system.SmsTemplate;
-import cn.projectan.strix.model.dict.system.SysLogOperType;
+import cn.projectan.strix.model.dict.system.SystemLogOperType;
 import cn.projectan.strix.model.enums.common.NumCategory;
 import cn.projectan.strix.model.request.system.module.sms.*;
 import cn.projectan.strix.model.response.common.CommonSelectDataResp;
@@ -113,7 +113,7 @@ public class SmsController extends BaseSystemController {
      */
     @PostMapping("update")
     @PreAuthorize("@ss.hasPermission('system:module:sms:config:add')")
-    @StrixLog(operationGroup = "系统短信", operationName = "新增短信配置", operationType = SysLogOperType.ADD)
+    @StrixLog(operationGroup = "系统短信", operationName = "新增短信配置", operationType = SystemLogOperType.ADD)
     public RetResult<Object> update(@RequestBody @Validated(InsertGroup.class) SmsConfigUpdateReq req) {
         SmsConfig smsConfig = new SmsConfig(
                 req.getKey(),
@@ -140,7 +140,7 @@ public class SmsController extends BaseSystemController {
      */
     @PostMapping("update/{id}")
     @PreAuthorize("@ss.hasPermission('system:module:sms:config:update')")
-    @StrixLog(operationGroup = "系统短信", operationName = "修改短信配置", operationType = SysLogOperType.UPDATE)
+    @StrixLog(operationGroup = "系统短信", operationName = "修改短信配置", operationType = SystemLogOperType.UPDATE)
     public RetResult<Object> update(@PathVariable String id, @RequestBody @Validated(UpdateGroup.class) SmsConfigUpdateReq req) {
         SmsConfig smsConfig = smsConfigService.getById(id);
         Assert.notNull(smsConfig, "原记录不存在");
@@ -162,7 +162,7 @@ public class SmsController extends BaseSystemController {
      */
     @PostMapping("remove/{id}")
     @PreAuthorize("@ss.hasPermission('system:module:sms:config:remove')")
-    @StrixLog(operationGroup = "系统短信", operationName = "删除短信配置", operationType = SysLogOperType.DELETE)
+    @StrixLog(operationGroup = "系统短信", operationName = "删除短信配置", operationType = SystemLogOperType.DELETE)
     public RetResult<Object> remove(@PathVariable String id) {
         SmsConfig smsConfig = smsConfigService.getById(id);
         Assert.notNull(smsConfig, "原记录不存在");

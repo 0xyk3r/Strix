@@ -61,7 +61,7 @@ public class SystemUserService extends ServiceImpl<SystemUserMapper, SystemUser>
      * @param relationType 都三方平台类型
      * @param oauthUserId  第三方平台用户id
      */
-    public void bindThirdUser(String systemUserId, Integer relationType, String oauthUserId) {
+    public void bindThirdUser(String systemUserId, Short relationType, String oauthUserId) {
         Assert.isTrue(
                 !systemUserRelationService.lambdaQuery()
                         .and(q -> q
@@ -92,7 +92,7 @@ public class SystemUserService extends ServiceImpl<SystemUserMapper, SystemUser>
      * @return SystemUser对象
      */
     @Cacheable(value = "strix:system:user:userRelation", key = "#relationType+'-'+#oauthUserId")
-    public SystemUser getSystemUser(Integer relationType, String oauthUserId) {
+    public SystemUser getSystemUser(Short relationType, String oauthUserId) {
         SystemUserRelation systemUserRelation = systemUserRelationService.lambdaQuery()
                 .eq(SystemUserRelation::getRelationType, relationType)
                 .eq(SystemUserRelation::getRelationId, oauthUserId)

@@ -41,7 +41,7 @@ public class LambdaRegistrationFeature implements Feature {
         );
         serviceImplClazzSet.forEach(RuntimeSerialization::registerLambdaCapturingClass);
 
-        // TODO 在此补充其他使用了 Lambda 表达式的类
+        // 在此补充其他使用了 Lambda 表达式的类
         RuntimeSerialization.registerLambdaCapturingClass(StrixDictSyncInitializer.class);
         RuntimeSerialization.registerLambdaCapturingClass(StrixSecurityRuleInitializer.class);
         RuntimeSerialization.registerLambdaCapturingClass(SystemMenuCache.class);

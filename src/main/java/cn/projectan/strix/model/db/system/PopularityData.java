@@ -29,10 +29,19 @@ public class PopularityData extends BaseModel<PopularityData> {
     @Serial
     private static final long serialVersionUID = 1L;
 
+    /**
+     * 配置 Key
+     */
     private String configKey;
 
+    /**
+     * 数据 ID
+     */
     private String dataId;
 
+    /**
+     * 数据原值
+     */
     private Long originalValue;
 
 }

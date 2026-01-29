@@ -37,7 +37,7 @@ public class DictDataUpdateReq {
     @Min(groups = {InsertGroup.class, UpdateGroup.class}, value = 0, message = "字典排序值不可小于 0")
     @Max(groups = {InsertGroup.class, UpdateGroup.class}, value = 999, message = "字典排序值不可大于 999")
     @UpdateField
-    private Integer sort;
+    private Short sort;
 
     @Size(groups = {InsertGroup.class, UpdateGroup.class}, max = 32, message = "字典样式长度不符合要求")
     @UpdateField(allowEmpty = true)
@@ -46,7 +46,7 @@ public class DictDataUpdateReq {
     @NotNull(groups = {InsertGroup.class, UpdateGroup.class}, message = "字典状态不可为空")
     @DynamicDictValue(groups = {InsertGroup.class, UpdateGroup.class}, dictName = "DictDataStatus", message = "字典状态不合法")
     @UpdateField
-    private Integer status;
+    private Short status;
 
     @Size(groups = {InsertGroup.class, UpdateGroup.class}, max = 255, message = "字典备注长度不符合要求")
     @UpdateField(allowEmpty = true)

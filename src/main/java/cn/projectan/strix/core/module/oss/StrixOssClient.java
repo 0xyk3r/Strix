@@ -188,10 +188,9 @@ public interface StrixOssClient {
         /**
          * 创建桶
          *
-         * @param bucketName   桶名称
-         * @param storageClass 存储类型
+         * @param bucketName 桶名称
          */
-        void createBucket(String bucketName, String storageClass);
+        void createBucket(String bucketName);
 
         /**
          * 删除桶

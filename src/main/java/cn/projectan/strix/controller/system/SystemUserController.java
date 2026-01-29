@@ -8,7 +8,7 @@ import cn.projectan.strix.core.validation.group.UpdateGroup;
 import cn.projectan.strix.model.annotation.StrixLog;
 import cn.projectan.strix.model.db.system.SystemUser;
 import cn.projectan.strix.model.db.system.SystemUserRelation;
-import cn.projectan.strix.model.dict.system.SysLogOperType;
+import cn.projectan.strix.model.dict.system.SystemLogOperType;
 import cn.projectan.strix.model.dict.system.SystemUserStatus;
 import cn.projectan.strix.model.enums.common.NumCategory;
 import cn.projectan.strix.model.request.common.SingleFieldModifyReq;
@@ -83,7 +83,7 @@ public class SystemUserController extends BaseSystemController {
      */
     @PostMapping("modify/{userId}")
     @PreAuthorize("@ss.hasPermission('system:user:update')")
-    @StrixLog(operationGroup = "系统用户", operationName = "更改用户信息", operationType = SysLogOperType.UPDATE)
+    @StrixLog(operationGroup = "系统用户", operationName = "更改用户信息", operationType = SystemLogOperType.UPDATE)
     public RetResult<Object> modifyField(@PathVariable String userId, @RequestBody SingleFieldModifyReq req) {
         Assert.hasText(req.getField(), "参数错误");
         SystemUser systemUser = systemUserService.getById(userId);
@@ -95,7 +95,7 @@ public class SystemUserController extends BaseSystemController {
         switch (req.getField()) {
             case "nickname" -> queryWrapper.set(SystemUser::getNickname, req.getValue());
             case "status" -> {
-                Assert.isTrue(SystemUserStatus.valid(Integer.parseInt(req.getValue())), "参数错误");
+                Assert.isTrue(SystemUserStatus.valid(Short.parseShort(req.getValue())), "参数错误");
                 queryWrapper.set(SystemUser::getStatus, req.getValue());
             }
             case "phoneNumber" -> queryWrapper.set(SystemUser::getPhoneNumber, req.getValue());
@@ -114,7 +114,7 @@ public class SystemUserController extends BaseSystemController {
      */
     @PostMapping("update")
     @PreAuthorize("@ss.hasPermission('system:user:add')")
-    @StrixLog(operationGroup = "系统用户", operationName = "新增用户", operationType = SysLogOperType.ADD)
+    @StrixLog(operationGroup = "系统用户", operationName = "新增用户", operationType = SystemLogOperType.ADD)
     public RetResult<Object> update(@RequestBody @Validated(InsertGroup.class) SystemUserUpdateReq req) {
         Assert.notNull(req, "参数错误");
 
@@ -138,7 +138,7 @@ public class SystemUserController extends BaseSystemController {
      */
     @PostMapping("update/{userId}")
     @PreAuthorize("@ss.hasPermission('system:user:update')")
-    @StrixLog(operationGroup = "系统用户", operationName = "修改用户", operationType = SysLogOperType.UPDATE)
+    @StrixLog(operationGroup = "系统用户", operationName = "修改用户", operationType = SystemLogOperType.UPDATE)
     public RetResult<Object> update(@PathVariable String userId, @RequestBody @Validated(UpdateGroup.class) SystemUserUpdateReq req) {
         Assert.notNull(req, "参数错误");
         SystemUser systemUser = systemUserService.getById(userId);
@@ -156,7 +156,7 @@ public class SystemUserController extends BaseSystemController {
      */
     @PostMapping("remove/{userId}")
     @PreAuthorize("@ss.hasPermission('system:user:remove')")
-    @StrixLog(operationGroup = "系统用户", operationName = "删除用户", operationType = SysLogOperType.DELETE)
+    @StrixLog(operationGroup = "系统用户", operationName = "删除用户", operationType = SystemLogOperType.DELETE)
     public RetResult<Object> remove(@PathVariable String userId) {
         SystemUser systemUser = systemUserService.getById(userId);
         Assert.notNull(systemUser, "系统角色信息不存在");

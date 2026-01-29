@@ -35,7 +35,7 @@ public class SystemRoleListResp {
 
         private String name;
 
-        private Byte regionPermissionType;
+        private Short regionPermissionType;
 
         private Short builtin;
 

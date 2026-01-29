@@ -46,8 +46,10 @@ public class OssConfig extends BaseModel<OssConfig> {
 
     /**
      * OSS 服务平台
+     *
+     * @see cn.projectan.strix.model.dict.system.OssPlatform
      */
-    private Integer platform;
+    private Short platform;
 
     /**
      * OSS地域

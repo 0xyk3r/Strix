@@ -37,9 +37,11 @@ public class SystemUser extends BaseModel<SystemUser> {
     private String nickname;
 
     /**
-     * 1启用 2禁用
+     * 用户状态 1启用 2禁用
+     *
+     * @see cn.projectan.strix.model.dict.system.SystemUserStatus
      */
-    private Integer status;
+    private Short status;
 
     /**
      * 用户手机号码

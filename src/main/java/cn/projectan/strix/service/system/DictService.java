@@ -3,7 +3,7 @@ package cn.projectan.strix.service.system;
 import cn.projectan.strix.mapper.system.DictMapper;
 import cn.projectan.strix.model.db.system.Dict;
 import cn.projectan.strix.model.db.system.DictData;
-import cn.projectan.strix.model.dict.system.DictStatus;
+import cn.projectan.strix.model.dict.common.CommonSwitch;
 import cn.projectan.strix.model.request.system.dict.DictDataUpdateReq;
 import cn.projectan.strix.model.request.system.dict.DictUpdateReq;
 import cn.projectan.strix.model.response.common.CommonDictResp;
@@ -50,7 +50,7 @@ public class DictService extends ServiceImpl<DictMapper, Dict> {
     public CommonDictVersionResp getDictVersionMapResp() {
         List<Dict> dictList = lambdaQuery()
                 .select(Dict::getKey, Dict::getVersion)
-                .eq(Dict::getStatus, DictStatus.ENABLE)
+                .eq(Dict::getStatus, CommonSwitch.ENABLE)
                 .list();
         return new CommonDictVersionResp(dictList);
     }
@@ -65,12 +65,12 @@ public class DictService extends ServiceImpl<DictMapper, Dict> {
     public CommonDictResp getDictResp(String key) {
         Dict dict = lambdaQuery()
                 .eq(Dict::getKey, key)
-                .eq(Dict::getStatus, DictStatus.ENABLE)
+                .eq(Dict::getStatus, CommonSwitch.ENABLE)
                 .one();
 
         List<DictData> dictDataList = dictDataService.lambdaQuery()
                 .eq(DictData::getKey, key)
-                .eq(DictData::getStatus, DictStatus.ENABLE)
+                .eq(DictData::getStatus, CommonSwitch.ENABLE)
                 .orderByAsc(DictData::getSort)
                 .list();
 

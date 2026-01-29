@@ -1,5 +1,6 @@
 package cn.projectan.strix.model.request.system.user;
 
+import cn.projectan.strix.core.validation.annotation.DynamicDictValue;
 import cn.projectan.strix.core.validation.group.InsertGroup;
 import cn.projectan.strix.core.validation.group.UpdateGroup;
 import cn.projectan.strix.model.annotation.UpdateField;
@@ -20,9 +21,10 @@ public class SystemUserUpdateReq {
     @UpdateField
     private String nickname;
 
-    @NotNull(groups = {InsertGroup.class, UpdateGroup.class}, message = "管理人员状态未选择")
+    @NotNull(groups = {InsertGroup.class, UpdateGroup.class}, message = "用户状态未选择")
+    @DynamicDictValue(groups = {InsertGroup.class, UpdateGroup.class}, dictName = "SystemUserStatus", message = "用户状态不合法")
     @UpdateField
-    private Integer status;
+    private Short status;
 
     @NotEmpty(groups = {InsertGroup.class, UpdateGroup.class}, message = "用户手机号码不可为空")
     @Size(groups = {InsertGroup.class, UpdateGroup.class}, min = 11, max = 11, message = "用户手机号码长度不符合要求")

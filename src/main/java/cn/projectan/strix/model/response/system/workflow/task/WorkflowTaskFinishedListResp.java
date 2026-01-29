@@ -84,7 +84,7 @@ public class WorkflowTaskFinishedListResp extends BasePageResp {
 
         private String operatorId;
 
-        private Byte operationType;
+        private Short operationType;
 
         private String instanceName;
 

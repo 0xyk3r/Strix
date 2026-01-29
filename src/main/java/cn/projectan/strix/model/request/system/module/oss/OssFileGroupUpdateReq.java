@@ -1,5 +1,6 @@
 package cn.projectan.strix.model.request.system.module.oss;
 
+import cn.projectan.strix.core.validation.annotation.DynamicDictValue;
 import cn.projectan.strix.core.validation.group.InsertGroup;
 import cn.projectan.strix.core.validation.group.UpdateGroup;
 import cn.projectan.strix.model.annotation.UpdateField;
@@ -66,12 +67,13 @@ public class OssFileGroupUpdateReq {
 
     /**
      * 查看权限类型 1管理端文件 2用户端文件
+     *
+     * @see cn.projectan.strix.model.dict.system.OssFileGroupSecretType
      */
     @NotNull(groups = {InsertGroup.class, UpdateGroup.class}, message = "查看权限类型不可为空")
-    @Min(groups = {InsertGroup.class, UpdateGroup.class}, value = 1, message = "查看权限类型超出可用范围")
-    @Max(groups = {InsertGroup.class, UpdateGroup.class}, value = 2, message = "查看权限类型超出可用范围")
+    @DynamicDictValue(groups = {InsertGroup.class, UpdateGroup.class}, dictName = "OssFileGroupSecretType", message = "查看权限类型不合法")
     @UpdateField
-    private Integer secretType;
+    private Short secretType;
 
     /**
      * 查看权限等级 越大等级越高
@@ -80,7 +82,7 @@ public class OssFileGroupUpdateReq {
     @Min(groups = {InsertGroup.class, UpdateGroup.class}, value = 0, message = "查看权限等级超出可用范围")
     @Max(groups = {InsertGroup.class, UpdateGroup.class}, value = 10, message = "查看权限等级超出可用范围")
     @UpdateField
-    private Integer secretLevel;
+    private Short secretLevel;
 
     /**
      * 备注

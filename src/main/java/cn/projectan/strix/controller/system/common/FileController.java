@@ -7,7 +7,7 @@ import cn.projectan.strix.core.ret.RetBuilder;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.model.annotation.IgnoreEncryption;
 import cn.projectan.strix.model.db.system.OssFile;
-import cn.projectan.strix.model.dict.system.StrixOssFileGroupSecretType;
+import cn.projectan.strix.model.dict.system.OssFileGroupSecretType;
 import cn.projectan.strix.service.system.OssFileService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -41,7 +41,7 @@ public class FileController extends BaseSystemController {
      * 获取文件
      */
     @GetMapping("{fileId}")
-    public StreamingResponseBody download(@PathVariable String fileId, HttpServletResponse response) throws Exception {
+    public StreamingResponseBody download(@PathVariable String fileId, HttpServletResponse response) {
         OssFile ossFile = ossFileService.getById(fileId);
         Assert.notNull(ossFile, "下载文件失败, 文件不存在.");
 
@@ -51,7 +51,7 @@ public class FileController extends BaseSystemController {
                 () -> response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE)
         );
 
-        return ossFileService.getStreamingDownload(fileId, StrixOssFileGroupSecretType.MANAGER, loginManagerId());
+        return ossFileService.getStreamingDownload(fileId, OssFileGroupSecretType.MANAGER, loginManagerId());
     }
 
     /**

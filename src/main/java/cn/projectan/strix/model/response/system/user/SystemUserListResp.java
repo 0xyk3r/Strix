@@ -35,7 +35,7 @@ public class SystemUserListResp extends BasePageResp {
 
         private String nickname;
 
-        private Integer status;
+        private Short status;
 
         private String phoneNumber;
 

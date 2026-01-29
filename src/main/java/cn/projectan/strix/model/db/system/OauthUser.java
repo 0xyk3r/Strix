@@ -51,7 +51,9 @@ public class OauthUser extends BaseModel<OauthUser> {
 
     /**
      * 所属平台
+     *
+     * @see cn.projectan.strix.model.dict.system.OAuthPlatform
      */
-    private Integer platform;
+    private Short platform;
 
 }

@@ -7,7 +7,7 @@ import cn.projectan.strix.core.validation.group.InsertGroup;
 import cn.projectan.strix.core.validation.group.UpdateGroup;
 import cn.projectan.strix.model.annotation.StrixLog;
 import cn.projectan.strix.model.db.system.Job;
-import cn.projectan.strix.model.dict.system.SysLogOperType;
+import cn.projectan.strix.model.dict.system.SystemLogOperType;
 import cn.projectan.strix.model.request.system.module.job.JobListReq;
 import cn.projectan.strix.model.request.system.module.job.JobUpdateReq;
 import cn.projectan.strix.model.response.system.module.job.JobListResp;
@@ -82,7 +82,7 @@ public class JobController extends BaseSystemController {
      */
     @PostMapping("update")
     @PreAuthorize("@ss.hasPermission('system:module:job:add')")
-    @StrixLog(operationGroup = "系统定时任务", operationName = "新增定时任务", operationType = SysLogOperType.ADD)
+    @StrixLog(operationGroup = "系统定时任务", operationName = "新增定时任务", operationType = SystemLogOperType.ADD)
     public RetResult<Object> update(@RequestBody @Validated(InsertGroup.class) JobUpdateReq req) {
         Job job = new Job(
                 req.getName(),
@@ -110,7 +110,7 @@ public class JobController extends BaseSystemController {
      */
     @PostMapping("update/{id}")
     @PreAuthorize("@ss.hasPermission('system:module:job:update')")
-    @StrixLog(operationGroup = "系统定时任务", operationName = "修改定时任务", operationType = SysLogOperType.UPDATE)
+    @StrixLog(operationGroup = "系统定时任务", operationName = "修改定时任务", operationType = SystemLogOperType.UPDATE)
     public RetResult<Object> update(@PathVariable String id, @RequestBody @Validated(UpdateGroup.class) JobUpdateReq req) {
         Job job = jobService.getById(id);
         Assert.notNull(job, "原记录不存在");
@@ -132,7 +132,7 @@ public class JobController extends BaseSystemController {
      */
     @PostMapping("remove/{id}")
     @PreAuthorize("@ss.hasPermission('system:module:job:remove')")
-    @StrixLog(operationGroup = "系统定时任务", operationName = "删除定时任务", operationType = SysLogOperType.DELETE)
+    @StrixLog(operationGroup = "系统定时任务", operationName = "删除定时任务", operationType = SystemLogOperType.DELETE)
     public RetResult<Object> remove(@PathVariable String id) {
         Job job = jobService.getById(id);
         Assert.notNull(job, "原记录不存在");
@@ -151,7 +151,7 @@ public class JobController extends BaseSystemController {
      */
     @PostMapping("run/{id}")
     @PreAuthorize("@ss.hasPermission('system:module:job:run')")
-    @StrixLog(operationGroup = "系统定时任务", operationName = "运行定时任务", operationType = SysLogOperType.OTHER)
+    @StrixLog(operationGroup = "系统定时任务", operationName = "运行定时任务", operationType = SystemLogOperType.OTHER)
     public RetResult<Object> run(@PathVariable String id) {
         try {
             jobService.run(id);

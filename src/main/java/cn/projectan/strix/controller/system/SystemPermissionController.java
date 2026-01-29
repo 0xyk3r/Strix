@@ -8,7 +8,7 @@ import cn.projectan.strix.core.validation.group.InsertGroup;
 import cn.projectan.strix.core.validation.group.UpdateGroup;
 import cn.projectan.strix.model.annotation.StrixLog;
 import cn.projectan.strix.model.db.system.SystemPermission;
-import cn.projectan.strix.model.dict.system.SysLogOperType;
+import cn.projectan.strix.model.dict.system.SystemLogOperType;
 import cn.projectan.strix.model.request.system.permission.SystemPermissionUpdateReq;
 import cn.projectan.strix.model.response.common.CommonTransferDataResp;
 import cn.projectan.strix.model.response.system.permission.SystemPermissionListResp;
@@ -77,7 +77,7 @@ public class SystemPermissionController extends BaseSystemController {
      */
     @PostMapping("update")
     @PreAuthorize("@ss.anyPermission('system:menu:add', 'system:menu:update')")
-    @StrixLog(operationGroup = "系统权限", operationName = "新增权限", operationType = SysLogOperType.ADD)
+    @StrixLog(operationGroup = "系统权限", operationName = "新增权限", operationType = SystemLogOperType.ADD)
     public RetResult<Object> update(@RequestBody @Validated(InsertGroup.class) SystemPermissionUpdateReq req) {
         Assert.notNull(req, "参数错误");
 
@@ -100,7 +100,7 @@ public class SystemPermissionController extends BaseSystemController {
      */
     @PostMapping("update/{permissionId}")
     @PreAuthorize("@ss.anyPermission('system:menu:add', 'system:menu:update')")
-    @StrixLog(operationGroup = "系统权限", operationName = "修改权限", operationType = SysLogOperType.UPDATE)
+    @StrixLog(operationGroup = "系统权限", operationName = "修改权限", operationType = SystemLogOperType.UPDATE)
     public RetResult<Object> update(@PathVariable String permissionId, @RequestBody @Validated(UpdateGroup.class) SystemPermissionUpdateReq req) {
         Assert.notNull(req, "参数错误");
         SystemPermission systemPermission = systemPermissionService.getById(permissionId);
@@ -123,7 +123,7 @@ public class SystemPermissionController extends BaseSystemController {
      */
     @PostMapping("remove/{permissionId}")
     @PreAuthorize("@ss.hasPermission('system:menu:remove')")
-    @StrixLog(operationGroup = "系统权限", operationName = "删除权限", operationType = SysLogOperType.DELETE)
+    @StrixLog(operationGroup = "系统权限", operationName = "删除权限", operationType = SystemLogOperType.DELETE)
     public RetResult<Object> remove(@PathVariable String permissionId) {
         systemPermissionService.deleteByIds(List.of(permissionId));
         return RetBuilder.success();

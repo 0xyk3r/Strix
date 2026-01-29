@@ -32,7 +32,7 @@ public class SystemUserRelation extends BaseModel<SystemUserRelation> {
     /**
      * 关系类型 1微信
      */
-    private Integer relationType;
+    private Short relationType;
 
     /**
      * 所关联的第三方用户id

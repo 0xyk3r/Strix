@@ -14,15 +14,18 @@ import cn.projectan.strix.model.dict.base.BaseDict;
 public class OAuthPushStatus implements BaseDict {
 
     @DictData(label = "等待", sort = 1, style = DictDataStyle.DEFAULT)
-    public static final byte WAITING = 1;
+    public static final
+    short WAITING = 1;
 
     @DictData(label = "成功", sort = 2, style = DictDataStyle.SUCCESS)
-    public static final byte SUCCESS = 2;
+    public static final
+    short SUCCESS = 2;
 
     @DictData(label = "失败", sort = 3, style = DictDataStyle.ERROR)
-    public static final byte FAILURE = 3;
+    public static final
+    short FAILURE = 3;
 
-    public static boolean valid(byte value) {
+    public static boolean valid(short value) {
         return value == WAITING || value == SUCCESS || value == FAILURE;
     }
 

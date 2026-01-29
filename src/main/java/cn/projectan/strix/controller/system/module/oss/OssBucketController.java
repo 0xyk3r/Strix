@@ -8,7 +8,7 @@ import cn.projectan.strix.core.validation.group.InsertGroup;
 import cn.projectan.strix.core.validation.group.UpdateGroup;
 import cn.projectan.strix.model.annotation.StrixLog;
 import cn.projectan.strix.model.db.system.OssBucket;
-import cn.projectan.strix.model.dict.system.SysLogOperType;
+import cn.projectan.strix.model.dict.system.SystemLogOperType;
 import cn.projectan.strix.model.request.system.module.oss.OssBucketListReq;
 import cn.projectan.strix.model.request.system.module.oss.OssBucketUpdateReq;
 import cn.projectan.strix.model.response.system.module.oss.OssBucketListResp;
@@ -63,24 +63,18 @@ public class OssBucketController extends BaseSystemController {
      */
     @PostMapping("update")
     @PreAuthorize("@ss.hasPermission('system:module:oss:bucket:add')")
-    @StrixLog(operationGroup = "系统存储空间", operationName = "新增存储空间", operationType = SysLogOperType.ADD)
+    @StrixLog(operationGroup = "系统存储空间", operationName = "新增存储空间", operationType = SystemLogOperType.ADD)
     public RetResult<Object> update(@RequestBody @Validated(InsertGroup.class) OssBucketUpdateReq req) {
         OssBucket ossBucket = new OssBucket(
                 req.getConfigKey(),
                 req.getName(),
-                null,
-                null,
-                null,
-                req.getStorageClass(),
                 null
         );
 
         UniqueChecker.check(ossBucket);
 
-        ossBucketService.createBucket(ossBucket.getConfigKey(), ossBucket.getName(), ossBucket.getStorageClass());
+        ossBucketService.createBucket(ossBucket.getConfigKey(), ossBucket.getName());
         strixOssTask.refreshBucketList();
-
-        // 使用同步进行创建
 
         return RetBuilder.success();
     }
@@ -90,7 +84,7 @@ public class OssBucketController extends BaseSystemController {
      */
     @PostMapping("update/{id}")
     @PreAuthorize("@ss.hasPermission('system:module:oss:bucket:update')")
-    @StrixLog(operationGroup = "系统存储空间", operationName = "修改存储空间", operationType = SysLogOperType.UPDATE)
+    @StrixLog(operationGroup = "系统存储空间", operationName = "修改存储空间", operationType = SystemLogOperType.UPDATE)
     public RetResult<Object> update(@PathVariable String id, @RequestBody @Validated(UpdateGroup.class) OssBucketUpdateReq req) {
         OssBucket ossBucket = ossBucketService.getById(id);
         Assert.notNull(ossBucket, "原记录不存在");
@@ -107,7 +101,7 @@ public class OssBucketController extends BaseSystemController {
      */
     @PostMapping("remove/{id}")
     @PreAuthorize("@ss.hasPermission('system:module:oss:bucket:remove')")
-    @StrixLog(operationGroup = "系统存储空间", operationName = "删除存储空间", operationType = SysLogOperType.DELETE)
+    @StrixLog(operationGroup = "系统存储空间", operationName = "删除存储空间", operationType = SystemLogOperType.DELETE)
     public RetResult<Object> remove(@PathVariable String id) {
         ossBucketService.removeById(id);
         return RetBuilder.success();

@@ -44,9 +44,11 @@ public class SystemConfig extends BaseModel<SystemConfig> {
 
     /**
      * 设置类型 1开关 2内容
+     *
+     * @see cn.projectan.strix.model.dict.system.SystemConfigType
      */
     @TableField("`type`")
-    private Integer type;
+    private Short type;
 
     /**
      * 设置项值

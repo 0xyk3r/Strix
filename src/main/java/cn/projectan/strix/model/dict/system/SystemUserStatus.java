@@ -13,14 +13,14 @@ public class SystemUserStatus implements BaseDict {
 
     @DictData(label = "正常", sort = 1, style = DictDataStyle.SUCCESS)
     public static final
-    int NORMAL = 1;
+    short NORMAL = 1;
 
     @DictData(label = "禁用", sort = 2, style = DictDataStyle.SUCCESS)
     public static final
-    int BANNED = 2;
+    short BANNED = 2;
 
-    public static boolean valid(int status) {
-        return status == BANNED || status == NORMAL;
+    public static boolean valid(short value) {
+        return value == BANNED || value == NORMAL;
     }
 
 }

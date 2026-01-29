@@ -49,15 +49,19 @@ public class SmsTemplate extends BaseModel<SmsTemplate> {
 
     /**
      * 模板类型
+     *
+     * @see cn.projectan.strix.model.dict.system.SmsTemplateType
      */
     @TableField("`type`")
-    private Integer type;
+    private Short type;
 
     /**
      * 模板状态
+     *
+     * @see cn.projectan.strix.model.dict.system.SmsTemplateStatus
      */
     @TableField("`status`")
-    private Integer status;
+    private Short status;
 
     /**
      * 模板内容

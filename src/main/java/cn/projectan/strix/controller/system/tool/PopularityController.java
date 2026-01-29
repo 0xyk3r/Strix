@@ -8,7 +8,7 @@ import cn.projectan.strix.core.validation.group.UpdateGroup;
 import cn.projectan.strix.model.annotation.StrixLog;
 import cn.projectan.strix.model.db.system.PopularityConfig;
 import cn.projectan.strix.model.db.system.PopularityData;
-import cn.projectan.strix.model.dict.system.SysLogOperType;
+import cn.projectan.strix.model.dict.system.SystemLogOperType;
 import cn.projectan.strix.model.request.base.BasePageReq;
 import cn.projectan.strix.model.request.system.tool.popularity.PopularityConfigUpdateReq;
 import cn.projectan.strix.model.request.system.tool.popularity.PopularityDataUpdateReq;
@@ -75,7 +75,7 @@ public class PopularityController extends BaseSystemController {
      */
     @PostMapping("update")
     @PreAuthorize("@ss.hasPermission('system:tool:popularity:add')")
-    @StrixLog(operationGroup = "系统工具-热度工具", operationName = "新增配置", operationType = SysLogOperType.ADD)
+    @StrixLog(operationGroup = "系统工具-热度工具", operationName = "新增配置", operationType = SystemLogOperType.ADD)
     public RetResult<Object> update(@RequestBody @Validated(InsertGroup.class) PopularityConfigUpdateReq req) {
         Assert.notNull(req, "参数错误");
 
@@ -97,7 +97,7 @@ public class PopularityController extends BaseSystemController {
      */
     @PostMapping("update/{id}")
     @PreAuthorize("@ss.hasPermission('system:tool:popularity:update')")
-    @StrixLog(operationGroup = "系统工具-热度工具", operationName = "修改配置", operationType = SysLogOperType.UPDATE)
+    @StrixLog(operationGroup = "系统工具-热度工具", operationName = "修改配置", operationType = SystemLogOperType.UPDATE)
     public RetResult<Object> update(@PathVariable String id, @RequestBody @Validated(UpdateGroup.class) PopularityConfigUpdateReq req) {
         PopularityConfig data = popularityConfigService.getById(id);
         Assert.notNull(data, "数据不存在");
@@ -114,7 +114,7 @@ public class PopularityController extends BaseSystemController {
      */
     @PostMapping("remove/{id}")
     @PreAuthorize("@ss.hasPermission('system:tool:popularity:remove')")
-    @StrixLog(operationGroup = "系统工具-热度工具", operationName = "删除配置", operationType = SysLogOperType.DELETE)
+    @StrixLog(operationGroup = "系统工具-热度工具", operationName = "删除配置", operationType = SystemLogOperType.DELETE)
     public RetResult<Object> remove(@PathVariable String id) {
         PopularityConfig data = popularityConfigService.getById(id);
         Assert.notNull(data, "数据不存在");
@@ -151,7 +151,7 @@ public class PopularityController extends BaseSystemController {
      */
     @PostMapping("{id}/data/update/{dataId}")
     @PreAuthorize("@ss.hasPermission('system:tool:popularity:data')")
-    @StrixLog(operationGroup = "系统工具-热度工具", operationName = "修改热度数据", operationType = SysLogOperType.UPDATE)
+    @StrixLog(operationGroup = "系统工具-热度工具", operationName = "修改热度数据", operationType = SystemLogOperType.UPDATE)
     public RetResult<Object> updateData(@PathVariable String id, @PathVariable String dataId, @RequestBody @Validated(UpdateGroup.class) PopularityDataUpdateReq req) {
         PopularityConfig config = popularityConfigService.getById(id);
         Assert.notNull(config, "数据不存在");
@@ -169,7 +169,7 @@ public class PopularityController extends BaseSystemController {
      */
     @PostMapping("{id}/data/remove/{dataId}")
     @PreAuthorize("@ss.hasPermission('system:tool:popularity:data')")
-    @StrixLog(operationGroup = "系统工具-热度工具", operationName = "删除热度数据", operationType = SysLogOperType.DELETE)
+    @StrixLog(operationGroup = "系统工具-热度工具", operationName = "删除热度数据", operationType = SystemLogOperType.DELETE)
     public RetResult<Object> removeData(@PathVariable String id, @PathVariable String dataId) {
         PopularityConfig config = popularityConfigService.getById(id);
         Assert.notNull(config, "数据不存在");

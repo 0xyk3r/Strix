@@ -13,8 +13,8 @@ public class DictListReq extends BasePageReq<Dict> {
 
     private String keyword;
 
-    private Integer status;
+    private Short status;
 
-    private Integer provided;
+    private Short provided;
 
 }

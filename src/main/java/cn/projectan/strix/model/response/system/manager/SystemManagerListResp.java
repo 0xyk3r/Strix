@@ -40,9 +40,9 @@ public class SystemManagerListResp extends BasePageResp {
 
         private String loginName;
 
-        private Integer status;
+        private Short status;
 
-        private Integer type;
+        private Short type;
 
         private String regionId;
 

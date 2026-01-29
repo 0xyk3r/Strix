@@ -1,7 +1,6 @@
 package cn.projectan.strix.model.db.system;
 
 import cn.projectan.strix.model.db.base.BaseModel;
-import cn.projectan.strix.model.dict.system.StrixSmsPlatform;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -38,9 +37,9 @@ public class SmsLog extends BaseModel<SmsLog> {
     /**
      * 短信发送平台
      *
-     * @see StrixSmsPlatform
+     * @see cn.projectan.strix.model.dict.system.SmsPlatform
      */
-    private Integer platform;
+    private Short platform;
 
     /**
      * 短信发往号码
@@ -68,9 +67,11 @@ public class SmsLog extends BaseModel<SmsLog> {
     private String templateParam;
 
     /**
-     * 0待发送 1已发送 2发送失败
+     * 短信发送状态 0待发送 1已发送 2发送失败
+     *
+     * @see cn.projectan.strix.model.dict.system.SmsLogStatus
      */
-    private Integer status;
+    private Short status;
 
     /**
      * 短信平台返回结果

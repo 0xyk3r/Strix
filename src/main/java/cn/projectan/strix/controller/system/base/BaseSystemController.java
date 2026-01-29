@@ -86,9 +86,9 @@ public class BaseSystemController extends BaseController {
         if (SecurityUtils.isSuperAdmin()) {
             return null;
         }
-        byte regionPermissionType = Optional.ofNullable(SecurityUtils.getSystemManagerLoginInfo())
+        short regionPermissionType = Optional.ofNullable(SecurityUtils.getSystemManagerLoginInfo())
                 .map(LoginSystemManager::getRegionPermissionType)
-                .orElse((byte) -1);
+                .orElse((short) -1);
         switch (regionPermissionType) {
             case SystemRoleRegionPermissionType.ALL_REGION -> {
                 return null;

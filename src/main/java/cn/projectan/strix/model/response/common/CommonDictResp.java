@@ -24,7 +24,7 @@ public class CommonDictResp implements java.io.Serializable {
 
     private String key;
 
-    private Integer dataType;
+    private Short dataType;
 
     private Integer version;
 

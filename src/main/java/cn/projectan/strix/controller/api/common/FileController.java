@@ -33,7 +33,7 @@ public class FileController extends BaseApiController {
     @GetMapping("{fileId}")
     @IgnoreEncryption
     public void getImage(@PathVariable String fileId, HttpServletResponse response) throws Exception {
-        // TODO 权限验证
+        // 注意权限验证
         response.setContentType("image/jpeg");
         response.sendRedirect(ossFileService.getUrl(fileId, "https://oss.huiboche.cn/System/404.png"));
     }

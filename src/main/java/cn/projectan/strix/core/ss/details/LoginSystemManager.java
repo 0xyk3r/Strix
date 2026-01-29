@@ -33,14 +33,14 @@ public class LoginSystemManager implements UserDetails {
     private List<String> menusKeys;
     private List<String> permissionKeys;
     private List<String> regionIds;
-    private byte regionPermissionType;
+    private short regionPermissionType;
 
     @JsonIgnore
     private List<GrantedAuthority> authorities;
 
     public LoginSystemManager(SystemManager systemManager,
                               SystemRegion systemRegion,
-                              byte regionPermissionType,
+                              short regionPermissionType,
                               List<String> menusKeys,
                               List<String> permissionKeys,
                               List<String> regionIds) {

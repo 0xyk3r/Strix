@@ -146,9 +146,9 @@ public class WorkflowHandler {
                     .flatMap(List::stream)
                     .collect(Collectors.toList());
         }
-//            TODO: 将来通过动态参数 {nodeId}:{assign} 获取
-//            WorkflowPropsAssignType.SELECT
-//            WorkflowPropsAssignType.SELF
+        // TODO: 将来通过动态参数 {nodeId}:{assign} 获取
+        // WorkflowPropsAssignType.SELECT
+        // WorkflowPropsAssignType.SELF
         return List.of();
     }
 

@@ -41,11 +41,11 @@ public class DictDataListResp extends BasePageResp {
 
         private String label;
 
-        private Integer sort;
+        private Short sort;
 
         private String style;
 
-        private Integer status;
+        private Short status;
 
         private String remark;
 

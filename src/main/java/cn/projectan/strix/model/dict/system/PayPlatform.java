@@ -13,13 +13,13 @@ public class PayPlatform implements BaseDict {
 
     @DictData(label = "微信支付", sort = 1, style = DictDataStyle.SUCCESS)
     public static final
-    int WX_PAY = 1;
+    short WX_PAY = 1;
 
     @DictData(label = "支付宝", sort = 2, style = DictDataStyle.INFO)
     public static final
-    int ALI_PAY = 2;
+    short ALI_PAY = 2;
 
-    public static boolean valid(int value) {
+    public static boolean valid(short value) {
         return value == WX_PAY || value == ALI_PAY;
     }
 

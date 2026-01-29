@@ -9,7 +9,7 @@ import cn.projectan.strix.core.validation.group.UpdateGroup;
 import cn.projectan.strix.model.annotation.StrixLog;
 import cn.projectan.strix.model.db.system.SystemMenu;
 import cn.projectan.strix.model.db.system.SystemPermission;
-import cn.projectan.strix.model.dict.system.SysLogOperType;
+import cn.projectan.strix.model.dict.system.SystemLogOperType;
 import cn.projectan.strix.model.request.common.SingleFieldModifyReq;
 import cn.projectan.strix.model.request.system.menu.SystemMenuUpdateReq;
 import cn.projectan.strix.model.response.common.CommonTreeDataResp;
@@ -83,7 +83,7 @@ public class SystemMenuController extends BaseSystemController {
      */
     @PostMapping("modify/{menuId}")
     @PreAuthorize("@ss.hasPermission('system:menu:update')")
-    @StrixLog(operationGroup = "系统菜单", operationName = "更改菜单信息", operationType = SysLogOperType.UPDATE)
+    @StrixLog(operationGroup = "系统菜单", operationName = "更改菜单信息", operationType = SystemLogOperType.UPDATE)
     public RetResult<Object> modifyField(@PathVariable String menuId, @RequestBody SingleFieldModifyReq req) {
         Assert.hasText(req.getField(), "参数错误");
         Assert.isTrue("icon".equals(req.getField()), "参数错误");
@@ -108,7 +108,7 @@ public class SystemMenuController extends BaseSystemController {
      */
     @PostMapping("update")
     @PreAuthorize("@ss.hasPermission('system:menu:add')")
-    @StrixLog(operationGroup = "系统菜单", operationName = "新增菜单", operationType = SysLogOperType.ADD)
+    @StrixLog(operationGroup = "系统菜单", operationName = "新增菜单", operationType = SystemLogOperType.ADD)
     public RetResult<Object> update(@RequestBody @Validated(InsertGroup.class) SystemMenuUpdateReq req) {
         Assert.notNull(req, "参数错误");
 
@@ -135,7 +135,7 @@ public class SystemMenuController extends BaseSystemController {
      */
     @PostMapping("update/{menuId}")
     @PreAuthorize("@ss.hasPermission('system:menu:update')")
-    @StrixLog(operationGroup = "系统菜单", operationName = "修改菜单", operationType = SysLogOperType.UPDATE)
+    @StrixLog(operationGroup = "系统菜单", operationName = "修改菜单", operationType = SystemLogOperType.UPDATE)
     public RetResult<Object> update(@PathVariable String menuId, @RequestBody @Validated(UpdateGroup.class) SystemMenuUpdateReq req) {
         Assert.notNull(req, "参数错误");
         SystemMenu systemMenu = systemMenuService.getById(menuId);
@@ -158,7 +158,7 @@ public class SystemMenuController extends BaseSystemController {
      */
     @PostMapping("remove/{menuId}")
     @PreAuthorize("@ss.hasPermission('system:menu:remove')")
-    @StrixLog(operationGroup = "系统菜单", operationName = "删除菜单", operationType = SysLogOperType.DELETE)
+    @StrixLog(operationGroup = "系统菜单", operationName = "删除菜单", operationType = SystemLogOperType.DELETE)
     public RetResult<Object> remove(@PathVariable String menuId) {
         systemMenuService.deleteByIds(List.of(menuId));
         return RetBuilder.success();
