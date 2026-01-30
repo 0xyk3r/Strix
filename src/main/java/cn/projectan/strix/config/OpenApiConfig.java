@@ -1,7 +1,6 @@
 package cn.projectan.strix.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.xiaoymin.knife4j.spring.annotations.EnableKnife4j;
 import io.swagger.v3.core.converter.ModelConverters;
 import io.swagger.v3.core.jackson.ModelResolver;
 import io.swagger.v3.core.jackson.TypeNameResolver;
@@ -14,7 +13,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@EnableKnife4j
 @OpenAPIDefinition(
         info = @Info(
                 title = "Strix API 文档",

@@ -67,7 +67,8 @@ public class FileController extends BaseSystemController {
     @PostMapping("{groupId}/upload")
     @Operation(summary = "上传文件")
     @Parameter(name = "groupId", description = "文件组 ID", required = true)
-    public RetResult<CommonFileIdResp> upload(@PathVariable String groupId, MultipartFile file) {
+    public RetResult<CommonFileIdResp> upload(@PathVariable String groupId,
+                                              @RequestPart MultipartFile file) {
         Assert.hasText(groupId, "参数错误");
         Assert.notNull(file, "未选择文件");
 

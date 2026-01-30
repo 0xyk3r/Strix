@@ -46,3 +46,28 @@ spring:
           max-idle: 2
           min-idle: 1
           max-wait: 5000ms
+# api-docs
+springdoc:
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: order
+  api-docs:
+    enabled: true
+    path: /v3/api-docs
+  group-configs:
+    - group: 'default'
+      paths-to-match: '/**'
+      packages-to-scan: cn.projectan
+  default-flat-param-object: true
+  override-with-generic-response: false
+knife4j:
+  basic:
+    enable: true
+    username: strix
+    password: ProjectAn#@#2025
+  setting:
+    language: zh_cn
+    enable-footer-custom: true
+    footer-custom-content: Copyright 2025 - ProjectAn

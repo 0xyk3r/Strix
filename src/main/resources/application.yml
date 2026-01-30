@@ -55,29 +55,6 @@ mybatis-plus:
     map-underscore-to-camel-case: true
     cache-enabled: true
     call-setters-on-nulls: true
-# api-docs
-springdoc:
-  swagger-ui:
-    path: /swagger-ui.html
-    tags-sorter: alpha
-    operations-sorter: order
-  api-docs:
-    path: /v3/api-docs
-  group-configs:
-    - group: 'default'
-      paths-to-match: '/**'
-      packages-to-scan: cn.projectan
-  override-with-generic-response: false
-knife4j:
-  enable: true
-  basic:
-    enable: true
-    username: strix
-    password: ProjectAn#@#2025
-  setting:
-    language: zh_cn
-    enable-footer-custom: true
-    footer-custom-content: Copyright 2025 - ProjectAn
 # strix
 strix:
   # strix 模块开关

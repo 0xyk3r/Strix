@@ -92,7 +92,11 @@ dependencies {
     implementation 'cn.hutool:hutool-crypto:5.8.42'
     implementation 'org.bouncycastle:bcprov-jdk18on:1.83'
     implementation 'org.lionsoul:ip2region:2.7.0'
-    implementation 'com.github.xiaoymin:knife4j-openapi3-jakarta-spring-boot-starter:4.5.0'
+    implementation('com.github.xiaoymin:knife4j-openapi3-jakarta-spring-boot-starter:4.5.0') {
+        exclude group: 'org.springdoc', module: 'springdoc-openapi-starter-webmvc-ui'
+    }
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.15'
+
     // S3
     implementation platform("software.amazon.awssdk:bom:2.40.9")
     implementation "software.amazon.awssdk:s3"
