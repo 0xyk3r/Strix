@@ -8,6 +8,8 @@ import cn.projectan.strix.model.other.system.captcha.StrixCaptchaInfoVO;
 import cn.projectan.strix.model.request.system.module.captcha.CheckCaptchaReq;
 import cn.projectan.strix.model.request.system.module.captcha.GetCaptchaReq;
 import cn.projectan.strix.model.response.system.module.captcha.StrixCaptchaResp;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.util.Assert;
@@ -25,8 +27,9 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @Anonymous
 @RestController("SystemCaptchaController")
-@RequestMapping("captcha")
+@RequestMapping("system/captcha")
 @RequiredArgsConstructor
+@Tag(name = "通用 - 验证码")
 public class CaptchaController extends BaseSystemController {
 
     private final CaptchaService captchaService;
@@ -34,7 +37,9 @@ public class CaptchaController extends BaseSystemController {
     /**
      * 获取验证码
      */
+    @Anonymous
     @PostMapping("get")
+    @Operation(summary = "获取验证码")
     public RetResult<StrixCaptchaResp> get(@RequestBody GetCaptchaReq req, HttpServletRequest request) {
         Assert.notNull(request.getRemoteHost(), "请求无效");
         StrixCaptchaInfoVO data = new StrixCaptchaInfoVO();
@@ -46,7 +51,9 @@ public class CaptchaController extends BaseSystemController {
     /**
      * 校验验证码
      */
+    @Anonymous
     @PostMapping("check")
+    @Operation(summary = "校验验证码")
     public RetResult<StrixCaptchaResp> check(@RequestBody CheckCaptchaReq req, HttpServletRequest request) {
         StrixCaptchaInfoVO data = new StrixCaptchaInfoVO();
         data.setCaptchaType(req.getCaptchaType());
@@ -54,11 +61,6 @@ public class CaptchaController extends BaseSystemController {
         data.setToken(req.getToken());
         data.setBrowserInfo(getRemoteId(request));
         return captchaService.check(data).toRetResult();
-    }
-
-    // @PostMapping("verify")
-    public RetResult<StrixCaptchaResp> verify(@RequestBody StrixCaptchaInfoVO data, HttpServletRequest request) {
-        return captchaService.verification(data).toRetResult();
     }
 
     private static String getRemoteId(HttpServletRequest request) {

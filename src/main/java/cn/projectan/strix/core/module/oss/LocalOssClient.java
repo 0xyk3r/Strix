@@ -3,7 +3,6 @@ package cn.projectan.strix.core.module.oss;
 import cn.hutool.core.io.FileUtil;
 import cn.projectan.strix.core.exception.StrixException;
 import cn.projectan.strix.model.other.system.module.oss.StrixOssBucket;
-import cn.projectan.strix.util.tempurl.TempUrlUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
@@ -25,9 +24,9 @@ public class LocalOssClient implements StrixOssClient {
     private final DefaultOperations publicOperations;
     private final DefaultOperations privateOperations;
 
-    public LocalOssClient(String publicDomain, String privateDomain, TempUrlUtil tempUrlUtil) {
-        this.publicOperations = new DefaultOperations(publicDomain, tempUrlUtil);
-        this.privateOperations = new DefaultOperations(privateDomain, tempUrlUtil);
+    public LocalOssClient(String publicDomain, String privateDomain) {
+        this.publicOperations = new DefaultOperations();
+        this.privateOperations = new DefaultOperations();
     }
 
     public DefaultOperations getPublic() {
@@ -43,14 +42,6 @@ public class LocalOssClient implements StrixOssClient {
     }
 
     public static class DefaultOperations implements StrixOssClient.Operations {
-
-        private final String publicDomain;
-        private final TempUrlUtil tempUrlUtil;
-
-        public DefaultOperations(String publicDomain, TempUrlUtil tempUrlUtil) {
-            this.publicDomain = publicDomain;
-            this.tempUrlUtil = tempUrlUtil;
-        }
 
         private File createFile(String objectName) throws IOException {
             File file = new File(objectName);
@@ -187,14 +178,7 @@ public class LocalOssClient implements StrixOssClient {
 
         @Override
         public String signDownloadUrl(String bucketName, String objectName, long expires) {
-            String ext = FileUtil.extName(objectName);
-            File tempFile = FileUtil.createTempFile("strix-oss-", "." + ext, false);
-            File downloadFile = download(bucketName, objectName, tempFile.getAbsolutePath());
-            Assert.isTrue(downloadFile != null && downloadFile.exists(), "文件不存在");
-
-            String keyData = tempFile.getAbsolutePath();
-            String key = tempUrlUtil.create(keyData, expires);
-            return publicDomain + "/system/common/url/file/" + key;
+            return null;
         }
 
         @Override

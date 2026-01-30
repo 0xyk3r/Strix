@@ -6,6 +6,9 @@ import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.model.response.common.CommonDictResp;
 import cn.projectan.strix.model.response.common.CommonDictVersionResp;
 import cn.projectan.strix.service.system.DictService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
@@ -24,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController("SystemCommonDictController")
 @RequestMapping("system/common/dict")
 @RequiredArgsConstructor
+@Tag(name = "通用 - 字典")
 public class DictController extends BaseSystemController {
 
     private final DictService dictService;
@@ -32,6 +36,7 @@ public class DictController extends BaseSystemController {
      * 获取字典版本列表
      */
     @GetMapping("_version")
+    @Operation(summary = "获取字典版本列表")
     public RetResult<CommonDictVersionResp> getVersionList() {
         return RetBuilder.success(dictService.getDictVersionMapResp());
     }
@@ -40,6 +45,8 @@ public class DictController extends BaseSystemController {
      * 获取字典数据
      */
     @GetMapping("{dictKey}")
+    @Operation(summary = "获取字典数据")
+    @Parameter(name = "dictKey", description = "字典 Key", required = true)
     public RetResult<CommonDictResp> getDictData(@PathVariable String dictKey) {
         CommonDictResp commonDictResp = dictService.getDictResp(dictKey);
         Assert.notNull(commonDictResp, "字典未找到");

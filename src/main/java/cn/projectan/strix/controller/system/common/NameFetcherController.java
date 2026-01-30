@@ -3,7 +3,12 @@ package cn.projectan.strix.controller.system.common;
 import cn.projectan.strix.controller.system.base.BaseSystemController;
 import cn.projectan.strix.core.ret.RetBuilder;
 import cn.projectan.strix.core.ret.RetResult;
+import cn.projectan.strix.model.response.common.CommonNameFetcherResp;
 import cn.projectan.strix.util.common.NameFetcherUtil;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
@@ -21,16 +26,24 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController("SystemNameFetcherController")
 @RequestMapping("system/common/namefetcher")
 @RequiredArgsConstructor
+@Tag(name = "通用 - 数据 ID 映射器")
 public class NameFetcherController extends BaseSystemController {
 
     private final NameFetcherUtil nameFetcherUtil;
 
     @GetMapping("")
-    public RetResult<Object> nameFetcher(String dataType, String dataId) {
+    @Operation(summary = "获取名称映射")
+    @Parameters({
+            @Parameter(name = "dataType", description = "数据类型", required = true),
+            @Parameter(name = "dataId", description = "数据 ID", required = true)
+    })
+    public RetResult<CommonNameFetcherResp> nameFetcher(String dataType, String dataId) {
         Assert.hasText(dataType, "参数错误");
         Assert.hasText(dataId, "参数错误");
-        String s = nameFetcherUtil.get(dataType, dataId);
-        return RetBuilder.success(s);
+        String name = nameFetcherUtil.get(dataType, dataId);
+        return RetBuilder.success(
+                new CommonNameFetcherResp(name)
+        );
     }
 
 }

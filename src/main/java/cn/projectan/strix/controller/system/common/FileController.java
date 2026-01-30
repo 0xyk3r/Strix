@@ -8,7 +8,11 @@ import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.model.annotation.IgnoreEncryption;
 import cn.projectan.strix.model.db.system.OssFile;
 import cn.projectan.strix.model.dict.system.OssFileGroupSecretType;
+import cn.projectan.strix.model.response.common.CommonFileIdResp;
 import cn.projectan.strix.service.system.OssFileService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +24,6 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import java.io.File;
-import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -33,6 +36,7 @@ import java.util.Optional;
 @RestController("SystemCommonFileController")
 @RequestMapping("system/common/file")
 @RequiredArgsConstructor
+@Tag(name = "通用 - 文件")
 public class FileController extends BaseSystemController {
 
     private final OssFileService ossFileService;
@@ -41,6 +45,8 @@ public class FileController extends BaseSystemController {
      * 获取文件
      */
     @GetMapping("{fileId}")
+    @Operation(summary = "下载文件")
+    @Parameter(name = "fileId", description = "文件 ID", required = true)
     public StreamingResponseBody download(@PathVariable String fileId, HttpServletResponse response) {
         OssFile ossFile = ossFileService.getById(fileId);
         Assert.notNull(ossFile, "下载文件失败, 文件不存在.");
@@ -57,9 +63,11 @@ public class FileController extends BaseSystemController {
     /**
      * 上传文件
      */
-    @PostMapping("{groupId}/upload")
     @IgnoreEncryption
-    public RetResult<Object> upload(@PathVariable String groupId, MultipartFile file) {
+    @PostMapping("{groupId}/upload")
+    @Operation(summary = "上传文件")
+    @Parameter(name = "groupId", description = "文件组 ID", required = true)
+    public RetResult<CommonFileIdResp> upload(@PathVariable String groupId, MultipartFile file) {
         Assert.hasText(groupId, "参数错误");
         Assert.notNull(file, "未选择文件");
 
@@ -72,7 +80,9 @@ public class FileController extends BaseSystemController {
             //noinspection ResultOfMethodCallIgnored
             tempFile.delete();
 
-            return RetBuilder.success(Map.of("fileId", ossFile.getId()));
+            return RetBuilder.success(
+                    new CommonFileIdResp(ossFile.getId())
+            );
         } catch (IllegalArgumentException e) {
             return RetBuilder.error("上传文件失败，" + e.getMessage());
         } catch (Exception e) {

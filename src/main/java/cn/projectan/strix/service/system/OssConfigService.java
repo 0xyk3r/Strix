@@ -12,7 +12,6 @@ import cn.projectan.strix.model.response.common.CommonSelectDataResp;
 import cn.projectan.strix.task.system.StrixOssTask;
 import cn.projectan.strix.util.algo.KeyDiffUtil;
 import cn.projectan.strix.util.common.SpringUtil;
-import cn.projectan.strix.util.tempurl.TempUrlUtil;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -49,7 +48,6 @@ public class OssConfigService extends ServiceImpl<OssConfigMapper, OssConfig> {
     @Value("${spring.profiles.active}")
     private String profiles;
 
-    private final TempUrlUtil tempUrlUtil;
     private final StrixOssStore strixOssStore;
 
     /**
@@ -164,7 +162,7 @@ public class OssConfigService extends ServiceImpl<OssConfigMapper, OssConfig> {
                     case OssPlatform.TENCENT ->
                             throw new StrixException("Strix OSS: 初始化对象存储服务实例 <" + ossConfig.getKey() + "> 失败. (暂不支持腾讯云对象存储服务)");
                     case OssPlatform.LOCAL ->
-                            strixOssStore.addInstance(ossConfig.getKey(), new LocalOssClient(ossConfig.getPublicEndpoint(), ossConfig.getPrivateEndpoint(), tempUrlUtil));
+                            strixOssStore.addInstance(ossConfig.getKey(), new LocalOssClient(ossConfig.getPublicEndpoint(), ossConfig.getPrivateEndpoint()));
                     default ->
                             throw new StrixException("Strix OSS: 初始化对象存储服务实例 <" + ossConfig.getKey() + "> 失败. (暂不支持该对象存储服务平台)");
                 }

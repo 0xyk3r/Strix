@@ -4,21 +4,26 @@ package cn.projectan.strix.model.response.system.module.captcha;
 import cn.projectan.strix.core.ret.RetCode;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.model.enums.system.StrixCaptchaRepCodeEnum;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.io.Serial;
 import java.io.Serializable;
 
 @Data
+@Schema(description = "通用 - 验证码 - 验证码响应")
 public class StrixCaptchaResp implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 8445617032523881407L;
 
+    @Schema(description = "响应代码", example = "0000")
     private String repCode;
 
+    @Schema(description = "响应消息", example = "success")
     private String repMsg;
 
+    @Schema(description = "响应数据")
     private Object repData;
 
     public StrixCaptchaResp() {
