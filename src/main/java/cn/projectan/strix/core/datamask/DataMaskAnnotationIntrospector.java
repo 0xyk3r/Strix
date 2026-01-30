@@ -1,7 +1,8 @@
 package cn.projectan.strix.core.datamask;
 
-import com.fasterxml.jackson.databind.introspect.Annotated;
-import com.fasterxml.jackson.databind.introspect.NopAnnotationIntrospector;
+import tools.jackson.databind.cfg.MapperConfig;
+import tools.jackson.databind.introspect.Annotated;
+import tools.jackson.databind.introspect.NopAnnotationIntrospector;
 
 /**
  * 数据脱敏注解解析器
@@ -12,7 +13,7 @@ import com.fasterxml.jackson.databind.introspect.NopAnnotationIntrospector;
 public class DataMaskAnnotationIntrospector extends NopAnnotationIntrospector {
 
     @Override
-    public Object findSerializer(Annotated am) {
+    public Object findSerializer(MapperConfig<?> config, Annotated am) {
         DataMask annotation = am.getAnnotation(DataMask.class);
         if (annotation != null) {
             return new DataMaskSerializer(annotation.maskFunc().operation(), annotation.maskChar(), annotation.n1(), annotation.n2());

@@ -2,13 +2,14 @@ package cn.projectan.strix.core.ss.handler;
 
 import cn.projectan.strix.core.ret.RetBuilder;
 import cn.projectan.strix.util.http.ServletUtils;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.NonNull;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.stereotype.Component;
+import tools.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 
@@ -23,7 +24,7 @@ public class SystemManagerLoginFailureHandler implements AuthenticationFailureHa
     private final ObjectMapper objectMapper;
 
     @Override
-    public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException {
+    public void onAuthenticationFailure(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, AuthenticationException exception) throws IOException {
         String result = objectMapper.writeValueAsString(RetBuilder.error(exception.getMessage()));
         ServletUtils.write(response, result);
     }

@@ -10,11 +10,11 @@ import cn.projectan.strix.model.other.system.module.pay.alipay.AlipayPayConfig;
 import cn.projectan.strix.model.other.system.module.pay.wxpay.WechatPayConfig;
 import cn.projectan.strix.util.file.CertUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
+import tools.jackson.databind.ObjectMapper;
 
 import java.util.List;
 

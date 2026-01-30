@@ -11,10 +11,10 @@ import cn.projectan.strix.model.other.system.module.oauth.AlipayOAuthConfig;
 import cn.projectan.strix.model.other.system.module.oauth.wechat.mp.WechatMPOAuthConfig;
 import cn.projectan.strix.model.other.system.module.oauth.wechat.oa.WechatOAOAuthConfig;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import tools.jackson.databind.ObjectMapper;
 
 import java.util.List;
 

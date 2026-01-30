@@ -5,14 +5,13 @@ import cn.projectan.strix.model.db.system.PayOrder;
 import cn.projectan.strix.model.dict.system.PayPlatform;
 import cn.projectan.strix.model.other.system.module.pay.BasePayResult;
 import cn.projectan.strix.model.other.system.module.pay.alipay.AlipayPayConfig;
-import cn.projectan.strix.util.common.SpringUtil;
+import cn.projectan.strix.util.common.ObjectMapperUtil;
 import cn.projectan.strix.util.file.CertUtil;
 import cn.projectan.strix.util.http.ServletUtils;
 import cn.projectan.strix.util.math.Arithmetic;
 import com.alipay.api.domain.AlipayTradePagePayModel;
 import com.alipay.api.domain.AlipayTradeWapPayModel;
 import com.alipay.api.internal.util.AlipaySignature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ijpay.alipay.AliPayApi;
 import com.ijpay.alipay.AliPayApiConfig;
 import com.ijpay.alipay.AliPayApiConfigKit;
@@ -36,13 +35,11 @@ public class AlipayPayClient extends StrixPayClient {
 
     protected final AlipayPayConfig config;
     protected final AliPayApiConfig apiConfig;
-    private final ObjectMapper objectMapper;
 
     public AlipayPayClient(AlipayPayConfig config) {
         super();
         Assert.notNull(config, "Strix Pay: 初始化支付宝支付服务实例失败. (配置信息为空)");
         this.config = config;
-        this.objectMapper = SpringUtil.getBean(ObjectMapper.class);
         try {
             this.apiConfig = AliPayApiConfig.builder()
                     .setAppId(config.getAppId())
@@ -113,11 +110,12 @@ public class AlipayPayClient extends StrixPayClient {
          * 花呗分期相关的设置,测试环境不支持花呗分期的测试
          * hb_fq_num代表花呗分期数，仅支持传入3、6、12，其他期数暂不支持，传入会报错；
          * hb_fq_seller_percent代表卖家承担收费比例，商家承担手续费传入100，用户承担手续费传入0，仅支持传入100、0两种，其他比例暂不支持，传入会报错。
+         *
+         * ExtendParams extendParams = new ExtendParams();
+         * extendParams.setHbFqNum("3");
+         * extendParams.setHbFqSellerPercent("0");
+         * model.setExtendParams(extendParams);
          */
-//            ExtendParams extendParams = new ExtendParams();
-//            extendParams.setHbFqNum("3");
-//            extendParams.setHbFqSellerPercent("0");
-//            model.setExtendParams(extendParams);
         try {
             HttpServletResponse response = ServletUtils.getResponse();
             AliPayApi.tradePage(response, model, config.getNotifyUrl(), config.getReturnUrl());
@@ -154,7 +152,7 @@ public class AlipayPayClient extends StrixPayClient {
         result.setPlatformUserId(MapUtil.getStr(params, "buyer_id"));
         result.setAttach(MapUtil.getStr(params, "passback_params"));
         try {
-            result.setOriginalResult(objectMapper.writeValueAsString(params));
+            result.setOriginalResult(ObjectMapperUtil.writeValue(params));
         } catch (Exception e) {
             log.warn("Strix Pay: 支付宝支付回调结果序列化失败.", e);
         }

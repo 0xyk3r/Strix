@@ -1,16 +1,14 @@
 package cn.projectan.strix.core.aop.aspect;
 
+import cn.projectan.strix.config.JacksonConfig;
 import cn.projectan.strix.core.ret.RetBuilder;
 import cn.projectan.strix.core.ret.RetCode;
 import cn.projectan.strix.model.annotation.IgnoreEncryption;
 import cn.projectan.strix.model.constant.system.StrixPasswordConst;
 import cn.projectan.strix.util.common.I18nUtil;
-import cn.projectan.strix.util.common.SpringUtil;
 import cn.projectan.strix.util.http.ServletUtils;
 import cn.projectan.strix.util.system.ApiSignUtil;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -25,6 +23,8 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.servlet.HandlerMapping;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
 
 import java.lang.reflect.Parameter;
 import java.util.Map;
@@ -44,13 +44,17 @@ import java.util.TreeMap;
 @Component
 public class ApiSecurityCheckAspect {
 
+    private final ApiSignUtil apiSignUtil;
     private final ObjectMapper objectMapper;
 
-    public ApiSecurityCheckAspect() {
-        // 深拷贝一份 ObjectMapper ，避免修改全局配置
-        ObjectMapper globalObjectMapper = SpringUtil.getBean(ObjectMapper.class);
-        this.objectMapper = globalObjectMapper.copy();
-        this.objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+    public ApiSecurityCheckAspect(ApiSignUtil apiSignUtil) {
+        this.apiSignUtil = apiSignUtil;
+
+        // 基于全局基础 Jackson 配置增加字段排序功能
+        objectMapper = JacksonConfig.builder()
+                .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_EMPTY))
+                .changeDefaultPropertyInclusion(incl -> incl.withContentInclusion(JsonInclude.Include.NON_EMPTY))
+                .build();
     }
 
     @SuppressWarnings("EmptyMethod")
@@ -126,7 +130,7 @@ public class ApiSecurityCheckAspect {
         }
 
         // 校验签名
-        if (!ApiSignUtil.verifySign(paramsMap, sign)) {
+        if (!apiSignUtil.verifySign(paramsMap, sign)) {
             return RetBuilder.error(RetCode.BAT_REQUEST, I18nUtil.get("error.badRequest") + "4");
         }
 

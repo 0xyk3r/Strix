@@ -7,7 +7,6 @@ import cn.projectan.strix.core.security.ApiSecurity;
 import cn.projectan.strix.model.annotation.IgnoreEncryption;
 import cn.projectan.strix.model.constant.system.StrixPasswordConst;
 import cn.projectan.strix.util.http.ServletUtils;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.Nonnull;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -20,6 +19,7 @@ import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  * 响应数据加密处理

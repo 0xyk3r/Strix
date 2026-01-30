@@ -1,11 +1,10 @@
 package cn.projectan.strix.core.datamask;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.jsontype.TypeSerializer;
+import tools.jackson.databind.ser.std.StdScalarSerializer;
 
-import java.io.IOException;
 import java.util.Objects;
 
 /**
@@ -41,13 +40,13 @@ public final class DataMaskSerializer extends StdScalarSerializer<Object> {
     }
 
     @Override
-    public boolean isEmpty(SerializerProvider prov, Object value) {
+    public boolean isEmpty(SerializationContext ctxt, Object value) {
         String str = (String) value;
         return str.isEmpty();
     }
 
     @Override
-    public void serialize(Object value, JsonGenerator gen, SerializerProvider provider) throws IOException {
+    public void serialize(Object value, JsonGenerator gen, SerializationContext ctxt) {
         if (Objects.isNull(operation)) {
             String content = DataMaskFunc.KEEP_SIDE.operation().mask((String) value, maskChar, n1, n2);
             gen.writeString(content);
@@ -58,8 +57,8 @@ public final class DataMaskSerializer extends StdScalarSerializer<Object> {
     }
 
     @Override
-    public void serializeWithType(Object value, JsonGenerator gen, SerializerProvider provider, TypeSerializer typeSer) throws IOException {
-        this.serialize(value, gen, provider);
+    public void serializeWithType(Object value, JsonGenerator gen, SerializationContext ctxt, TypeSerializer typeSer) {
+        this.serialize(value, gen, ctxt);
     }
 
 }

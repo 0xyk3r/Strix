@@ -4,13 +4,14 @@ import cn.projectan.strix.core.ret.RetBuilder;
 import cn.projectan.strix.core.ret.RetCode;
 import cn.projectan.strix.util.common.I18nUtil;
 import cn.projectan.strix.util.http.ServletUtils;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.NonNull;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.stereotype.Component;
+import tools.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 
@@ -25,7 +26,7 @@ public class AccessDeniedHandlerImpl implements AccessDeniedHandler {
     private final ObjectMapper objectMapper;
 
     @Override
-    public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) throws IOException {
+    public void handle(@NonNull HttpServletRequest request, HttpServletResponse response, @NonNull AccessDeniedException accessDeniedException) throws IOException {
         response.setContentType("application/json;charset=utf-8");
         response.setStatus(HttpServletResponse.SC_OK);
         ServletUtils.write(response, objectMapper.writeValueAsString(RetBuilder.error(RetCode.NOT_PERMISSION, I18nUtil.get("error.notPermission"))));

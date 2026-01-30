@@ -71,7 +71,7 @@ strix:
   show-response: false
   # log 持久化配置
   log:
-    enable: false
+    enable: true
   # strix 验证码配置
   captcha:
     type: block_puzzle

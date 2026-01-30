@@ -1,15 +1,13 @@
 package cn.projectan.strix.util.ip;
 
-import cn.hutool.core.io.file.FileWriter;
 import lombok.extern.slf4j.Slf4j;
-import org.lionsoul.ip2region.xdb.Searcher;
+import org.lionsoul.ip2region.service.Config;
+import org.lionsoul.ip2region.service.Ip2Region;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.util.StringUtils;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.nio.file.Files;
+import java.io.InputStream;
+import java.util.Objects;
 
 /**
  * IP 地理位置工具类
@@ -20,43 +18,87 @@ import java.nio.file.Files;
 @Slf4j
 public class IpLocationUtil {
 
-    private static Searcher searcher;
+    private static volatile Ip2Region ip2Region;
+    private static volatile boolean initialized = false;
+    private static final Object LOCK = new Object();
 
-    static {
-        ClassPathResource resource = new ClassPathResource("ip2region/ip2region.xdb");
-        File file = null;
-        try {
-            file = Files.createTempFile("ip2region", ".xdb").toFile();
-            FileWriter writer = new FileWriter(file);
-            writer.writeFromStream(resource.getInputStream(), true);
-        } catch (IOException e) {
-            log.error("Strix IP-Region: 数据库文件读取失败.", e);
-        }
-        if (file != null) {
-            byte[] cBuff;
-            try (RandomAccessFile raf = new RandomAccessFile(file, "r")) {
-                cBuff = Searcher.loadContent(raf);
-                searcher = Searcher.newWithBuffer(cBuff);
-                log.info("Strix IP-Region: 初始化完成.");
-            } catch (Exception e) {
-                log.error("Strix IP-Region: 初始化失败.", e);
+    private IpLocationUtil() {
+        // 私有构造函数,防止实例化
+    }
+
+    /**
+     * 获取 Ip2Region 实例 (懒加载 + 双重检查锁定)
+     */
+    private static Ip2Region getInstance() {
+        if (!initialized) {
+            synchronized (LOCK) {
+                if (!initialized) {
+                    ip2Region = initializeIp2Region();
+                    initialized = true;
+                }
             }
+        }
+        return ip2Region;
+    }
+
+    /**
+     * 初始化 Ip2Region 实例
+     */
+    private static Ip2Region initializeIp2Region() {
+        Config v4Config;
+        ClassPathResource resource = new ClassPathResource("ip2region/ip2region_v4.xdb");
+
+        try (InputStream is = resource.getInputStream()) {
+            v4Config = Config.custom()
+                    .setCachePolicy(Config.BufferCache)
+                    .setSearchers(15)
+                    .setXdbInputStream(is)
+                    .asV4();
+        } catch (Exception e) {
+            log.error("Strix IP-Region: IPv4 配置初始化失败.", e);
+            return null;
+        }
+
+        try {
+            return Ip2Region.create(v4Config, null);
+        } catch (Exception e) {
+            log.error("Strix IP-Region: Ip2Region 实例初始化失败.", e);
+            return null;
         }
     }
 
-    public static String getLocation(String ip) {
+    /**
+     * 查询 IP 地址的地理位置
+     *
+     * @param ip IP 地址
+     * @return 地理位置信息
+     */
+    public static String get(String ip) {
         if (!StringUtils.hasText(ip)) {
             return "empty";
         }
-        if (searcher == null) {
-            throw new IllegalArgumentException("Strix IP-Region: 功能未初始化.");
+        Ip2Region instance = getInstance();
+        if (Objects.isNull(instance)) {
+            log.warn("Strix IP-Region: 功能未初始化,无法查询 IP: {}", ip);
+            return "unavailable";
         }
+
         try {
-            return searcher.search(ip).replaceAll("\\|", " ").replaceAll("0", "").replaceAll(" +", " ");
+            String region = instance.search(ip);
+            return StringUtils.hasText(region) ? region : "unknown";
         } catch (Exception e) {
-            log.error("Strix IP-Region: 获取数据失败.", e);
+            log.error("Strix IP-Region: IP 地址 [{}] 查询失败.", ip, e);
             return "unknown";
         }
+    }
+
+    /**
+     * 检查服务是否可用
+     *
+     * @return true 如果服务已初始化且可用
+     */
+    public static boolean isAvailable() {
+        return initialized && Objects.nonNull(ip2Region);
     }
 
 }

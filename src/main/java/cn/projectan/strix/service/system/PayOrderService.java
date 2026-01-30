@@ -15,13 +15,13 @@ import cn.projectan.strix.model.other.system.module.pay.BasePayResult;
 import cn.projectan.strix.util.async.SynchronizedUtil;
 import cn.projectan.strix.util.tool.StrixAssert;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -76,7 +76,7 @@ public class PayOrderService extends ServiceImpl<PayOrderMapper, PayOrder> {
                 payOrder.setParams(objectMapper.writeValueAsString(param));
             }
 
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             throw new StrixException("支付数据序列化失败");
         }
         payOrder.setStatus(PayOrderStatus.UNPAID);

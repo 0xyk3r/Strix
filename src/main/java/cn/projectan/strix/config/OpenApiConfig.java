@@ -1,9 +1,5 @@
 package cn.projectan.strix.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.swagger.v3.core.converter.ModelConverters;
-import io.swagger.v3.core.jackson.ModelResolver;
-import io.swagger.v3.core.jackson.TypeNameResolver;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.info.Contact;
 import io.swagger.v3.oas.annotations.info.Info;
@@ -25,24 +21,24 @@ import org.springframework.context.annotation.Configuration;
 )
 public class OpenApiConfig {
 
-    private final ObjectMapper objectMapper;
+//    private final ObjectMapper objectMapper;
 
-    public OpenApiConfig(ObjectMapper objectMapper) {
-        this.objectMapper = objectMapper;
-    }
+//    public OpenApiConfig(ObjectMapper objectMapper) {
+//        this.objectMapper = objectMapper;
+//    }
 
     @PostConstruct
     public void customizeSwaggerModelResolver() {
-        TypeNameResolver customResolver = new TypeNameResolver() {
-            @Override
-            protected String getNameOfClass(Class<?> cls) {
-                // 使用类的全限定名，避免同名冲突
-                return cls.getName().replace("cn.projectan.strix.", "");
-            }
-        };
+//        TypeNameResolver customResolver = new TypeNameResolver() {
+//            @Override
+//            protected String getNameOfClass(Class<?> cls) {
+//                // 使用类的全限定名，避免同名冲突
+//                return cls.getName().replace("cn.projectan.strix.", "");
+//            }
+//        };
 
         // 将自定义的 TypeNameResolver 注入到 ModelResolver 中
-        ModelConverters.getInstance().addConverter(new ModelResolver(objectMapper, customResolver));
+//        ModelConverters.getInstance().addConverter(new ModelResolver(objectMapper, customResolver));
     }
 
     @Bean

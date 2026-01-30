@@ -1,6 +1,6 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '3.5.8'
+    id 'org.springframework.boot' version '4.0.2'
     id 'io.spring.dependency-management' version '1.1.7'
     id 'org.graalvm.buildtools.native' version '0.11.4'
 }
@@ -44,13 +44,12 @@ bootJar {
 
 // 屏蔽部分依赖传递
 configurations.configureEach {
-    exclude group: 'commons-logging', module: 'commons-logging'
     exclude group: 'org.bouncycastle', module: 'bcprov-jdk15on'
 }
 
 dependencyManagement {
     imports {
-        mavenBom "com.baomidou:mybatis-plus-bom:3.5.15"
+        mavenBom "com.baomidou:mybatis-plus-bom:3.5.16"
     }
 }
 
@@ -63,8 +62,9 @@ dependencies {
     // Spring Boot
     implementation 'org.springframework.boot:spring-boot-starter'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.springframework.boot:spring-boot-starter-aop'
+    implementation 'org.springframework.boot:spring-boot-starter-webmvc'
+    implementation 'org.springframework.boot:spring-boot-starter-aspectj'
+    implementation 'org.springframework.boot:spring-boot-starter-jackson'
     implementation 'org.springframework.boot:spring-boot-starter-mail'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     testImplementation 'org.springframework.security:spring-security-test'
@@ -73,38 +73,36 @@ dependencies {
     testAnnotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
     // Redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-    implementation 'org.redisson:redisson-spring-boot-starter:4.0.0'
+    implementation 'org.redisson:redisson-spring-boot-starter:4.1.0'
     // Database - MySQL
     developmentOnly 'p6spy:p6spy:3.9.1'
     runtimeOnly 'com.mysql:mysql-connector-j'
-    implementation 'com.baomidou:mybatis-plus-spring-boot3-starter'
+    implementation 'com.baomidou:mybatis-plus-spring-boot4-starter'
     implementation 'com.baomidou:mybatis-plus-jsqlparser'
     implementation 'com.baomidou:mybatis-plus-generator'
     developmentOnly 'org.apache.velocity:velocity-engine-core:2.4.1'
     // Quartz
-    implementation('org.quartz-scheduler:quartz') {
-        exclude group: 'com.mchange', module: 'c3p0'
-    }
+    implementation 'org.springframework.boot:spring-boot-starter-quartz'
     // Other Tools
     implementation 'com.squareup.okhttp3:okhttp:5.3.2'
-    implementation 'cn.hutool:hutool-core:5.8.42'
-    implementation 'cn.hutool:hutool-json:5.8.42'
-    implementation 'cn.hutool:hutool-crypto:5.8.42'
+    implementation 'cn.hutool:hutool-core:5.8.43'
+    implementation 'cn.hutool:hutool-json:5.8.43'
+    implementation 'cn.hutool:hutool-crypto:5.8.43'
     implementation 'org.bouncycastle:bcprov-jdk18on:1.83'
-    implementation 'org.lionsoul:ip2region:2.7.0'
+    implementation 'org.lionsoul:ip2region:3.3.4'
     implementation('com.github.xiaoymin:knife4j-openapi3-jakarta-spring-boot-starter:4.5.0') {
         exclude group: 'org.springdoc', module: 'springdoc-openapi-starter-webmvc-ui'
     }
-    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.15'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.1'
 
     // S3
-    implementation platform("software.amazon.awssdk:bom:2.40.9")
+    implementation platform("software.amazon.awssdk:bom:2.41.17")
     implementation "software.amazon.awssdk:s3"
     // Third Party
-    implementation("com.aliyun:dysmsapi20170525:4.3.1") {
+    implementation("com.aliyun:dysmsapi20170525:4.4.0") {
         exclude group: "com.aliyun", module: "tea-xml"
     }
-    implementation 'com.alipay.sdk:alipay-sdk-java:4.40.13.ALL'
+    implementation 'com.alipay.sdk:alipay-sdk-java:4.40.644.ALL'
     implementation('com.github.javen205:IJPay-AliPay:2.9.10-17') {
         exclude group: 'com.alipay.sdk', module: 'alipay-sdk-java'
         exclude group: 'cn.hutool', module: 'hutool-json'
@@ -116,7 +114,7 @@ dependencies {
     }
 
     // GraalVM
-    compileOnly 'org.graalvm.sdk:graal-sdk:24.1.1'
+    compileOnly 'org.graalvm.sdk:graal-sdk:25.0.2'
 }
 
 test {

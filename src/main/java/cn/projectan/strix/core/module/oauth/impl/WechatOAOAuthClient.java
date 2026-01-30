@@ -10,14 +10,14 @@ import cn.projectan.strix.service.system.OauthPushService;
 import cn.projectan.strix.util.common.SpringUtil;
 import cn.projectan.strix.util.http.OkHttpUtil;
 import cn.projectan.strix.util.module.oauth.WechatOAOAuthUtil;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.Nonnull;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 import org.springframework.util.Assert;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 import java.net.URLEncoder;

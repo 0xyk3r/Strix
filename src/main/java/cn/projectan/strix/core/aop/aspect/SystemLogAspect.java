@@ -2,7 +2,9 @@ package cn.projectan.strix.core.aop.aspect;
 
 import cn.hutool.core.date.LocalDateTimeUtil;
 import cn.projectan.strix.config.ApplicationVersionConfig;
-import cn.projectan.strix.core.aop.serializer.LogSafeObjectMapper;
+import cn.projectan.strix.config.JacksonConfig;
+import cn.projectan.strix.core.aop.serializer.SensitiveFieldSerializerModifier;
+import cn.projectan.strix.core.aop.serializer.SensitiveMapSerializer;
 import cn.projectan.strix.core.exception.StrixException;
 import cn.projectan.strix.core.exception.StrixNoAuthException;
 import cn.projectan.strix.core.ret.RetCode;
@@ -18,7 +20,6 @@ import cn.projectan.strix.util.ip.IpUtils;
 import cn.projectan.strix.util.system.SecurityUtils;
 import cn.projectan.strix.util.ua.UserAgentUtil;
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
@@ -30,14 +31,19 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.core.NamedThreadLocal;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestMethod;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.module.SimpleModule;
+
+import java.util.Map;
 
 /**
  * 系统日志切面
  * <p>
- * 1. 使用 LogSafeObjectMapper 安全序列化，自动过滤不可序列化对象和脱敏密码字段
- * 2. 异常处理，区分不同类型的异常
- * 3. 使用批量异步保存，提升性能
- * 4. 从配置中读取应用版本号
+ * 1. 使用 SensitiveFieldSerializerModifier 对 Bean 对象敏感字段进行脱敏
+ * 2. 使用 SensitiveMapSerializer 对 Map 类型参数（如 GET 请求）进行脱敏
+ * 3. 异常处理，区分不同类型的异常
+ * 4. 使用批量异步保存，提升性能
+ * 5. 从配置中读取应用版本号
  * </p>
  *
  * @author ProjectAn
@@ -48,18 +54,27 @@ import org.springframework.web.bind.annotation.RequestMethod;
 @Component
 @EnableConfigurationProperties(StrixLogProperties.class)
 @ConditionalOnProperty(prefix = "strix.log", name = "enable", havingValue = "true")
-@RequiredArgsConstructor
 public class SystemLogAspect {
 
     private static final ThreadLocal<Long> TIME_THREADLOCAL = new NamedThreadLocal<>("Spend Time");
 
-    /**
-     * 日志安全的 ObjectMapper（自动过滤不可序列化对象和脱敏密码）
-     */
-    private final LogSafeObjectMapper logSafeObjectMapper = new LogSafeObjectMapper();
-
+    private final ObjectMapper objectMapper;
     private final ApplicationVersionConfig versionConfig;
     private final AsyncSystemLogService asyncSystemLogService;
+
+    public SystemLogAspect(ApplicationVersionConfig versionConfig, AsyncSystemLogService asyncSystemLogService) {
+        this.versionConfig = versionConfig;
+        this.asyncSystemLogService = asyncSystemLogService;
+
+        // 配置敏感字段脱敏的 Jackson 序列化模块
+        SimpleModule sensitiveModule = new SimpleModule("SensitiveDataModule");
+        sensitiveModule.setSerializerModifier(new SensitiveFieldSerializerModifier());
+        sensitiveModule.addSerializer(Map.class, new SensitiveMapSerializer());
+
+        this.objectMapper = JacksonConfig.builder()
+                .addModule(sensitiveModule)
+                .build();
+    }
 
     /**
      * 请求前执行
@@ -126,11 +141,11 @@ public class SystemLogAspect {
                 try {
                     if (RequestMethod.GET.name().equals(request.getMethod())) {
                         systemLog.setOperationParam(
-                                logSafeObjectMapper.safeWriteValueAsString(ServletUtils.getRequestParams(request))
+                                objectMapper.writeValueAsString(ServletUtils.getRequestParams(request))
                         );
                     } else {
                         systemLog.setOperationParam(
-                                logSafeObjectMapper.safeWriteValueAsString(joinPoint.getArgs())
+                                objectMapper.writeValueAsString(joinPoint.getArgs())
                         );
                     }
                 } catch (Exception ex) {
@@ -194,9 +209,9 @@ public class SystemLogAspect {
                     if (retResult instanceof RetResult<?> result) {
                         systemLog.setResponseCode(result.getCode());
                         systemLog.setResponseMsg(result.getMsg());
-                        systemLog.setResponseData(logSafeObjectMapper.safeWriteValueAsString(result.getData()));
+                        systemLog.setResponseData(objectMapper.writeValueAsString(result.getData()));
                     } else {
-                        systemLog.setResponseData(logSafeObjectMapper.safeWriteValueAsString(retResult));
+                        systemLog.setResponseData(objectMapper.writeValueAsString(retResult));
                     }
                 } catch (Exception ex) {
                     log.warn("Failed to serialize response data: {}", ex.getMessage());

@@ -1,11 +1,11 @@
 package cn.projectan.strix.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.redisson.codec.JsonJacksonCodec;
+import org.redisson.codec.JsonJackson3Codec;
 import org.redisson.spring.starter.RedissonAutoConfigurationCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  * Redisson 配置
@@ -24,7 +24,7 @@ public class RedissonConfig {
         return config -> {
             config.setThreads(0) //线程池数量
                     .setNettyThreads(0) // Netty线程池数量
-                    .setCodec(new JsonJacksonCodec(objectMapper));
+                    .setCodec(new JsonJackson3Codec(objectMapper));
             config.useSingleServer() // 使用单机模式
 //                    .setNameMapper(new KeyPrefixHandler("strix")) // 设置 redis key 前缀
                     .setTimeout(10000)

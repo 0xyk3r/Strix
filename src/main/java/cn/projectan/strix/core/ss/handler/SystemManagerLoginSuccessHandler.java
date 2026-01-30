@@ -2,13 +2,14 @@ package cn.projectan.strix.core.ss.handler;
 
 import cn.projectan.strix.core.ret.RetBuilder;
 import cn.projectan.strix.util.http.ServletUtils;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.NonNull;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
+import tools.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 
@@ -23,7 +24,7 @@ public class SystemManagerLoginSuccessHandler implements AuthenticationSuccessHa
     private final ObjectMapper objectMapper;
 
     @Override
-    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
+    public void onAuthenticationSuccess(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull Authentication authentication) throws IOException {
 
         String result = objectMapper.writeValueAsString(RetBuilder.success("登录成功"));
         ServletUtils.write(response, result);

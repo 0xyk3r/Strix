@@ -6,7 +6,6 @@ import cn.projectan.strix.core.security.ApiSecurity;
 import cn.projectan.strix.model.annotation.IgnoreEncryption;
 import cn.projectan.strix.model.constant.system.StrixPasswordConst;
 import cn.projectan.strix.util.http.ServletUtils;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.Nonnull;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -39,7 +38,6 @@ import java.util.Optional;
 public class DecodeRequestBodyAdvice implements RequestBodyAdvice {
 
     private final ApiSecurity apiSecurity;
-    private final ObjectMapper objectMapper;
 
     @Value("${strix.show-request:false}")
     private Boolean showRequest;

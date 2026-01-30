@@ -1,15 +1,9 @@
 package cn.projectan.strix.config;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.annotation.PropertyAccessor;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
-import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
+import org.springframework.boot.data.redis.autoconfigure.DataRedisAutoConfiguration;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
@@ -18,14 +12,17 @@ import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
+import org.springframework.data.redis.serializer.JacksonJsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+import tools.jackson.databind.DefaultTyping;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
+import tools.jackson.databind.jsontype.PolymorphicTypeValidator;
 
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.TimeZone;
 
 /**
  * Redis 配置类
@@ -34,12 +31,10 @@ import java.util.TimeZone;
  * @since 2021/05/02 16:41
  */
 @Configuration
-@AutoConfigureAfter(RedisAutoConfiguration.class)
+@AutoConfigureAfter(DataRedisAutoConfiguration.class)
 @EnableCaching
 @RequiredArgsConstructor
 public class RedisConfig {
-
-    private final JavaTimeModule javaTimeModule;
 
     /**
      * RedisTemplate 配置
@@ -50,12 +45,12 @@ public class RedisConfig {
         template.setConnectionFactory(redisConnectionFactory);
 
         StringRedisSerializer stringRedisSerializer = new StringRedisSerializer();
-        Jackson2JsonRedisSerializer<Object> jackson2JsonRedisSerializer = jackson2JsonRedisSerializer();
+        JacksonJsonRedisSerializer<Object> jacksonJsonRedisSerializer = typedJacksonJsonRedisSerializer();
 
         template.setKeySerializer(stringRedisSerializer);
         template.setHashKeySerializer(stringRedisSerializer);
-        template.setValueSerializer(jackson2JsonRedisSerializer);
-        template.setHashValueSerializer(jackson2JsonRedisSerializer);
+        template.setValueSerializer(jacksonJsonRedisSerializer);
+        template.setHashValueSerializer(jacksonJsonRedisSerializer);
 
         template.afterPropertiesSet();
         return template;
@@ -94,7 +89,7 @@ public class RedisConfig {
      * @param seconds 缓存时长
      * @return RedisCacheConfiguration
      */
-    private RedisCacheConfiguration getRedisCacheConfigurationWithTtl(Integer seconds) {
+    private RedisCacheConfiguration getRedisCacheConfigurationWithTtl(long seconds) {
         RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig();
         config = config
                 .serializeKeysWith(
@@ -104,27 +99,32 @@ public class RedisConfig {
                 .serializeValuesWith(
                         RedisSerializationContext
                                 .SerializationPair
-                                .fromSerializer(jackson2JsonRedisSerializer()))
+                                .fromSerializer(typedJacksonJsonRedisSerializer()))
                 .entryTtl(Duration.ofSeconds(seconds));
         return config;
     }
 
     /**
-     * 设置 Redis 序列化方式为 Jackson
-     * <p>使用 JacksonConfig 中的 JavaTimeModule
+     * 设置 Redis 序列化方式为 Jackson（带类型信息）
+     * <p>用于 @Cacheable 注解，在 JSON 中包含 @class 字段以便正确反序列化
      */
-    private Jackson2JsonRedisSerializer<Object> jackson2JsonRedisSerializer() {
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        objectMapper.setTimeZone(TimeZone.getTimeZone(JacksonConfig.TIME_ZONE));
+    private JacksonJsonRedisSerializer<Object> typedJacksonJsonRedisSerializer() {
+        // 自定义类型验证器，明确允许的类型范围
+        PolymorphicTypeValidator typeValidator = BasicPolymorphicTypeValidator.builder()
+                // 允许项目包下的所有类型
+                .allowIfSubType("cn.projectan.strix.")
+                // 允许常用 Java 集合类型
+                .allowIfSubType("java.util.")
+                // 允许数组类型
+                .allowIfSubTypeIsArray()
+                .build();
 
-        objectMapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
-        objectMapper.activateDefaultTyping(LaissezFaireSubTypeValidator.instance, ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
+        ObjectMapper objectMapper = JacksonConfig.builder()
+                .changeDefaultVisibility(vp -> vp.with(JsonAutoDetect.Visibility.ANY))
+                .activateDefaultTypingAsProperty(typeValidator, DefaultTyping.NON_FINAL_AND_ENUMS, "@class")
+                .build();
 
-        // 使用 JacksonConfig 中配置的 JavaTimeModule
-        objectMapper.registerModule(javaTimeModule);
-
-        return new Jackson2JsonRedisSerializer<>(objectMapper, Object.class);
+        return new JacksonJsonRedisSerializer<>(objectMapper, Object.class);
     }
 
 }

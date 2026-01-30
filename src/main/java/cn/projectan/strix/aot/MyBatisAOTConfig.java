@@ -154,10 +154,10 @@ public class MyBatisAOTConfig {
             hints.reflection().registerType(UpdateWrapper.class, MemberCategory.values());
             hints.reflection().registerType(QueryWrapper.class, MemberCategory.values());
 
-            hints.reflection().registerType(BoundSql.class, MemberCategory.DECLARED_FIELDS);
-            hints.reflection().registerType(RoutingStatementHandler.class, MemberCategory.DECLARED_FIELDS);
-            hints.reflection().registerType(BaseStatementHandler.class, MemberCategory.DECLARED_FIELDS);
-            hints.reflection().registerType(MybatisParameterHandler.class, MemberCategory.DECLARED_FIELDS);
+            hints.reflection().registerType(BoundSql.class, MemberCategory.ACCESS_DECLARED_FIELDS);
+            hints.reflection().registerType(RoutingStatementHandler.class, MemberCategory.ACCESS_DECLARED_FIELDS);
+            hints.reflection().registerType(BaseStatementHandler.class, MemberCategory.ACCESS_DECLARED_FIELDS);
+            hints.reflection().registerType(MybatisParameterHandler.class, MemberCategory.ACCESS_DECLARED_FIELDS);
 
 
             hints.reflection().registerType(IEnum.class, MemberCategory.INVOKE_PUBLIC_METHODS);

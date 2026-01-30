@@ -2,6 +2,7 @@ package cn.projectan.strix.initializer;
 
 import cn.projectan.strix.util.ip.IpLocationUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.NonNull;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.core.annotation.Order;
@@ -19,9 +20,9 @@ import org.springframework.stereotype.Component;
 public class OtherInitializer implements ApplicationRunner {
 
     @Override
-    public void run(ApplicationArguments args) {
+    public void run(@NonNull ApplicationArguments args) {
         // 初始化 IP 地理位置数据库
-        IpLocationUtil.getLocation("127.0.0.1");
+        IpLocationUtil.get("127.0.0.1");
     }
 
 }

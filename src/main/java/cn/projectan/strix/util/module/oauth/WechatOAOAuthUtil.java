@@ -3,10 +3,10 @@ package cn.projectan.strix.util.module.oauth;
 import cn.hutool.core.map.MapUtil;
 import cn.projectan.strix.core.exception.StrixOAuthException;
 import cn.projectan.strix.util.http.OkHttpUtil;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
 
 import java.security.MessageDigest;
 import java.security.SecureRandom;

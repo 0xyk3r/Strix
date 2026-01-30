@@ -14,8 +14,6 @@ import cn.projectan.strix.model.other.system.module.pay.wxpay.WechatPayPayParam;
 import cn.projectan.strix.util.common.SpringUtil;
 import cn.projectan.strix.util.file.CertUtil;
 import cn.projectan.strix.util.http.ServletUtils;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ijpay.core.IJPayHttpResponse;
 import com.ijpay.core.enums.AuthTypeEnum;
 import com.ijpay.core.enums.RequestMethodEnum;
@@ -35,6 +33,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.util.Assert;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
