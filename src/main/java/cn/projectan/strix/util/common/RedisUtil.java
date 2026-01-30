@@ -16,6 +16,14 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Redis 工具类
+ * <p>提供对 Redis 各种数据结构的操作封装，包括：
+ * <ul>
+ *     <li>String: 基本的键值操作</li>
+ *     <li>Hash: 哈希表操作</li>
+ *     <li>Set: 集合操作</li>
+ *     <li>List: 列表操作</li>
+ *     <li>ZSet: 有序集合操作</li>
+ * </ul>
  *
  * @author ProjectAn
  * @since 2021/05/12 19:36
@@ -25,20 +33,39 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 public class RedisUtil {
 
+    /**
+     * 默认时间单位：秒
+     */
+    private static final TimeUnit DEFAULT_TIME_UNIT = TimeUnit.SECONDS;
+
+    /**
+     * 默认 scan 批次大小
+     */
+    private static final int DEFAULT_SCAN_COUNT = 1000;
+
     private final RedisTemplate<String, Object> redisTemplate;
 
     /**
      * 获取缓存失效时间
      *
      * @param key 键
-     * @return 时间(秒) 返回0代表永久有效
+     * @return 时间(秒) 返回0代表永久有效，-2代表键不存在
      */
     public long getExpire(String key) {
-        return redisTemplate.getExpire(key, TimeUnit.SECONDS);
+        return getExpire(key, DEFAULT_TIME_UNIT);
     }
 
+    /**
+     * 获取缓存失效时间
+     *
+     * @param key      键
+     * @param timeUnit 时间单位
+     * @return 失效时间，返回0代表永久有效，-2代表键不存在
+     */
     public long getExpire(String key, TimeUnit timeUnit) {
-        return redisTemplate.getExpire(key, timeUnit);
+        Assert.hasText(key, "key 不能为空");
+        Long expire = redisTemplate.getExpire(key, timeUnit);
+        return expire != null ? expire : -2;
     }
 
     /**
@@ -49,7 +76,7 @@ public class RedisUtil {
      * @return 是否设置成功
      */
     public boolean setExpire(String key, long time) {
-        return setExpire(key, time, TimeUnit.SECONDS);
+        return setExpire(key, time, DEFAULT_TIME_UNIT);
     }
 
     /**
@@ -61,8 +88,10 @@ public class RedisUtil {
      * @return 是否设置成功
      */
     public boolean setExpire(String key, long time, TimeUnit timeUnit) {
+        Assert.hasText(key, "key 不能为空");
         Assert.isTrue(time > 0, "缓存失效时间必须大于0");
-        return redisTemplate.expire(key, time, timeUnit);
+        Boolean result = redisTemplate.expire(key, time, timeUnit);
+        return Boolean.TRUE.equals(result);
     }
 
     /**
@@ -72,7 +101,9 @@ public class RedisUtil {
      * @return 是否存在
      */
     public boolean hasKey(String key) {
-        return redisTemplate.hasKey(key);
+        Assert.hasText(key, "key 不能为空");
+        Boolean result = redisTemplate.hasKey(key);
+        return Boolean.TRUE.equals(result);
     }
 
     /**
@@ -83,46 +114,51 @@ public class RedisUtil {
      * @return 是否是指定类型
      */
     public boolean isType(String key, DataType type) {
+        Assert.hasText(key, "key 不能为空");
+        Assert.notNull(type, "type 不能为空");
         return redisTemplate.type(key) == type;
     }
 
     /**
      * 删除 Key
      *
-     * @param key 键 可以传一个值 或多个
+     * @param keys 键，可以传一个值或多个
      */
-    public void del(String... key) {
-        if (key != null && key.length > 0) {
-            if (key.length == 1) {
-                redisTemplate.delete(key[0]);
-            } else {
-                redisTemplate.delete(Arrays.asList(key));
-            }
+    public void del(String... keys) {
+        if (keys == null || keys.length == 0) {
+            return;
+        }
+        if (keys.length == 1) {
+            redisTemplate.delete(keys[0]);
+        } else {
+            redisTemplate.delete(Arrays.asList(keys));
         }
     }
 
     /**
      * 模糊查询 Keys
-     * <p>大数据量场景请使用 {@link #scan(String)}
+     * <p>大数据量场景请使用 {@link #scan(String)}，避免阻塞 Redis
      *
-     * @param pre 前缀
-     * @return Keys
+     * @param pattern 匹配模式（支持通配符 *）
+     * @return 匹配的 Keys 集合
      */
-    public Set<String> keys(String pre) {
-        return redisTemplate.keys(pre);
+    public Set<String> keys(String pattern) {
+        Assert.hasText(pattern, "pattern 不能为空");
+        return redisTemplate.keys(pattern);
     }
 
     /**
      * 模糊删除 Keys
      * <p>使用 scan 命令分批处理，避免阻塞 Redis
      *
-     * @param pattern 需要删除的前缀 需要包含通配符 *
+     * @param pattern 匹配模式（需要包含通配符 *）
      */
     public void delLike(String pattern) {
+        Assert.hasText(pattern, "pattern 不能为空");
         try (Cursor<String> cursor = redisTemplate.scan(
                 ScanOptions.scanOptions()
                         .match(pattern)
-                        .count(1000)
+                        .count(DEFAULT_SCAN_COUNT)
                         .build()
         )) {
             List<String> keys = new ArrayList<>();
@@ -183,7 +219,7 @@ public class RedisUtil {
      * @param time  时间(秒) time要大于0 如果time小于等于0 将设置无限期
      */
     public void set(String key, Object value, long time) {
-        set(key, value, time, TimeUnit.SECONDS);
+        set(key, value, time, DEFAULT_TIME_UNIT);
     }
 
     /**
@@ -702,52 +738,97 @@ public class RedisUtil {
     }
 
     /**
-     * 从有序集合总获取指定元素的分数
+     * 从有序集合中获取指定元素的分数
      *
      * @param key  键
-     * @param item 项
-     * @return 分数
+     * @param item 元素
+     * @return 分数，如果元素不存在返回 null
      */
     public Long zGet(String key, String item) {
         Double result = redisTemplate.opsForZSet().score(key, item);
         return result != null ? result.longValue() : null;
     }
 
+    /**
+     * 获取有序集合中的所有元素及其分数
+     *
+     * @param key 键
+     * @return 元素及分数的集合
+     */
     public Set<ZSetOperations.TypedTuple<Object>> zGet(String key) {
         return redisTemplate.opsForZSet().rangeWithScores(key, 0, -1);
     }
 
+    /**
+     * 向有序集合中添加元素
+     *
+     * @param key   键
+     * @param item  元素
+     * @param score 分数
+     */
     public void zSet(String key, String item, long score) {
         redisTemplate.opsForZSet().add(key, item, score);
     }
 
+    /**
+     * 批量向有序集合中添加元素
+     *
+     * @param key    键
+     * @param tuples 元素及分数的集合
+     */
     public void zSet(String key, Set<ZSetOperations.TypedTuple<Object>> tuples) {
         redisTemplate.opsForZSet().add(key, tuples);
     }
 
+    /**
+     * 有序集合元素分数递增 1
+     *
+     * @param key  键
+     * @param item 元素
+     */
     public void zIncr(String key, String item) {
         redisTemplate.opsForZSet().incrementScore(key, item, 1);
     }
 
+    /**
+     * 从有序集合中删除元素
+     *
+     * @param key  键
+     * @param item 元素
+     */
     public void zDel(String key, String item) {
         redisTemplate.opsForZSet().remove(key, item);
     }
 
+    /**
+     * 使用 scan 命令扫描匹配的 Keys
+     * <p>相比 keys 命令，scan 不会阻塞 Redis，适用于大数据量场景
+     *
+     * @param pattern 匹配模式（支持通配符 *）
+     * @return 匹配的 Keys 集合
+     */
     public Set<String> scan(String pattern) {
-        return scan(pattern, 1000);
+        return scan(pattern, DEFAULT_SCAN_COUNT);
     }
 
+    /**
+     * 使用 scan 命令扫描匹配的 Keys
+     * <p>相比 keys 命令，scan 不会阻塞 Redis，适用于大数据量场景
+     *
+     * @param pattern 匹配模式（支持通配符 *）
+     * @param count   每批扫描的数量
+     * @return 匹配的 Keys 集合
+     */
     public Set<String> scan(String pattern, long count) {
+        Assert.hasText(pattern, "pattern 不能为空");
         Set<String> keys = new HashSet<>();
-        try (Cursor<String> scan = redisTemplate.scan(
+        try (Cursor<String> cursor = redisTemplate.scan(
                 ScanOptions.scanOptions()
                         .match(pattern)
                         .count(count)
                         .build()
         )) {
-            while (scan.hasNext()) {
-                keys.add(scan.next());
-            }
+            cursor.forEachRemaining(keys::add);
         }
         return keys;
     }
