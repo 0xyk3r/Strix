@@ -19,8 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
  * @since 2023/5/26 21:57
  */
 @Slf4j
-@RestController("ApiCommonFileController")
-@RequestMapping("api/common/file")
+@RestController("SrvCommonFileController")
+@RequestMapping("srv/common/file")
 @RequiredArgsConstructor
 public class FileController extends BaseSrvController {
 

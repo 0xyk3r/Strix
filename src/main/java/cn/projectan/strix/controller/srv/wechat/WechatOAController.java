@@ -46,7 +46,7 @@ import java.util.Map;
  */
 @Slf4j
 @Controller
-@RequestMapping("api/wechat/oa/{configKey}")
+@RequestMapping("srv/wechat/oa/{configKey}")
 @RequiredArgsConstructor
 public class WechatOAController extends BaseWechatController {
 
