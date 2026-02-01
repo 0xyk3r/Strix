@@ -62,4 +62,9 @@ public class ChatSession extends BaseModel<ChatSession> {
      */
     private LocalDateTime lastMsgTime;
 
+    /**
+     * 群聊名称（仅 GROUP 类型）
+     */
+    private String groupName;
+
 }

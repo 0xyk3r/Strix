@@ -4,10 +4,7 @@ import cn.hutool.core.util.IdUtil;
 import cn.projectan.strix.mapper.system.ChatMessageMapper;
 import cn.projectan.strix.mapper.system.ChatSessionMemberMapper;
 import cn.projectan.strix.model.constant.system.ChatRedisKeys;
-import cn.projectan.strix.model.db.system.ChatConfig;
-import cn.projectan.strix.model.db.system.ChatMessage;
-import cn.projectan.strix.model.db.system.ChatSession;
-import cn.projectan.strix.model.db.system.ChatSessionMember;
+import cn.projectan.strix.model.db.system.*;
 import cn.projectan.strix.model.enums.system.ChatMemberRoleEnum;
 import cn.projectan.strix.model.enums.system.ChatMessageTypeEnum;
 import cn.projectan.strix.model.enums.system.ChatSessionTypeEnum;
@@ -57,6 +54,8 @@ public class ChatBusinessService {
     private final ChatMessageMapper chatMessageMapper;
     private final RedisTemplate<String, Object> redisTemplate;
     private final ApplicationEventPublisher eventPublisher;
+    private final SystemUserService systemUserService;
+    private final UserOnlineStatusService userOnlineStatusService;
 
     /**
      * 获取或创建会话
@@ -103,6 +102,11 @@ public class ChatBusinessService {
         newSession.setType(config.getSessionType());
         newSession.setBizType(req.getBizType());
         newSession.setBizId(req.getBizId());
+
+        // 群聊场景：设置群聊名称
+        if (sessionType == ChatSessionTypeEnum.GROUP && StringUtils.hasText(req.getGroupName())) {
+            newSession.setGroupName(req.getGroupName());
+        }
 
         chatSessionService.save(newSession);
 
@@ -161,7 +165,85 @@ public class ChatBusinessService {
 
         Page<ChatSession> sessionPage = chatSessionService.page(new Page<>(req.getPageIndex(), req.getPageSize()), sessionQuery);
 
-        // 3. 构建响应
+        // 3. 如果没有会话，直接返回空页
+        if (sessionPage.getRecords().isEmpty()) {
+            return new Page<>(req.getPageIndex(), req.getPageSize(), 0);
+        }
+
+        // 4. 批量查询所有会话的成员（用于获取一对一会话的对方用户 ID）
+        List<String> pageSessionIds = sessionPage.getRecords().stream()
+                .map(ChatSession::getId)
+                .toList();
+
+        LambdaQueryWrapper<ChatSessionMember> allMembersQuery = new LambdaQueryWrapper<>();
+        allMembersQuery.in(ChatSessionMember::getSessionId, pageSessionIds);
+        List<ChatSessionMember> allMembers = chatSessionMemberMapper.selectList(allMembersQuery);
+
+        // 按会话 ID 分组
+        Map<String, List<ChatSessionMember>> sessionMembersMap = allMembers.stream()
+                .collect(Collectors.groupingBy(ChatSessionMember::getSessionId));
+
+        // 5. 收集所有需要查询的用户 ID
+        Set<String> userIdsToQuery = new HashSet<>();
+        for (ChatSession session : sessionPage.getRecords()) {
+            // 如果是一对一会话，获取对方用户 ID
+            if (ChatSessionTypeEnum.SINGLE.getCodeValue().equals(session.getType())) {
+                List<ChatSessionMember> sessionMembers = sessionMembersMap.get(session.getId());
+                if (sessionMembers != null) {
+                    for (ChatSessionMember member : sessionMembers) {
+                        if (!member.getUserId().equals(userId)) {
+                            userIdsToQuery.add(member.getUserId());
+                        }
+                    }
+                }
+            }
+            // 收集最后消息的发送者 ID
+            if (StringUtils.hasText(session.getLastMsgId())) {
+                ChatMessage lastMsg = chatMessageService.getById(session.getLastMsgId());
+                if (lastMsg != null) {
+                    userIdsToQuery.add(lastMsg.getFormUserId());
+                }
+            }
+        }
+
+        // 6. 批量查询用户信息
+        Map<String, SystemUser> userMap = new HashMap<>();
+        if (!userIdsToQuery.isEmpty()) {
+            List<SystemUser> users = systemUserService.listByIds(userIdsToQuery);
+            userMap = users.stream()
+                    .collect(Collectors.toMap(SystemUser::getId, u -> u));
+        }
+
+        // 7. 批量查询在线状态（仅一对一会话的对方）
+        List<String> onlineStatusUserIds = new ArrayList<>();
+        for (ChatSession session : sessionPage.getRecords()) {
+            if (ChatSessionTypeEnum.SINGLE.getCodeValue().equals(session.getType())) {
+                List<ChatSessionMember> sessionMembers = sessionMembersMap.get(session.getId());
+                if (sessionMembers != null) {
+                    for (ChatSessionMember member : sessionMembers) {
+                        if (!member.getUserId().equals(userId)) {
+                            onlineStatusUserIds.add(member.getUserId());
+                        }
+                    }
+                }
+            }
+        }
+        Map<String, Boolean> onlineStatusMap = userOnlineStatusService.batchGetOnlineStatus(onlineStatusUserIds);
+
+        // 8. 批量查询最后消息
+        List<String> lastMsgIds = sessionPage.getRecords().stream()
+                .map(ChatSession::getLastMsgId)
+                .filter(StringUtils::hasText)
+                .toList();
+
+        Map<String, ChatMessage> lastMessageMap = new HashMap<>();
+        if (!lastMsgIds.isEmpty()) {
+            List<ChatMessage> lastMessages = chatMessageService.listByIds(lastMsgIds);
+            lastMessageMap = lastMessages.stream()
+                    .collect(Collectors.toMap(ChatMessage::getId, m -> m));
+        }
+
+        // 9. 构建响应
         Page<ChatSessionListItemResp> respPage = new Page<>(req.getPageIndex(), req.getPageSize(), sessionPage.getTotal());
         List<ChatSessionListItemResp> respList = new ArrayList<>();
 
@@ -182,6 +264,44 @@ public class ChatBusinessService {
             resp.setLastMsgId(session.getLastMsgId());
             resp.setLastMsgTime(session.getLastMsgTime());
             resp.setCreatedTime(session.getCreatedTime());
+            resp.setGroupName(session.getGroupName());
+
+            // 设置会话显示名称
+            if (ChatSessionTypeEnum.SINGLE.getCodeValue().equals(session.getType())) {
+                // 一对一会话：显示对方昵称
+                List<ChatSessionMember> sessionMembers = sessionMembersMap.get(session.getId());
+                if (sessionMembers != null) {
+                    for (ChatSessionMember member : sessionMembers) {
+                        if (!member.getUserId().equals(userId)) {
+                            SystemUser otherUser = userMap.get(member.getUserId());
+                            if (otherUser != null) {
+                                resp.setSessionDisplayName(otherUser.getNickname());
+                                // 设置对方在线状态
+                                resp.setOtherUserOnlineStatus(onlineStatusMap.getOrDefault(member.getUserId(), false));
+                            }
+                            break;
+                        }
+                    }
+                }
+            } else {
+                // 群聊会话：显示群聊名称
+                resp.setSessionDisplayName(session.getGroupName());
+            }
+
+            // 设置最后消息预览和发送者名称
+            if (StringUtils.hasText(session.getLastMsgId())) {
+                ChatMessage lastMsg = lastMessageMap.get(session.getLastMsgId());
+                if (lastMsg != null) {
+                    // 生成消息摘要
+                    resp.setLastMessagePreview(generateMessagePreview(lastMsg));
+
+                    // 设置发送者名称
+                    SystemUser sender = userMap.get(lastMsg.getFormUserId());
+                    if (sender != null) {
+                        resp.setLastMessageSenderName(sender.getNickname());
+                    }
+                }
+            }
 
             // 计算未读数
             ChatSessionMember member = memberMap.get(session.getId());
@@ -212,40 +332,57 @@ public class ChatBusinessService {
         LambdaQueryWrapper<ChatMessage> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(ChatMessage::getSessionId, req.getSessionId());
 
+        List<ChatMessage> messages;
+
         // 拉取新消息（id > lastMessageId）
         if (StringUtils.hasText(req.getLastMessageId())) {
             queryWrapper.gt(ChatMessage::getId, req.getLastMessageId())
                     .orderByAsc(ChatMessage::getId)
                     .last("LIMIT " + req.getLimit());
 
-            List<ChatMessage> messages = chatMessageMapper.selectList(queryWrapper);
-            return messages.stream()
-                    .map(this::buildMessageResp)
-                    .toList();
+            messages = chatMessageMapper.selectList(queryWrapper);
         }
-
         // 拉取历史消息（id < firstMessageId）
-        if (StringUtils.hasText(req.getFirstMessageId())) {
+        else if (StringUtils.hasText(req.getFirstMessageId())) {
             queryWrapper.lt(ChatMessage::getId, req.getFirstMessageId())
                     .orderByDesc(ChatMessage::getId)
                     .last("LIMIT " + req.getLimit());
 
-            List<ChatMessage> messages = chatMessageMapper.selectList(queryWrapper);
+            messages = chatMessageMapper.selectList(queryWrapper);
             // 反转顺序（从旧到新）
             Collections.reverse(messages);
-            return messages.stream()
-                    .map(this::buildMessageResp)
-                    .toList();
+        }
+        // 默认拉取最新消息
+        else {
+            queryWrapper.orderByDesc(ChatMessage::getId)
+                    .last("LIMIT " + req.getLimit());
+
+            messages = chatMessageMapper.selectList(queryWrapper);
+            Collections.reverse(messages);
         }
 
-        // 默认拉取最新消息
-        queryWrapper.orderByDesc(ChatMessage::getId)
-                .last("LIMIT " + req.getLimit());
+        // 如果没有消息，直接返回
+        if (messages.isEmpty()) {
+            return new ArrayList<>();
+        }
 
-        List<ChatMessage> messages = chatMessageMapper.selectList(queryWrapper);
-        Collections.reverse(messages);
+        // 批量查询发送者用户信息（性能优化）
+        Set<String> senderIds = messages.stream()
+                .map(ChatMessage::getFormUserId)
+                .filter(StringUtils::hasText)
+                .collect(Collectors.toSet());
+
+        Map<String, SystemUser> senderMap = new HashMap<>();
+        if (!senderIds.isEmpty()) {
+            List<SystemUser> senders = systemUserService.listByIds(senderIds);
+            senderMap = senders.stream()
+                    .collect(Collectors.toMap(SystemUser::getId, s -> s));
+        }
+
+        // 构建响应（填充发送者信息）
+        final Map<String, SystemUser> finalSenderMap = senderMap;
         return messages.stream()
-                .map(this::buildMessageResp)
+                .map(msg -> buildMessageResp(msg, finalSenderMap))
                 .toList();
     }
 
@@ -600,10 +737,32 @@ public class ChatBusinessService {
     }
 
     /**
-     * 构建消息响应
+     * 构建消息响应（不含发送者信息）
+     * <p>
+     * 用于会话列表查询等场景
      */
     private ChatMessageResp buildMessageResp(ChatMessage message) {
+        return buildMessageResp(message, null);
+    }
+
+    /**
+     * 构建消息响应（含发送者信息）
+     *
+     * @param message   消息
+     * @param senderMap 发送者信息 Map（可选）
+     */
+    private ChatMessageResp buildMessageResp(ChatMessage message, Map<String, SystemUser> senderMap) {
         ChatMessageResp resp = new ChatMessageResp(message);
+
+        // 填充发送者信息
+        if (senderMap != null && StringUtils.hasText(message.getFormUserId())) {
+            SystemUser sender = senderMap.get(message.getFormUserId());
+            if (sender != null) {
+                resp.setFromUserName(sender.getNickname());
+                // TODO: 如果 SystemUser 未来增加头像字段，可以在这里填充
+                // resp.setFromUserAvatar(sender.getAvatar());
+            }
+        }
 
         // 加载卡片数据
         if (ChatMessageTypeEnum.CARD.getCodeValue().equals(message.getMsgType())
@@ -625,6 +784,37 @@ public class ChatBusinessService {
         resp.setSessionId(message.getSessionId());
         resp.setSendTime(message.getSendTime());
         return resp;
+    }
+
+    /**
+     * 生成消息摘要
+     *
+     * @param message 消息
+     * @return 消息摘要
+     */
+    private String generateMessagePreview(ChatMessage message) {
+        if (message == null) {
+            return "";
+        }
+
+        ChatMessageTypeEnum msgType = ChatMessageTypeEnum.parseFromCodeValue(message.getMsgType());
+        if (msgType == null) {
+            return "";
+        }
+
+        return switch (msgType) {
+            case TEXT -> {
+                // 文本消息：返回前 50 个字符
+                if (StringUtils.hasText(message.getContent())) {
+                    yield message.getContent().length() > 50
+                            ? message.getContent().substring(0, 50) + "..."
+                            : message.getContent();
+                }
+                yield "";
+            }
+            case IMAGE -> "[图片]";
+            case CARD -> "[卡片]";
+        };
     }
 
 }

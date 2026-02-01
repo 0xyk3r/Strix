@@ -18,4 +18,17 @@ public interface ChatRedisKeys {
      */
     long CHAT_MESSAGE_IDEMPOTENT_EXPIRE = 600L;
 
+    /**
+     * 用户在线连接集合 Key 前缀（存储用户的所有 WebSocket 连接 ID）
+     * Key: strix:user:online:connections:{userId}
+     * Value: Set<String> (WebSocket Session IDs)
+     */
+    String USER_ONLINE_CONNECTIONS_PREFIX = "strix:user:online:connections:";
+
+    /**
+     * 用户在线连接过期时间（秒），默认 10 分钟
+     * WebSocket 心跳会定期刷新此过期时间
+     */
+    long USER_ONLINE_CONNECTIONS_EXPIRE = 600L;
+
 }

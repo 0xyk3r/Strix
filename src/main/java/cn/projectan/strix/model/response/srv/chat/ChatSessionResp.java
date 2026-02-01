@@ -46,6 +46,9 @@ public class ChatSessionResp {
     @Schema(description = "创建时间")
     private LocalDateTime createdTime;
 
+    @Schema(description = "群聊名称（仅 GROUP 类型）")
+    private String groupName;
+
     public ChatSessionResp() {
     }
 
@@ -58,6 +61,7 @@ public class ChatSessionResp {
         this.lastMsgId = session.getLastMsgId();
         this.lastMsgTime = session.getLastMsgTime();
         this.createdTime = session.getCreatedTime();
+        this.groupName = session.getGroupName();
     }
 
 }
