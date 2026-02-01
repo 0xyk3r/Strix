@@ -83,6 +83,8 @@ dependencies {
     developmentOnly 'org.apache.velocity:velocity-engine-core:2.4.1'
     // Quartz
     implementation 'org.springframework.boot:spring-boot-starter-quartz'
+    // WebSocket
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
     // Other Tools
     implementation 'com.squareup.okhttp3:okhttp:5.3.2'
     implementation 'cn.hutool:hutool-core:5.8.43'

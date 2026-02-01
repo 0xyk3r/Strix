@@ -68,6 +68,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests((authorizeRequests) -> {
                     // 配置匿名访问的URL
                     strixSecurityRuleInitializer.getAnonymousUrlList().forEach(url -> authorizeRequests.requestMatchers(url).permitAll());
+                    // WebSocket 端点允许匿名访问（在握手拦截器中做认证）
+                    authorizeRequests.requestMatchers("/ws/**").permitAll();
                     // 配置需要指定角色才可访问的URL
                     strixSecurityRuleInitializer.getUrlRoleMap().forEach((url, role) -> authorizeRequests.requestMatchers(url).hasRole(role));
                     strixSecurityRuleInitializer.getUrlAnyRoleMap().forEach((url, role) -> authorizeRequests.requestMatchers(url).hasAnyRole(role.split(",")));

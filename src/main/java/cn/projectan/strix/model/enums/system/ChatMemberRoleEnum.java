@@ -1,0 +1,82 @@
+package cn.projectan.strix.model.enums.system;
+
+import lombok.Getter;
+
+/**
+ * 聊天成员角色枚举
+ *
+ * @author ProjectAn
+ * @since 2026/2/1 12:00
+ */
+@Getter
+public enum ChatMemberRoleEnum {
+
+    /**
+     * 群主/会话创建者
+     */
+    OWNER("OWNER", "群主"),
+
+    /**
+     * 普通成员
+     */
+    MEMBER("MEMBER", "普通成员");
+
+    private final String codeValue;
+    private final String codeDesc;
+
+    ChatMemberRoleEnum(String codeValue, String codeDesc) {
+        this.codeValue = codeValue;
+        this.codeDesc = codeDesc;
+    }
+
+    /**
+     * 根据 codeValue 获取枚举
+     *
+     * @param codeValue 编码值
+     * @return 枚举对象
+     */
+    public static ChatMemberRoleEnum parseFromCodeValue(String codeValue) {
+        for (ChatMemberRoleEnum e : ChatMemberRoleEnum.values()) {
+            if (e.codeValue.equals(codeValue)) {
+                return e;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 根据 codeValue 获取描述
+     *
+     * @param codeValue 编码值
+     * @return 描述
+     */
+    public static String getCodeDescByCodeValue(String codeValue) {
+        ChatMemberRoleEnum enumItem = parseFromCodeValue(codeValue);
+        return enumItem == null ? "" : enumItem.getCodeDesc();
+    }
+
+    /**
+     * 验证 codeValue 是否有效
+     *
+     * @param codeValue 编码值
+     * @return 是否有效
+     */
+    public static boolean validateCodeValue(String codeValue) {
+        return parseFromCodeValue(codeValue) != null;
+    }
+
+    /**
+     * 获取所有枚举的字符串表示
+     *
+     * @return 字符串表示
+     */
+    public static String getString() {
+        StringBuilder buffer = new StringBuilder();
+        for (ChatMemberRoleEnum e : ChatMemberRoleEnum.values()) {
+            buffer.append(e.codeValue).append("--").append(e.getCodeDesc()).append(", ");
+        }
+        buffer.deleteCharAt(buffer.lastIndexOf(","));
+        return buffer.toString().trim();
+    }
+
+}

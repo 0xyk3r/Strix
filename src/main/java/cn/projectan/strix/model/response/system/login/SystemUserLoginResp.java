@@ -39,7 +39,7 @@ public class SystemUserLoginResp {
             this.id = loginSystemUser.getSystemUser().getId();
             this.nickname = loginSystemUser.getSystemUser().getNickname();
             this.role = "user";
-            this.completion = false;
+            this.completion = true;
         }
     }
 
