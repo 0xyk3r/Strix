@@ -18,7 +18,7 @@ public class BaseSrvController extends BaseController {
      * 获取当前登录用户
      */
     protected SystemUser getLoginUser() {
-        SystemUser systemUser = (SystemUser) SecurityUtils.getAuthentication().getPrincipal();
+        SystemUser systemUser = SecurityUtils.getSystemUser();
         Assert.notNull(systemUser, I18nUtil.get("error.noLoginInfo"));
         return systemUser;
     }
