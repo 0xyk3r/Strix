@@ -5,8 +5,6 @@ import cn.projectan.strix.model.enums.system.StrixCaptchaTypeEnum;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-import java.awt.*;
-
 /**
  * Strix 验证码配置
  */
@@ -26,12 +24,6 @@ public class StrixCaptchaProperties {
     private String jigsaw = "";
 
     /**
-     * 点选文字底图路径
-     */
-    private String picClick = "";
-
-
-    /**
      * 右下角水印文字 (我的水印)
      */
     private String waterMark = "Strix";
@@ -40,11 +32,6 @@ public class StrixCaptchaProperties {
      * 右下角水印字体 (文泉驿正黑)
      */
     private String waterFont = "WenQuanZhengHei.ttf";
-
-    /**
-     * 点选文字验证码的文字字体 (文泉驿正黑)
-     */
-    private String fontType = "WenQuanZhengHei.ttf";
 
     /**
      * 校验滑动拼图允许误差偏移量 (默认5像素)
@@ -75,6 +62,7 @@ public class StrixCaptchaProperties {
      * 缓存类型
      */
     private StorageType cacheType = StorageType.local;
+
     /**
      * 历史数据清除开关
      */
@@ -89,8 +77,9 @@ public class StrixCaptchaProperties {
      * 一分钟内 check 接口失败次数
      */
     private int reqGetLockLimit = 5;
+
     /**
-     *
+     * 失败后锁定时间(秒)
      */
     private int reqGetLockSeconds = 300;
 
@@ -98,23 +87,16 @@ public class StrixCaptchaProperties {
      * get 接口一分钟内限制访问数
      */
     private int reqGetMinuteLimit = 100;
+
+    /**
+     * check 接口一分钟内限制访问数
+     */
     private int reqCheckMinuteLimit = 100;
+
+    /**
+     * verify 接口一分钟内限制访问数
+     */
     private int reqVerifyMinuteLimit = 100;
-
-    /**
-     * 点选字体样式
-     */
-    private int fontStyle = Font.BOLD;
-
-    /**
-     * 点选字体大小
-     */
-    private int fontSize = 25;
-
-    /**
-     * 点选文字个数，存在问题，暂不要使用
-     */
-    private int clickWordCount = 4;
 
     public enum StorageType {
         /**
@@ -129,5 +111,28 @@ public class StrixCaptchaProperties {
          * 其他.
          */
         other,
+    }
+
+    /**
+     * 配置键常量
+     */
+    public interface Key {
+        String ORIGINAL_PATH_JIGSAW = "captcha.captchaOriginalPath.jigsaw";
+        String CAPTCHA_CACHE_TYPE = "captcha.cacheType";
+        String CAPTCHA_WATER_MARK = "captcha.water.mark";
+        String CAPTCHA_TYPE = "captcha.type";
+        String CAPTCHA_INTERFERENCE_OPTIONS = "captcha.interference.options";
+        String CAPTCHA_SLIP_OFFSET = "captcha.slip.offset";
+        String CAPTCHA_AES_STATUS = "captcha.aes.status";
+        String CAPTCHA_WATER_FONT = "captcha.water.font";
+        String CAPTCHA_CACHE_MAX_NUMBER = "captcha.cache.number";
+        String CAPTCHA_TIMING_CLEAR_SECOND = "captcha.timing.clear";
+        String HISTORY_DATA_CLEAR_ENABLE = "captcha.history.data.clear.enable";
+        String REQ_FREQUENCY_LIMIT_ENABLE = "captcha.req.frequency.limit.enable";
+        String REQ_GET_MINUTE_LIMIT = "captcha.req.get.minute.limit";
+        String REQ_GET_LOCK_LIMIT = "captcha.req.get.lock.limit";
+        String REQ_GET_LOCK_SECONDS = "captcha.req.get.lock.seconds";
+        String REQ_VALIDATE_MINUTE_LIMIT = "captcha.req.verify.minute.limit";
+        String REQ_CHECK_MINUTE_LIMIT = "captcha.req.check.minute.limit";
     }
 }

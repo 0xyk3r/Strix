@@ -2,34 +2,28 @@ package cn.projectan.strix.model.other.system.captcha;
 
 import lombok.Data;
 
-import java.awt.*;
+import java.io.Serial;
 import java.io.Serializable;
-import java.util.List;
 
 /**
- * Strix 验证码 VO
+ * 验证码数据VO
+ *
+ * @author ProjectAn
  */
 @Data
-public class StrixCaptchaInfoVO implements Serializable {
+public class CaptchaDataVO implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     /**
-     * 验证码id (后台申请)
-     */
-    private String captchaId;
-
-    private String projectCode;
-
-    /**
-     * 验证码类型 (clickWord,blockPuzzle)
+     * 验证码类型 (blockPuzzle)
      */
     private String captchaType;
 
-    private String captchaOriginalPath;
-
-    private String captchaFontType;
-
-    private Integer captchaFontSize;
-
+    /**
+     * 加密密钥
+     */
     private String secretKey;
 
     /**
@@ -38,24 +32,14 @@ public class StrixCaptchaInfoVO implements Serializable {
     private String originalImageBase64;
 
     /**
-     * 滑块点选坐标
-     */
-    private StrixCaptchaPointVO point;
-
-    /**
      * 滑块图片base64
      */
     private String jigsawImageBase64;
 
     /**
-     * 点选文字
+     * 滑块点选坐标
      */
-    private List<String> wordList;
-
-    /**
-     * 点选坐标
-     */
-    private List<Point> pointList;
+    private CaptchaPointVO point;
 
     /**
      * 点坐标(base64加密传输)
@@ -81,11 +65,6 @@ public class StrixCaptchaInfoVO implements Serializable {
      * 客户端UI组件id,组件初始化时设置一次，UUID
      */
     private String clientUid;
-
-    /**
-     * 客户端的请求时间，预留字段
-     */
-    private Long ts;
 
     /**
      * 客户端ip+userAgent

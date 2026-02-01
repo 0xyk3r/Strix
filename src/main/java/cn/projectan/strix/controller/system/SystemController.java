@@ -5,6 +5,7 @@ import cn.projectan.strix.controller.system.base.BaseSystemController;
 import cn.projectan.strix.core.cache.system.SystemConfigCache;
 import cn.projectan.strix.core.captcha.CaptchaService;
 import cn.projectan.strix.core.ret.RetBuilder;
+import cn.projectan.strix.core.ret.RetCode;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.core.ss.details.LoginSystemManager;
 import cn.projectan.strix.model.annotation.Anonymous;
@@ -15,11 +16,10 @@ import cn.projectan.strix.model.db.system.SystemManager;
 import cn.projectan.strix.model.db.system.SystemMenu;
 import cn.projectan.strix.model.dict.system.SystemLogOperType;
 import cn.projectan.strix.model.dict.system.SystemManagerStatus;
-import cn.projectan.strix.model.other.system.captcha.StrixCaptchaInfoVO;
+import cn.projectan.strix.model.other.system.captcha.CaptchaDataVO;
 import cn.projectan.strix.model.request.system.login.SystemLoginReq;
 import cn.projectan.strix.model.response.system.SystemMenuResp;
 import cn.projectan.strix.model.response.system.login.SystemManagerLoginResp;
-import cn.projectan.strix.model.response.system.module.captcha.StrixCaptchaResp;
 import cn.projectan.strix.service.system.SystemManagerService;
 import cn.projectan.strix.service.system.SystemMenuService;
 import cn.projectan.strix.util.common.RedisUtil;
@@ -68,10 +68,10 @@ public class SystemController extends BaseSystemController {
     public RetResult<SystemManagerLoginResp> login(@RequestBody SystemLoginReq req) {
         // 验证码校验
         Assert.hasText(req.getCaptchaVerification(), "行为验证不通过，请重新验证");
-        StrixCaptchaInfoVO strixCaptchaInfoVO = new StrixCaptchaInfoVO();
-        strixCaptchaInfoVO.setCaptchaVerification(req.getCaptchaVerification());
-        StrixCaptchaResp strixCaptchaResp = captchaService.verification(strixCaptchaInfoVO);
-        Assert.isTrue(strixCaptchaResp.isSuccess(), "行为验证不通过，请重新验证");
+        CaptchaDataVO captchaDataVO = new CaptchaDataVO();
+        captchaDataVO.setCaptchaVerification(req.getCaptchaVerification());
+        RetResult<Void> captchaResult = captchaService.verification(captchaDataVO);
+        Assert.isTrue(captchaResult.getCode() == RetCode.SUCCESS, "行为验证不通过，请重新验证");
 
         SystemManager systemManager = systemManagerService.lambdaQuery()
                 .eq(SystemManager::getLoginName, req.getLoginName())

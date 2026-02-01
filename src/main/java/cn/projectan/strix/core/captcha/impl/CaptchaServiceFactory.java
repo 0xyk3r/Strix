@@ -2,7 +2,7 @@ package cn.projectan.strix.core.captcha.impl;
 
 import cn.projectan.strix.core.captcha.CaptchaCacheService;
 import cn.projectan.strix.core.captcha.CaptchaService;
-import cn.projectan.strix.model.constant.system.StrixCaptchaConst;
+import cn.projectan.strix.model.properties.system.StrixCaptchaProperties;
 import cn.projectan.strix.util.common.SpringUtil;
 
 import java.util.HashMap;
@@ -18,7 +18,7 @@ import java.util.Properties;
 public class CaptchaServiceFactory {
 
     public static CaptchaService getInstance(Properties config) {
-        String captchaType = config.getProperty(StrixCaptchaConst.CAPTCHA_TYPE, "default");
+        String captchaType = config.getProperty(StrixCaptchaProperties.Key.CAPTCHA_TYPE, "blockPuzzle");
         CaptchaService ret = instances.get(captchaType);
         if (ret == null) {
             throw new RuntimeException("unsupported-[captcha.type]=" + captchaType);
@@ -31,8 +31,8 @@ public class CaptchaServiceFactory {
         return cacheService.get(cacheType);
     }
 
-    public final static Map<String, CaptchaService> instances = new HashMap<>();
-    public final static Map<String, CaptchaCacheService> cacheService = new HashMap<>();
+    public static final Map<String, CaptchaService> instances = new HashMap<>();
+    public static final Map<String, CaptchaCacheService> cacheService = new HashMap<>();
 
     static {
         cacheService.put("redis", SpringUtil.getBean(CaptchaCacheServiceImpl.class));

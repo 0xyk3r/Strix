@@ -1,10 +1,11 @@
 package cn.projectan.strix.core.captcha;
 
 
-import cn.projectan.strix.model.constant.system.StrixCaptchaConst;
-import cn.projectan.strix.model.enums.system.StrixCaptchaRepCodeEnum;
-import cn.projectan.strix.model.other.system.captcha.StrixCaptchaInfoVO;
-import cn.projectan.strix.model.response.system.module.captcha.StrixCaptchaResp;
+import cn.projectan.strix.core.ret.RetBuilder;
+import cn.projectan.strix.core.ret.RetCode;
+import cn.projectan.strix.core.ret.RetResult;
+import cn.projectan.strix.model.other.system.captcha.CaptchaDataVO;
+import cn.projectan.strix.model.properties.system.StrixCaptchaProperties;
 import org.springframework.util.StringUtils;
 
 import java.util.Objects;
@@ -17,26 +18,26 @@ public interface FrequencyLimitHandler {
     /**
      * get 接口限流
      *
-     * @param strixCaptchaInfoVO captchaVO
-     * @return ResponseResp
+     * @param captchaDataVO captchaVO
+     * @return RetResult<?> - null表示通过, 非null表示被限流
      */
-    StrixCaptchaResp validateGet(StrixCaptchaInfoVO strixCaptchaInfoVO);
+    RetResult<?> validateGet(CaptchaDataVO captchaDataVO);
 
     /**
      * check 接口限流
      *
-     * @param strixCaptchaInfoVO captchaVO
-     * @return ResponseResp
+     * @param captchaDataVO captchaVO
+     * @return RetResult<?> - null表示通过, 非null表示被限流
      */
-    StrixCaptchaResp validateCheck(StrixCaptchaInfoVO strixCaptchaInfoVO);
+    RetResult<?> validateCheck(CaptchaDataVO captchaDataVO);
 
     /**
      * verify 接口限流
      *
-     * @param strixCaptchaInfoVO captchaVO
-     * @return ResponseResp
+     * @param captchaDataVO captchaVO
+     * @return RetResult<?> - null表示通过, 非null表示被限流
      */
-    StrixCaptchaResp validateVerify(StrixCaptchaInfoVO strixCaptchaInfoVO);
+    RetResult<?> validateVerify(CaptchaDataVO captchaDataVO);
 
     /***
      * 验证码接口限流:
@@ -59,12 +60,12 @@ public interface FrequencyLimitHandler {
             this.cacheService = cacheService;
         }
 
-        private String getClientCId(StrixCaptchaInfoVO input, String type) {
+        private String getClientCId(CaptchaDataVO input, String type) {
             return String.format(LIMIT_KEY, type, input.getClientUid());
         }
 
         @Override
-        public StrixCaptchaResp validateGet(StrixCaptchaInfoVO d) {
+        public RetResult<?> validateGet(CaptchaDataVO d) {
             // 无客户端身份标识，不限制
             if (!StringUtils.hasText(d.getClientUid())) {
                 return null;
@@ -73,7 +74,7 @@ public interface FrequencyLimitHandler {
             String lockKey = getClientCId(d, "LOCK");
             // 失败次数过多，锁定
             if (Objects.nonNull(cacheService.get(lockKey))) {
-                return StrixCaptchaResp.errorMsg(StrixCaptchaRepCodeEnum.API_REQ_LOCK_GET_ERROR);
+                return RetBuilder.error(RetCode.BAT_REQUEST, "验证码获取请求过于频繁，请稍后再试");
             }
             String getCount = cacheService.get(getKey);
             if (Objects.isNull(getCount)) {
@@ -82,8 +83,8 @@ public interface FrequencyLimitHandler {
             }
             cacheService.increment(getKey, 1);
             // 1分钟内请求次数过多
-            if (Long.parseLong(getCount) > Long.parseLong(config.getProperty(StrixCaptchaConst.REQ_GET_MINUTE_LIMIT, "120"))) {
-                return StrixCaptchaResp.errorMsg(StrixCaptchaRepCodeEnum.API_REQ_LIMIT_GET_ERROR);
+            if (Long.parseLong(getCount) > Long.parseLong(config.getProperty(StrixCaptchaProperties.Key.REQ_GET_MINUTE_LIMIT, "120"))) {
+                return RetBuilder.error(RetCode.BAT_REQUEST, "验证码获取请求过于频繁，请稍后再试");
             }
 
             // 失败次数验证
@@ -94,16 +95,16 @@ public interface FrequencyLimitHandler {
                 return null;
             }
             // 1分钟内失败5次
-            if (Long.parseLong(failCount) > Long.parseLong(config.getProperty(StrixCaptchaConst.REQ_GET_LOCK_LIMIT, "5"))) {
+            if (Long.parseLong(failCount) > Long.parseLong(config.getProperty(StrixCaptchaProperties.Key.REQ_GET_LOCK_LIMIT, "5"))) {
                 // get接口锁定5分钟
-                cacheService.set(lockKey, "1", Long.parseLong(config.getProperty(StrixCaptchaConst.REQ_GET_LOCK_SECONDS, "300")));
-                return StrixCaptchaResp.errorMsg(StrixCaptchaRepCodeEnum.API_REQ_LOCK_GET_ERROR);
+                cacheService.set(lockKey, "1", Long.parseLong(config.getProperty(StrixCaptchaProperties.Key.REQ_GET_LOCK_SECONDS, "300")));
+                return RetBuilder.error(RetCode.BAT_REQUEST, "验证码获取请求过于频繁，请稍后再试");
             }
             return null;
         }
 
         @Override
-        public StrixCaptchaResp validateCheck(StrixCaptchaInfoVO d) {
+        public RetResult<?> validateCheck(CaptchaDataVO d) {
             // 无客户端身份标识，不限制
             if (!StringUtils.hasText(d.getClientUid())) {
                 return null;
@@ -115,14 +116,14 @@ public interface FrequencyLimitHandler {
                 v = "1";
             }
             cacheService.increment(key, 1);
-            if (Long.parseLong(v) > Long.parseLong(config.getProperty(StrixCaptchaConst.REQ_CHECK_MINUTE_LIMIT, "600"))) {
-                return StrixCaptchaResp.errorMsg(StrixCaptchaRepCodeEnum.API_REQ_LIMIT_CHECK_ERROR);
+            if (Long.parseLong(v) > Long.parseLong(config.getProperty(StrixCaptchaProperties.Key.REQ_CHECK_MINUTE_LIMIT, "600"))) {
+                return RetBuilder.error(RetCode.BAT_REQUEST, "验证码校验请求过于频繁，请稍后再试");
             }
             return null;
         }
 
         @Override
-        public StrixCaptchaResp validateVerify(StrixCaptchaInfoVO d) {
+        public RetResult<?> validateVerify(CaptchaDataVO d) {
             String key = getClientCId(d, "VERIFY");
             String v = cacheService.get(key);
             if (Objects.isNull(v)) {
@@ -130,8 +131,8 @@ public interface FrequencyLimitHandler {
                 v = "1";
             }
             cacheService.increment(key, 1);
-            if (Long.parseLong(v) > Long.parseLong(config.getProperty(StrixCaptchaConst.REQ_VALIDATE_MINUTE_LIMIT, "600"))) {
-                return StrixCaptchaResp.errorMsg(StrixCaptchaRepCodeEnum.API_REQ_LIMIT_VERIFY_ERROR);
+            if (Long.parseLong(v) > Long.parseLong(config.getProperty(StrixCaptchaProperties.Key.REQ_VALIDATE_MINUTE_LIMIT, "600"))) {
+                return RetBuilder.error(RetCode.BAT_REQUEST, "验证码验证请求过于频繁，请稍后再试");
             }
             return null;
         }

@@ -18,6 +18,6 @@ public class CheckCaptchaReq {
     private String pointJson;
 
     @Schema(description = "验证码标识")
-    private String token;
+    private String uuid;
 
 }

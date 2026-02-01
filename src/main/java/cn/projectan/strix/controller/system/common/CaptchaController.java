@@ -4,10 +4,11 @@ import cn.projectan.strix.controller.system.base.BaseSystemController;
 import cn.projectan.strix.core.captcha.CaptchaService;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.model.annotation.Anonymous;
-import cn.projectan.strix.model.other.system.captcha.StrixCaptchaInfoVO;
+import cn.projectan.strix.model.other.system.captcha.CaptchaDataVO;
 import cn.projectan.strix.model.request.system.module.captcha.CheckCaptchaReq;
 import cn.projectan.strix.model.request.system.module.captcha.GetCaptchaReq;
-import cn.projectan.strix.model.response.system.module.captcha.StrixCaptchaResp;
+import cn.projectan.strix.model.response.system.module.captcha.CheckCaptchaResp;
+import cn.projectan.strix.model.response.system.module.captcha.GetCaptchaResp;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
@@ -40,12 +41,12 @@ public class CaptchaController extends BaseSystemController {
     @Anonymous
     @PostMapping("get")
     @Operation(summary = "获取验证码")
-    public RetResult<StrixCaptchaResp> get(@RequestBody GetCaptchaReq req, HttpServletRequest request) {
+    public RetResult<GetCaptchaResp> get(@RequestBody GetCaptchaReq req, HttpServletRequest request) {
         Assert.notNull(request.getRemoteHost(), "请求无效");
-        StrixCaptchaInfoVO data = new StrixCaptchaInfoVO();
+        CaptchaDataVO data = new CaptchaDataVO();
         data.setCaptchaType(req.getCaptchaType());
         data.setBrowserInfo(getRemoteId(request));
-        return captchaService.get(data).toRetResult();
+        return captchaService.get(data);
     }
 
     /**
@@ -54,13 +55,13 @@ public class CaptchaController extends BaseSystemController {
     @Anonymous
     @PostMapping("check")
     @Operation(summary = "校验验证码")
-    public RetResult<StrixCaptchaResp> check(@RequestBody CheckCaptchaReq req, HttpServletRequest request) {
-        StrixCaptchaInfoVO data = new StrixCaptchaInfoVO();
+    public RetResult<CheckCaptchaResp> check(@RequestBody CheckCaptchaReq req, HttpServletRequest request) {
+        CaptchaDataVO data = new CaptchaDataVO();
         data.setCaptchaType(req.getCaptchaType());
         data.setPointJson(req.getPointJson());
-        data.setToken(req.getToken());
+        data.setToken(req.getUuid());
         data.setBrowserInfo(getRemoteId(request));
-        return captchaService.check(data).toRetResult();
+        return captchaService.check(data);
     }
 
     private static String getRemoteId(HttpServletRequest request) {
