@@ -104,7 +104,7 @@ dependencies {
     implementation("com.aliyun:dysmsapi20170525:4.4.0") {
         exclude group: "com.aliyun", module: "tea-xml"
     }
-    implementation 'com.alipay.sdk:alipay-sdk-java:4.40.644.ALL'
+    implementation 'com.alipay.sdk:alipay-sdk-java:4.40.656.ALL'
     implementation('com.github.javen205:IJPay-AliPay:2.9.12.1-17') {
         exclude group: 'com.alipay.sdk', module: 'alipay-sdk-java'
         exclude group: 'cn.hutool', module: 'hutool-json'
