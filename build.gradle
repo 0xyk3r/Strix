@@ -98,7 +98,7 @@ dependencies {
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.1'
 
     // S3
-    implementation platform("software.amazon.awssdk:bom:2.41.17")
+    implementation platform("software.amazon.awssdk:bom:2.41.19")
     implementation "software.amazon.awssdk:s3"
     // Third Party
     implementation("com.aliyun:dysmsapi20170525:4.4.0") {
