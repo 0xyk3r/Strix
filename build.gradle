@@ -105,12 +105,12 @@ dependencies {
         exclude group: "com.aliyun", module: "tea-xml"
     }
     implementation 'com.alipay.sdk:alipay-sdk-java:4.40.644.ALL'
-    implementation('com.github.javen205:IJPay-AliPay:2.9.10-17') {
+    implementation('com.github.javen205:IJPay-AliPay:2.9.12.1-17') {
         exclude group: 'com.alipay.sdk', module: 'alipay-sdk-java'
         exclude group: 'cn.hutool', module: 'hutool-json'
         exclude group: 'cn.hutool', module: 'hutool-crypto'
     }
-    implementation('com.github.javen205:IJPay-WxPay:2.9.10-17') {
+    implementation('com.github.javen205:IJPay-WxPay:2.9.12.1-17') {
         exclude group: 'cn.hutool', module: 'hutool-json'
         exclude group: 'cn.hutool', module: 'hutool-crypto'
     }
