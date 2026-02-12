@@ -138,14 +138,14 @@ SELECT index_name,
        column_name,
        cardinality
 FROM information_schema.STATISTICS
-WHERE table_schema = 'zjjg_sys'
+WHERE table_schema = 'strix'
   AND table_name = 'sys_system_log'
 ORDER BY index_name, seq_in_index;
 
 -- 分析未使用的索引（需开启 performance_schema）
 SELECT *
 FROM sys.schema_unused_indexes
-WHERE object_schema = 'zjjg_sys'
+WHERE object_schema = 'strix'
   AND object_name = 'sys_system_log';
 ```
 
@@ -222,7 +222,7 @@ partition_limit = DATE_FORMAT(DATE_ADD(next_month, INTERVAL 1 MONTH), '%Y-%m-01'
     IF
 NOT EXISTS (
         SELECT 1 FROM information_schema.PARTITIONS
-        WHERE TABLE_SCHEMA = 'zjjg_sys'
+        WHERE TABLE_SCHEMA = 'strix'
           AND TABLE_NAME = 'sys_system_log'
           AND PARTITION_NAME = partition_name
     ) THEN
@@ -352,7 +352,7 @@ ALTER TABLE sys_system_log DROP PARTITION p202501;
 
 ```bash
 # 导出为SQL文件
-mysqldump -u root -p zjjg_sys sys_system_log_archive \
+mysqldump -u root -p strix sys_system_log_archive \
   --where="operation_time >= '2025-01-01' AND operation_time < '2025-02-01'" \
   > sys_log_202501.sql
 
@@ -463,7 +463,7 @@ SELECT table_name                                             AS `Table`,
        ROUND((index_length / 1024 / 1024), 2)                 AS `Index Size (MB)`,
        table_rows                                             AS `Rows`
 FROM information_schema.TABLES
-WHERE table_schema = 'zjjg_sys'
+WHERE table_schema = 'strix'
   AND table_name = 'sys_system_log';
 ```
 
@@ -475,7 +475,7 @@ SELECT PARTITION_NAME,
        AVG_ROW_LENGTH,
        ROUND(DATA_LENGTH / 1024 / 1024, 2) AS `Data Size (MB)`
 FROM information_schema.PARTITIONS
-WHERE TABLE_SCHEMA = 'zjjg_sys'
+WHERE TABLE_SCHEMA = 'strix'
   AND TABLE_NAME = 'sys_system_log'
 ORDER BY PARTITION_ORDINAL_POSITION;
 ```
