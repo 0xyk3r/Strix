@@ -1,6 +1,7 @@
 package cn.projectan.strix.config;
 
 import cn.projectan.strix.core.datamask.DataMaskAnnotationIntrospector;
+import cn.projectan.strix.core.xss.XssStringDeserializer;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.springframework.boot.jackson.autoconfigure.JsonMapperBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
@@ -76,6 +77,7 @@ public class JacksonConfig {
                     .defaultTimeZone(TimeZone.getDefault())
                     // 自定义模块 (LocalDateTime, LocalDate, LocalTime)
                     .addModule(javaTimeModule())
+                    .addModule(xssFilterModule())
                     // 属性包含规则
                     .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_NULL))
                     .changeDefaultPropertyInclusion(incl -> incl.withContentInclusion(JsonInclude.Include.NON_NULL))
@@ -114,6 +116,15 @@ public class JacksonConfig {
     }
 
     /**
+     * 创建 XSS 过滤器模块
+     */
+    public static JacksonModule xssFilterModule() {
+        SimpleModule module = new SimpleModule("XssProtectionModule");
+        module.addDeserializer(String.class, new XssStringDeserializer());
+        return module;
+    }
+
+    /**
      * 创建全局基础的 JsonMapper.Builder
      *
      * @return JsonMapper.Builder
@@ -123,6 +134,7 @@ public class JacksonConfig {
                 .defaultDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"))
                 .defaultTimeZone(TimeZone.getDefault())
                 .addModule(javaTimeModule())
+                .addModule(xssFilterModule())
                 .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_NULL))
                 .changeDefaultPropertyInclusion(incl -> incl.withContentInclusion(JsonInclude.Include.NON_NULL))
                 .configure(DeserializationFeature.FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY, false);
