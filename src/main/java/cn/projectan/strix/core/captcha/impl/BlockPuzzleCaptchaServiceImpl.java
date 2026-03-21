@@ -273,6 +273,8 @@ public class BlockPuzzleCaptchaServiceImpl extends AbstractCaptchaService {
         int x, y;
         if (widthDifference <= 0) {
             x = 5;
+        } else if (widthDifference <= 100) {
+            x = random.nextInt(widthDifference) + 5;
         } else {
             x = random.nextInt(originalWidth - jigsawWidth - 100) + 100;
         }

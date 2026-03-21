@@ -41,7 +41,7 @@ public class SystemMenuCache {
         List<String> result = new ArrayList<>();
         result.add(menuId);
         instance.forEach(m -> {
-            if (m.getParentId().equals(menuId)) {
+            if (menuId.equals(m.getParentId())) {
                 result.addAll(getIdListByParentMenu(m.getId()));
             }
         });

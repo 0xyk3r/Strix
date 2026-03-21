@@ -36,8 +36,11 @@ public class WorkflowTool {
      * @return 节点
      */
     public static WorkflowNode findNodeById(List<WorkflowNode> nodes, String id) {
+        if (nodes == null || id == null) {
+            return null;
+        }
         return nodes.stream()
-                .filter(node -> node.getId().equals(id))
+                .filter(node -> node != null && id.equals(node.getId()))
                 .findFirst()
                 .orElse(null);
     }

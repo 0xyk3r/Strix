@@ -28,7 +28,10 @@ public class StrixSmsStore {
     }
 
     public void removeInstance(String key) {
-        instanceMap.remove(key);
+        StrixSmsClient removed = instanceMap.remove(key);
+        if (removed != null) {
+            removed.close();
+        }
     }
 
     public Set<String> getInstanceKeySet() {

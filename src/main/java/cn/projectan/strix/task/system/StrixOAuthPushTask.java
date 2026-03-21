@@ -2,6 +2,7 @@ package cn.projectan.strix.task.system;
 
 import cn.projectan.strix.core.module.oauth.StrixOAuthClient;
 import cn.projectan.strix.core.module.oauth.StrixOAuthStore;
+import cn.projectan.strix.core.module.oauth.impl.WechatOAOAuthClient;
 import cn.projectan.strix.model.db.system.OauthPush;
 import cn.projectan.strix.model.dict.system.OAuthPushStatus;
 import cn.projectan.strix.service.system.OauthPushService;
@@ -39,6 +40,14 @@ public class StrixOAuthPushTask {
 
             for (OauthPush op : pushList) {
                 StrixOAuthClient<?> client = strixOAuthStore.getInstance(op.getConfigId());
+                if (client == null) {
+                    log.warn("Strix OAuth Push: 未找到配置ID为 {} 的 OAuth 客户端, 跳过推送", op.getConfigId());
+                    continue;
+                }
+                if (client instanceof WechatOAOAuthClient wechatClient && wechatClient.getAccessToken() == null) {
+                    log.warn("Strix OAuth Push: 微信 OAuth 客户端 <{}> AccessToken 未就绪, 跳过本轮推送", wechatClient.getConfigName());
+                    continue;
+                }
                 client.push(op);
             }
         } catch (Exception e) {
