@@ -18,7 +18,6 @@ import cn.projectan.strix.model.response.system.menu.SystemMenuResp;
 import cn.projectan.strix.service.system.SystemManagerService;
 import cn.projectan.strix.service.system.SystemMenuService;
 import cn.projectan.strix.service.system.SystemPermissionService;
-import cn.projectan.strix.service.system.SystemRoleMenuService;
 import cn.projectan.strix.util.common.SpringUtil;
 import cn.projectan.strix.util.common.UniqueChecker;
 import cn.projectan.strix.util.common.UpdateBuilder;
@@ -48,7 +47,6 @@ import java.util.Set;
 public class SystemMenuController extends BaseSystemController {
 
     private final SystemMenuService systemMenuService;
-    private final SystemRoleMenuService systemRoleMenuService;
     private final SystemPermissionService systemPermissionService;
     private final SystemMenuCache systemMenuCache;
 

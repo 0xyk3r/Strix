@@ -1,7 +1,6 @@
 package cn.projectan.strix.core.cache.system;
 
 import cn.projectan.strix.model.db.system.SystemMenu;
-import cn.projectan.strix.service.system.SystemManagerRoleService;
 import cn.projectan.strix.service.system.SystemMenuService;
 import cn.projectan.strix.util.common.RedisUtil;
 import jakarta.annotation.PostConstruct;
@@ -25,7 +24,6 @@ public class SystemMenuCache {
 
     private final RedisUtil redisUtil;
     private final SystemMenuService systemMenuService;
-    private final SystemManagerRoleService systemManagerRoleService;
 
     private List<SystemMenu> instance = new ArrayList<>();
 

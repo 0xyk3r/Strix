@@ -15,7 +15,6 @@ import cn.projectan.strix.model.response.system.permission.SystemPermissionListR
 import cn.projectan.strix.model.response.system.permission.SystemPermissionResp;
 import cn.projectan.strix.service.system.SystemManagerService;
 import cn.projectan.strix.service.system.SystemPermissionService;
-import cn.projectan.strix.service.system.SystemRolePermissionService;
 import cn.projectan.strix.util.common.SpringUtil;
 import cn.projectan.strix.util.common.UniqueChecker;
 import cn.projectan.strix.util.common.UpdateBuilder;
@@ -42,7 +41,6 @@ import java.util.List;
 public class SystemPermissionController extends BaseSystemController {
 
     private final SystemPermissionService systemPermissionService;
-    private final SystemRolePermissionService systemRolePermissionService;
     private final SystemPermissionCache systemPermissionCache;
 
     /**
