@@ -8,12 +8,9 @@ import cn.projectan.strix.model.response.common.CommonOperatorInfoResp;
 import cn.projectan.strix.service.common.OperatorService;
 import cn.projectan.strix.service.system.WorkflowInstanceService;
 import cn.projectan.strix.service.system.WorkflowTaskService;
-import cn.projectan.strix.util.common.SpringUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.context.ApplicationContext;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -49,12 +46,6 @@ public class DebugController extends BaseController {
     public RetResult<Object> approval(@PathVariable String taskId, @PathVariable Short operationType) {
         workflowTaskService.completeTask(taskId, "anjiongyi", operationType, "test comment");
         return RetBuilder.success();
-    }
-
-    @GetMapping("shutdown")
-    public void shutdown() {
-        ApplicationContext context = SpringUtil.getApplicationContext();
-        new Thread(() -> SpringApplication.exit(context)).start();
     }
 
     @GetMapping("operator/{operatorType}/{operatorId}")
