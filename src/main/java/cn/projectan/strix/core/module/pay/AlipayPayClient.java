@@ -140,9 +140,6 @@ public class AlipayPayClient extends StrixPayClient {
     @Override
     public BasePayResult resolveResult(HttpServletRequest request) {
         Map<String, String> params = AliPayApi.toMap(request);
-//        for (Map.Entry<String, String> entry : params.entrySet()) {
-//            log.info(entry.getKey() + " = " + entry.getValue());
-//        }
 
         BasePayResult result = new BasePayResult();
         result.setSuccess("TRADE_SUCCESS".equals(MapUtil.getStr(params, "trade_status")));

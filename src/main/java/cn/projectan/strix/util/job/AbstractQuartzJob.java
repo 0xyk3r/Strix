@@ -49,25 +49,6 @@ public abstract class AbstractQuartzJob implements org.quartz.Job {
     protected void after(JobExecutionContext context, Job job, Exception e) {
         Long startTime = threadLocal.get();
         threadLocal.remove();
-
-//        final SysJobLog sysJobLog = new SysJobLog();
-//        sysJobLog.setJobName(sysJob.getJobName());
-//        sysJobLog.setJobGroup(sysJob.getJobGroup());
-//        sysJobLog.setInvokeTarget(sysJob.getInvokeTarget());
-//        sysJobLog.setStartTime(startTime);
-//        sysJobLog.setStopTime(new Date());
-//        long runMs = sysJobLog.getStopTime().getTime() - sysJobLog.getStartTime().getTime();
-//        sysJobLog.setJobMessage(sysJobLog.getJobName() + " 总共耗时：" + runMs + "毫秒");
-//        if (e != null) {
-//            sysJobLog.setStatus(Constants.FAIL);
-//            String errorMsg = StringUtils.substring(ExceptionUtil.getExceptionMessage(e), 0, 2000);
-//            sysJobLog.setExceptionInfo(errorMsg);
-//        } else {
-//            sysJobLog.setStatus(Constants.SUCCESS);
-//        }
-//
-//        // 写入数据库当中
-//        SpringUtils.getBean(ISysJobLogService.class).addJobLog(sysJobLog);
     }
 
     /**
