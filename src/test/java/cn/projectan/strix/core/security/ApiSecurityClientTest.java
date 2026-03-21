@@ -1,7 +1,10 @@
 package cn.projectan.strix.core.security;
 
 import cn.projectan.strix.util.system.ApiSignUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 
@@ -12,7 +15,15 @@ import java.util.TreeMap;
  * @author ProjectAn
  * @since 2024/4/9 下午5:21
  */
+@Slf4j
+@SpringBootTest
 class ApiSecurityClientTest {
+
+    @Autowired
+    private ApiSignUtil apiSignUtil;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Test
     void test() throws Exception {
@@ -23,14 +34,11 @@ class ApiSecurityClientTest {
 
         // 待签名数据
         Map<String, Object> map = new TreeMap<>();
-        // api地址
-        map.put("_requestUrl", "/v1/user/getVerifyCode/register");
-        map.put("_timestamp", "1692190035334");
         // 参数
         map.put("loginName", "743730738@qq.com");
 
         // 请求头
-        String sign = ApiSignUtil.getSign(map, objectMapper);
+        String sign = apiSignUtil.getSign(objectMapper.writeValueAsString(map), "/v1/user/getVerifyCode/register", timestamp);
         System.out.println("☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★ REQUEST HEADER ☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★");
         System.out.println("sign: " + sign);
         System.out.println("timestamp: " + timestamp);

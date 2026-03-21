@@ -3,6 +3,8 @@ package cn.projectan.strix.core.security;
 import cn.projectan.strix.util.system.ApiSignUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 
@@ -14,7 +16,14 @@ import java.util.TreeMap;
  * @since 2024/4/9 下午5:23
  */
 @Slf4j
+@SpringBootTest
 class ApiSecurityTestTest {
+
+    @Autowired
+    private ApiSignUtil apiSignUtil;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Test
     void test() {
@@ -35,7 +44,7 @@ class ApiSecurityTestTest {
         System.out.println("===============TIMESTAMP===============");
         System.out.println(timestamp);
         System.out.println("=================SIGN=================");
-        String sign = ApiSignUtil.getSign(map, objectMapper);
+        String sign = apiSignUtil.getSign(objectMapper.writeValueAsString(map), "/v1/login", timestamp);
         System.out.println(sign);
         System.out.println("======================================");
 
