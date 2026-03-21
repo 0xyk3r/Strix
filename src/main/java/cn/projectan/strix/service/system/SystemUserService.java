@@ -6,7 +6,11 @@ import cn.projectan.strix.model.constant.system.OperatorType;
 import cn.projectan.strix.model.db.system.SystemUser;
 import cn.projectan.strix.model.db.system.SystemUserRelation;
 import cn.projectan.strix.model.dict.system.SystemUserStatus;
+import cn.projectan.strix.model.enums.common.NumCategory;
+import cn.projectan.strix.model.request.system.user.SystemUserListReq;
 import cn.projectan.strix.util.common.RedisUtil;
+import cn.projectan.strix.util.math.NumUtil;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +18,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 /**
  * <p>
@@ -30,6 +35,21 @@ public class SystemUserService extends ServiceImpl<SystemUserMapper, SystemUser>
 
     private final SystemUserRelationService systemUserRelationService;
     private final RedisUtil redisUtil;
+
+    /**
+     * 分页查询系统用户列表
+     *
+     * @param req 查询请求
+     * @return 分页数据
+     */
+    public Page<SystemUser> listPage(SystemUserListReq req) {
+        return lambdaQuery()
+                .like(StringUtils.hasText(req.getKeyword()), SystemUser::getNickname, req.getKeyword())
+                .or(StringUtils.hasText(req.getKeyword()), q -> q.like(SystemUser::getPhoneNumber, req.getKeyword()))
+                .eq(NumUtil.checkCategory(req.getStatus(), NumCategory.NON_NEGATIVE), SystemUser::getStatus, req.getStatus())
+                .orderByAsc(SystemUser::getCreatedTime)
+                .page(req.getPage());
+    }
 
     /**
      * 创建系统用户

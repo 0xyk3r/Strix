@@ -8,17 +8,20 @@ import cn.projectan.strix.core.module.oss.StrixOssStore;
 import cn.projectan.strix.mapper.system.OssConfigMapper;
 import cn.projectan.strix.model.db.system.OssConfig;
 import cn.projectan.strix.model.dict.system.OssPlatform;
+import cn.projectan.strix.model.request.system.module.oss.OssConfigListReq;
 import cn.projectan.strix.model.response.common.CommonSelectDataResp;
 import cn.projectan.strix.task.system.StrixOssTask;
 import cn.projectan.strix.util.algo.KeyDiffUtil;
 import cn.projectan.strix.util.common.SpringUtil;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
@@ -49,6 +52,19 @@ public class OssConfigService extends ServiceImpl<OssConfigMapper, OssConfig> {
     private String profiles;
 
     private final StrixOssStore strixOssStore;
+
+    /**
+     * 分页查询存储配置列表
+     *
+     * @param req 查询请求
+     * @return 分页数据
+     */
+    public Page<OssConfig> listPage(OssConfigListReq req) {
+        return lambdaQuery()
+                .like(StringUtils.hasText(req.getKeyword()), OssConfig::getKey, req.getKeyword())
+                .or(StringUtils.hasText(req.getKeyword()), q -> q.like(OssConfig::getName, req.getKeyword()))
+                .page(req.getPage());
+    }
 
     /**
      * 刷新配置

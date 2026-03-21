@@ -2,7 +2,9 @@ package cn.projectan.strix.service.system;
 
 import cn.projectan.strix.mapper.system.OssFileGroupMapper;
 import cn.projectan.strix.model.db.system.OssFileGroup;
+import cn.projectan.strix.model.request.system.module.oss.OssFileGroupListReq;
 import cn.projectan.strix.model.response.common.CommonSelectDataResp;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -30,6 +32,31 @@ public class OssFileGroupService extends ServiceImpl<OssFileGroupMapper, OssFile
         return lambdaQuery()
                 .eq(OssFileGroup::getKey, groupKey)
                 .one();
+    }
+
+    /**
+     * 根据配置key查询文件组列表
+     *
+     * @param configKey 配置key
+     * @return 文件组列表
+     */
+    public List<OssFileGroup> listByConfigKey(String configKey) {
+        return lambdaQuery()
+                .eq(OssFileGroup::getConfigKey, configKey)
+                .list();
+    }
+
+    /**
+     * 分页查询存储分组列表
+     *
+     * @param req 查询请求
+     * @return 分页数据
+     */
+    public Page<OssFileGroup> listPage(OssFileGroupListReq req) {
+        return lambdaQuery()
+                .like(StringUtils.hasText(req.getKeyword()), OssFileGroup::getName, req.getKeyword())
+                .eq(StringUtils.hasText(req.getConfigKey()), OssFileGroup::getConfigKey, req.getConfigKey())
+                .page(req.getPage());
     }
 
     /**

@@ -96,10 +96,7 @@ public class WechatOAController extends BaseWechatController {
             // 获取 OAuth 用户信息
             BaseOAuthUserInfo oAuthUserInfo = instance.auth(code);
             // 保存 OAuth 用户信息至数据库
-            OauthUser oauthUser = oauthUserService.lambdaQuery()
-                    .eq(OauthUser::getAppId, oAuthUserInfo.getAppId())
-                    .eq(OauthUser::getOpenId, oAuthUserInfo.getOpenId())
-                    .one();
+            OauthUser oauthUser = oauthUserService.getByAppIdAndOpenId(oAuthUserInfo.getAppId(), oAuthUserInfo.getOpenId());
 
             SystemUser systemUser;
             if (oauthUser == null) {

@@ -9,6 +9,8 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 /**
  * <p>
  * Strix 热度工具 配置 服务类
@@ -33,6 +35,17 @@ public class PopularityConfigService extends ServiceImpl<PopularityConfigMapper,
         return lambdaQuery()
                 .eq(PopularityConfig::getConfigKey, key)
                 .one();
+    }
+
+    /**
+     * 查询配置列表（仅 id 和 name）
+     *
+     * @return 配置列表
+     */
+    public List<PopularityConfig> listAll() {
+        return lambdaQuery()
+                .select(PopularityConfig::getId, PopularityConfig::getName)
+                .list();
     }
 
     /**

@@ -21,7 +21,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -47,9 +46,7 @@ public class JobController extends BaseSystemController {
     @PreAuthorize("@ss.hasPermission('system:module:job')")
     @StrixLog(operationGroup = "系统定时任务", operationName = "查询定时任务列表")
     public RetResult<JobListResp> getList(JobListReq req) {
-        Page<Job> page = jobService.lambdaQuery()
-                .like(StringUtils.hasText(req.getKeyword()), Job::getName, req.getKeyword())
-                .page(req.getPage());
+        Page<Job> page = jobService.listPage(req);
         return RetBuilder.success(new JobListResp(page.getRecords(), page.getTotal()));
     }
 

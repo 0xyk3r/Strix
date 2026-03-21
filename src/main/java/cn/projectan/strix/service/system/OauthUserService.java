@@ -29,6 +29,20 @@ public class OauthUserService extends ServiceImpl<OauthUserMapper, OauthUser> {
     private final SystemUserService systemUserService;
     private final SystemUserRelationService systemUserRelationService;
 
+    /**
+     * 根据appId和openId查询OAuth用户
+     *
+     * @param appId  应用ID
+     * @param openId 开放ID
+     * @return OAuth用户
+     */
+    public OauthUser getByAppIdAndOpenId(String appId, String openId) {
+        return lambdaQuery()
+                .eq(OauthUser::getAppId, appId)
+                .eq(OauthUser::getOpenId, openId)
+                .one();
+    }
+
     public SystemUser loginThirdUser(BaseOAuthUserInfo info, Short platform) {
         OauthUser oauthUser = lambdaQuery()
                 .eq(OauthUser::getPlatform, platform)

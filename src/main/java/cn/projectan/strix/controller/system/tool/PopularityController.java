@@ -52,9 +52,7 @@ public class PopularityController extends BaseSystemController {
     @PreAuthorize("@ss.hasPermission('system:tool:popularity')")
     @StrixLog(operationGroup = "系统工具-热度工具", operationName = "查询配置列表")
     public RetResult<PopularityConfigListResp> list() {
-        List<PopularityConfig> list = popularityConfigService.lambdaQuery()
-                .select(PopularityConfig::getId, PopularityConfig::getName)
-                .list();
+        List<PopularityConfig> list = popularityConfigService.listAll();
         return RetBuilder.success(new PopularityConfigListResp(list));
     }
 
@@ -121,9 +119,7 @@ public class PopularityController extends BaseSystemController {
 
         popularityConfigService.removeById(id);
         // 删除对应数据
-        popularityDataService.lambdaUpdate()
-                .eq(PopularityData::getConfigKey, data.getConfigKey())
-                .remove();
+        popularityDataService.deleteByConfigKey(data.getConfigKey());
         // 删除缓存数据
         popularityConfigService.clearCache(data.getConfigKey());
 
@@ -140,9 +136,7 @@ public class PopularityController extends BaseSystemController {
         PopularityConfig config = popularityConfigService.getById(id);
         Assert.notNull(config, "数据不存在");
 
-        Page<PopularityData> list = popularityDataService.lambdaQuery()
-                .eq(PopularityData::getConfigKey, config.getConfigKey())
-                .page(req.getPage());
+        Page<PopularityData> list = popularityDataService.listPage(config.getConfigKey(), req.getPage());
         return RetBuilder.success(new PopularityDataListResp(list));
     }
 
@@ -156,11 +150,7 @@ public class PopularityController extends BaseSystemController {
         PopularityConfig config = popularityConfigService.getById(id);
         Assert.notNull(config, "数据不存在");
 
-        popularityDataService.lambdaUpdate()
-                .eq(PopularityData::getConfigKey, config.getConfigKey())
-                .eq(PopularityData::getId, dataId)
-                .set(PopularityData::getOriginalValue, req.getOriginalValue())
-                .update();
+        popularityDataService.updateOriginalValue(config.getConfigKey(), dataId, req.getOriginalValue());
         return RetBuilder.success();
     }
 
@@ -174,10 +164,7 @@ public class PopularityController extends BaseSystemController {
         PopularityConfig config = popularityConfigService.getById(id);
         Assert.notNull(config, "数据不存在");
 
-        popularityDataService.lambdaUpdate()
-                .eq(PopularityData::getConfigKey, config.getConfigKey())
-                .eq(PopularityData::getId, dataId)
-                .remove();
+        popularityDataService.deleteByConfigKeyAndId(config.getConfigKey(), dataId);
         return RetBuilder.success();
     }
 

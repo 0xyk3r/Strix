@@ -7,11 +7,13 @@ import cn.projectan.strix.mapper.system.OssFileMapper;
 import cn.projectan.strix.model.db.system.OssFile;
 import cn.projectan.strix.model.db.system.OssFileGroup;
 import cn.projectan.strix.model.dict.system.OssFileGroupSecretType;
+import cn.projectan.strix.model.request.system.module.oss.OssFileListReq;
 import cn.projectan.strix.util.common.SnowflakeUtil;
 import cn.projectan.strix.util.file.FileMagicValidator;
 import cn.projectan.strix.util.file.FileUtil;
 import cn.projectan.strix.util.http.ServletUtil;
 import cn.projectan.strix.util.text.RegexPatterns;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -44,6 +46,20 @@ public class OssFileService extends ServiceImpl<OssFileMapper, OssFile> {
 
     private final Optional<StrixOssStore> strixOssStore;
     private final OssFileGroupService ossFileGroupService;
+
+    /**
+     * 分页查询存储文件列表
+     *
+     * @param req 查询请求
+     * @return 分页数据
+     */
+    public Page<OssFile> listPage(OssFileListReq req) {
+        return lambdaQuery()
+                .like(StringUtils.hasText(req.getKeyword()), OssFile::getPath, req.getKeyword())
+                .eq(StringUtils.hasText(req.getConfigKey()), OssFile::getConfigKey, req.getConfigKey())
+                .eq(StringUtils.hasText(req.getGroupKey()), OssFile::getGroupKey, req.getGroupKey())
+                .page(req.getPage());
+    }
 
 
     /**

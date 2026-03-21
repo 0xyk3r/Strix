@@ -6,9 +6,11 @@ import cn.projectan.strix.mapper.system.JobMapper;
 import cn.projectan.strix.model.constant.system.StrixJobConst;
 import cn.projectan.strix.model.db.system.Job;
 import cn.projectan.strix.model.dict.system.JobStatus;
+import cn.projectan.strix.model.request.system.module.job.JobListReq;
 import cn.projectan.strix.util.common.CronUtil;
 import cn.projectan.strix.util.job.ScheduleUtil;
 import cn.projectan.strix.util.reflect.InvokeUtil;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.quartz.JobDataMap;
 import org.quartz.JobKey;
@@ -19,6 +21,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 /**
  * <p>
@@ -37,6 +40,18 @@ public class JobService extends ServiceImpl<JobMapper, Job> {
     @Autowired
     public JobService(@Autowired(required = false) Scheduler scheduler) {
         this.scheduler = scheduler;
+    }
+
+    /**
+     * 分页查询定时任务列表
+     *
+     * @param req 查询请求
+     * @return 分页数据
+     */
+    public Page<Job> listPage(JobListReq req) {
+        return lambdaQuery()
+                .like(StringUtils.hasText(req.getKeyword()), Job::getName, req.getKeyword())
+                .page(req.getPage());
     }
 
     /**

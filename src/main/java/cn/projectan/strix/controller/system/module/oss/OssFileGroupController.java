@@ -24,7 +24,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -50,10 +49,7 @@ public class OssFileGroupController extends BaseSystemController {
     @PreAuthorize("@ss.hasPermission('system:module:oss:filegroup')")
     @StrixLog(operationGroup = "系统存储分组", operationName = "查询存储分组列表")
     public RetResult<OssFileGroupListResp> getOssFileGroupList(OssFileGroupListReq req) {
-        Page<OssFileGroup> page = ossFileGroupService.lambdaQuery()
-                .like(StringUtils.hasText(req.getKeyword()), OssFileGroup::getName, req.getKeyword())
-                .eq(StringUtils.hasText(req.getConfigKey()), OssFileGroup::getConfigKey, req.getConfigKey())
-                .page(req.getPage());
+        Page<OssFileGroup> page = ossFileGroupService.listPage(req);
 
         return RetBuilder.success(new OssFileGroupListResp(page.getRecords(), page.getTotal()));
     }

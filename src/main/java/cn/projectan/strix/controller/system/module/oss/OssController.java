@@ -30,7 +30,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -62,10 +61,7 @@ public class OssController extends BaseSystemController {
     @PreAuthorize("@ss.hasPermission('system:module:oss:config')")
     @StrixLog(operationGroup = "系统存储", operationName = "查询存储配置列表")
     public RetResult<OssConfigListResp> getList(OssConfigListReq req) {
-        Page<OssConfig> page = ossConfigService.lambdaQuery()
-                .like(StringUtils.hasText(req.getKeyword()), OssConfig::getKey, req.getKeyword())
-                .or(StringUtils.hasText(req.getKeyword()), q -> q.like(OssConfig::getName, req.getKeyword()))
-                .page(req.getPage());
+        Page<OssConfig> page = ossConfigService.listPage(req);
         return RetBuilder.success(new OssConfigListResp(page.getRecords(), page.getTotal()));
     }
 
@@ -79,14 +75,10 @@ public class OssController extends BaseSystemController {
         OssConfig ossConfig = ossConfigService.getById(id);
         Assert.notNull(ossConfig, "配置不存在");
 
-        List<OssBucket> buckets = ossBucketService.lambdaQuery()
-                .eq(OssBucket::getConfigKey, ossConfig.getKey())
-                .list();
+        List<OssBucket> buckets = ossBucketService.listByConfigKey(ossConfig.getKey());
         List<OssBucketListResp.OssBucketItem> bucketItems = new OssBucketListResp(buckets, (long) buckets.size()).getBuckets();
 
-        List<OssFileGroup> fileGroups = ossFileGroupService.lambdaQuery()
-                .eq(OssFileGroup::getConfigKey, ossConfig.getKey())
-                .list();
+        List<OssFileGroup> fileGroups = ossFileGroupService.listByConfigKey(ossConfig.getKey());
         List<OssFileGroupListResp.OssFileGroupItem> fileGroupItems = new OssFileGroupListResp(fileGroups, (long) fileGroups.size()).getFileGroups();
 
         return RetBuilder.success(
@@ -172,9 +164,7 @@ public class OssController extends BaseSystemController {
         ossConfigService.removeById(id);
 
         // 删除Bucket配置, 但不删除文件组和文件
-        ossBucketService.lambdaUpdate()
-                .eq(OssBucket::getConfigKey, key)
-                .remove();
+        ossBucketService.deleteByConfigKey(key);
 
         // 卸载配置
         strixOssStore.removeInstance(key);
@@ -197,11 +187,7 @@ public class OssController extends BaseSystemController {
     @PreAuthorize("@ss.hasPermission('system:module:oss:file')")
     @StrixLog(operationGroup = "系统存储", operationName = "查询存储文件列表")
     public RetResult<OssFileListResp> getOssFileList(OssFileListReq req) {
-        Page<OssFile> page = ossFileService.lambdaQuery()
-                .like(StringUtils.hasText(req.getKeyword()), OssFile::getPath, req.getKeyword())
-                .eq(StringUtils.hasText(req.getConfigKey()), OssFile::getConfigKey, req.getConfigKey())
-                .eq(StringUtils.hasText(req.getGroupKey()), OssFile::getGroupKey, req.getGroupKey())
-                .page(req.getPage());
+        Page<OssFile> page = ossFileService.listPage(req);
 
         return RetBuilder.success(new OssFileListResp(page.getRecords(), page.getTotal()));
     }

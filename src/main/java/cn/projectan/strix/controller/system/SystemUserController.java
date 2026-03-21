@@ -9,7 +9,6 @@ import cn.projectan.strix.model.annotation.StrixLog;
 import cn.projectan.strix.model.db.system.SystemUser;
 import cn.projectan.strix.model.dict.system.SystemLogOperType;
 import cn.projectan.strix.model.dict.system.SystemUserStatus;
-import cn.projectan.strix.model.enums.common.NumCategory;
 import cn.projectan.strix.model.request.common.SingleFieldModifyReq;
 import cn.projectan.strix.model.request.system.user.SystemUserListReq;
 import cn.projectan.strix.model.request.system.user.SystemUserUpdateReq;
@@ -18,14 +17,12 @@ import cn.projectan.strix.model.response.system.user.SystemUserResp;
 import cn.projectan.strix.service.system.SystemUserService;
 import cn.projectan.strix.util.common.UniqueChecker;
 import cn.projectan.strix.util.common.UpdateBuilder;
-import cn.projectan.strix.util.math.NumUtil;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -50,12 +47,7 @@ public class SystemUserController extends BaseSystemController {
     @PreAuthorize("@ss.hasPermission('system:user')")
     @StrixLog(operationGroup = "系统用户", operationName = "查询用户列表")
     public RetResult<SystemUserListResp> getSystemUserList(SystemUserListReq req) {
-        Page<SystemUser> page = systemUserService.lambdaQuery()
-                .like(StringUtils.hasText(req.getKeyword()), SystemUser::getNickname, req.getKeyword())
-                .or(StringUtils.hasText(req.getKeyword()), q -> q.like(SystemUser::getPhoneNumber, req.getKeyword()))
-                .eq(NumUtil.checkCategory(req.getStatus(), NumCategory.NON_NEGATIVE), SystemUser::getStatus, req.getStatus())
-                .orderByAsc(SystemUser::getCreatedTime)
-                .page(req.getPage());
+        Page<SystemUser> page = systemUserService.listPage(req);
 
         SystemUserListResp resp = new SystemUserListResp(page.getRecords(), page.getTotal());
 

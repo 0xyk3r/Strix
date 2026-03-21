@@ -23,7 +23,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -50,10 +49,7 @@ public class OssBucketController extends BaseSystemController {
     @PreAuthorize("@ss.hasPermission('system:module:oss:bucket')")
     @StrixLog(operationGroup = "系统存储空间", operationName = "查询存储空间列表")
     public RetResult<OssBucketListResp> getOssBucketList(OssBucketListReq req) {
-        Page<OssBucket> page = ossBucketService.lambdaQuery()
-                .like(StringUtils.hasText(req.getKeyword()), OssBucket::getName, req.getKeyword())
-                .eq(StringUtils.hasText(req.getConfigKey()), OssBucket::getConfigKey, req.getConfigKey())
-                .page(req.getPage());
+        Page<OssBucket> page = ossBucketService.listPage(req);
 
         return RetBuilder.success(new OssBucketListResp(page.getRecords(), page.getTotal()));
     }
