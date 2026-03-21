@@ -32,9 +32,21 @@ public class NicknameGenerator {
     private static final String ADJECTIVES_PATH = "nickname/adjectives.txt";
     private static final String NOUNS_PATH = "nickname/nouns.txt";
 
-    private static volatile String[] adjectives;
-    private static volatile String[] nouns;
-    private static volatile boolean initialized = false;
+    /**
+     * 使用静态内部类实现线程安全的懒加载（Initialization-on-demand holder idiom）
+     */
+    private static class WordHolder {
+        static final String[] adjectives;
+        static final String[] nouns;
+
+        static {
+            adjectives = loadWordList(ADJECTIVES_PATH);
+            nouns = loadWordList(NOUNS_PATH);
+            if (adjectives.length == 0 || nouns.length == 0) {
+                throw new IllegalStateException("词库加载失败，请检查资源文件是否存在");
+            }
+        }
+    }
 
     /**
      * 生成随机昵称（不带数字后缀）
@@ -45,10 +57,9 @@ public class NicknameGenerator {
      * @return 随机昵称
      */
     public static String generate() {
-        ensureInitialized();
         ThreadLocalRandom random = ThreadLocalRandom.current();
-        String adjective = adjectives[random.nextInt(adjectives.length)];
-        String noun = nouns[random.nextInt(nouns.length)];
+        String adjective = WordHolder.adjectives[random.nextInt(WordHolder.adjectives.length)];
+        String noun = WordHolder.nouns[random.nextInt(WordHolder.nouns.length)];
         return adjective + "的" + noun;
     }
 
@@ -62,10 +73,9 @@ public class NicknameGenerator {
      * @return 随机昵称
      */
     public static String generateWithSuffix(int maxSuffix) {
-        ensureInitialized();
         ThreadLocalRandom random = ThreadLocalRandom.current();
-        String adjective = adjectives[random.nextInt(adjectives.length)];
-        String noun = nouns[random.nextInt(nouns.length)];
+        String adjective = WordHolder.adjectives[random.nextInt(WordHolder.adjectives.length)];
+        String noun = WordHolder.nouns[random.nextInt(WordHolder.nouns.length)];
         int suffix = random.nextInt(maxSuffix);
         return adjective + "的" + noun + suffix;
     }
@@ -79,10 +89,9 @@ public class NicknameGenerator {
      * @return 随机昵称
      */
     public static String generateWithPaddedSuffix() {
-        ensureInitialized();
         ThreadLocalRandom random = ThreadLocalRandom.current();
-        String adjective = adjectives[random.nextInt(adjectives.length)];
-        String noun = nouns[random.nextInt(nouns.length)];
+        String adjective = WordHolder.adjectives[random.nextInt(WordHolder.adjectives.length)];
+        String noun = WordHolder.nouns[random.nextInt(WordHolder.nouns.length)];
         int suffix = random.nextInt(10000);
         return adjective + "的" + noun + String.format("%04d", suffix);
     }
@@ -96,10 +105,9 @@ public class NicknameGenerator {
      * @return 随机昵称
      */
     public static String generateSimple() {
-        ensureInitialized();
         ThreadLocalRandom random = ThreadLocalRandom.current();
-        String adjective = adjectives[random.nextInt(adjectives.length)];
-        String noun = nouns[random.nextInt(nouns.length)];
+        String adjective = WordHolder.adjectives[random.nextInt(WordHolder.adjectives.length)];
+        String noun = WordHolder.nouns[random.nextInt(WordHolder.nouns.length)];
         return adjective + noun;
     }
 
@@ -113,10 +121,9 @@ public class NicknameGenerator {
      * @return 随机昵称
      */
     public static String generateSimpleWithSuffix(int maxSuffix) {
-        ensureInitialized();
         ThreadLocalRandom random = ThreadLocalRandom.current();
-        String adjective = adjectives[random.nextInt(adjectives.length)];
-        String noun = nouns[random.nextInt(nouns.length)];
+        String adjective = WordHolder.adjectives[random.nextInt(WordHolder.adjectives.length)];
+        String noun = WordHolder.nouns[random.nextInt(WordHolder.nouns.length)];
         int suffix = random.nextInt(maxSuffix);
         return adjective + noun + suffix;
     }
@@ -127,8 +134,7 @@ public class NicknameGenerator {
      * @return 组合数量
      */
     public static long getCombinationCount() {
-        ensureInitialized();
-        return (long) adjectives.length * nouns.length;
+        return (long) WordHolder.adjectives.length * WordHolder.nouns.length;
     }
 
     /**
@@ -138,8 +144,7 @@ public class NicknameGenerator {
      * @return 组合数量
      */
     public static long getCombinationCountWithSuffix(int maxSuffix) {
-        ensureInitialized();
-        return (long) adjectives.length * nouns.length * maxSuffix;
+        return (long) WordHolder.adjectives.length * WordHolder.nouns.length * maxSuffix;
     }
 
     /**
@@ -148,8 +153,7 @@ public class NicknameGenerator {
      * @return 形容词数量
      */
     public static int getAdjectiveCount() {
-        ensureInitialized();
-        return adjectives.length;
+        return WordHolder.adjectives.length;
     }
 
     /**
@@ -158,28 +162,7 @@ public class NicknameGenerator {
      * @return 名词数量
      */
     public static int getNounCount() {
-        ensureInitialized();
-        return nouns.length;
-    }
-
-    private static void ensureInitialized() {
-        if (!initialized) {
-            synchronized (NicknameGenerator.class) {
-                if (!initialized) {
-                    loadWordLists();
-                    initialized = true;
-                }
-            }
-        }
-    }
-
-    private static void loadWordLists() {
-        adjectives = loadWordList(ADJECTIVES_PATH);
-        nouns = loadWordList(NOUNS_PATH);
-
-        if (adjectives.length == 0 || nouns.length == 0) {
-            throw new IllegalStateException("词库加载失败，请检查资源文件是否存在");
-        }
+        return WordHolder.nouns.length;
     }
 
     private static String[] loadWordList(String resourcePath) {
