@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
@@ -53,19 +52,16 @@ public class AsyncSystemLogService {
      * 异步保存日志
      */
     @Async("strixThreadExecutor")
-    public CompletableFuture<Void> saveAsync(SystemLog systemLog) {
-        return CompletableFuture.runAsync(() -> {
-            try {
-                boolean offered = logQueue.offer(systemLog);
-                if (!offered) {
-                    log.warn("Strix Log: 系统日志队列已满，日志可能会丢失.");
-                    // 队列满时直接保存到数据库 可能产生性能问题
-                    systemLogService.save(systemLog);
-                }
-            } catch (Exception e) {
-                log.error("Strix Log: 添加日志到队列失败, 错误: {}", e.getMessage(), e);
+    public void saveAsync(SystemLog systemLog) {
+        try {
+            boolean offered = logQueue.offer(systemLog);
+            if (!offered) {
+                log.warn("Strix Log: 系统日志队列已满，日志可能会丢失.");
+                systemLogService.save(systemLog);
             }
-        });
+        } catch (Exception e) {
+            log.error("Strix Log: 添加日志到队列失败, 错误: {}", e.getMessage(), e);
+        }
     }
 
     /**
