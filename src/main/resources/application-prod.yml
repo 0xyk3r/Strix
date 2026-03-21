@@ -46,3 +46,11 @@ spring:
           max-idle: 4
           min-idle: 2
           max-wait: 5000ms
+# 生产环境禁用 API 文档
+springdoc:
+  swagger-ui:
+    enabled: false
+  api-docs:
+    enabled: false
+knife4j:
+  production: true
