@@ -7,6 +7,7 @@ import cn.projectan.strix.service.system.OssFileService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,6 +27,9 @@ public class FileController extends BaseSrvController {
 
     private final OssFileService ossFileService;
 
+    @Value("${strix.oss.default-image-url:}")
+    private String defaultImageUrl;
+
     /**
      * 获取图片
      */
@@ -35,7 +39,7 @@ public class FileController extends BaseSrvController {
     public void getImage(@PathVariable String fileId, HttpServletResponse response) throws Exception {
         // 注意权限验证
         response.setContentType("image/jpeg");
-        response.sendRedirect(ossFileService.getUrl(fileId, "https://oss.huiboche.cn/System/404.png"));
+        response.sendRedirect(ossFileService.getUrl(fileId, defaultImageUrl));
     }
 
 }
