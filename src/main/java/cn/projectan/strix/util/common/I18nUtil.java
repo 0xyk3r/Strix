@@ -95,10 +95,11 @@ public class I18nUtil {
         }
         try {
             String[] split = locale.split("_");
-            return new Locale.Builder()
-                    .setLanguage(split[0])
-                    .setRegion(split[1])
-                    .build();
+            Locale.Builder builder = new Locale.Builder().setLanguage(split[0]);
+            if (split.length >= 2) {
+                builder.setRegion(split[1]);
+            }
+            return builder.build();
         } catch (Exception ignore) {
             log.warn("无法解析语言参数：{}，将使用默认语言：{}.", locale, defaultLocale);
             // 解析失败时直接返回 FALLBACK_LOCALE 避免无限递归
