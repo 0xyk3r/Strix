@@ -5,6 +5,7 @@ import cn.hutool.crypto.SmUtil;
 import cn.hutool.crypto.asymmetric.KeyType;
 import cn.hutool.crypto.asymmetric.SM2;
 import cn.hutool.crypto.symmetric.SM4;
+import cn.projectan.strix.util.text.StrixBase64Util;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -112,9 +113,9 @@ public class ApiSecurity {
             if (StringUtils.hasText(data) && StringUtils.hasText(sign) && StringUtils.hasText(iv)) {
                 // 使用服务端 SM2 私钥解密出 SM4 密钥
                 SM2 sm2 = SmUtil.sm2(SERVER_SM2_PRIVATE_KEY, null);
-                byte[] sm4KeyBase64Bytes = sm2.decrypt(Base64.getDecoder().decode(sign), KeyType.PrivateKey);
+                byte[] sm4KeyBase64Bytes = sm2.decrypt(StrixBase64Util.decode(sign, StrixBase64Util.MAX_LENGTH_1MB), KeyType.PrivateKey);
                 byte[] sm4KeyBytes = Base64.getDecoder().decode(sm4KeyBase64Bytes);
-                byte[] ivBytes = Base64.getDecoder().decode(iv);
+                byte[] ivBytes = StrixBase64Util.decode(iv, StrixBase64Util.MAX_LENGTH_1MB);
 
                 // 使用 SM4/CBC 解密数据
                 SM4 sm4 = new SM4(cn.hutool.crypto.Mode.CBC, cn.hutool.crypto.Padding.PKCS5Padding, sm4KeyBytes, ivBytes);

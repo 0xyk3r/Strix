@@ -12,8 +12,8 @@ spring:
     multipart:
       enabled: true
       file-size-threshold: 0
-      max-file-size: 256MB
-      max-request-size: 256MB
+      max-file-size: 512MB
+      max-request-size: 512MB
   jackson:
     time-zone: GMT+8
     date-format: yyyy-MM-dd HH:mm:ss

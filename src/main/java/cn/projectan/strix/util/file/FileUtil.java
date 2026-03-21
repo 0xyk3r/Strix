@@ -1,5 +1,6 @@
 package cn.projectan.strix.util.file;
 
+import cn.projectan.strix.util.text.StrixBase64Util;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -95,7 +96,7 @@ public final class FileUtil {
 
         String mimeType = matcher.group(1);
         String base64Content = matcher.group(2);
-        byte[] data = Base64.getDecoder().decode(base64Content);
+        byte[] data = StrixBase64Util.decode(base64Content, StrixBase64Util.MAX_LENGTH_512MB);
 
         return new Base64ParseResult(mimeType, data);
     }

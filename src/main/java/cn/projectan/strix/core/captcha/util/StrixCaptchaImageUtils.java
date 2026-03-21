@@ -1,5 +1,6 @@
 package cn.projectan.strix.core.captcha.util;
 
+import cn.projectan.strix.util.text.StrixBase64Util;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
@@ -109,7 +110,7 @@ public class StrixCaptchaImageUtils {
      */
     public static BufferedImage getBase64StrToImage(String base64String) {
         try {
-            byte[] bytes = Base64.getDecoder().decode(base64String);
+            byte[] bytes = StrixBase64Util.decode(base64String, StrixBase64Util.MAX_LENGTH_10MB);
             ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes);
             return ImageIO.read(inputStream);
         } catch (IOException e) {

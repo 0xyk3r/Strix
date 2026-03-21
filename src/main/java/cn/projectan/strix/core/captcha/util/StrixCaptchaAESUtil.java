@@ -1,6 +1,7 @@
 package cn.projectan.strix.core.captcha.util;
 
 
+import cn.projectan.strix.util.text.StrixBase64Util;
 import org.springframework.util.StringUtils;
 
 import javax.crypto.Cipher;
@@ -56,8 +57,7 @@ public class StrixCaptchaAESUtil {
      * @return 解码后的byte[]
      */
     public static byte[] base64Decode(String base64Code) {
-        Base64.Decoder decoder = Base64.getDecoder();
-        return StringUtils.hasText(base64Code) ? decoder.decode(base64Code) : null;
+        return StrixBase64Util.decodeOrNull(base64Code, StrixBase64Util.MAX_LENGTH_10MB);
     }
 
 
