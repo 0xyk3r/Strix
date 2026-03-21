@@ -146,19 +146,26 @@ public final class IpUtils {
     }
 
     /**
-     * 从多级反向代理中获得第一个非unknown IP地址
+     * 从多级反向代理中获得最后一个非 unknown 的 IP 地址
+     * <p>
+     * 取最后一个可同时兼容 Nginx 覆盖模式和追加模式：
+     * <ul>
+     *   <li>覆盖模式：仅一个 IP，直接返回</li>
+     *   <li>追加模式：客户端伪造的 IP 在前，真实 IP 被 Nginx 追加在最后</li>
+     * </ul>
      *
-     * @param ip 获得的IP地址
-     * @return 第一个非unknown IP地址
+     * @param ip 获得的IP地址（可能包含逗号分隔的多个IP）
+     * @return 最后一个非 unknown 的 IP 地址
      */
     public static String getMultistageReverseProxyIp(String ip) {
         if (ip != null && ip.contains(",")) {
             String[] ips = ip.trim().split(",");
-            ip = Stream.of(ips)
-                    .map(String::trim)
-                    .filter(s -> !isUnknown(s))
-                    .findFirst()
-                    .orElse(ip);
+            for (int i = ips.length - 1; i >= 0; i--) {
+                String candidate = ips[i].trim();
+                if (!isUnknown(candidate)) {
+                    return candidate;
+                }
+            }
         }
         return ip;
     }
