@@ -37,18 +37,8 @@ public class PayHandler extends BaseModel<PayHandler> {
     private String name;
 
     /**
-     * 支付成功处理器
+     * 支付回调处理器 Bean 名称
      */
-    private String successHandler;
-
-    /**
-     * 支付退款处理器
-     */
-    private String refundHandler;
-
-    /**
-     * 支付超时处理器
-     */
-    private String timeoutHandler;
+    private String handler;
 
 }

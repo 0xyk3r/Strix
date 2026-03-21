@@ -1,5 +1,6 @@
 package cn.projectan.strix.job;
 
+import cn.projectan.strix.core.module.pay.PayCallbackHandler;
 import cn.projectan.strix.model.annotation.StrixJob;
 import cn.projectan.strix.model.db.system.PayOrder;
 import cn.projectan.strix.service.system.PayOrderService;
@@ -15,14 +16,29 @@ import org.springframework.stereotype.Component;
 @StrixJob
 @Component("testPayHandler")
 @RequiredArgsConstructor
-public class TestPayHandler {
+public class TestPayHandler implements PayCallbackHandler {
 
     private final PayOrderService payOrderService;
 
-    public void handleSuccess(String orderId) {
-        log.info("Do job: `TestPayHandler.handleSuccess` with orderId: {}", orderId);
+    @Override
+    public void onPaySuccess(String orderId) {
+        log.info("Do job: `TestPayHandler.onPaySuccess` with orderId: {}", orderId);
         PayOrder payOrder = payOrderService.getById(orderId);
-        log.info("PayOrder: {}", payOrder);
+        log.info("onPaySuccess: {}", payOrder);
+    }
+
+    @Override
+    public void onPayRefund(String orderId) {
+        log.info("Do job: `TestPayHandler.onPayRefund` with orderId: {}", orderId);
+        PayOrder payOrder = payOrderService.getById(orderId);
+        log.info("onPayRefund: {}", payOrder);
+    }
+
+    @Override
+    public void onPayTimeout(String orderId) {
+        log.info("Do job: `TestPayHandler.onPayTimeout` with orderId: {}", orderId);
+        PayOrder payOrder = payOrderService.getById(orderId);
+        log.info("onPayTimeout: {}", payOrder);
     }
 
 }

@@ -1,11 +1,12 @@
 package cn.projectan.strix.service.system;
 
+import cn.projectan.strix.core.module.pay.PayCallbackHandler;
 import cn.projectan.strix.mapper.system.PayHandlerMapper;
 import cn.projectan.strix.model.db.system.PayHandler;
-import cn.projectan.strix.util.reflect.InvokeUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
@@ -22,6 +23,8 @@ import org.springframework.util.Assert;
 @RequiredArgsConstructor
 public class PayHandlerService extends ServiceImpl<PayHandlerMapper, PayHandler> {
 
+    private final ApplicationContext applicationContext;
+
     /**
      * 处理成功
      *
@@ -29,23 +32,19 @@ public class PayHandlerService extends ServiceImpl<PayHandlerMapper, PayHandler>
      * @param orderId 订单 id
      */
     public void handleSuccess(String id, String orderId) {
-        PayHandler payHandler = this.getById(id);
-        Assert.notNull(payHandler, "支付处理器不存在");
-        String invokeTarget = payHandler.getSuccessHandler().replace("{{ORDER_ID}}", orderId);
-        InvokeUtil.invokeMethod(invokeTarget);
+        PayCallbackHandler handler = resolveHandler(id);
+        handler.onPaySuccess(orderId);
     }
 
     /**
-     * 处理失败
+     * 处理退款
      *
      * @param id      订单处理器 id
      * @param orderId 订单 id
      */
     public void handleRefund(String id, String orderId) {
-        PayHandler payHandler = this.getById(id);
-        Assert.notNull(payHandler, "支付处理器不存在");
-        String invokeTarget = payHandler.getSuccessHandler().replace("{{ORDER_ID}}", orderId);
-        InvokeUtil.invokeMethod(invokeTarget);
+        PayCallbackHandler handler = resolveHandler(id);
+        handler.onPayRefund(orderId);
     }
 
     /**
@@ -55,10 +54,19 @@ public class PayHandlerService extends ServiceImpl<PayHandlerMapper, PayHandler>
      * @param orderId 订单 id
      */
     public void handleTimeout(String id, String orderId) {
+        PayCallbackHandler handler = resolveHandler(id);
+        handler.onPayTimeout(orderId);
+    }
+
+    private PayCallbackHandler resolveHandler(String id) {
         PayHandler payHandler = this.getById(id);
         Assert.notNull(payHandler, "支付处理器不存在");
-        String invokeTarget = payHandler.getSuccessHandler().replace("{{ORDER_ID}}", orderId);
-        InvokeUtil.invokeMethod(invokeTarget);
+        String beanName = payHandler.getHandler();
+        Assert.hasText(beanName, "支付回调处理器未配置");
+        Object bean = applicationContext.getBean(beanName);
+        Assert.isInstanceOf(PayCallbackHandler.class, bean,
+                "Bean '" + beanName + "' 未实现 PayCallbackHandler 接口");
+        return (PayCallbackHandler) bean;
     }
 
 }
