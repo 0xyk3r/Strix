@@ -145,10 +145,6 @@ public class DictService extends ServiceImpl<DictMapper, Dict> {
         Assert.isTrue(dictDataService.lambdaUpdate()
                 .eq(DictData::getKey, dict.getKey())
                 .remove(), "删除失败");
-
-        dictDataService.lambdaUpdate()
-                .eq(DictData::getKey, dict.getKey())
-                .remove();
     }
 
     /**
