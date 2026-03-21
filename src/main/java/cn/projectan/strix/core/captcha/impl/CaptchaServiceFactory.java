@@ -36,6 +36,7 @@ public class CaptchaServiceFactory {
 
     static {
         cacheService.put("redis", SpringUtil.getBean(CaptchaCacheServiceImpl.class));
+        cacheService.put("local", new CaptchaLocalCacheServiceImpl());
         instances.put("blockPuzzle", new BlockPuzzleCaptchaServiceImpl());
     }
 

@@ -188,23 +188,17 @@ public class BlockPuzzleCaptchaServiceImpl extends AbstractCaptchaService {
                     // 在原扣图左边插入干扰图
                     position = StrixCaptchaRandomUtils.getRandomInt(100, x - jigsawWidth - 5);
                 }
-                while (true) {
-                    String s = StrixCaptchaImageUtils.getSlidingBlock();
-                    if (!jigsawImageBase64.equals(s)) {
-                        interferenceByTemplate(originalImage, Objects.requireNonNull(StrixCaptchaImageUtils.getBase64StrToImage(s)), position, 0);
-                        break;
-                    }
+                String s = getDistinctSlidingBlock(jigsawImageBase64);
+                if (s != null) {
+                    interferenceByTemplate(originalImage, Objects.requireNonNull(StrixCaptchaImageUtils.getBase64StrToImage(s)), position, 0);
                 }
             }
             if (captchaInterferenceOptions > 1) {
-                while (true) {
-                    String s = StrixCaptchaImageUtils.getSlidingBlock();
-                    if (!jigsawImageBase64.equals(s)) {
-                        Integer randomInt = StrixCaptchaRandomUtils.getRandomInt(jigsawWidth, 100 - jigsawWidth);
-                        interferenceByTemplate(originalImage, Objects.requireNonNull(StrixCaptchaImageUtils.getBase64StrToImage(s)),
-                                randomInt, 0);
-                        break;
-                    }
+                String s = getDistinctSlidingBlock(jigsawImageBase64);
+                if (s != null) {
+                    Integer randomInt = StrixCaptchaRandomUtils.getRandomInt(jigsawWidth, 100 - jigsawWidth);
+                    interferenceByTemplate(originalImage, Objects.requireNonNull(StrixCaptchaImageUtils.getBase64StrToImage(s)),
+                            randomInt, 0);
                 }
             }
 
@@ -237,6 +231,21 @@ public class BlockPuzzleCaptchaServiceImpl extends AbstractCaptchaService {
             log.warn("Strix Captcha: 滑动验证码生成失败", e);
             return null;
         }
+    }
+
+    /**
+     * 获取一张与当前滑块图片不同的干扰图.
+     * 如果只有一张滑块图片, 返回 null 跳过干扰图生成, 避免死循环.
+     */
+    private static String getDistinctSlidingBlock(String currentImageBase64) {
+        int maxAttempts = 20;
+        for (int i = 0; i < maxAttempts; i++) {
+            String s = StrixCaptchaImageUtils.getSlidingBlock();
+            if (!currentImageBase64.equals(s)) {
+                return s;
+            }
+        }
+        return null;
     }
 
     private String toJsonString(CaptchaPointVO point) {
