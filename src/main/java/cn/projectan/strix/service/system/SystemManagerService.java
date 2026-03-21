@@ -2,14 +2,12 @@ package cn.projectan.strix.service.system;
 
 import cn.projectan.strix.core.ss.details.LoginSystemManager;
 import cn.projectan.strix.mapper.system.SystemManagerMapper;
-import cn.projectan.strix.model.constant.system.LoginRedisKeys;
 import cn.projectan.strix.model.db.system.*;
 import cn.projectan.strix.model.dict.system.SystemManagerType;
 import cn.projectan.strix.model.dict.system.SystemRoleRegionPermissionType;
 import cn.projectan.strix.model.enums.common.NumCategory;
 import cn.projectan.strix.model.request.system.manager.SystemManagerListReq;
 import cn.projectan.strix.service.base.NameFetcherService;
-import cn.projectan.strix.util.common.RedisUtil;
 import cn.projectan.strix.util.common.SpringUtil;
 import cn.projectan.strix.util.math.NumUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -46,7 +44,7 @@ public class SystemManagerService extends ServiceImpl<SystemManagerMapper, Syste
     private final SystemPermissionService systemPermissionService;
     private final SystemManagerRoleService systemManagerRoleService;
     private final SystemRolePermissionService systemRolePermissionService;
-    private final RedisUtil redisUtil;
+    private final TokenSessionService tokenSessionService;
 
     /**
      * 根据登录名查询管理人员
@@ -245,11 +243,8 @@ public class SystemManagerService extends ServiceImpl<SystemManagerMapper, Syste
      * @param managerId 管理人员 ID
      */
     public void refreshLoginInfoByManager(String managerId) {
-        Object existToken = redisUtil.get(LoginRedisKeys.LOGIN_MANAGER_ID_TO_TOKEN_PREFIX + managerId);
-        if (existToken != null) {
-            LoginSystemManager loginSystemManager = this.getLoginInfo(managerId);
-            redisUtil.set(LoginRedisKeys.LOGIN_MANAGER_TOKEN_TO_USER_INFO_PREFIX + existToken, loginSystemManager);
-        }
+        LoginSystemManager loginSystemManager = this.getLoginInfo(managerId);
+        tokenSessionService.refreshManagerLoginInfo(managerId, loginSystemManager);
     }
 
     /**
@@ -259,11 +254,8 @@ public class SystemManagerService extends ServiceImpl<SystemManagerMapper, Syste
      */
     public void refreshLoginInfoByRole(String roleId) {
         getManagerIdListByRoleId(roleId).forEach(managerId -> {
-            Object existToken = redisUtil.get(LoginRedisKeys.LOGIN_MANAGER_ID_TO_TOKEN_PREFIX + managerId);
-            if (existToken != null) {
-                LoginSystemManager loginSystemManager = this.getLoginInfo(managerId);
-                redisUtil.set(LoginRedisKeys.LOGIN_MANAGER_TOKEN_TO_USER_INFO_PREFIX + existToken, loginSystemManager);
-            }
+            LoginSystemManager loginSystemManager = this.getLoginInfo(managerId);
+            tokenSessionService.refreshManagerLoginInfo(managerId, loginSystemManager);
         });
     }
 
@@ -280,11 +272,8 @@ public class SystemManagerService extends ServiceImpl<SystemManagerMapper, Syste
                 .stream()
                 .map(SystemManagerRole::getSystemManagerId)
                 .forEach(managerId -> {
-                    Object existToken = redisUtil.get(LoginRedisKeys.LOGIN_MANAGER_ID_TO_TOKEN_PREFIX + managerId);
-                    if (existToken != null) {
-                        LoginSystemManager loginSystemManager = this.getLoginInfo(managerId);
-                        redisUtil.set(LoginRedisKeys.LOGIN_MANAGER_TOKEN_TO_USER_INFO_PREFIX + existToken, loginSystemManager);
-                    }
+                    LoginSystemManager loginSystemManager = this.getLoginInfo(managerId);
+                    tokenSessionService.refreshManagerLoginInfo(managerId, loginSystemManager);
                 });
     }
 

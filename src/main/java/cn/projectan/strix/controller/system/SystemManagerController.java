@@ -8,7 +8,6 @@ import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.core.validation.group.InsertGroup;
 import cn.projectan.strix.core.validation.group.UpdateGroup;
 import cn.projectan.strix.model.annotation.StrixLog;
-import cn.projectan.strix.model.constant.system.LoginRedisKeys;
 import cn.projectan.strix.model.db.system.SystemManager;
 import cn.projectan.strix.model.db.system.SystemManagerRole;
 import cn.projectan.strix.model.dict.common.CommonFlag;
@@ -23,8 +22,8 @@ import cn.projectan.strix.model.response.system.manager.SystemManagerListResp;
 import cn.projectan.strix.model.response.system.manager.SystemManagerResp;
 import cn.projectan.strix.service.system.SystemManagerRoleService;
 import cn.projectan.strix.service.system.SystemManagerService;
+import cn.projectan.strix.service.system.TokenSessionService;
 import cn.projectan.strix.util.algo.KeyDiffUtil;
-import cn.projectan.strix.util.common.RedisUtil;
 import cn.projectan.strix.util.common.UniqueChecker;
 import cn.projectan.strix.util.common.UpdateBuilder;
 import cn.projectan.strix.util.crypto.StrixSM3Util;
@@ -61,7 +60,7 @@ public class SystemManagerController extends BaseSystemController {
     private final SystemManagerRoleService systemManagerRoleService;
     private final SystemMenuCache systemMenuCache;
     private final SystemPermissionCache systemPermissionCache;
-    private final RedisUtil redisUtil;
+    private final TokenSessionService tokenSessionService;
 
     /**
      * 查询人员列表
@@ -242,11 +241,7 @@ public class SystemManagerController extends BaseSystemController {
         systemManagerRoleService.deleteByManagerId(systemManager.getId());
 
         // 使登录Token失效
-        Object existToken = redisUtil.get(LoginRedisKeys.LOGIN_MANAGER_ID_TO_TOKEN_PREFIX + systemManager.getId());
-        if (existToken != null) {
-            redisUtil.del(LoginRedisKeys.LOGIN_MANAGER_TOKEN_TO_USER_INFO_PREFIX + existToken);
-            redisUtil.del(LoginRedisKeys.LOGIN_MANAGER_ID_TO_TOKEN_PREFIX + systemManager.getId());
-        }
+        tokenSessionService.invalidateManagerSession(systemManager.getId());
 
         return RetBuilder.success();
     }

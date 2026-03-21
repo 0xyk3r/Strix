@@ -1,6 +1,5 @@
 package cn.projectan.strix.controller.system;
 
-import cn.hutool.core.util.IdUtil;
 import cn.projectan.strix.controller.system.base.BaseSystemController;
 import cn.projectan.strix.core.cache.system.SystemConfigCache;
 import cn.projectan.strix.core.captcha.CaptchaService;
@@ -10,7 +9,6 @@ import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.core.ss.details.LoginSystemManager;
 import cn.projectan.strix.model.annotation.Anonymous;
 import cn.projectan.strix.model.annotation.StrixLog;
-import cn.projectan.strix.model.constant.system.LoginRedisKeys;
 import cn.projectan.strix.model.constant.system.StrixRedisKeyConst;
 import cn.projectan.strix.model.db.system.SystemManager;
 import cn.projectan.strix.model.db.system.SystemMenu;
@@ -22,9 +20,11 @@ import cn.projectan.strix.model.response.system.SystemMenuResp;
 import cn.projectan.strix.model.response.system.login.SystemManagerLoginResp;
 import cn.projectan.strix.service.system.SystemManagerService;
 import cn.projectan.strix.service.system.SystemMenuService;
+import cn.projectan.strix.service.system.TokenSessionService;
 import cn.projectan.strix.util.common.RedisUtil;
 import cn.projectan.strix.util.crypto.StrixSM3Util;
 import cn.projectan.strix.util.http.ServletUtil;
+import cn.projectan.strix.util.http.TokenUtil;
 import cn.projectan.strix.util.ip.IpUtils;
 import cn.projectan.strix.util.system.SecurityUtil;
 import lombok.RequiredArgsConstructor;
@@ -54,6 +54,7 @@ public class SystemController extends BaseSystemController {
     private final SystemManagerService systemManagerService;
     private final CaptchaService captchaService;
     private final SystemConfigCache systemConfigCache;
+    private final TokenSessionService tokenSessionService;
     private final RedisUtil redisUtil;
 
     /**
@@ -106,20 +107,13 @@ public class SystemController extends BaseSystemController {
         // 检查是否支持多点登录
         Boolean supportMultipleLogin = systemConfigCache.getBoolean("SYSTEM_MANAGER_SUPPORT_MULTIPLE_LOGIN", false);
         if (!supportMultipleLogin) {
-            // 使上次登录生成的Token失效
-            Object existToken = redisUtil.get(LoginRedisKeys.LOGIN_MANAGER_ID_TO_TOKEN_PREFIX + systemManager.getId());
-            if (existToken != null) {
-                redisUtil.del(LoginRedisKeys.LOGIN_MANAGER_TOKEN_TO_USER_INFO_PREFIX + existToken);
-                redisUtil.del(LoginRedisKeys.LOGIN_MANAGER_ID_TO_TOKEN_PREFIX + systemManager.getId());
-            }
+            tokenSessionService.invalidateManagerSession(systemManager.getId());
         }
 
         LoginSystemManager loginSystemManager = systemManagerService.getLoginInfo(systemManager.getId());
 
-        String token = IdUtil.fastSimpleUUID();
         long tokenTTL = systemConfigCache.getLong("SYSTEM_MANAGER_LOGIN_EFFECTIVE_TIME", 1440L);
-        redisUtil.set(LoginRedisKeys.LOGIN_MANAGER_ID_TO_TOKEN_PREFIX + systemManager.getId(), token, tokenTTL, TimeUnit.MINUTES);
-        redisUtil.set(LoginRedisKeys.LOGIN_MANAGER_TOKEN_TO_USER_INFO_PREFIX + token, loginSystemManager, tokenTTL, TimeUnit.MINUTES);
+        String token = tokenSessionService.createManagerSession(systemManager.getId(), loginSystemManager, tokenTTL);
 
         // 合并菜单权限
         List<String> permissionKeys = new ArrayList<>();
@@ -156,16 +150,13 @@ public class SystemController extends BaseSystemController {
         Assert.hasText(loginSystemManagerId, "请重新登陆");
         SystemManager systemManager = systemManagerService.getById(loginSystemManagerId);
 
-        Object oldTokenObj = redisUtil.get(LoginRedisKeys.LOGIN_MANAGER_ID_TO_TOKEN_PREFIX + systemManager.getId());
-        Assert.notNull(oldTokenObj, "旧token已失效，请重新登陆");
-        Object oldTokenInfoObj = redisUtil.get(LoginRedisKeys.LOGIN_MANAGER_TOKEN_TO_USER_INFO_PREFIX + oldTokenObj);
-        Assert.notNull(oldTokenInfoObj, "旧token已失效，请重新登陆");
-        LoginSystemManager loginSystemManager = (LoginSystemManager) oldTokenInfoObj;
+        LoginSystemManager loginSystemManager = tokenSessionService.getManagerLoginInfoById(loginSystemManagerId);
         Assert.notNull(loginSystemManager, "旧token已失效，请重新登陆");
 
         long effectiveTime = systemConfigCache.getLong("SYSTEM_MANAGER_LOGIN_EFFECTIVE_TIME", 1440L);
-        redisUtil.setExpire(LoginRedisKeys.LOGIN_MANAGER_ID_TO_TOKEN_PREFIX + systemManager.getId(), effectiveTime, TimeUnit.MINUTES);
-        redisUtil.setExpire(LoginRedisKeys.LOGIN_MANAGER_TOKEN_TO_USER_INFO_PREFIX + oldTokenObj, effectiveTime, TimeUnit.MINUTES);
+        tokenSessionService.refreshManagerSessionTTL(systemManager.getId(), effectiveTime);
+
+        String currentToken = TokenUtil.resolveToken(ServletUtil.getRequest());
 
         // 合并菜单权限
         List<String> permissionKeys = new ArrayList<>();
@@ -177,7 +168,7 @@ public class SystemController extends BaseSystemController {
                         new SystemManagerLoginResp.LoginManagerInfo(
                                 systemManager.getId(), systemManager.getNickname(), systemManager.getType(), systemManager.getRegionId(), permissionKeys
                         ),
-                        oldTokenObj.toString(),
+                        currentToken,
                         LocalDateTime.now().plusMinutes(effectiveTime)
                 ));
     }

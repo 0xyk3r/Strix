@@ -1,10 +1,10 @@
 package cn.projectan.strix.core.cache.system;
 
 import cn.projectan.strix.core.ss.details.LoginSystemManager;
-import cn.projectan.strix.model.constant.system.LoginRedisKeys;
 import cn.projectan.strix.model.db.system.SystemPermission;
 import cn.projectan.strix.service.system.SystemManagerService;
 import cn.projectan.strix.service.system.SystemPermissionService;
+import cn.projectan.strix.service.system.TokenSessionService;
 import cn.projectan.strix.util.common.RedisUtil;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +29,7 @@ public class SystemPermissionCache {
 
     private final SystemPermissionService systemPermissionService;
     private final SystemManagerService systemManagerService;
+    private final TokenSessionService tokenSessionService;
     private final RedisUtil redisUtil;
 
     private volatile List<SystemPermission> instance = new ArrayList<>();
@@ -62,12 +63,8 @@ public class SystemPermissionCache {
     public void updateRedisBySystemManageId(String managerId) {
         redisUtil.delLike("strix:system:manager:permission_by_mid::" + managerId);
 
-        Object existToken = redisUtil.get(LoginRedisKeys.LOGIN_MANAGER_ID_TO_TOKEN_PREFIX + managerId);
-        if (existToken != null) {
-            // 刷新登录token信息
-            LoginSystemManager loginSystemManager = systemManagerService.getLoginInfo(managerId);
-            redisUtil.set(LoginRedisKeys.LOGIN_MANAGER_TOKEN_TO_USER_INFO_PREFIX + existToken, loginSystemManager);
-        }
+        LoginSystemManager loginSystemManager = systemManagerService.getLoginInfo(managerId);
+        tokenSessionService.refreshManagerLoginInfo(managerId, loginSystemManager);
     }
 
     public void updateRamAndRedis() {

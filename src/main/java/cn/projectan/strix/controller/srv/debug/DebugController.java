@@ -1,16 +1,14 @@
 package cn.projectan.strix.controller.srv.debug;
 
-import cn.hutool.core.util.IdUtil;
 import cn.projectan.strix.controller.srv.base.BaseSrvController;
 import cn.projectan.strix.core.cache.system.SystemConfigCache;
 import cn.projectan.strix.core.ret.RetBuilder;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.core.ss.details.LoginSystemUser;
-import cn.projectan.strix.model.constant.system.LoginRedisKeys;
 import cn.projectan.strix.model.db.system.SystemUser;
 import cn.projectan.strix.model.response.system.login.SystemUserLoginResp;
 import cn.projectan.strix.service.system.SystemUserService;
-import cn.projectan.strix.util.common.RedisUtil;
+import cn.projectan.strix.service.system.TokenSessionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +21,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author ProjectAn
@@ -39,7 +36,7 @@ public class DebugController extends BaseSrvController {
 
     private final SystemUserService systemUserService;
     private final SystemConfigCache systemConfigCache;
-    private final RedisUtil redisUtil;
+    private final TokenSessionService tokenSessionService;
 
     @GetMapping("loginAnyUser/{userId}")
     @Operation(summary = "登录任意用户", description = "调试用，登录任意用户，返回该用户的登录信息和 token")
@@ -51,30 +48,18 @@ public class DebugController extends BaseSrvController {
         long tokenTTL = systemConfigCache.getLong("SYSTEM_USER_LOGIN_EFFECTIVE_TIME", 1440L);
 
         // 优先返回已存在的 token
-        Object existingTokenObj = redisUtil.get(LoginRedisKeys.LOGIN_USER_ID_TO_TOKEN_PREFIX + systemUser.getId());
-        if (existingTokenObj instanceof String existingToken) {
-            // 验证 token 是否仍然有效
-            Object cachedLoginInfoObj = redisUtil.get(LoginRedisKeys.LOGIN_USER_TOKEN_TO_USER_INFO_PREFIX + existingToken);
-            if (cachedLoginInfoObj instanceof LoginSystemUser cachedLoginInfo) {
-                // 刷新过期时间
-                redisUtil.set(LoginRedisKeys.LOGIN_USER_TOKEN_TO_USER_INFO_PREFIX + existingToken, cachedLoginInfo, tokenTTL, TimeUnit.MINUTES);
-                redisUtil.setExpire(LoginRedisKeys.LOGIN_USER_ID_TO_TOKEN_PREFIX + systemUser.getId(), tokenTTL, TimeUnit.MINUTES);
-                redisUtil.setExpire(LoginRedisKeys.LOGIN_USER_TOKEN_TO_USER_INFO_PREFIX + existingToken, tokenTTL, TimeUnit.MINUTES);
-                LocalDateTime expireTime = LocalDateTime.now().plusMinutes(tokenTTL);
-
-                return RetBuilder.success(
-                        new SystemUserLoginResp(
-                                new SystemUserLoginResp.LoginUserInfo(loginInfo),
-                                existingToken,
-                                expireTime
-                        ));
-            }
+        String existingToken = tokenSessionService.getOrRefreshUserSession(systemUser.getId(), loginInfo, tokenTTL);
+        if (existingToken != null) {
+            return RetBuilder.success(
+                    new SystemUserLoginResp(
+                            new SystemUserLoginResp.LoginUserInfo(loginInfo),
+                            existingToken,
+                            LocalDateTime.now().plusMinutes(tokenTTL)
+                    ));
         }
 
         // 创建新 token
-        String token = IdUtil.fastSimpleUUID();
-        redisUtil.set(LoginRedisKeys.LOGIN_USER_ID_TO_TOKEN_PREFIX + systemUser.getId(), token, tokenTTL, TimeUnit.MINUTES);
-        redisUtil.set(LoginRedisKeys.LOGIN_USER_TOKEN_TO_USER_INFO_PREFIX + token, loginInfo, tokenTTL, TimeUnit.MINUTES);
+        String token = tokenSessionService.createUserSession(systemUser.getId(), loginInfo, tokenTTL);
 
         return RetBuilder.success(
                 new SystemUserLoginResp(

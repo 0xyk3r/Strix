@@ -1,14 +1,14 @@
 package cn.projectan.strix.controller.srv.wechat;
 
-import cn.hutool.core.util.IdUtil;
 import cn.projectan.strix.controller.srv.wechat.base.BaseWechatController;
+import cn.projectan.strix.core.cache.system.SystemConfigCache;
 import cn.projectan.strix.core.exception.StrixException;
 import cn.projectan.strix.core.module.oauth.impl.WechatOAOAuthClient;
 import cn.projectan.strix.core.ret.RetBuilder;
 import cn.projectan.strix.core.ret.RetResult;
+import cn.projectan.strix.core.ss.details.LoginSystemUser;
 import cn.projectan.strix.model.annotation.Anonymous;
 import cn.projectan.strix.model.annotation.IgnoreEncryption;
-import cn.projectan.strix.model.constant.system.LoginRedisKeys;
 import cn.projectan.strix.model.db.system.OauthUser;
 import cn.projectan.strix.model.db.system.SystemUser;
 import cn.projectan.strix.model.dict.system.OAuthPlatform;
@@ -17,7 +17,7 @@ import cn.projectan.strix.model.other.system.module.oauth.wechat.oa.WechatOAOAut
 import cn.projectan.strix.service.system.OauthConfigService;
 import cn.projectan.strix.service.system.OauthUserService;
 import cn.projectan.strix.service.system.SystemUserService;
-import cn.projectan.strix.util.common.RedisUtil;
+import cn.projectan.strix.service.system.TokenSessionService;
 import cn.projectan.strix.util.module.oauth.WechatOAOAuthUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -56,7 +56,8 @@ public class WechatOAController extends BaseWechatController {
     private final SystemUserService systemUserService;
     private final OauthUserService oauthUserService;
     private final OauthConfigService oauthConfigService;
-    private final RedisUtil redisUtil;
+    private final SystemConfigCache systemConfigCache;
+    private final TokenSessionService tokenSessionService;
 
     /**
      * 统一跳转入口
@@ -108,17 +109,11 @@ public class WechatOAController extends BaseWechatController {
             }
             Assert.notNull(systemUser, "系统用户信息获取失败");
 
-            // 检查之前该账号是否存在token
-            Object existToken = redisUtil.get(LoginRedisKeys.LOGIN_USER_ID_TO_TOKEN_PREFIX + systemUser.getId());
-            if (existToken != null) {
-                // 使旧数据失效
-                redisUtil.del(LoginRedisKeys.LOGIN_USER_TOKEN_TO_USER_INFO_PREFIX + existToken);
-                redisUtil.del(LoginRedisKeys.LOGIN_USER_ID_TO_TOKEN_PREFIX + systemUser.getId());
-            }
-            // 生成并保存Token 有效期30天
-            String token = IdUtil.simpleUUID();
-            redisUtil.set(LoginRedisKeys.LOGIN_USER_ID_TO_TOKEN_PREFIX + systemUser.getId(), token, 60 * 60 * 24 * 30);
-            redisUtil.set(LoginRedisKeys.LOGIN_USER_TOKEN_TO_USER_INFO_PREFIX + token, systemUser, 60 * 60 * 24 * 30);
+            LoginSystemUser loginInfo = systemUserService.getLoginInfo(systemUser.getId());
+            long tokenTTL = systemConfigCache.getLong("SYSTEM_USER_LOGIN_EFFECTIVE_TIME", 1440L);
+
+            tokenSessionService.invalidateUserSession(systemUser.getId());
+            String token = tokenSessionService.createUserSession(systemUser.getId(), loginInfo, tokenTTL);
 
             response.sendRedirect(config.getWebIndexUrl() + "?token=" + token + "&cfid=" + configKey + "&tp=" + model + "&params=" + params);
         } catch (Exception e) {
@@ -169,19 +164,13 @@ public class WechatOAController extends BaseWechatController {
         if ("dev".equals(env)) {
             log.warn("通过api获取微信Token...");
 
-            SystemUser systemUser = systemUserService.getById("1775599867535130625");
+            String devUserId = "1775599867535130625";
+            SystemUser systemUser = systemUserService.getById(devUserId);
+            LoginSystemUser loginInfo = systemUserService.getLoginInfo(devUserId);
+            long tokenTTL = systemConfigCache.getLong("SYSTEM_USER_LOGIN_EFFECTIVE_TIME", 1440L);
 
-            // 检查之前该账号是否存在token
-            Object existToken = redisUtil.get(LoginRedisKeys.LOGIN_USER_ID_TO_TOKEN_PREFIX + systemUser.getId());
-            if (existToken != null) {
-                // 使旧数据失效
-                redisUtil.del(LoginRedisKeys.LOGIN_USER_TOKEN_TO_USER_INFO_PREFIX + existToken);
-                redisUtil.del(LoginRedisKeys.LOGIN_USER_ID_TO_TOKEN_PREFIX + systemUser.getId());
-            }
-            // 生成并保存Token 有效期30天
-            String token = IdUtil.simpleUUID();
-            redisUtil.set(LoginRedisKeys.LOGIN_USER_ID_TO_TOKEN_PREFIX + systemUser.getId(), token, 60 * 60 * 24 * 30);
-            redisUtil.set(LoginRedisKeys.LOGIN_USER_TOKEN_TO_USER_INFO_PREFIX + token, systemUser, 60 * 60 * 24 * 30);
+            tokenSessionService.invalidateUserSession(systemUser.getId());
+            String token = tokenSessionService.createUserSession(systemUser.getId(), loginInfo, tokenTTL);
 
             response.sendRedirect("http://localhost:8080/?token=" + token + "&cfid=" + configKey);
         }
