@@ -25,7 +25,7 @@ public class SystemMenuCache {
     private final RedisUtil redisUtil;
     private final SystemMenuService systemMenuService;
 
-    private List<SystemMenu> instance = new ArrayList<>();
+    private volatile List<SystemMenu> instance = new ArrayList<>();
 
     @PostConstruct
     private void init() {

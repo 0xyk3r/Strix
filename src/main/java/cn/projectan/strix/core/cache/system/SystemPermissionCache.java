@@ -31,7 +31,7 @@ public class SystemPermissionCache {
     private final SystemManagerService systemManagerService;
     private final RedisUtil redisUtil;
 
-    private List<SystemPermission> instance = new ArrayList<>();
+    private volatile List<SystemPermission> instance = new ArrayList<>();
 
     @PostConstruct
     private void init() {
