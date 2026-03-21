@@ -9,7 +9,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 系统菜单缓存
@@ -26,23 +29,24 @@ public class SystemMenuCache {
     private final SystemMenuService systemMenuService;
 
     private volatile List<SystemMenu> instance = new ArrayList<>();
+    private volatile Map<String, List<SystemMenu>> childrenByParentId = Map.of();
 
     @PostConstruct
     private void init() {
         instance = systemMenuService.lambdaQuery()
                 .orderByAsc(SystemMenu::getSortValue)
                 .list();
+        childrenByParentId = instance.stream()
+                .collect(Collectors.groupingBy(SystemMenu::getParentId));
         log.info("Strix Cache: 管理系统菜单缓存加载完成, 缓存了 {} 个菜单.", instance.size());
     }
 
     public List<String> getIdListByParentMenu(String menuId) {
         List<String> result = new ArrayList<>();
         result.add(menuId);
-        instance.forEach(m -> {
-            if (menuId.equals(m.getParentId())) {
-                result.addAll(getIdListByParentMenu(m.getId()));
-            }
-        });
+        for (SystemMenu child : childrenByParentId.getOrDefault(menuId, Collections.emptyList())) {
+            result.addAll(getIdListByParentMenu(child.getId()));
+        }
         return result;
     }
 
