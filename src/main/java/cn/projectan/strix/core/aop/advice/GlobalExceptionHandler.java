@@ -1,11 +1,21 @@
 package cn.projectan.strix.core.aop.advice;
 
+import cn.projectan.strix.config.ApplicationVersionConfig;
 import cn.projectan.strix.core.exception.StrixException;
 import cn.projectan.strix.core.exception.StrixNoAuthException;
 import cn.projectan.strix.core.ret.RetBuilder;
 import cn.projectan.strix.core.ret.RetCode;
 import cn.projectan.strix.core.ret.RetResult;
+import cn.projectan.strix.model.db.system.SystemLog;
+import cn.projectan.strix.model.db.system.SystemManager;
+import cn.projectan.strix.model.dict.system.SystemLogOperType;
+import cn.projectan.strix.service.system.AsyncSystemLogService;
 import cn.projectan.strix.util.common.I18nUtil;
+import cn.projectan.strix.util.http.ServletUtils;
+import cn.projectan.strix.util.ip.IpUtils;
+import cn.projectan.strix.util.system.SecurityUtils;
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpHeaders;
@@ -23,6 +33,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -34,7 +45,11 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 @RestControllerAdvice
+@RequiredArgsConstructor
 public class GlobalExceptionHandler {
+
+    private final AsyncSystemLogService asyncSystemLogService;
+    private final ApplicationVersionConfig versionConfig;
 
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
     public ResponseEntity<RetResult<Object>> handleConstraintViolationException(MethodArgumentNotValidException e) {
@@ -84,6 +99,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<RetResult<Object>> handleAccessDeniedException(AccessDeniedException e) {
+        recordAccessDeniedLog(e);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .header(HttpHeaders.CONTENT_TYPE, "application/json")
@@ -137,6 +153,40 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.OK)
                 .header(HttpHeaders.CONTENT_TYPE, "application/json")
                 .body(RetBuilder.error(I18nUtil.get("error.otherError")));
+    }
+
+    /**
+     * 记录权限拒绝审计日志
+     */
+    private void recordAccessDeniedLog(AccessDeniedException e) {
+        try {
+            HttpServletRequest request = ServletUtils.getRequest();
+            SystemLog systemLog = new SystemLog();
+            systemLog.setAppId(versionConfig.getApplicationName());
+            systemLog.setAppVersion(versionConfig.getVersion());
+            systemLog.setOperationType(SystemLogOperType.SECURITY);
+            systemLog.setOperationGroup("访问控制");
+            systemLog.setOperationName("权限拒绝");
+            systemLog.setOperationMethod(request.getMethod());
+            systemLog.setOperationUrl(request.getRequestURI());
+            systemLog.setOperationTime(LocalDateTime.now());
+            systemLog.setClientIp(IpUtils.getIpAddr(request));
+            systemLog.setResponseCode(RetCode.NOT_PERMISSION);
+            systemLog.setResponseMsg(e.getMessage());
+
+            try {
+                SystemManager manager = SecurityUtils.getSystemManager();
+                if (manager != null) {
+                    systemLog.setClientUser(manager.getId());
+                    systemLog.setClientUsername(manager.getNickname());
+                }
+            } catch (Exception ignored) {
+            }
+
+            asyncSystemLogService.saveAsync(systemLog);
+        } catch (Exception ex) {
+            log.warn("记录权限拒绝日志失败: {}", ex.getMessage());
+        }
     }
 
 }

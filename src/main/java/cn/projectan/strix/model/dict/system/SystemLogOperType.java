@@ -43,4 +43,8 @@ public class SystemLogOperType implements BaseDict {
     public static final
     String LOGIN = "login";
 
+    @DictData(label = "安全事件", sort = 9, style = DictDataStyle.ERROR)
+    public static final
+    String SECURITY = "security";
+
 }

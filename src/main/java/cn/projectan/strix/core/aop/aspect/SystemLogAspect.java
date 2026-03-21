@@ -5,7 +5,6 @@ import cn.projectan.strix.config.ApplicationVersionConfig;
 import cn.projectan.strix.config.JacksonConfig;
 import cn.projectan.strix.core.aop.serializer.SensitiveFieldSerializerModifier;
 import cn.projectan.strix.core.aop.serializer.SensitiveMapSerializer;
-import cn.projectan.strix.core.exception.StrixException;
 import cn.projectan.strix.core.exception.StrixNoAuthException;
 import cn.projectan.strix.core.ret.RetCode;
 import cn.projectan.strix.core.ret.RetResult;
@@ -29,6 +28,7 @@ import org.aspectj.lang.annotation.Before;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.core.NamedThreadLocal;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestMethod;
 import tools.jackson.databind.ObjectMapper;
@@ -189,26 +189,24 @@ public class SystemLogAspect {
     private void handleResponse(SystemLog systemLog, StrixLog strixLog, Exception e, Object retResult) {
         if (e != null) {
             // 异常情况：根据异常类型设置不同的响应码
-            if (e instanceof StrixNoAuthException) {
-                systemLog.setResponseCode(RetCode.NOT_LOGIN);
-            } else if (e instanceof StrixException) {
-                // 业务异常，默认为服务器错误
-                systemLog.setResponseCode(RetCode.SERVER_ERROR);
-            } else {
-                // 其他未知异常
-                systemLog.setResponseCode(RetCode.SERVER_ERROR);
+            switch (e) {
+                case StrixNoAuthException ignored -> systemLog.setResponseCode(RetCode.NOT_LOGIN);
+                case AccessDeniedException ignored -> systemLog.setResponseCode(RetCode.NOT_PERMISSION);
+                default -> systemLog.setResponseCode(RetCode.SERVER_ERROR);
             }
             systemLog.setResponseMsg(e.getMessage());
         } else {
-            // 正常情况
+            // 正常情况：始终从 RetResult 中提取实际的响应码和消息
             systemLog.setResponseCode(RetCode.SUCCESS);
+            if (retResult instanceof RetResult<?> result) {
+                systemLog.setResponseCode(result.getCode());
+                systemLog.setResponseMsg(result.getMsg());
+            }
 
-            // 保存响应数据
+            // 按需保存响应体数据
             if (strixLog.saveResponseData() && retResult != null) {
                 try {
                     if (retResult instanceof RetResult<?> result) {
-                        systemLog.setResponseCode(result.getCode());
-                        systemLog.setResponseMsg(result.getMsg());
                         systemLog.setResponseData(objectMapper.writeValueAsString(result.getData()));
                     } else {
                         systemLog.setResponseData(objectMapper.writeValueAsString(retResult));
