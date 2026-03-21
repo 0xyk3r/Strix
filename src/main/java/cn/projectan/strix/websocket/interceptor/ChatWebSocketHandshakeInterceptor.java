@@ -67,21 +67,21 @@ public class ChatWebSocketHandshakeInterceptor implements HandshakeInterceptor {
 
     /**
      * 从请求中获取 token
-     * 优先从 query 参数获取，其次从 header 获取
+     * 优先从 Authorization header 获取，其次从 query 参数获取（WebSocket 兼容）
      */
     private String getToken(ServerHttpRequest request) {
-        // 1. 从 query 参数获取
+        // 1. 从 header 获取
+        String authHeader = request.getHeaders().getFirst("Authorization");
+        if (StringUtils.hasText(authHeader) && authHeader.startsWith("Bearer ")) {
+            return authHeader.substring(7);
+        }
+
+        // 2. 从 query 参数获取（WebSocket 握手兼容）
         if (request instanceof ServletServerHttpRequest servletRequest) {
             String token = servletRequest.getServletRequest().getParameter("token");
             if (StringUtils.hasText(token)) {
                 return token;
             }
-        }
-
-        // 2. 从 header 获取
-        String authHeader = request.getHeaders().getFirst("Authorization");
-        if (StringUtils.hasText(authHeader) && authHeader.startsWith("Bearer ")) {
-            return authHeader.substring(7);
         }
 
         return null;

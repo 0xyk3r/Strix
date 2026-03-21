@@ -4,6 +4,7 @@ import cn.projectan.strix.core.ss.details.LoginSystemManager;
 import cn.projectan.strix.core.ss.token.SystemManagerAuthenticationToken;
 import cn.projectan.strix.model.constant.system.LoginRedisKeys;
 import cn.projectan.strix.util.common.RedisUtil;
+import cn.projectan.strix.util.http.TokenUtil;
 import jakarta.annotation.Nonnull;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -32,7 +33,7 @@ public class SystemManagerAuthenticationTokenFilter extends OncePerRequestFilter
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, @Nonnull HttpServletResponse response, @Nonnull FilterChain filterChain) throws ServletException, IOException {
-        String token = request.getHeader("token");
+        String token = TokenUtil.resolveToken(request);
 
         if (!StringUtils.hasText(token)) {
             filterChain.doFilter(request, response);

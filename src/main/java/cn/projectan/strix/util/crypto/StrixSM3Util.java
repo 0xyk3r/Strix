@@ -2,6 +2,9 @@ package cn.projectan.strix.util.crypto;
 
 import cn.hutool.crypto.SmUtil;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+
 /**
  * SM3 国密哈希工具类
  * <p>
@@ -29,14 +32,21 @@ public final class StrixSM3Util {
     }
 
     /**
-     * 校验密码是否匹配
+     * 校验密码是否匹配（常量时间比较，防止时序攻击）
      *
      * @param rawPassword    明文密码
      * @param hashedPassword 数据库中存储的哈希值
      * @return 是否匹配
      */
     public static boolean matches(String rawPassword, String hashedPassword) {
-        return hashPassword(rawPassword).equals(hashedPassword);
+        if (rawPassword == null || hashedPassword == null) {
+            return false;
+        }
+        String computed = hashPassword(rawPassword);
+        return MessageDigest.isEqual(
+                computed.getBytes(StandardCharsets.UTF_8),
+                hashedPassword.getBytes(StandardCharsets.UTF_8)
+        );
     }
 
     /**

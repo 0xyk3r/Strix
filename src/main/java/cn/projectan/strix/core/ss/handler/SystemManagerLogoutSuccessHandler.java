@@ -4,6 +4,7 @@ import cn.projectan.strix.core.ss.details.LoginSystemManager;
 import cn.projectan.strix.model.constant.system.LoginRedisKeys;
 import cn.projectan.strix.model.db.system.SystemManager;
 import cn.projectan.strix.util.common.RedisUtil;
+import cn.projectan.strix.util.http.TokenUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +25,7 @@ public class SystemManagerLogoutSuccessHandler implements LogoutSuccessHandler {
 
     @Override
     public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
-        String token = request.getHeader("token");
+        String token = TokenUtil.resolveToken(request);
 
         if (StringUtils.hasText(token)) {
             // 从redis中获取用户信息
