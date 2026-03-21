@@ -134,14 +134,7 @@ public class SystemRegionController extends BaseSystemController {
     @StrixLog(operationGroup = "系统地区", operationName = "新增地区", operationType = SystemLogOperType.ADD)
     public RetResult<Object> update(@RequestBody @Validated(InsertGroup.class) SystemRegionUpdateReq req) {
         Assert.notNull(req, "参数错误");
-        if (!StringUtils.hasText(req.getParentId())) {
-            if (notSuperManager()) {
-                Assert.hasText(loginManagerRegionId(), "当前登录管理员无地区权限，无法新增地区");
-                req.setParentId(loginManagerRegionId());
-            } else {
-                req.setParentId(SystemRegionService.ROOT_PARENT_ID);
-            }
-        }
+        resolveParentId(req);
         checkLoginManagerRegionPermission(req.getParentId());
 
         SystemRegion systemRegion = new SystemRegion(
@@ -184,14 +177,7 @@ public class SystemRegionController extends BaseSystemController {
         Assert.notNull(systemRegion, "系统地区信息不存在");
         checkLoginManagerRegionPermission(id);
 
-        if (!StringUtils.hasText(req.getParentId())) {
-            if (notSuperManager()) {
-                Assert.hasText(loginManagerRegionId(), "当前登录管理员无地区权限，无法新增地区");
-                req.setParentId(loginManagerRegionId());
-            } else {
-                req.setParentId(SystemRegionService.ROOT_PARENT_ID);
-            }
-        }
+        resolveParentId(req);
         if (!"0".equals(req.getParentId())) {
             checkLoginManagerRegionPermission(req.getParentId());
         }
@@ -313,6 +299,20 @@ public class SystemRegionController extends BaseSystemController {
                 .in(!CollectionUtils.isEmpty(loginManagerRegionPermissions), SystemRegion::getId, loginManagerRegionPermissions)
                 .list();
         return RetBuilder.success(new CommonTreeDataResp(systemRegionList));
+    }
+
+    /**
+     * 解析并设置 parentId（提取自 新增/修改 的公共逻辑）
+     */
+    private void resolveParentId(SystemRegionUpdateReq req) {
+        if (!StringUtils.hasText(req.getParentId())) {
+            if (notSuperManager()) {
+                Assert.hasText(loginManagerRegionId(), "当前登录管理员无地区权限，无法操作地区");
+                req.setParentId(loginManagerRegionId());
+            } else {
+                req.setParentId(SystemRegionService.ROOT_PARENT_ID);
+            }
+        }
     }
 
 }
