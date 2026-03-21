@@ -3,12 +3,12 @@ package cn.projectan.strix.util.text;
 import java.util.regex.Pattern;
 
 /**
- * 正则工具类
+ * 正则表达式常量
  *
  * @author ProjectAn
  * @since 2023/5/23 10:05
  */
-public class RegexUtils {
+public class RegexPatterns {
 
     public static final Pattern DOMAIN_PATTERN = Pattern.compile("(https?://[^/]+)");
 

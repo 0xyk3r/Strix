@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
  * @since 2022/10/27 17:48
  */
 @Slf4j
-public class FindSameValueInObjectList {
+public class SameValueFinder {
 
     /**
      * 在两个对象集合中查找两个字段相同的对象集合

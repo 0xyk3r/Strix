@@ -16,10 +16,7 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -157,21 +154,21 @@ public class PopularityUtil {
                                 .setCreatedByType(OperatorType.SYSTEM)
                                 .setUpdatedByType(OperatorType.SYSTEM);
                     }).toList();
+            // 用 Map 索引 db 数据，将差异处理从 O(n²) 降为 O(n+m)
+            Map<String, String> dbDataIdMap = dbDataList.stream()
+                    .collect(Collectors.toMap(PopularityData::getDataId, PopularityData::getId));
             // 数据差异处理
             addDataList.addAll(
                     redisDataList.stream()
-                            .filter(redisData -> dbDataList.stream().noneMatch(dbData -> dbData.getDataId().equals(redisData.getDataId())))
+                            .filter(Objects::nonNull)
+                            .filter(redisData -> !dbDataIdMap.containsKey(redisData.getDataId()))
                             .toList()
             );
-            // 先构建 dataId 到 id 的映射
-            Map<String, String> dataIdToIdMap = dbDataList.stream()
-                    .collect(Collectors.toMap(PopularityData::getDataId, PopularityData::getId));
-
-            // 使用 map 替代 peek,并利用映射避免重复查找
             updateDataList.addAll(
                     redisDataList.stream()
-                            .filter(redisData -> dataIdToIdMap.containsKey(redisData.getDataId()))
-                            .peek(redisData -> redisData.setId(dataIdToIdMap.get(redisData.getDataId())))
+                            .filter(Objects::nonNull)
+                            .filter(redisData -> dbDataIdMap.containsKey(redisData.getDataId()))
+                            .peek(data -> data.setId(dbDataIdMap.get(data.getDataId())))
                             .toList()
             );
         }

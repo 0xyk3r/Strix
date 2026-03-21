@@ -10,7 +10,7 @@ import cn.projectan.strix.model.dict.system.OssFileGroupSecretType;
 import cn.projectan.strix.util.common.SnowflakeUtil;
 import cn.projectan.strix.util.file.FileUtil;
 import cn.projectan.strix.util.http.ServletUtils;
-import cn.projectan.strix.util.text.RegexUtils;
+import cn.projectan.strix.util.text.RegexPatterns;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -109,7 +109,7 @@ public class OssFileService extends ServiceImpl<OssFileMapper, OssFile> {
             String url = client.getPublic().signDownloadUrl(ossFileGroup.getBucketName(), ossFile.getPath(), 300 * 1000);
             // 处理自定义域名
             if (StringUtils.hasText(url) && StringUtils.hasText(ossFileGroup.getBucketDomain())) {
-                Matcher matcher = RegexUtils.DOMAIN_PATTERN.matcher(url);
+                Matcher matcher = RegexPatterns.DOMAIN_PATTERN.matcher(url);
                 if (matcher.find()) {
                     url = matcher.replaceAll(ossFileGroup.getBucketDomain());
                     return url;

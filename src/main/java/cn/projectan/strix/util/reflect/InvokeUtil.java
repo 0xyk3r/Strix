@@ -114,15 +114,14 @@ public class InvokeUtil {
         try {
             if (methodParams != null && !methodParams.isEmpty()) {
                 Method method = bean.getClass().getMethod(methodName, getMethodParamsType(methodParams));
-                Object invokeResult = method.invoke(bean, getMethodParamsValue(methodParams));
+                return method.invoke(bean, getMethodParamsValue(methodParams));
             } else {
                 Method method = bean.getClass().getMethod(methodName);
-                Object invokeResult = method.invoke(bean);
+                return method.invoke(bean);
             }
         } catch (Exception e) {
             throw new RuntimeException("执行目标：" + bean.getClass().getName() + "." + methodName + "失败", e);
         }
-        return null;
     }
 
     /**

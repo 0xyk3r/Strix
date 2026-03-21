@@ -1,6 +1,6 @@
 package cn.projectan.strix.util;
 
-import cn.projectan.strix.util.algo.FindSameValueInObjectList;
+import cn.projectan.strix.util.algo.SameValueFinder;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.junit.jupiter.api.Test;
@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
  * @author ProjectAn
  * @since 2022/10/27 15:28
  */
-public class FindSameValueInObjectListTest {
+public class SameValueFinderTest {
 
     @Data
     @AllArgsConstructor
@@ -68,11 +68,11 @@ public class FindSameValueInObjectListTest {
         System.out.println("aList size: " + aList.size());
         System.out.println("bList size: " + bList.size());
 
-        Set<AAA> fuckCommPre = FindSameValueInObjectList.find(aList, bList, "a2", "b5");
+        Set<AAA> fuckCommPre = SameValueFinder.find(aList, bList, "a2", "b5");
 
         long start2 = System.nanoTime();
         for (int i = 0; i < 10; i++) {
-            Set<AAA> fuckComm = FindSameValueInObjectList.find(aList, bList, "a2", "b5");
+            Set<AAA> fuckComm = SameValueFinder.find(aList, bList, "a2", "b5");
         }
         System.out.println("通用版耗时(反射实现)：\t\t" + (System.nanoTime() - start2) / 100 + "ns");
         System.out.println("find: " + fuckCommPre.size());
