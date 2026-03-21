@@ -1,6 +1,5 @@
 package cn.projectan.strix.core.aop.aspect;
 
-import cn.projectan.strix.config.JacksonConfig;
 import cn.projectan.strix.core.ret.RetBuilder;
 import cn.projectan.strix.core.ret.RetCode;
 import cn.projectan.strix.model.annotation.IgnoreEncryption;
@@ -8,8 +7,8 @@ import cn.projectan.strix.model.constant.system.StrixPasswordConst;
 import cn.projectan.strix.util.common.I18nUtil;
 import cn.projectan.strix.util.http.ServletUtils;
 import cn.projectan.strix.util.system.ApiSignUtil;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -20,42 +19,30 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.servlet.HandlerMapping;
-import tools.jackson.core.type.TypeReference;
-import tools.jackson.databind.ObjectMapper;
 
-import java.lang.reflect.Parameter;
 import java.util.Map;
 import java.util.Optional;
-import java.util.SortedMap;
 import java.util.TreeMap;
 
 /**
  * API 安全校验切面
+ * <p>
+ * POST 请求：基于解密后的原始请求体字符串验证签名，消除 DTO 序列化差异。
+ * GET 请求：基于排序后的查询参数验证签名。
  *
  * @author ProjectAn
- * @since 2021/5/7 18:20
+ * @since 2026/3/20 23:50
  */
 @Slf4j
 @Aspect
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @Component
+@RequiredArgsConstructor
 public class ApiSecurityCheckAspect {
 
     private final ApiSignUtil apiSignUtil;
-    private final ObjectMapper objectMapper;
-
-    public ApiSecurityCheckAspect(ApiSignUtil apiSignUtil) {
-        this.apiSignUtil = apiSignUtil;
-
-        // 基于全局基础 Jackson 配置增加字段排序功能
-        objectMapper = JacksonConfig.builder()
-                .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_EMPTY))
-                .changeDefaultPropertyInclusion(incl -> incl.withContentInclusion(JsonInclude.Include.NON_EMPTY))
-                .build();
-    }
 
     @SuppressWarnings("EmptyMethod")
     @Pointcut("execution(public * cn.projectan..controller..*(..))")
@@ -82,19 +69,7 @@ public class ApiSecurityCheckAspect {
             return pjp.proceed();
         }
 
-        // 获取被 @RequestBody 注解的参数
-        Object bodyObj = null;
-        Parameter[] parameters = signature.getMethod().getParameters();
-        Object[] pjpArgs = pjp.getArgs();
-        for (int i = 0; i < parameters.length; i++) {
-            if (parameters[i].isAnnotationPresent(RequestBody.class)) {
-                bodyObj = pjpArgs[i];
-                break;
-            }
-        }
-
         // 判断请求是否已经过 DecodeRequestBodyAdvice 处理
-        // 这里由于不是所有方法都经过 DecodeRequestBodyAdvice 处理，所以默认为 True
         boolean security = Optional.ofNullable(request.getAttribute("Strix-Security"))
                 .map(String::valueOf)
                 .map(Boolean::parseBoolean)
@@ -111,6 +86,7 @@ public class ApiSecurityCheckAspect {
         if (!StringUtils.hasText(sign) || !StringUtils.hasText(timestamp)) {
             return RetBuilder.error(RetCode.BAD_REQUEST, I18nUtil.get("error.badRequest") + "2");
         }
+
         // 校验时间戳 60s 内有效
         long ts;
         try {
@@ -122,21 +98,21 @@ public class ApiSecurityCheckAspect {
             return RetBuilder.error(RetCode.BAD_REQUEST, I18nUtil.get("error.badRequest") + "3");
         }
 
-        final Map<String, Object> paramsMap = new TreeMap<>();
-        paramsMap.put("_requestUrl", url);
-        paramsMap.put("_timestamp", timestamp);
-
+        // 校验签名
+        boolean signValid;
         if ("GET".equalsIgnoreCase(request.getMethod())) {
-            // GET请求 将QueryString中的参数放入paramsMap
-            paramsMap.putAll(ServletUtils.getRequestParams(request));
+            // GET 请求：排序后的查询参数签名
+            final Map<String, Object> paramsMap = new TreeMap<>(ServletUtils.getRequestParams(request));
+            // 过滤参数中的空字符串
+            paramsMap.entrySet().removeIf(entry -> entry.getValue() == null || (entry.getValue() instanceof String && !StringUtils.hasText((String) entry.getValue())));
+            signValid = apiSignUtil.verifySignFromParams(paramsMap, url, timestamp, sign);
         } else {
-            // POST请求 将RequestBody中的参数放入paramsMap
-            Optional.ofNullable(bodyObj).ifPresent(o -> paramsMap.putAll(objectMapper.convertValue(o, new TypeReference<SortedMap<String, Object>>() {
-            })));
+            // POST 请求：基于原始请求体字符串签名
+            String rawBody = (String) request.getAttribute("Strix-Decrypted-Body");
+            signValid = apiSignUtil.verifySign(rawBody, url, timestamp, sign);
         }
 
-        // 校验签名
-        if (!apiSignUtil.verifySign(paramsMap, sign)) {
+        if (!signValid) {
             return RetBuilder.error(RetCode.BAD_REQUEST, I18nUtil.get("error.badRequest") + "4");
         }
 

@@ -108,6 +108,7 @@ public class DecodeRequestBodyAdvice implements RequestBodyAdvice {
                 this.body = InputStream.nullInputStream();
             } else {
                 request.setAttribute("Strix-Security", true);
+                request.setAttribute("Strix-Decrypted-Body", decryptBodyStr);
                 this.body = IoUtil.toStream(decryptBodyStr, StandardCharsets.UTF_8);
             }
         }
