@@ -16,7 +16,8 @@ public class ThreadUtil {
     public static void sleep(long milliseconds) {
         try {
             Thread.sleep(milliseconds);
-        } catch (InterruptedException ignored) {
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         }
     }
 
