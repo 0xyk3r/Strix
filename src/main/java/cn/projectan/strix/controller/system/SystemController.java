@@ -162,7 +162,7 @@ public class SystemController extends BaseSystemController {
         LoginSystemManager loginSystemManager = (LoginSystemManager) oldTokenInfoObj;
         Assert.notNull(loginSystemManager, "旧token已失效，请重新登陆");
 
-        long effectiveTime = systemConfigCache.getLong("SYSTEM_MANAGER_LOGIN_EFFECTIVE_TIME", 525600L);
+        long effectiveTime = systemConfigCache.getLong("SYSTEM_MANAGER_LOGIN_EFFECTIVE_TIME", 1440L);
         redisUtil.setExpire(LoginRedisKeys.LOGIN_MANAGER_ID_TO_TOKEN_PREFIX + systemManager.getId(), effectiveTime, TimeUnit.MINUTES);
         redisUtil.setExpire(LoginRedisKeys.LOGIN_MANAGER_TOKEN_TO_USER_INFO_PREFIX + oldTokenObj, effectiveTime, TimeUnit.MINUTES);
 
