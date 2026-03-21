@@ -12,7 +12,18 @@ import java.util.stream.Stream;
  *
  * @author ProjectAn
  */
-public class IpUtils {
+public final class IpUtils {
+
+    private IpUtils() {
+    }
+
+    private static final String UNKNOWN = "unknown";
+    private static final String IPV6_LOOPBACK = "0:0:0:0:0:0:0:1";
+    private static final String IPV4_LOOPBACK = "127.0.0.1";
+
+    private static final String[] PROXY_HEADERS = {
+            "x-forwarded-for", "Proxy-Client-IP", "X-Forwarded-For", "WL-Proxy-Client-IP", "X-Real-IP"
+    };
 
     /**
      * 获取客户端IP
@@ -22,16 +33,15 @@ public class IpUtils {
      */
     public static String getIpAddr(HttpServletRequest request) {
         if (request == null) {
-            return "unknown";
+            return UNKNOWN;
         }
-        String[] headers = {"x-forwarded-for", "Proxy-Client-IP", "X-Forwarded-For", "WL-Proxy-Client-IP", "X-Real-IP"};
-        String ip = Stream.of(headers)
+        String ip = Stream.of(PROXY_HEADERS)
                 .map(request::getHeader)
                 .filter(StringUtils::hasText)
-                .filter(s -> !"unknown".equalsIgnoreCase(s))
+                .filter(s -> !UNKNOWN.equalsIgnoreCase(s))
                 .findFirst()
                 .orElse(request.getRemoteAddr());
-        return "0:0:0:0:0:0:0:1".equals(ip) ? "127.0.0.1" : getMultistageReverseProxyIp(ip);
+        return IPV6_LOOPBACK.equals(ip) ? IPV4_LOOPBACK : getMultistageReverseProxyIp(ip);
     }
 
     /**
@@ -41,12 +51,20 @@ public class IpUtils {
      * @return 结果
      */
     public static boolean internalIp(String ip) {
+        if (IPV4_LOOPBACK.equals(ip)) {
+            return true;
+        }
         byte[] addr = textToNumericFormatV4(ip);
-        return internalIp(addr) || "127.0.0.1".equals(ip);
+        return internalIp(addr);
     }
 
     /**
      * 检查是否为内部IP地址
+     * <ul>
+     *   <li>10.0.0.0/8</li>
+     *   <li>172.16.0.0/12</li>
+     *   <li>192.168.0.0/16</li>
+     * </ul>
      *
      * @param addr byte地址
      * @return 结果
@@ -55,31 +73,19 @@ public class IpUtils {
         if (addr == null || addr.length < 2) {
             return true;
         }
-        final byte b0 = addr[0];
-        final byte b1 = addr[1];
+        int b0 = addr[0] & 0xFF;
+        int b1 = addr[1] & 0xFF;
+
         // 10.x.x.x/8
-        final byte SECTION_1 = 0x0A;
-        // 172.16.x.x/12
-        final byte SECTION_2 = (byte) 0xAC;
-        final byte SECTION_3 = (byte) 0x10;
-        final byte SECTION_4 = (byte) 0x1F;
-        // 192.168.x.x/16
-        final byte SECTION_5 = (byte) 0xC0;
-        final byte SECTION_6 = (byte) 0xA8;
-        switch (b0) {
-            case SECTION_1:
-                return true;
-            case SECTION_2:
-                if (b1 >= SECTION_3 && b1 <= SECTION_4) {
-                    return true;
-                }
-            case SECTION_5:
-                if (b1 == SECTION_6) {
-                    return true;
-                }
-            default:
-                return false;
+        if (b0 == 10) {
+            return true;
         }
+        // 172.16.0.0 ~ 172.31.255.255 (172.16.0.0/12)
+        if (b0 == 172 && b1 >= 16 && b1 <= 31) {
+            return true;
+        }
+        // 192.168.x.x/16
+        return b0 == 192 && b1 == 168;
     }
 
     /**
@@ -93,63 +99,19 @@ public class IpUtils {
             return null;
         }
 
-        byte[] bytes = new byte[4];
         String[] elements = text.split("\\.", -1);
+        if (elements.length != 4) {
+            return null;
+        }
+
+        byte[] bytes = new byte[4];
         try {
-            long l;
-            int i;
-            switch (elements.length) {
-                case 1 -> {
-                    l = Long.parseLong(elements[0]);
-                    if ((l < 0L) || (l > 4294967295L)) {
-                        return null;
-                    }
-                    bytes[0] = (byte) (int) (l >> 24 & 0xFF);
-                    bytes[1] = (byte) (int) ((l & 0xFFFFFF) >> 16 & 0xFF);
-                    bytes[2] = (byte) (int) ((l & 0xFFFF) >> 8 & 0xFF);
-                    bytes[3] = (byte) (int) (l & 0xFF);
-                }
-                case 2 -> {
-                    l = Integer.parseInt(elements[0]);
-                    if ((l < 0L) || (l > 255L)) {
-                        return null;
-                    }
-                    bytes[0] = (byte) (int) (l & 0xFF);
-                    l = Integer.parseInt(elements[1]);
-                    if ((l < 0L) || (l > 16777215L)) {
-                        return null;
-                    }
-                    bytes[1] = (byte) (int) (l >> 16 & 0xFF);
-                    bytes[2] = (byte) (int) ((l & 0xFFFF) >> 8 & 0xFF);
-                    bytes[3] = (byte) (int) (l & 0xFF);
-                }
-                case 3 -> {
-                    for (i = 0; i < 2; ++i) {
-                        l = Integer.parseInt(elements[i]);
-                        if ((l < 0L) || (l > 255L)) {
-                            return null;
-                        }
-                        bytes[i] = (byte) (int) (l & 0xFF);
-                    }
-                    l = Integer.parseInt(elements[2]);
-                    if ((l < 0L) || (l > 65535L)) {
-                        return null;
-                    }
-                    bytes[2] = (byte) (int) (l >> 8 & 0xFF);
-                    bytes[3] = (byte) (int) (l & 0xFF);
-                }
-                case 4 -> {
-                    for (i = 0; i < 4; ++i) {
-                        l = Integer.parseInt(elements[i]);
-                        if ((l < 0L) || (l > 255L)) {
-                            return null;
-                        }
-                        bytes[i] = (byte) (int) (l & 0xFF);
-                    }
-                }
-                default -> {
+            for (int i = 0; i < 4; i++) {
+                int val = Integer.parseInt(elements[i]);
+                if (val < 0 || val > 255) {
                     return null;
                 }
+                bytes[i] = (byte) val;
             }
         } catch (NumberFormatException e) {
             return null;
@@ -167,7 +129,7 @@ public class IpUtils {
             return InetAddress.getLocalHost().getHostAddress();
         } catch (UnknownHostException ignored) {
         }
-        return "127.0.0.1";
+        return IPV4_LOOPBACK;
     }
 
     /**
@@ -208,7 +170,7 @@ public class IpUtils {
      * @return 是否未知
      */
     public static boolean isUnknown(String checkString) {
-        return !StringUtils.hasText(checkString) || "unknown".equalsIgnoreCase(checkString);
+        return !StringUtils.hasText(checkString) || UNKNOWN.equalsIgnoreCase(checkString);
     }
 
 }
