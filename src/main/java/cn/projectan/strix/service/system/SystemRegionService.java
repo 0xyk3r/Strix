@@ -3,6 +3,7 @@ package cn.projectan.strix.service.system;
 import cn.projectan.strix.core.cache.system.SystemRegionCache;
 import cn.projectan.strix.mapper.system.SystemRegionMapper;
 import cn.projectan.strix.model.db.system.SystemRegion;
+import cn.projectan.strix.service.base.NameFetcherService;
 import cn.projectan.strix.util.common.SpringUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +29,7 @@ import java.util.stream.Stream;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class SystemRegionService extends ServiceImpl<SystemRegionMapper, SystemRegion> {
+public class SystemRegionService extends ServiceImpl<SystemRegionMapper, SystemRegion> implements NameFetcherService<SystemRegion> {
 
     public static final String ROOT_PARENT_ID = "0";
     public static final String PATH_SEPARATOR = ",";
@@ -255,6 +256,15 @@ public class SystemRegionService extends ServiceImpl<SystemRegionMapper, SystemR
         if (StringUtils.hasText(systemRegion.getParentId()) && !ROOT_PARENT_ID.equals(systemRegion.getParentId())) {
             systemRegionCache.refreshRedisCacheById(systemRegion.getParentId());
         }
+    }
+
+    @Override
+    public String getDataNameById(String id) {
+        SystemRegion data = lambdaQuery()
+                .select(SystemRegion::getName)
+                .eq(SystemRegion::getId, id)
+                .one();
+        return data == null ? null : data.getName();
     }
 
 }
