@@ -6,8 +6,8 @@ import cn.projectan.strix.StrixApplication;
 import cn.projectan.strix.core.cache.system.SystemMenuCache;
 import cn.projectan.strix.initializer.system.StrixDictSyncInitializer;
 import cn.projectan.strix.initializer.system.StrixSecurityRuleInitializer;
+import cn.projectan.strix.service.system.PopularityService;
 import cn.projectan.strix.task.system.StrixOAuthPushTask;
-import cn.projectan.strix.util.common.PopularityUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.graalvm.nativeimage.hosted.Feature;
 import org.graalvm.nativeimage.hosted.RuntimeSerialization;
@@ -45,7 +45,7 @@ public class LambdaRegistrationFeature implements Feature {
         RuntimeSerialization.registerLambdaCapturingClass(StrixDictSyncInitializer.class);
         RuntimeSerialization.registerLambdaCapturingClass(StrixSecurityRuleInitializer.class);
         RuntimeSerialization.registerLambdaCapturingClass(SystemMenuCache.class);
-        RuntimeSerialization.registerLambdaCapturingClass(PopularityUtil.class);
+        RuntimeSerialization.registerLambdaCapturingClass(PopularityService.class);
         RuntimeSerialization.registerLambdaCapturingClass(StrixOAuthPushTask.class);
     }
 

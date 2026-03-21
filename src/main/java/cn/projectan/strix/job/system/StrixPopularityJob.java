@@ -1,7 +1,7 @@
 package cn.projectan.strix.job.system;
 
 import cn.projectan.strix.model.annotation.StrixJob;
-import cn.projectan.strix.util.common.PopularityUtil;
+import cn.projectan.strix.service.system.PopularityService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -18,13 +18,13 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class StrixPopularityJob {
 
-    private final PopularityUtil popularityUtil;
+    private final PopularityService popularityService;
 
     /**
      * 保存热度数据到数据库
      */
     public void saveToDatabase() {
-        popularityUtil.syncToDB();
+        popularityService.syncToDB();
     }
 
 }

@@ -1,19 +1,19 @@
-package cn.projectan.strix.util.common;
+package cn.projectan.strix.service.system;
 
 import cn.projectan.strix.model.constant.system.OperatorType;
 import cn.projectan.strix.model.constant.system.StrixRedisKeyConst;
 import cn.projectan.strix.model.db.system.PopularityConfig;
 import cn.projectan.strix.model.db.system.PopularityData;
-import cn.projectan.strix.service.system.PopularityConfigService;
-import cn.projectan.strix.service.system.PopularityDataService;
 import cn.projectan.strix.util.algo.KeyDiffUtil;
+import cn.projectan.strix.util.common.RedisUtil;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.connection.DataType;
 import org.springframework.data.redis.core.DefaultTypedTuple;
 import org.springframework.data.redis.core.ZSetOperations;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -25,38 +25,31 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * 热度工具类
+ * 热度服务
  *
  * @author ProjectAn
  * @since 2023/9/15 16:59
  */
 @Slf4j
-@Component
-public class PopularityUtil {
+@Service
+@RequiredArgsConstructor
+public class PopularityService {
 
     private final PopularityConfigService popularityConfigService;
     private final PopularityDataService popularityDataService;
     private final RedisUtil redisUtil;
 
-    public PopularityUtil(PopularityConfigService popularityConfigService, PopularityDataService popularityDataService, RedisUtil redisUtil) {
-        this.popularityConfigService = popularityConfigService;
-        this.popularityDataService = popularityDataService;
-        this.redisUtil = redisUtil;
-    }
-
     @PostConstruct
     public void init() {
-        // 从数据库同步数据到 Redis（在构造完成后执行，不阻塞 Bean 实例化）
-        syncFormDB(false);
-        log.info("Strix PopularityUtil: 载入数据完成.");
+        syncFromDB(false);
+        log.info("Strix PopularityService: 载入数据完成.");
     }
 
     @PreDestroy
     public void destroy() {
-        // 关机前保存热度数据到数据库
-        log.info("Strix PopularityUtil: 持久化数据中, 强制关闭程序会导致数据丢失.");
+        log.info("Strix PopularityService: 持久化数据中, 强制关闭程序会导致数据丢失.");
         syncToDB();
-        log.info("Strix PopularityUtil: 持久化数据完成.");
+        log.info("Strix PopularityService: 持久化数据完成.");
     }
 
     /**
@@ -185,15 +178,14 @@ public class PopularityUtil {
      *
      * @param force 是否强制同步
      */
-    public void syncFormDB(boolean force) {
+    public void syncFromDB(boolean force) {
         // 加载配置列表
         List<String> configKeyList = popularityConfigService.lambdaQuery()
                 .select(PopularityConfig::getConfigKey)
                 .list().stream().map(PopularityConfig::getConfigKey).toList();
         for (String key : configKeyList) {
-            boolean isExistInRedis = redisUtil.isType(StrixRedisKeyConst.HASH_POPULARITY_DATA_PREFIX + key, DataType.HASH);
+            boolean isExistInRedis = redisUtil.isType(StrixRedisKeyConst.HASH_POPULARITY_DATA_PREFIX + key, DataType.ZSET);
             if (isExistInRedis && !force) {
-                // 如果redis中已经有数据了，就不从数据库中加载了
                 continue;
             }
             List<PopularityData> dataList = popularityDataService.lambdaQuery()
