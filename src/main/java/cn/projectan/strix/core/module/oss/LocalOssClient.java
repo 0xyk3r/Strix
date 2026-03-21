@@ -43,8 +43,37 @@ public class LocalOssClient implements StrixOssClient {
 
     public static class DefaultOperations implements StrixOssClient.Operations {
 
+        /**
+         * 安全地解析文件路径, 防止路径穿越攻击.
+         * 拒绝包含 ".." 的路径, 防止通过相对路径逃逸出预期目录.
+         */
+        private File safeResolve(String objectName) {
+            if (objectName == null || objectName.isBlank()) {
+                throw new StrixException("Strix OSS: 文件路径不能为空.");
+            }
+            // 将路径标准化并检查是否包含路径穿越序列
+            String normalized = objectName.replace('\\', '/');
+            for (String segment : normalized.split("/")) {
+                if ("..".equals(segment)) {
+                    throw new StrixException("Strix OSS: 非法文件路径.");
+                }
+            }
+            try {
+                File file = new File(objectName);
+                File canonical = file.getCanonicalFile();
+                File absoluteRef = file.getAbsoluteFile();
+                // 确保规范化路径以原始绝对路径的父目录开头, 防止符号链接绕过
+                if (!canonical.getPath().startsWith(absoluteRef.getParentFile().getCanonicalPath())) {
+                    throw new StrixException("Strix OSS: 非法文件路径.");
+                }
+                return canonical;
+            } catch (IOException e) {
+                throw new StrixException("Strix OSS: 文件路径解析失败.");
+            }
+        }
+
         private File createFile(String objectName) throws IOException {
-            File file = new File(objectName);
+            File file = safeResolve(objectName);
             File parentFile = file.getParentFile();
             if (parentFile != null && !parentFile.exists()) {
                 Assert.isTrue(parentFile.mkdirs(), "创建文件夹失败");
@@ -102,7 +131,7 @@ public class LocalOssClient implements StrixOssClient {
 
         @Override
         public File download(String bucketName, String objectName, String filePath) {
-            File file = new File(objectName);
+            File file = safeResolve(objectName);
             if (!file.exists()) {
                 return null;
             }
@@ -113,7 +142,7 @@ public class LocalOssClient implements StrixOssClient {
 
         @Override
         public InputStream downloadAsStream(String bucketName, String objectName) {
-            File file = new File(objectName);
+            File file = safeResolve(objectName);
             if (!file.exists()) {
                 throw new StrixException("Strix OSS: 文件不存在.");
             }
@@ -127,7 +156,7 @@ public class LocalOssClient implements StrixOssClient {
 
         @Override
         public void downloadToStream(String bucketName, String objectName, OutputStream outputStream) {
-            File file = new File(objectName);
+            File file = safeResolve(objectName);
             if (!file.exists()) {
                 throw new StrixException("Strix OSS: 文件不存在.");
             }
@@ -151,7 +180,7 @@ public class LocalOssClient implements StrixOssClient {
 
         @Override
         public StreamingResponseBody downloadStream(String bucketName, String objectName, HttpServletResponse response) {
-            File file = new File(objectName);
+            File file = safeResolve(objectName);
             if (!file.exists()) {
                 throw new StrixException("Strix OSS: 文件不存在.");
             }
@@ -183,7 +212,7 @@ public class LocalOssClient implements StrixOssClient {
 
         @Override
         public boolean exist(String bucketName, String objectName) {
-            File file = new File(objectName);
+            File file = safeResolve(objectName);
             return file.exists();
         }
 
@@ -216,7 +245,7 @@ public class LocalOssClient implements StrixOssClient {
 
         @Override
         public void delete(String bucketName, String objectName) {
-            File file = new File(objectName);
+            File file = safeResolve(objectName);
             if (file.exists()) {
                 Assert.isTrue(file.delete(), "删除文件失败");
             }
