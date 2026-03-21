@@ -329,6 +329,9 @@ public class ChatBusinessService {
         // 验证用户是会话成员
         Assert.isTrue(isSessionMember(req.getSessionId(), userId), "您不是该会话的成员");
 
+        // 防御性校验：确保 limit 在安全范围内
+        int safeLimit = Math.max(1, Math.min(req.getLimit() != null ? req.getLimit() : 20, 100));
+
         LambdaQueryWrapper<ChatMessage> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(ChatMessage::getSessionId, req.getSessionId());
 
@@ -338,7 +341,7 @@ public class ChatBusinessService {
         if (StringUtils.hasText(req.getLastMessageId())) {
             queryWrapper.gt(ChatMessage::getId, req.getLastMessageId())
                     .orderByAsc(ChatMessage::getId)
-                    .last("LIMIT " + req.getLimit());
+                    .last("LIMIT " + safeLimit);
 
             messages = chatMessageMapper.selectList(queryWrapper);
         }
@@ -346,7 +349,7 @@ public class ChatBusinessService {
         else if (StringUtils.hasText(req.getFirstMessageId())) {
             queryWrapper.lt(ChatMessage::getId, req.getFirstMessageId())
                     .orderByDesc(ChatMessage::getId)
-                    .last("LIMIT " + req.getLimit());
+                    .last("LIMIT " + safeLimit);
 
             messages = chatMessageMapper.selectList(queryWrapper);
             // 反转顺序（从旧到新）
@@ -355,7 +358,7 @@ public class ChatBusinessService {
         // 默认拉取最新消息
         else {
             queryWrapper.orderByDesc(ChatMessage::getId)
-                    .last("LIMIT " + req.getLimit());
+                    .last("LIMIT " + safeLimit);
 
             messages = chatMessageMapper.selectList(queryWrapper);
             Collections.reverse(messages);
