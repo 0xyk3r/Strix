@@ -63,6 +63,23 @@ public class SecurityConfig {
                 // 禁用内置登录
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
+                // 安全响应头
+                .headers((headers) -> headers
+                        // 禁止页面被嵌入 iframe（防点击劫持）
+                        .frameOptions(frame -> frame.deny())
+                        // 禁止 MIME 类型嗅探
+                        .contentTypeOptions(Customizer.withDefaults())
+                        // 启用 XSS 过滤
+                        .xssProtection(xss -> xss.headerValue(
+                                org.springframework.security.web.header.writers.XXssProtectionHeaderWriter.HeaderValue.ENABLED_MODE_BLOCK))
+                        // 控制 Referrer 信息泄露
+                        .referrerPolicy(referrer -> referrer.policy(
+                                org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN))
+                        // Content-Security-Policy
+                        .contentSecurityPolicy(csp -> csp.policyDirectives("default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; frame-ancestors 'none'"))
+                        // 缓存控制
+                        .cacheControl(Customizer.withDefaults())
+                )
                 // 无状态会话
                 .sessionManagement((sessionManagement) -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests((authorizeRequests) -> {
