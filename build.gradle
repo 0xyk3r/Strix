@@ -79,8 +79,8 @@ dependencies {
     runtimeOnly 'com.mysql:mysql-connector-j'
     implementation 'com.baomidou:mybatis-plus-spring-boot4-starter'
     implementation 'com.baomidou:mybatis-plus-jsqlparser'
-    implementation 'com.baomidou:mybatis-plus-generator'
-    developmentOnly 'org.apache.velocity:velocity-engine-core:2.4.1'
+    testImplementation 'com.baomidou:mybatis-plus-generator'
+    testImplementation 'org.apache.velocity:velocity-engine-core:2.4.1'
     // Quartz
     implementation 'org.springframework.boot:spring-boot-starter-quartz'
     // WebSocket
