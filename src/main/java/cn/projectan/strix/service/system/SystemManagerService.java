@@ -5,6 +5,7 @@ import cn.projectan.strix.mapper.system.SystemManagerMapper;
 import cn.projectan.strix.model.constant.system.LoginRedisKeys;
 import cn.projectan.strix.model.db.system.*;
 import cn.projectan.strix.model.dict.system.SystemManagerType;
+import cn.projectan.strix.model.dict.system.SystemRoleRegionPermissionType;
 import cn.projectan.strix.service.base.NameFetcherService;
 import cn.projectan.strix.util.common.RedisUtil;
 import cn.projectan.strix.util.common.SpringUtil;
@@ -150,10 +151,31 @@ public class SystemManagerService extends ServiceImpl<SystemManagerMapper, Syste
             SystemManagerService proxy = SpringUtil.getAopProxy(this);
             menus = proxy.getMenuKeyList(systemManager.getId());
             permissions = proxy.getPermissionKeyList(systemManager.getId());
-            if (StringUtils.hasText(systemManager.getRegionId())) {
+        }
+
+        // 地区权限
+        switch (regionPermissionType) {
+            case SystemRoleRegionPermissionType.ALL_REGION -> {
+                regionIds = systemRegionService.lambdaQuery()
+                        .select(SystemRegion::getId)
+                        .list()
+                        .stream()
+                        .map(SystemRegion::getId)
+                        .collect(Collectors.toList());
+            }
+            case SystemRoleRegionPermissionType.WITH_SUB_REGION -> {
                 regionIds = systemRegionService.getChildrenIdList(systemManager.getRegionId());
             }
+            case SystemRoleRegionPermissionType.CURR_REGION -> {
+                if (systemManager.getRegionId() != null) {
+                    regionIds = List.of(systemManager.getRegionId());
+                } else {
+                    regionIds = List.of("-1");
+                }
+            }
+            default -> regionIds = List.of("-1");
         }
+
         return new LoginSystemManager(systemManager, systemRegion, regionPermissionType, menus, permissions, regionIds);
     }
 
