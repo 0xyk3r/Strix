@@ -57,14 +57,14 @@ public class SystemController extends BaseSystemController {
     private final RedisUtil redisUtil;
 
     /**
-     * 登录失败最大尝试次数
+     * 登录失败最大尝试次数（默认值）
      */
-    private static final int MAX_LOGIN_FAILURES = 5;
+    private static final int DEFAULT_MAX_LOGIN_FAILURES = 5;
 
     /**
-     * 登录锁定时间（分钟）
+     * 登录锁定时间（分钟，默认值）
      */
-    private static final long LOGIN_LOCK_MINUTES = 30;
+    private static final long DEFAULT_LOGIN_LOCK_MINUTES = 30;
 
     /**
      * 系统登录
@@ -83,8 +83,9 @@ public class SystemController extends BaseSystemController {
         // 基于客户端 IP 的登录失败次数限制
         String clientIp = IpUtils.getIpAddr(ServletUtils.getRequest());
         String failureKey = StrixRedisKeyConst.STR_LOGIN_FAILURE_IP_PREFIX + clientIp;
+        int maxLoginFailures = systemConfigCache.getLong("SYSTEM_MANAGER_MAX_LOGIN_FAILURES", (long) DEFAULT_MAX_LOGIN_FAILURES).intValue();
         Object failureCountObj = redisUtil.get(failureKey);
-        if (failureCountObj instanceof Number failureCount && failureCount.intValue() >= MAX_LOGIN_FAILURES) {
+        if (failureCountObj instanceof Number failureCount && failureCount.intValue() >= maxLoginFailures) {
             long remainSeconds = redisUtil.getExpire(failureKey);
             long remainMinutes = Math.max(1, remainSeconds / 60);
             return RetBuilder.build(RetCode.BAD_REQUEST, "登录失败次数过多，请 " + remainMinutes + " 分钟后再试");
@@ -141,9 +142,10 @@ public class SystemController extends BaseSystemController {
      * 记录登录失败次数（使用原子递增避免竞态条件）
      */
     private void recordLoginFailure(String failureKey) {
+        long loginLockMinutes = systemConfigCache.getLong("SYSTEM_MANAGER_LOGIN_LOCK_MINUTES", DEFAULT_LOGIN_LOCK_MINUTES);
         long count = redisUtil.incr(failureKey);
         if (count == 1) {
-            redisUtil.setExpire(failureKey, LOGIN_LOCK_MINUTES, TimeUnit.MINUTES);
+            redisUtil.setExpire(failureKey, loginLockMinutes, TimeUnit.MINUTES);
         }
     }
 
