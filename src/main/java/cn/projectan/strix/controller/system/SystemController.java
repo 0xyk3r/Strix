@@ -9,7 +9,6 @@ import cn.projectan.strix.core.ret.RetCode;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.core.ss.details.LoginSystemManager;
 import cn.projectan.strix.model.annotation.Anonymous;
-import cn.projectan.strix.model.annotation.IgnoreEncryption;
 import cn.projectan.strix.model.annotation.StrixLog;
 import cn.projectan.strix.model.constant.system.LoginRedisKeys;
 import cn.projectan.strix.model.constant.system.StrixRedisKeyConst;
@@ -24,19 +23,14 @@ import cn.projectan.strix.model.response.system.login.SystemManagerLoginResp;
 import cn.projectan.strix.service.system.SystemManagerService;
 import cn.projectan.strix.service.system.SystemMenuService;
 import cn.projectan.strix.util.common.RedisUtil;
-import cn.projectan.strix.util.common.SpringUtil;
+import cn.projectan.strix.util.crypto.StrixSM3Util;
 import cn.projectan.strix.util.http.ServletUtils;
 import cn.projectan.strix.util.ip.IpUtils;
 import cn.projectan.strix.util.system.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.SpringApplication;
-import org.springframework.context.ApplicationContext;
-import org.springframework.http.HttpHeaders;
 import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.NoHandlerFoundException;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -100,7 +94,7 @@ public class SystemController extends BaseSystemController {
                 .eq(SystemManager::getLoginName, req.getLoginName())
                 .one();
 
-        if (systemManager == null || systemManager.getLoginPassword().equals(req.getLoginPassword())) {
+        if (systemManager == null || !StrixSM3Util.matches(req.getLoginPassword(), systemManager.getLoginPassword())) {
             recordLoginFailure(failureKey);
             return RetBuilder.build(RetCode.BAD_REQUEST, "账号或密码错误");
         }
@@ -202,18 +196,6 @@ public class SystemController extends BaseSystemController {
         Assert.notEmpty(systemMenus, "当前账号无可用菜单权限");
 
         return RetBuilder.success(new SystemMenuResp(systemMenus));
-    }
-
-    @Anonymous
-    @IgnoreEncryption
-    @GetMapping("shutdown/{pwd}")
-    public void shutdown(@PathVariable String pwd) throws NoHandlerFoundException {
-        if (!StringUtils.hasText(pwd) || !pwd.equals("ProjectAn")) {
-            throw new NoHandlerFoundException("GET", "/system/shutdown/" + pwd, HttpHeaders.EMPTY);
-        }
-        log.warn("使用 Strix Shutdown API 关闭了系统.");
-        ApplicationContext context = SpringUtil.getApplicationContext();
-        new Thread(() -> SpringApplication.exit(context)).start();
     }
 
 }

@@ -1,6 +1,5 @@
 package cn.projectan.strix.model.db.system;
 
-import cn.projectan.strix.model.annotation.EncryptField;
 import cn.projectan.strix.model.annotation.UniqueField;
 import cn.projectan.strix.model.db.base.BaseModel;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -48,7 +47,6 @@ public class SystemManager extends BaseModel<SystemManager> {
      * 登录密码
      */
     @JsonIgnore
-    @EncryptField
     private String loginPassword;
 
     /**

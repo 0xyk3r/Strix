@@ -28,6 +28,7 @@ import cn.projectan.strix.util.algo.KeyDiffUtil;
 import cn.projectan.strix.util.common.RedisUtil;
 import cn.projectan.strix.util.common.UniqueChecker;
 import cn.projectan.strix.util.common.UpdateBuilder;
+import cn.projectan.strix.util.crypto.StrixSM3Util;
 import cn.projectan.strix.util.math.NumUtil;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -199,7 +200,7 @@ public class SystemManagerController extends BaseSystemController {
         SystemManager systemManager = new SystemManager(
                 req.getNickname(),
                 req.getLoginName(),
-                req.getLoginPassword(),
+                StrixSM3Util.hashPassword(req.getLoginPassword()),
                 req.getStatus(),
                 req.getType(),
                 req.getRegionId(),
@@ -225,6 +226,11 @@ public class SystemManagerController extends BaseSystemController {
         Assert.notNull(systemManager, "系统人员信息不存在");
         Assert.isTrue(systemManager.getBuiltin() == CommonFlag.NO, "内置用户不允许修改");
         checkLoginManagerRegionPermission(systemManager.getRegionId());
+
+        // 若提交了新密码，先对明文进行 SM3 哈希
+        if (StringUtils.hasText(req.getLoginPassword())) {
+            req.setLoginPassword(StrixSM3Util.hashPassword(req.getLoginPassword()));
+        }
 
         LambdaUpdateWrapper<SystemManager> updateWrapper = UpdateBuilder.build(systemManager, req);
         UniqueChecker.check(systemManager);

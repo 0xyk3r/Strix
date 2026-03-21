@@ -35,7 +35,7 @@ import java.util.regex.Pattern;
  * <ul>
  *   <li>Wrapper 条件中的加密字段值会自动加密（支持 eq、ne、in、like 等条件）</li>
  *   <li>UpdateWrapper.set() 设置的加密字段值会自动加密</li>
- *   <li>已加密的数据（带 ENC: 前缀）不会重复加密</li>
+ *   <li>已加密的数据（带 SM4: 或旧版 ENC: 前缀）不会重复加密</li>
  * </ul>
  *
  * @author ProjectAn
