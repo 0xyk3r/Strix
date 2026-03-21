@@ -86,7 +86,7 @@ public class Arithmetic {
         }
         BigDecimal b1 = new BigDecimal(Double.toString(v1));
         BigDecimal b2 = new BigDecimal(Double.toString(v2));
-        if (b1.compareTo(BigDecimal.ZERO) == 0) {
+        if (b2.compareTo(BigDecimal.ZERO) == 0) {
             return BigDecimal.ZERO.doubleValue();
         }
         return b1.divide(b2, scale, RoundingMode.HALF_UP).doubleValue();

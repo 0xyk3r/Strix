@@ -40,25 +40,28 @@ public final class DataMaskSerializer extends StdScalarSerializer<Object> {
     }
 
     @Override
-    public boolean isEmpty(SerializationContext ctxt, Object value) {
+    public boolean isEmpty(SerializationContext context, Object value) {
+        if (value == null) {
+            return true;
+        }
         String str = (String) value;
         return str.isEmpty();
     }
 
     @Override
-    public void serialize(Object value, JsonGenerator gen, SerializationContext ctxt) {
+    public void serialize(Object value, JsonGenerator gen, SerializationContext context) {
+        String content;
         if (Objects.isNull(operation)) {
-            String content = DataMaskFunc.KEEP_SIDE.operation().mask((String) value, maskChar, n1, n2);
-            gen.writeString(content);
+            content = DataMaskFunc.KEEP_SIDE.operation().mask((String) value, maskChar, n1, n2);
         } else {
-            String content = operation.mask((String) value, maskChar, n1, n2);
-            gen.writeString(content);
+            content = operation.mask((String) value, maskChar, n1, n2);
         }
+        gen.writeString(content);
     }
 
     @Override
-    public void serializeWithType(Object value, JsonGenerator gen, SerializationContext ctxt, TypeSerializer typeSer) {
-        this.serialize(value, gen, ctxt);
+    public void serializeWithType(Object value, JsonGenerator gen, SerializationContext context, TypeSerializer typeSer) {
+        this.serialize(value, gen, context);
     }
 
 }

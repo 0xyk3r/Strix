@@ -32,7 +32,7 @@ public enum DataMaskFunc {
         if (data.length() <= n1) {
             return "******";
         }
-        return data.replaceAll("(?<=\\w{" + n1 + "})\\w", "*");
+        return data.replaceAll(".(?=.{" + n1 + "})", "*");
     }),
     /**
      * 保留前后各n位，中间用*代替

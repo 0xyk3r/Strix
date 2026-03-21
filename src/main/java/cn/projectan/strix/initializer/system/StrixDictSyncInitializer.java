@@ -1,6 +1,5 @@
 package cn.projectan.strix.initializer.system;
 
-import cn.projectan.strix.core.module.oss.StrixOssStore;
 import cn.projectan.strix.model.constant.system.OperatorType;
 import cn.projectan.strix.model.db.system.Dict;
 import cn.projectan.strix.model.db.system.DictData;
@@ -14,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.annotation.Order;
@@ -36,7 +34,6 @@ import java.util.stream.Collectors;
 @Slf4j
 @Order(20)
 @Component
-@ConditionalOnBean(StrixOssStore.class)
 @RequiredArgsConstructor
 public class StrixDictSyncInitializer implements ApplicationRunner {
 
