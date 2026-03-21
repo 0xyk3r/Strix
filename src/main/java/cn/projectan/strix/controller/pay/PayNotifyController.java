@@ -2,10 +2,10 @@ package cn.projectan.strix.controller.pay;
 
 import cn.projectan.strix.controller.BaseController;
 import cn.projectan.strix.core.module.pay.StrixPayClient;
-import cn.projectan.strix.core.module.pay.StrixPayStore;
 import cn.projectan.strix.model.annotation.Anonymous;
 import cn.projectan.strix.model.annotation.IgnoreEncryption;
 import cn.projectan.strix.model.other.system.module.pay.BasePayResult;
+import cn.projectan.strix.service.system.PayConfigService;
 import cn.projectan.strix.service.system.PayOrderService;
 import cn.projectan.strix.util.common.I18nUtil;
 import jakarta.servlet.http.HttpServletRequest;
@@ -34,14 +34,14 @@ import org.springframework.web.bind.annotation.RestController;
 public class PayNotifyController extends BaseController {
 
     private final PayOrderService payOrderService;
-    private final StrixPayStore strixPayStore;
+    private final PayConfigService payConfigService;
 
     /**
      * 支付回调
      */
     @RequestMapping("notify")
     public void payNotify(@PathVariable String configId, HttpServletRequest request, HttpServletResponse response) {
-        StrixPayClient client = strixPayStore.getInstance(configId);
+        StrixPayClient client = payConfigService.getInstance(configId);
 
         boolean verified = client.verifyNotify(request);
         try {

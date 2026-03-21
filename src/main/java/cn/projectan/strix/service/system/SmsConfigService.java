@@ -107,6 +107,13 @@ public class SmsConfigService extends ServiceImpl<SmsConfigMapper, SmsConfig> {
     }
 
     /**
+     * 关闭指定 key 的短信服务实例
+     */
+    public void closeInstance(String key) {
+        strixSmsStore.getInstance(key).close();
+    }
+
+    /**
      * 删除短信配置及其关联的签名和模板
      *
      * @param smsConfig 待删除的短信配置

@@ -113,6 +113,14 @@ public class OssConfigService extends ServiceImpl<OssConfigMapper, OssConfig> {
     }
 
     /**
+     * 关闭并移除指定 key 的对象存储实例
+     */
+    public void removeInstance(String key) {
+        Optional.ofNullable(strixOssStore.getInstance(key)).ifPresent(StrixOssClient::close);
+        strixOssStore.removeInstance(key);
+    }
+
+    /**
      * 获取下拉数据
      *
      * @return 下拉数据

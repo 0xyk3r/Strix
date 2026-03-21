@@ -43,6 +43,13 @@ public class PayConfigService extends ServiceImpl<PayConfigMapper, PayConfig> {
     }
 
     /**
+     * 获取指定 configId 的支付客户端实例
+     */
+    public StrixPayClient getInstance(String configId) {
+        return strixPayStore.getInstance(configId);
+    }
+
+    /**
      * 创建支付配置
      *
      * @param payConfigList 支付配置列表

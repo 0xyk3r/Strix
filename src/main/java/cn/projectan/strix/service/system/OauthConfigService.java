@@ -42,6 +42,20 @@ public class OauthConfigService extends ServiceImpl<OauthConfigMapper, OauthConf
     }
 
     /**
+     * 获取指定 configKey 的 OAuth 客户端实例
+     */
+    public StrixOAuthClient<?> getInstance(String configKey) {
+        return strixOAuthStore.getInstance(configKey);
+    }
+
+    /**
+     * 获取指定 configKey 和平台的 OAuth 客户端实例
+     */
+    public StrixOAuthClient<?> getInstance(String configKey, short platform) {
+        return strixOAuthStore.getInstance(configKey, platform);
+    }
+
+    /**
      * 创建 OAuth 配置
      *
      * @param oauthConfigList OAuth 配置列表

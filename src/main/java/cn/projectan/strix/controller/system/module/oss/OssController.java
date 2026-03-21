@@ -52,7 +52,6 @@ public class OssController extends BaseSystemController {
     private final OssBucketService ossBucketService;
     private final OssFileService ossFileService;
     private final OssFileGroupService ossFileGroupService;
-    private final StrixOssStore strixOssStore;
 
     /**
      * 查询存储配置列表
@@ -144,7 +143,7 @@ public class OssController extends BaseSystemController {
         Assert.isTrue(ossConfigService.update(updateWrapper), "保存失败");
 
         // 卸载原配置 重新加载
-        strixOssStore.removeInstance(originKey);
+        ossConfigService.removeInstance(originKey);
         ossConfigService.refreshConfig();
 
         return RetBuilder.success();
@@ -167,7 +166,7 @@ public class OssController extends BaseSystemController {
         ossBucketService.deleteByConfigKey(key);
 
         // 卸载配置
-        strixOssStore.removeInstance(key);
+        ossConfigService.removeInstance(key);
 
         return RetBuilder.success();
     }

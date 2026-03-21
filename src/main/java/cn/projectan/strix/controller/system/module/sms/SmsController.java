@@ -52,7 +52,6 @@ public class SmsController extends BaseSystemController {
     private final SmsTemplateService smsTemplateService;
     private final SmsLogService smsLogService;
     private final StrixSmsTask strixSmsTask;
-    private final StrixSmsStore strixSmsStore;
 
     /**
      * 查询短信配置列表
@@ -142,7 +141,7 @@ public class SmsController extends BaseSystemController {
         Assert.isTrue(smsConfigService.update(updateWrapper), "保存失败");
 
         // 卸载原配置 重新加载
-        strixSmsStore.getInstance(originKey).close();
+        smsConfigService.closeInstance(originKey);
         strixSmsTask.refreshConfig();
 
         return RetBuilder.success();

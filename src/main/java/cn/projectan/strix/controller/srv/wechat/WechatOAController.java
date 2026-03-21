@@ -3,7 +3,6 @@ package cn.projectan.strix.controller.srv.wechat;
 import cn.hutool.core.util.IdUtil;
 import cn.projectan.strix.controller.srv.wechat.base.BaseWechatController;
 import cn.projectan.strix.core.exception.StrixException;
-import cn.projectan.strix.core.module.oauth.StrixOAuthStore;
 import cn.projectan.strix.core.module.oauth.impl.WechatOAOAuthClient;
 import cn.projectan.strix.core.ret.RetBuilder;
 import cn.projectan.strix.core.ret.RetResult;
@@ -15,6 +14,7 @@ import cn.projectan.strix.model.db.system.SystemUser;
 import cn.projectan.strix.model.dict.system.OAuthPlatform;
 import cn.projectan.strix.model.other.system.module.oauth.BaseOAuthUserInfo;
 import cn.projectan.strix.model.other.system.module.oauth.wechat.oa.WechatOAOAuthConfig;
+import cn.projectan.strix.service.system.OauthConfigService;
 import cn.projectan.strix.service.system.OauthUserService;
 import cn.projectan.strix.service.system.SystemUserService;
 import cn.projectan.strix.util.common.RedisUtil;
@@ -55,7 +55,7 @@ public class WechatOAController extends BaseWechatController {
 
     private final SystemUserService systemUserService;
     private final OauthUserService oauthUserService;
-    private final StrixOAuthStore strixOAuthStore;
+    private final OauthConfigService oauthConfigService;
     private final RedisUtil redisUtil;
 
     /**
@@ -65,7 +65,7 @@ public class WechatOAController extends BaseWechatController {
     @IgnoreEncryption
     @RequestMapping("jump/{model}")
     public void jumpToModel(@PathVariable String configKey, @PathVariable String model, @RequestParam(defaultValue = "") String params, HttpServletResponse response) {
-        WechatOAOAuthClient instance = (WechatOAOAuthClient) strixOAuthStore.getInstance(configKey, OAuthPlatform.WECHAT_OA);
+        WechatOAOAuthClient instance = (WechatOAOAuthClient) oauthConfigService.getInstance(configKey, OAuthPlatform.WECHAT_OA);
         WechatOAOAuthConfig config = (WechatOAOAuthConfig) instance.getConfig();
         String authorizeUrl = instance.getAuthorizeUrl(config.getAuthUrl() + configKey + "/auth?model=" + model + "&params=" + params);
         try {
@@ -83,7 +83,7 @@ public class WechatOAController extends BaseWechatController {
     @RequestMapping("auth")
     public void userAuth(@PathVariable String configKey, String model, String params,
                          HttpServletRequest request, HttpServletResponse response) {
-        WechatOAOAuthClient instance = (WechatOAOAuthClient) strixOAuthStore.getInstance(configKey);
+        WechatOAOAuthClient instance = (WechatOAOAuthClient) oauthConfigService.getInstance(configKey);
         WechatOAOAuthConfig config = (WechatOAOAuthConfig) instance.getConfig();
         try {
             Map<String, String[]> reqParams = request.getParameterMap();
@@ -134,7 +134,7 @@ public class WechatOAController extends BaseWechatController {
     @ResponseBody
     @RequestMapping("config")
     public Map<String, String> config(@PathVariable String configKey, String webUrl) {
-        WechatOAOAuthClient instance = (WechatOAOAuthClient) strixOAuthStore.getInstance(configKey);
+        WechatOAOAuthClient instance = (WechatOAOAuthClient) oauthConfigService.getInstance(configKey);
         WechatOAOAuthConfig config = (WechatOAOAuthConfig) instance.getConfig();
         try {
             if (!"dev".equals(env)) {

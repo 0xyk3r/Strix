@@ -3,7 +3,6 @@ package cn.projectan.strix.controller.srv.wechat;
 import cn.hutool.core.util.IdUtil;
 import cn.projectan.strix.controller.srv.wechat.base.BaseWechatController;
 import cn.projectan.strix.core.cache.system.SystemConfigCache;
-import cn.projectan.strix.core.module.oauth.StrixOAuthStore;
 import cn.projectan.strix.core.module.oauth.impl.WechatMPOAuthClient;
 import cn.projectan.strix.core.ret.RetBuilder;
 import cn.projectan.strix.core.ret.RetResult;
@@ -15,6 +14,7 @@ import cn.projectan.strix.model.dict.system.OAuthPlatform;
 import cn.projectan.strix.model.other.system.module.oauth.BaseOAuthUserInfo;
 import cn.projectan.strix.model.request.api.wechat.WechatMPAuthReq;
 import cn.projectan.strix.model.response.system.login.SystemUserLoginResp;
+import cn.projectan.strix.service.system.OauthConfigService;
 import cn.projectan.strix.service.system.OauthUserService;
 import cn.projectan.strix.service.system.SystemUserService;
 import cn.projectan.strix.util.common.RedisUtil;
@@ -38,7 +38,7 @@ public class WechatMPController extends BaseWechatController {
 
     private final SystemUserService systemUserService;
     private final OauthUserService oauthUserService;
-    private final StrixOAuthStore strixOAuthStore;
+    private final OauthConfigService oauthConfigService;
     private final SystemConfigCache systemConfigCache;
     private final RedisUtil redisUtil;
 
@@ -53,7 +53,7 @@ public class WechatMPController extends BaseWechatController {
     @Anonymous
     @PostMapping("auth")
     public RetResult<SystemUserLoginResp> auth(@PathVariable String configKey, @RequestBody WechatMPAuthReq req) {
-        WechatMPOAuthClient instance = (WechatMPOAuthClient) strixOAuthStore.getInstance(configKey, OAuthPlatform.WECHAT_MP);
+        WechatMPOAuthClient instance = (WechatMPOAuthClient) oauthConfigService.getInstance(configKey, OAuthPlatform.WECHAT_MP);
         BaseOAuthUserInfo userInfo = instance.auth(req.getCode());
         Assert.notNull(userInfo, "获取用户信息失败");
 
