@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 /**
@@ -102,6 +103,19 @@ public class SystemUserService extends ServiceImpl<SystemUserMapper, SystemUser>
             return getBaseMapper().selectById(systemUserRelation.getSystemUserId());
         }
         return null;
+    }
+
+    /**
+     * 删除用户及其关联的第三方账号绑定
+     *
+     * @param systemUser 待删除的用户
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void deleteUserWithRelations(SystemUser systemUser) {
+        removeById(systemUser);
+        systemUserRelationService.lambdaUpdate()
+                .eq(SystemUserRelation::getSystemUserId, systemUser.getId())
+                .remove();
     }
 
     /**

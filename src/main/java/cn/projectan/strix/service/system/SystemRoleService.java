@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +34,7 @@ public class SystemRoleService extends ServiceImpl<SystemRoleMapper, SystemRole>
     private final SystemRoleMenuService systemRoleMenuService;
     private final SystemPermissionService systemPermissionService;
     private final SystemRolePermissionService systemRolePermissionService;
+    private final SystemManagerRoleService systemManagerRoleService;
 
     /**
      * 获取下拉框数据 （有缓存）
@@ -122,6 +124,26 @@ public class SystemRoleService extends ServiceImpl<SystemRoleMapper, SystemRole>
         return systemPermissionService.lambdaQuery()
                 .in(SystemPermission::getId, systemPermissionIdList)
                 .list();
+    }
+
+    /**
+     * 删除角色及其所有关联关系（管理人员-角色、角色-菜单、角色-权限）
+     *
+     * @param systemRole 待删除的角色
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void deleteRoleWithRelations(SystemRole systemRole) {
+        removeById(systemRole);
+        String roleId = systemRole.getId();
+        systemManagerRoleService.lambdaUpdate()
+                .eq(SystemManagerRole::getSystemRoleId, roleId)
+                .remove();
+        systemRoleMenuService.lambdaUpdate()
+                .eq(SystemRoleMenu::getSystemRoleId, roleId)
+                .remove();
+        systemRolePermissionService.lambdaUpdate()
+                .eq(SystemRolePermission::getSystemRoleId, roleId)
+                .remove();
     }
 
 }

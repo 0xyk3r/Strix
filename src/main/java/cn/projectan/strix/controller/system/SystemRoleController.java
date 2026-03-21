@@ -222,20 +222,7 @@ public class SystemRoleController extends BaseSystemController {
         Assert.notNull(systemRole, "系统角色信息不存在");
         Assert.isTrue(systemRole.getBuiltin() == CommonFlag.NO, "系统内置角色不支持删除");
 
-        systemRoleService.removeById(systemRole);
-
-        // 删除管理人员和角色间关系
-        systemManagerRoleService.lambdaUpdate()
-                .eq(SystemManagerRole::getSystemRoleId, systemRole.getId())
-                .remove();
-        // 删除角色和菜单间关系
-        systemRoleMenuService.lambdaUpdate()
-                .eq(SystemRoleMenu::getSystemRoleId, systemRole.getId())
-                .remove();
-        // 删除角色和系统权限间关系
-        systemRolePermissionService.lambdaUpdate()
-                .eq(SystemRolePermission::getSystemRoleId, systemRole.getId())
-                .remove();
+        systemRoleService.deleteRoleWithRelations(systemRole);
 
         return RetBuilder.success();
     }

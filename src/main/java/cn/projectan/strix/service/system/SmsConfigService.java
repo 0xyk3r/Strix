@@ -5,15 +5,19 @@ import cn.projectan.strix.core.module.sms.AliyunSmsClient;
 import cn.projectan.strix.core.module.sms.StrixSmsStore;
 import cn.projectan.strix.mapper.system.SmsConfigMapper;
 import cn.projectan.strix.model.db.system.SmsConfig;
+import cn.projectan.strix.model.db.system.SmsSign;
+import cn.projectan.strix.model.db.system.SmsTemplate;
 import cn.projectan.strix.model.dict.system.SmsPlatform;
 import cn.projectan.strix.model.response.common.CommonSelectDataResp;
 import cn.projectan.strix.task.system.StrixSmsTask;
 import cn.projectan.strix.util.common.SpringUtil;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import java.util.List;
@@ -28,8 +32,12 @@ import java.util.List;
  */
 @Slf4j
 @Service
+@RequiredArgsConstructor
 @ConditionalOnProperty(prefix = "strix.module", name = "sms", havingValue = "true")
 public class SmsConfigService extends ServiceImpl<SmsConfigMapper, SmsConfig> {
+
+    private final SmsSignService smsSignService;
+    private final SmsTemplateService smsTemplateService;
 
     /**
      * 创建实例
@@ -80,6 +88,23 @@ public class SmsConfigService extends ServiceImpl<SmsConfigMapper, SmsConfig> {
     public CommonSelectDataResp getSelectData() {
         List<SmsConfig> smsConfigList = getBaseMapper().selectList(Wrappers.emptyWrapper());
         return new CommonSelectDataResp(smsConfigList, "key", "key", "name");
+    }
+
+    /**
+     * 删除短信配置及其关联的签名和模板
+     *
+     * @param smsConfig 待删除的短信配置
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void deleteConfigWithRelations(SmsConfig smsConfig) {
+        removeById(smsConfig.getId());
+        String key = smsConfig.getKey();
+        smsSignService.lambdaUpdate()
+                .eq(SmsSign::getConfigKey, key)
+                .remove();
+        smsTemplateService.lambdaUpdate()
+                .eq(SmsTemplate::getConfigKey, key)
+                .remove();
     }
 
 }

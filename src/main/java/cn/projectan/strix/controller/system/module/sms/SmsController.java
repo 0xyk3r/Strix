@@ -166,17 +166,8 @@ public class SmsController extends BaseSystemController {
     public RetResult<Object> remove(@PathVariable String id) {
         SmsConfig smsConfig = smsConfigService.getById(id);
         Assert.notNull(smsConfig, "原记录不存在");
-        String key = smsConfig.getKey();
 
-        smsConfigService.removeById(id);
-
-        // 删除短信签名和模板
-        smsSignService.lambdaUpdate()
-                .eq(SmsSign::getConfigKey, key)
-                .remove();
-        smsTemplateService.lambdaUpdate()
-                .eq(SmsTemplate::getConfigKey, key)
-                .remove();
+        smsConfigService.deleteConfigWithRelations(smsConfig);
 
         return RetBuilder.success();
     }

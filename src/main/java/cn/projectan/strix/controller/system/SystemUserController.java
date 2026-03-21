@@ -7,7 +7,6 @@ import cn.projectan.strix.core.validation.group.InsertGroup;
 import cn.projectan.strix.core.validation.group.UpdateGroup;
 import cn.projectan.strix.model.annotation.StrixLog;
 import cn.projectan.strix.model.db.system.SystemUser;
-import cn.projectan.strix.model.db.system.SystemUserRelation;
 import cn.projectan.strix.model.dict.system.SystemLogOperType;
 import cn.projectan.strix.model.dict.system.SystemUserStatus;
 import cn.projectan.strix.model.enums.common.NumCategory;
@@ -16,7 +15,6 @@ import cn.projectan.strix.model.request.system.user.SystemUserListReq;
 import cn.projectan.strix.model.request.system.user.SystemUserUpdateReq;
 import cn.projectan.strix.model.response.system.user.SystemUserListResp;
 import cn.projectan.strix.model.response.system.user.SystemUserResp;
-import cn.projectan.strix.service.system.SystemUserRelationService;
 import cn.projectan.strix.service.system.SystemUserService;
 import cn.projectan.strix.util.common.UniqueChecker;
 import cn.projectan.strix.util.common.UpdateBuilder;
@@ -44,7 +42,6 @@ import org.springframework.web.bind.annotation.*;
 public class SystemUserController extends BaseSystemController {
 
     private final SystemUserService systemUserService;
-    private final SystemUserRelationService systemUserRelationService;
 
     /**
      * 查询用户列表
@@ -161,12 +158,7 @@ public class SystemUserController extends BaseSystemController {
         SystemUser systemUser = systemUserService.getById(userId);
         Assert.notNull(systemUser, "系统用户信息不存在");
 
-        systemUserService.removeById(systemUser);
-
-        // 删除用户的第三方账号绑定关系
-        systemUserRelationService.lambdaUpdate()
-                .eq(SystemUserRelation::getSystemUserId, systemUser.getId())
-                .remove();
+        systemUserService.deleteUserWithRelations(systemUser);
 
         return RetBuilder.success();
     }
