@@ -178,8 +178,9 @@ public class WechatPayClient extends StrixPayClient {
         String signatureType = request.getHeader("Wechatpay-Signature-Type");
         try {
             String result = HttpKit.readData(request);
-            InputStream certInputStream = PayKit.getCertFileInputStream(config.getV3CertPath());
-            return WxPayKit.verifySignature(signatureType, signature, result, nonce, timestamp, certInputStream);
+            try (InputStream certInputStream = PayKit.getCertFileInputStream(config.getV3CertPath())) {
+                return WxPayKit.verifySignature(signatureType, signature, result, nonce, timestamp, certInputStream);
+            }
         } catch (Exception e) {
             log.error("微信支付回调验证失败", e);
             return false;
