@@ -27,11 +27,11 @@ public class I18nUtil {
     @Value("${spring.messages.basename}")
     private String basename;
 
-    private static String defaultLocale;
+    private static volatile String defaultLocale;
 
-    private static StrixLocaleResolver resolver;
+    private static volatile StrixLocaleResolver resolver;
 
-    private static ReloadableResourceBundleMessageSource messageSource;
+    private static volatile ReloadableResourceBundleMessageSource messageSource;
 
     @PostConstruct
     public void init() {
