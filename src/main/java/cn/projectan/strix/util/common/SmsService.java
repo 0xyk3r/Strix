@@ -15,7 +15,7 @@ import org.springframework.util.Assert;
 import java.util.List;
 
 /**
- * 短信发送工具
+ * 短信发送服务
  *
  * @author ProjectAn
  * @since 2021/8/30 19:29
@@ -24,7 +24,7 @@ import java.util.List;
 @Component
 @ConditionalOnBean(StrixSmsStore.class)
 @RequiredArgsConstructor
-public class SmsUtil {
+public class SmsService {
 
     private final SmsLogService smsLogService;
     private final StrixSmsStore strixSmsStore;

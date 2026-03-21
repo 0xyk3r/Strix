@@ -9,7 +9,7 @@ import cn.projectan.strix.service.system.SmsConfigService;
 import cn.projectan.strix.service.system.SmsSignService;
 import cn.projectan.strix.service.system.SmsTemplateService;
 import cn.projectan.strix.util.algo.KeyDiffUtil;
-import cn.projectan.strix.util.common.SmsUtil;
+import cn.projectan.strix.util.common.SmsService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class StrixSmsTask {
 
-    private final SmsUtil smsUtil;
+    private final SmsService smsService;
     private final StrixSmsStore strixSmsStore;
     private final SmsConfigService smsConfigService;
     private final SmsSignService smsSignService;
@@ -64,7 +64,7 @@ public class StrixSmsTask {
     public void refreshSignList() {
         Set<String> instanceKeySet = strixSmsStore.getInstanceKeySet();
         instanceKeySet.forEach(key -> {
-            List<StrixSmsSign> signList = smsUtil.getSignList(key);
+            List<StrixSmsSign> signList = smsService.getSignList(key);
             smsSignService.syncSignList(key, signList);
         });
     }
@@ -73,7 +73,7 @@ public class StrixSmsTask {
     public void refreshTemplateList() {
         Set<String> instanceKeySet = strixSmsStore.getInstanceKeySet();
         instanceKeySet.forEach(key -> {
-            List<StrixSmsTemplate> templateList = smsUtil.getTemplateList(key);
+            List<StrixSmsTemplate> templateList = smsService.getTemplateList(key);
             smsTemplateService.syncTemplateList(key, templateList);
         });
     }
