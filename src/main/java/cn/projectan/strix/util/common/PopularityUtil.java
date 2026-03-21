@@ -16,8 +16,12 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * 热度工具类
@@ -142,31 +146,27 @@ public class PopularityUtil {
                     .eq(PopularityData::getConfigKey, key)
                     .select(PopularityData::getId, PopularityData::getDataId, PopularityData::getOriginalValue)
                     .list();
-            List<PopularityData> redisDataList = redisUtil.zGet(StrixRedisKeyConst.HASH_POPULARITY_DATA_PREFIX + key).stream()
-                    .map(typedTuple -> {
-                        if (typedTuple == null || typedTuple.getValue() == null || typedTuple.getScore() == null) {
-                            return null;
-                        }
-                        return new PopularityData()
-                                .setConfigKey(key)
-                                .setDataId(typedTuple.getValue().toString())
-                                .setOriginalValue(typedTuple.getScore().longValue())
-                                .setCreatedByType(OperatorType.SYSTEM)
-                                .setUpdatedByType(OperatorType.SYSTEM);
-                    }).toList();
+            Set<ZSetOperations.TypedTuple<Object>> redisSet = redisUtil.zGet(StrixRedisKeyConst.HASH_POPULARITY_DATA_PREFIX + key);
+            List<PopularityData> redisDataList = (redisSet != null ? redisSet.stream() : Stream.<ZSetOperations.TypedTuple<Object>>empty())
+                    .filter(typedTuple -> typedTuple != null && typedTuple.getValue() != null && typedTuple.getScore() != null)
+                    .map(typedTuple -> new PopularityData()
+                            .setConfigKey(key)
+                            .setDataId(typedTuple.getValue().toString())
+                            .setOriginalValue(typedTuple.getScore().longValue())
+                            .setCreatedByType(OperatorType.SYSTEM)
+                            .setUpdatedByType(OperatorType.SYSTEM)
+                    ).toList();
             // 用 Map 索引 db 数据，将差异处理从 O(n²) 降为 O(n+m)
             Map<String, String> dbDataIdMap = dbDataList.stream()
                     .collect(Collectors.toMap(PopularityData::getDataId, PopularityData::getId));
             // 数据差异处理
             addDataList.addAll(
                     redisDataList.stream()
-                            .filter(Objects::nonNull)
                             .filter(redisData -> !dbDataIdMap.containsKey(redisData.getDataId()))
                             .toList()
             );
             updateDataList.addAll(
                     redisDataList.stream()
-                            .filter(Objects::nonNull)
                             .filter(redisData -> dbDataIdMap.containsKey(redisData.getDataId()))
                             .peek(data -> data.setId(dbDataIdMap.get(data.getDataId())))
                             .toList()
