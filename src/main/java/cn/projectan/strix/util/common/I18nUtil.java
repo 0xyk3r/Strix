@@ -22,19 +22,24 @@ import java.util.Locale;
 @Component
 public class I18nUtil {
 
+    private static final Locale FALLBACK_LOCALE = Locale.CHINA;
+
     @Value("${spring.messages.basename}")
     private String basename;
-
-    private static String[] paths;
 
     private static String defaultLocale;
 
     private static StrixLocaleResolver resolver;
 
+    private static ReloadableResourceBundleMessageSource messageSource;
+
     @PostConstruct
     public void init() {
-        setBasename(basename);
-        log.info("Strix I18n: 初始化完成, 当前语言为: {}.", defaultLocale);
+        messageSource = new ReloadableResourceBundleMessageSource();
+        messageSource.setDefaultEncoding(StandardCharsets.UTF_8.toString());
+        messageSource.setFallbackToSystemLocale(false);
+        messageSource.setBasenames(StringUtils.commaDelimitedListToStringArray(StringUtils.trimAllWhitespace(basename)));
+        log.info("Strix I18n: 初始化完成, 当前默认语言为: {}.", defaultLocale);
     }
 
     /**
@@ -60,10 +65,6 @@ public class I18nUtil {
     }
 
     public static String get(String code, Object[] args, String defaultMessage, Locale locale) {
-        ReloadableResourceBundleMessageSource messageSource = new ReloadableResourceBundleMessageSource();
-        messageSource.setDefaultEncoding(StandardCharsets.UTF_8.toString());
-        messageSource.setFallbackToSystemLocale(false);
-        messageSource.setBasenames(paths);
         String content;
         try {
             content = messageSource.getMessage(code, args, locale);
@@ -72,10 +73,6 @@ public class I18nUtil {
             content = defaultMessage;
         }
         return content;
-    }
-
-    public static void setBasename(String basename) {
-        I18nUtil.paths = StringUtils.commaDelimitedListToStringArray(StringUtils.trimAllWhitespace(basename));
     }
 
     @Value("${strix.default-locale:zh_CN}")
@@ -90,6 +87,10 @@ public class I18nUtil {
 
     public static Locale convertLocale(String locale) {
         if (!StringUtils.hasText(locale)) {
+            // defaultLocale 也为空时使用 FALLBACK_LOCALE 避免无限递归
+            if (!StringUtils.hasText(defaultLocale)) {
+                return FALLBACK_LOCALE;
+            }
             return convertLocale(defaultLocale);
         }
         try {
@@ -100,7 +101,8 @@ public class I18nUtil {
                     .build();
         } catch (Exception ignore) {
             log.warn("无法解析语言参数：{}，将使用默认语言：{}.", locale, defaultLocale);
-            return convertLocale(defaultLocale);
+            // 解析失败时直接返回 FALLBACK_LOCALE 避免无限递归
+            return FALLBACK_LOCALE;
         }
     }
 

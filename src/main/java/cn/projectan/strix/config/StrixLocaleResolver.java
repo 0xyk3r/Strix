@@ -6,8 +6,7 @@ import jakarta.annotation.Nonnull;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.LocaleResolver;
 
 import java.util.Locale;
@@ -15,20 +14,18 @@ import java.util.Optional;
 
 /**
  * Strix I18n 语言解析器
+ * <p>
+ * 通过 {@code @Component("localeResolver")} 注册为 Spring MVC 的 LocaleResolver Bean,
+ * DispatcherServlet 会自动按名称 "localeResolver" 查找并使用此 Bean.
  *
  * @author ProjectAn
  * @since 2023/4/17 12:22
  */
-@Configuration
+@Component("localeResolver")
 public class StrixLocaleResolver implements LocaleResolver {
 
     @Value("${strix.default-locale:zh_CN}")
     private String defaultLocale;
-
-    @Bean
-    public LocaleResolver localeResolver() {
-        return new StrixLocaleResolver();
-    }
 
     public Locale getLocal() {
         return resolveLocale(ServletUtils.getRequest());

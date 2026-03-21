@@ -16,8 +16,8 @@ import lombok.Data;
 @Data
 public class SystemUserUpdateReq {
 
-    @NotEmpty(groups = {InsertGroup.class, UpdateGroup.class}, message = "{user_name_not_empty}")
-    @Size(groups = {InsertGroup.class, UpdateGroup.class}, min = 2, max = 16, message = "{user_name_length_error}")
+    @NotEmpty(groups = {InsertGroup.class, UpdateGroup.class}, message = "用户昵称不可为空")
+    @Size(groups = {InsertGroup.class, UpdateGroup.class}, min = 2, max = 16, message = "用户昵称长度不符合要求")
     @UpdateField
     private String nickname;
 
