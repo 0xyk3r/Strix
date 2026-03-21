@@ -3,9 +3,9 @@ package cn.projectan.strix.core.captcha;
 
 import cn.hutool.crypto.digest.DigestUtil;
 import cn.projectan.strix.core.captcha.impl.CaptchaServiceFactory;
-import cn.projectan.strix.core.captcha.util.StrixCaptchaAESUtil;
 import cn.projectan.strix.core.captcha.util.StrixCaptchaCacheUtil;
 import cn.projectan.strix.core.captcha.util.StrixCaptchaImageUtils;
+import cn.projectan.strix.core.captcha.util.StrixCaptchaSM4Util;
 import cn.projectan.strix.core.ret.RetBuilder;
 import cn.projectan.strix.core.ret.RetCode;
 import cn.projectan.strix.core.ret.RetResult;
@@ -156,14 +156,14 @@ public abstract class AbstractCaptchaService implements CaptchaService {
     }
 
     /**
-     * 解密前端坐标aes加密
+     * 解密前端坐标加密数据
      *
-     * @param point 前端坐标
-     * @return 解密后的坐标
-     * @throws Exception 异常
+     * @param point 前端坐标（hex 密文）
+     * @param key   hex 格式密钥
+     * @return 解密后的坐标 JSON
      */
-    public static String decrypt(String point, String key) throws Exception {
-        return StrixCaptchaAESUtil.aesDecrypt(point, key);
+    public static String decrypt(String point, String key) {
+        return StrixCaptchaSM4Util.decrypt(point, key);
     }
 
 }

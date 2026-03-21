@@ -2,9 +2,9 @@ package cn.projectan.strix.core.captcha.impl;
 
 
 import cn.projectan.strix.core.captcha.AbstractCaptchaService;
-import cn.projectan.strix.core.captcha.util.StrixCaptchaAESUtil;
 import cn.projectan.strix.core.captcha.util.StrixCaptchaImageUtils;
 import cn.projectan.strix.core.captcha.util.StrixCaptchaRandomUtils;
+import cn.projectan.strix.core.captcha.util.StrixCaptchaSM4Util;
 import cn.projectan.strix.core.ret.RetBuilder;
 import cn.projectan.strix.core.ret.RetCode;
 import cn.projectan.strix.core.ret.RetResult;
@@ -120,9 +120,9 @@ public class BlockPuzzleCaptchaServiceImpl extends AbstractCaptchaService {
         String secretKey = point.getSecretKey();
         String value;
         try {
-            value = StrixCaptchaAESUtil.aesEncrypt(captchaDataVO.getToken().concat("---").concat(pointJson), secretKey);
+            value = StrixCaptchaSM4Util.encrypt(captchaDataVO.getToken().concat("---").concat(pointJson), secretKey);
         } catch (Exception e) {
-            log.error("Strix Captcha: AES加密失败", e);
+            log.error("Strix Captcha: SM4加密失败", e);
             afterValidateFail(captchaDataVO);
             return RetBuilder.error(RetCode.BAD_REQUEST, "验证码处理失败");
         }
@@ -285,7 +285,7 @@ public class BlockPuzzleCaptchaServiceImpl extends AbstractCaptchaService {
         }
         String key = null;
         if (captchaAesStatus) {
-            key = StrixCaptchaAESUtil.getKey();
+            key = StrixCaptchaSM4Util.getKey();
         }
         return new CaptchaPointVO(key, x, y);
     }
