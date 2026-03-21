@@ -27,10 +27,11 @@
                 <pattern>%d{yyyy-MM-dd HH:mm:ss} %-5level [%15.15thread{15}] %-50.50logger{50} : %msg%n</pattern>
                 <charset>UTF-8</charset>
             </encoder>
-            <!-- 滚动策略：每天滚动生成 -->
-            <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-                <!-- 文件保存路径 -->
-                <fileNamePattern>logs\strix\info.%d.log</fileNamePattern>
+            <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+                <fileNamePattern>logs/strix/info.%d.%i.log</fileNamePattern>
+                <maxFileSize>100MB</maxFileSize>
+                <maxHistory>30</maxHistory>
+                <totalSizeCap>2GB</totalSizeCap>
             </rollingPolicy>
         </appender>
         <!-- 输出错误信息到日志文件 -->
@@ -42,10 +43,11 @@
                 <pattern>%d{yyyy-MM-dd HH:mm:ss} %-5level [%15.15thread{15}] %-50.50logger{50} : %msg%n</pattern>
                 <charset>UTF-8</charset>
             </encoder>
-            <!-- 滚动策略：每天滚动生成 -->
-            <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-                <!-- 文件保存路径 -->
-                <fileNamePattern>logs\strix\error.%d.log</fileNamePattern>
+            <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+                <fileNamePattern>logs/strix/error.%d.%i.log</fileNamePattern>
+                <maxFileSize>100MB</maxFileSize>
+                <maxHistory>30</maxHistory>
+                <totalSizeCap>1GB</totalSizeCap>
             </rollingPolicy>
         </appender>
 
