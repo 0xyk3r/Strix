@@ -87,7 +87,7 @@ public class SystemMenuController extends BaseSystemController {
         Assert.isTrue("icon".equals(req.getField()), "参数错误");
 
         SystemMenu systemMenu = systemMenuService.getById(menuId);
-        Assert.notNull(systemMenu, "系统人员信息不存在");
+        Assert.notNull(systemMenu, "系统菜单信息不存在");
 
         Assert.isTrue(
                 systemMenuService.lambdaUpdate()

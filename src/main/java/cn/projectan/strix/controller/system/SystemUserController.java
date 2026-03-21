@@ -159,11 +159,11 @@ public class SystemUserController extends BaseSystemController {
     @StrixLog(operationGroup = "系统用户", operationName = "删除用户", operationType = SystemLogOperType.DELETE)
     public RetResult<Object> remove(@PathVariable String userId) {
         SystemUser systemUser = systemUserService.getById(userId);
-        Assert.notNull(systemUser, "系统角色信息不存在");
+        Assert.notNull(systemUser, "系统用户信息不存在");
 
         systemUserService.removeById(systemUser);
 
-        // 删除角色的第三方账号绑定关系
+        // 删除用户的第三方账号绑定关系
         systemUserRelationService.lambdaUpdate()
                 .eq(SystemUserRelation::getSystemUserId, systemUser.getId())
                 .remove();
