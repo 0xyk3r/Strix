@@ -138,12 +138,13 @@ public class SystemController extends BaseSystemController {
     }
 
     /**
-     * 记录登录失败次数
+     * 记录登录失败次数（使用原子递增避免竞态条件）
      */
     private void recordLoginFailure(String failureKey) {
-        Object current = redisUtil.get(failureKey);
-        int count = (current instanceof Number n) ? n.intValue() + 1 : 1;
-        redisUtil.set(failureKey, count, LOGIN_LOCK_MINUTES, TimeUnit.MINUTES);
+        long count = redisUtil.incr(failureKey);
+        if (count == 1) {
+            redisUtil.setExpire(failureKey, LOGIN_LOCK_MINUTES, TimeUnit.MINUTES);
+        }
     }
 
     /**
