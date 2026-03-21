@@ -42,4 +42,9 @@ public interface StrixRedisKeyConst {
      */
     String STR_LOGIN_FAILURE_IP_PREFIX = "strix:login:failure:ip:";
 
+    /**
+     * API 速率限制计数器
+     */
+    public static final String STR_RATE_LIMIT_PREFIX = "strix:ratelimit:";
+
 }

@@ -97,6 +97,11 @@ strix:
   cors:
     allowed-origins:
       - "*"
+  # API 速率限制配置
+  rate-limit:
+    enabled: true
+    default-limit: 600
+    default-window: 60
   # 包扫描路径
   package-scan:
     job:

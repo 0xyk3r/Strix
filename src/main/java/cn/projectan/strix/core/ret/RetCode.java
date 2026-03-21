@@ -14,6 +14,7 @@ public interface RetCode {
     int NOT_PERMISSION = 403;
     int NOT_FOUND = 404;
     int METHOD_ERROR = 405;
+    int TOO_MANY_REQUESTS = 429;
     int SERVER_ERROR = 500;
 
 }
