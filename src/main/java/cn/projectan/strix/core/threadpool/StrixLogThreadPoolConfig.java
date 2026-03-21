@@ -1,18 +1,13 @@
 package cn.projectan.strix.core.threadpool;
 
 import cn.projectan.strix.util.system.ThreadUtil;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.task.support.TaskExecutorAdapter;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
-import java.util.concurrent.Executor;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.*;
 
 /**
  * Strix 日志线程池配置
@@ -32,29 +27,17 @@ public class StrixLogThreadPoolConfig {
 
     @Bean(name = "strixThreadExecutor")
     public Executor strixThreadExecutor() {
-        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(10);
-        executor.setMaxPoolSize(20);
-        executor.setQueueCapacity(1000);
-        executor.setKeepAliveSeconds(300);
-        executor.setThreadNamePrefix("strix-log-executor-");
-        executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
-        return executor;
+        // 日志保存为 I/O 密集型操作（数据库写入），虚拟线程可高效处理大量并发写入且无需调优线程池参数
+        ExecutorService executorService = Executors.newVirtualThreadPerTaskExecutor();
+        return new TaskExecutorAdapter(executorService);
     }
 
     @Bean(name = "strixScheduledExecutor")
-    public Executor strixScheduledExecutor() {
-        return new ScheduledThreadPoolExecutor(50, new ThreadFactory() {
-            private final AtomicInteger counter = new AtomicInteger(0);
-
-            @Override
-            public Thread newThread(@NotNull Runnable r) {
-                Thread thread = new Thread(r);
-                thread.setName("strix-schedule-pool-" + counter.getAndIncrement());
-                thread.setDaemon(true);
-                return thread;
-            }
-        }, new ThreadPoolExecutor.CallerRunsPolicy()) {
+    public ScheduledExecutorService strixScheduledExecutor() {
+        // 调度线程仅负责触发定时任务，2 个线程足够；实际执行可委托给虚拟线程
+        return new ScheduledThreadPoolExecutor(2,
+                Thread.ofPlatform().daemon(true).name("strix-schedule-pool-", 0).factory(),
+                new ThreadPoolExecutor.CallerRunsPolicy()) {
             @Override
             protected void afterExecute(Runnable r, Throwable t) {
                 super.afterExecute(r, t);

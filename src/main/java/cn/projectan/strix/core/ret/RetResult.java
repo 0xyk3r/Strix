@@ -3,6 +3,8 @@ package cn.projectan.strix.core.ret;
 
 import lombok.Data;
 
+import java.io.Serial;
+
 /**
  * 响应信息
  *
@@ -11,6 +13,9 @@ import lombok.Data;
  */
 @Data
 public class RetResult<T> implements java.io.Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     private int code;
     private String msg;

@@ -61,6 +61,26 @@ public class SystemManagerService extends ServiceImpl<SystemManagerMapper, Syste
     }
 
     /**
+     * 根据角色 ID 列表批量获取人员 ID 列表
+     *
+     * @param roleIds 角色 ID 列表
+     * @return 管理人员 ID 列表
+     */
+    public List<String> getManagerIdListByRoleIds(List<String> roleIds) {
+        if (CollectionUtils.isEmpty(roleIds)) {
+            return List.of();
+        }
+        return systemManagerRoleService.lambdaQuery()
+                .select(SystemManagerRole::getSystemManagerId)
+                .in(SystemManagerRole::getSystemRoleId, roleIds)
+                .list()
+                .stream()
+                .map(SystemManagerRole::getSystemManagerId)
+                .distinct()
+                .collect(Collectors.toList());
+    }
+
+    /**
      * 根据人员 ID 获取角色 ID 列表
      *
      * @param managerId 管理人员 ID

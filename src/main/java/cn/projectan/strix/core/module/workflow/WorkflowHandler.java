@@ -10,7 +10,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Strix 工作流处理器
@@ -141,10 +140,7 @@ public class WorkflowHandler {
             return assign.getId();
         } else if (WorkflowPropsAssignType.ROLE.equals(assign.getType())) {
             SystemManagerService systemManagerService = SpringUtil.getBean(SystemManagerService.class);
-            return assign.getId().stream()
-                    .map(systemManagerService::getManagerIdListByRoleId)
-                    .flatMap(List::stream)
-                    .collect(Collectors.toList());
+            return systemManagerService.getManagerIdListByRoleIds(assign.getId());
         }
         // TODO: 将来通过动态参数 {nodeId}:{assign} 获取
         // WorkflowPropsAssignType.SELECT

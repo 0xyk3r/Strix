@@ -60,7 +60,7 @@ public class BlockPuzzleCaptchaServiceImpl extends AbstractCaptchaService {
         BufferedImage originalImage = StrixCaptchaImageUtils.getOriginal();
         if (null == originalImage) {
             log.error("Strix Captcha: 滑动底图未初始化成功，请检查路径");
-            return RetBuilder.error(RetCode.BAT_REQUEST, "验证码底图未初始化");
+            return RetBuilder.error(RetCode.BAD_REQUEST, "验证码底图未初始化");
         }
 
         // 抠图图片
@@ -68,13 +68,13 @@ public class BlockPuzzleCaptchaServiceImpl extends AbstractCaptchaService {
         BufferedImage jigsawImage = StrixCaptchaImageUtils.getBase64StrToImage(jigsawImageBase64);
         if (null == jigsawImage) {
             log.error("Strix Captcha: 滑动底图未初始化成功，请检查路径");
-            return RetBuilder.error(RetCode.BAT_REQUEST, "验证码底图未初始化");
+            return RetBuilder.error(RetCode.BAD_REQUEST, "验证码底图未初始化");
         }
         GetCaptchaResp captcha = pictureTemplatesCut(originalImage, jigsawImage, jigsawImageBase64);
         if (captcha == null
                 || !StringUtils.hasText(captcha.getJigsawImageBase64())
                 || !StringUtils.hasText(captcha.getOriginalImageBase64())) {
-            return RetBuilder.error(RetCode.BAT_REQUEST, "验证码生成失败");
+            return RetBuilder.error(RetCode.BAD_REQUEST, "验证码生成失败");
         }
         return RetBuilder.success(captcha);
     }
@@ -88,7 +88,7 @@ public class BlockPuzzleCaptchaServiceImpl extends AbstractCaptchaService {
         // 取坐标信息
         String codeKey = String.format(REDIS_CAPTCHA_KEY, captchaDataVO.getToken());
         if (!CaptchaServiceFactory.getCache(cacheType).exists(codeKey)) {
-            return RetBuilder.error(RetCode.BAT_REQUEST, "验证码已失效，请重新获取");
+            return RetBuilder.error(RetCode.BAD_REQUEST, "验证码已失效，请重新获取");
         }
         String s = CaptchaServiceFactory.getCache(cacheType).get(codeKey);
         // 验证码只用一次，即刻失效
@@ -104,17 +104,17 @@ public class BlockPuzzleCaptchaServiceImpl extends AbstractCaptchaService {
         } catch (Exception e) {
             log.error("Strix Captcha: 验证码坐标解析失败", e);
             afterValidateFail(captchaDataVO);
-            return RetBuilder.error(RetCode.BAT_REQUEST, "验证码解析失败");
+            return RetBuilder.error(RetCode.BAD_REQUEST, "验证码解析失败");
         }
         if (point1 == null) {
             afterValidateFail(captchaDataVO);
-            return RetBuilder.error(RetCode.BAT_REQUEST, "验证码错误");
+            return RetBuilder.error(RetCode.BAD_REQUEST, "验证码错误");
         }
         if (point.getX() - Integer.parseInt(slipOffset) > point1.getX()
                 || point1.getX() > point.getX() + Integer.parseInt(slipOffset)
                 || point.getY() != point1.getY()) {
             afterValidateFail(captchaDataVO);
-            return RetBuilder.error(RetCode.BAT_REQUEST, "验证码错误");
+            return RetBuilder.error(RetCode.BAD_REQUEST, "验证码错误");
         }
         // 校验成功，将信息存入缓存
         String secretKey = point.getSecretKey();
@@ -124,7 +124,7 @@ public class BlockPuzzleCaptchaServiceImpl extends AbstractCaptchaService {
         } catch (Exception e) {
             log.error("Strix Captcha: AES加密失败", e);
             afterValidateFail(captchaDataVO);
-            return RetBuilder.error(RetCode.BAT_REQUEST, "验证码处理失败");
+            return RetBuilder.error(RetCode.BAD_REQUEST, "验证码处理失败");
         }
         String secondKey = String.format(REDIS_SECOND_CAPTCHA_KEY, value);
         CaptchaServiceFactory.getCache(cacheType).set(secondKey, captchaDataVO.getToken(), EXPIRES_THREE);
@@ -144,13 +144,13 @@ public class BlockPuzzleCaptchaServiceImpl extends AbstractCaptchaService {
         try {
             String codeKey = String.format(REDIS_SECOND_CAPTCHA_KEY, captchaDataVO.getCaptchaVerification());
             if (!CaptchaServiceFactory.getCache(cacheType).exists(codeKey)) {
-                return RetBuilder.error(RetCode.BAT_REQUEST, "验证码已失效，请重新获取");
+                return RetBuilder.error(RetCode.BAD_REQUEST, "验证码已失效，请重新获取");
             }
             // 二次校验取值后，即刻失效
             CaptchaServiceFactory.getCache(cacheType).delete(codeKey);
         } catch (Exception e) {
             log.error("Strix Captcha: 验证码坐标解析失败", e);
-            return RetBuilder.error(RetCode.BAT_REQUEST, "验证码解析失败");
+            return RetBuilder.error(RetCode.BAD_REQUEST, "验证码解析失败");
         }
         return RetBuilder.success();
     }

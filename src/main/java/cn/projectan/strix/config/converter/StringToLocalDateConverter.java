@@ -25,9 +25,8 @@ public class StringToLocalDateConverter implements Converter<String, LocalDate> 
         try {
             return LocalDate.parse(source, formatter);
         } catch (Exception e) {
-            log.warn("Date Convert Error", e);
+            throw new IllegalArgumentException("Invalid LocalDate format, expected 'yyyy-MM-dd': " + source, e);
         }
-        return null;
     }
 
 }

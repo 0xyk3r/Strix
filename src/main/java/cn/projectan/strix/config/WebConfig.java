@@ -20,10 +20,10 @@ import java.util.concurrent.Executor;
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
-    private final Executor mvnAsyncExecutor;
+    private final Executor mvcAsyncExecutor;
 
-    public WebConfig(@Qualifier("mvnAsyncExecutor") Executor mvnAsyncExecutor) {
-        this.mvnAsyncExecutor = mvnAsyncExecutor;
+    public WebConfig(@Qualifier("mvcAsyncExecutor") Executor mvcAsyncExecutor) {
+        this.mvcAsyncExecutor = mvcAsyncExecutor;
     }
 
     @Override
@@ -38,7 +38,7 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void configureAsyncSupport(AsyncSupportConfigurer configurer) {
         configurer.setDefaultTimeout(300_000L);
-        configurer.setTaskExecutor(new TaskExecutorAdapter(mvnAsyncExecutor));
+        configurer.setTaskExecutor(new TaskExecutorAdapter(mvcAsyncExecutor));
     }
 
     @Override

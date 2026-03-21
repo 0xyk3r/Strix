@@ -67,7 +67,7 @@ public class EncodeResponseBodyAdvice implements ResponseBodyAdvice<Object> {
             return apiSecurity.encrypt(body);
         } catch (Exception e) {
             try {
-                RetResult<Object> errorResponse = RetBuilder.error(RetCode.BAT_REQUEST, "响应封装时发生异常");
+                RetResult<Object> errorResponse = RetBuilder.error(RetCode.BAD_REQUEST, "响应封装时发生异常");
                 return apiSecurity.encrypt(errorResponse);
             } catch (Exception exception) {
                 return "An exception occurred in the API server !";

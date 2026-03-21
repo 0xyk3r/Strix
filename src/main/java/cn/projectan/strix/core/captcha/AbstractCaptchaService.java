@@ -113,10 +113,10 @@ public abstract class AbstractCaptchaService implements CaptchaService {
     @Override
     public RetResult<Void> verification(CaptchaDataVO captchaDataVO) {
         if (captchaDataVO == null) {
-            return RetBuilder.error(RetCode.BAT_REQUEST, "captchaVO不能为空");
+            return RetBuilder.error(RetCode.BAD_REQUEST, "captchaVO不能为空");
         }
         if (!StringUtils.hasText(captchaDataVO.getCaptchaVerification())) {
-            return RetBuilder.error(RetCode.BAT_REQUEST, "captchaVerification不能为空");
+            return RetBuilder.error(RetCode.BAD_REQUEST, "captchaVerification不能为空");
         }
         if (limitHandler != null) {
             RetResult<?> r = limitHandler.validateVerify(captchaDataVO);
@@ -149,7 +149,7 @@ public abstract class AbstractCaptchaService implements CaptchaService {
             String fails = String.format(FrequencyLimitHandler.LIMIT_KEY, "FAIL", data.getClientUid());
             CaptchaCacheService cs = getCacheService(cacheType);
             if (!cs.exists(fails)) {
-                cs.set(fails, "1", 60);
+                cs.set(fails, "0", 60);
             }
             cs.increment(fails, 1);
         }
