@@ -37,4 +37,9 @@ public interface StrixRedisKeyConst {
      */
     String HASH_OPERATOR_INFO_PREFIX = "strix:operator-info::";
 
+    /**
+     * 登录失败次数计数器（按 IP）
+     */
+    String STR_LOGIN_FAILURE_IP_PREFIX = "strix:login:failure:ip:";
+
 }

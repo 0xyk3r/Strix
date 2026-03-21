@@ -12,6 +12,7 @@ import cn.projectan.strix.model.annotation.Anonymous;
 import cn.projectan.strix.model.annotation.IgnoreEncryption;
 import cn.projectan.strix.model.annotation.StrixLog;
 import cn.projectan.strix.model.constant.system.LoginRedisKeys;
+import cn.projectan.strix.model.constant.system.StrixRedisKeyConst;
 import cn.projectan.strix.model.db.system.SystemManager;
 import cn.projectan.strix.model.db.system.SystemMenu;
 import cn.projectan.strix.model.dict.system.SystemLogOperType;
@@ -24,6 +25,8 @@ import cn.projectan.strix.service.system.SystemManagerService;
 import cn.projectan.strix.service.system.SystemMenuService;
 import cn.projectan.strix.util.common.RedisUtil;
 import cn.projectan.strix.util.common.SpringUtil;
+import cn.projectan.strix.util.http.ServletUtils;
+import cn.projectan.strix.util.ip.IpUtils;
 import cn.projectan.strix.util.system.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -60,6 +63,16 @@ public class SystemController extends BaseSystemController {
     private final RedisUtil redisUtil;
 
     /**
+     * 登录失败最大尝试次数
+     */
+    private static final int MAX_LOGIN_FAILURES = 5;
+
+    /**
+     * 登录锁定时间（分钟）
+     */
+    private static final long LOGIN_LOCK_MINUTES = 30;
+
+    /**
      * 系统登录
      */
     @Anonymous
@@ -73,12 +86,29 @@ public class SystemController extends BaseSystemController {
         RetResult<Void> captchaResult = captchaService.verification(captchaDataVO);
         Assert.isTrue(captchaResult.getCode() == RetCode.SUCCESS, "行为验证不通过，请重新验证");
 
+        // 基于客户端 IP 的登录失败次数限制
+        String clientIp = IpUtils.getIpAddr(ServletUtils.getRequest());
+        String failureKey = StrixRedisKeyConst.STR_LOGIN_FAILURE_IP_PREFIX + clientIp;
+        Object failureCountObj = redisUtil.get(failureKey);
+        if (failureCountObj instanceof Number failureCount && failureCount.intValue() >= MAX_LOGIN_FAILURES) {
+            long remainSeconds = redisUtil.getExpire(failureKey);
+            long remainMinutes = Math.max(1, remainSeconds / 60);
+            return RetBuilder.build(RetCode.BAD_REQUEST, "登录失败次数过多，请 " + remainMinutes + " 分钟后再试");
+        }
+
         SystemManager systemManager = systemManagerService.lambdaQuery()
                 .eq(SystemManager::getLoginName, req.getLoginName())
                 .one();
-        Assert.notNull(systemManager, "账号或密码错误");
-        Assert.isTrue(systemManager.getLoginPassword().equals(req.getLoginPassword()), "账号或密码错误");
+
+        if (systemManager == null || systemManager.getLoginPassword().equals(req.getLoginPassword())) {
+            recordLoginFailure(failureKey);
+            return RetBuilder.build(RetCode.BAD_REQUEST, "账号或密码错误");
+        }
+
         Assert.isTrue(systemManager.getStatus() == SystemManagerStatus.NORMAL, "该管理用户已停用");
+
+        // 登录成功，清除失败计数
+        redisUtil.del(failureKey);
 
         // 检查是否支持多点登录
         Boolean supportMultipleLogin = systemConfigCache.getBoolean("SYSTEM_MANAGER_SUPPORT_MULTIPLE_LOGIN", false);
@@ -111,6 +141,15 @@ public class SystemController extends BaseSystemController {
                         token,
                         LocalDateTime.now().plusMinutes(tokenTTL)
                 ));
+    }
+
+    /**
+     * 记录登录失败次数
+     */
+    private void recordLoginFailure(String failureKey) {
+        Object current = redisUtil.get(failureKey);
+        int count = (current instanceof Number n) ? n.intValue() + 1 : 1;
+        redisUtil.set(failureKey, count, LOGIN_LOCK_MINUTES, TimeUnit.MINUTES);
     }
 
     /**

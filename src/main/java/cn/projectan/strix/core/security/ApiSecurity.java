@@ -1,66 +1,91 @@
 package cn.projectan.strix.core.security;
 
 import cn.hutool.crypto.SecureUtil;
+import cn.hutool.crypto.SmUtil;
 import cn.hutool.crypto.asymmetric.KeyType;
-import cn.hutool.crypto.asymmetric.RSA;
-import cn.hutool.crypto.symmetric.AES;
-import cn.hutool.crypto.symmetric.SymmetricAlgorithm;
+import cn.hutool.crypto.asymmetric.SM2;
+import cn.hutool.crypto.symmetric.SM4;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 
 import java.nio.charset.StandardCharsets;
+import java.security.Security;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * api加解密工具，服务端使用
+ * <p>
+ * 使用国密 SM2 + SM4 算法
+ * SM2 用于加密传输 SM4 对称密钥，SM4 用于加密实际数据。
+ * </p>
  *
  * @author ProjectAn
- * @since 2021/5/2 18:10
+ * @since 2025/3/20 22:00
  */
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class ApiSecurity {
 
     private final ObjectMapper objectMapper;
 
-    public static final String AES_IV = "fuCkUCrAck32fUcK";
-
-    /**
-     * 服务端 <- 客户端 用 服务端私钥解密
-     */
-    public static final String SERVER_RSA_PRIVATE_KEY = "MIICdgIBADANBgkqhkiG9w0BAQEFAASCAmAwggJcAgEAAoGBAIheOlLkdI54Bq6qL/eP1HhfuVst8KWj4JI7TIOwZ1OxYeCmMTyX3p2qw1rLvFIo0Mq8kIMh31oshGFRVQO5X5p3qDeM0pbTLCIUdehsw+6wNLwlpvXxATQ38kMLOH7kx6NBv5xzBa9Zw7Bcl6+B6YyqlderaukB/CKCX6xjGLwHAgMBAAECgYAq0gPYcZpT/kaC5DfpscVTAyPuCK/vI1VqNaqiE2tusV19sFH3p+ykb7GmOiFpXx2o+6sZMjKzWxU6hdJ/N99X52DhPbt6bEwyAAQ5mpzW18H9+ABvZWpn5/LSj2xj/sAcDXZnSje/wXXDaSF/GZ39S/c7v8M6vgqdrk1K+CCxuQJBAOFXGjByc1lQg9nw4d0Uq2EU4q7ORIaNUUA14PhS40qgze6CPn2/+fS/s119ChUOy6XXJl3ss4SaQYjZeOSh2sUCQQCa7BuTBwFIFznpL1tkBxH9ckEpvTiKHVakQVvjXWLWWM6DcEL34loImxWg9digVF3/bS19bJAcXy7MrcgLr5hbAkAT55rDnsh7ojYTYUjCO5or2Clx4XyCGieMMXYu2TuEkxG9uLmGaBfPO8O/RVVHqOfqPUgBUfBFjU6upO8d2wI1AkEAkcnI9SZtbVL2G1uGbG4+3rvrWIUJtOeBBle/SgoynbW6uXQmgTFQOrL+updAQTjDsEAkw9grEZf86X5MN7sJ6wJAXBhG3chA4B6DVYbbs2+zpfIMYKd+s5kFzIVNVXlLaUrFkEwRlK56QHk+y63RpeUfAAueD4DxKu5wAV2sh5AxDQ==";
-
-    /**
-     * 服务端 -> 客户端 用 客户端公钥加密
-     */
-    public static final String CLIENT_RSA_PUBLIC_KEY = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDQaa7otph2RulrycblmrQ6zCIVHnGqaQDBdIdyKH034rDEINdR9YbHwzpu+aipUz4MCGugYi9VV53TuIYP6uyAq8YzjiMOHEVn07AsXqXgPkWJYdWTCGCQlr5jhFPj2Pxf0g208jKyfDk7LhCdPHiyMJ1l8G4t5lBF5AJhWqN1+wIDAQAB";
-
-    public ApiSecurity(ObjectMapper objectMapper) {
-        this.objectMapper = objectMapper;
+    static {
+        if (Security.getProvider(BouncyCastleProvider.PROVIDER_NAME) == null) {
+            Security.addProvider(new BouncyCastleProvider());
+        }
     }
 
+    /**
+     * 服务端 SM2 私钥（用于解密客户端发来的数据）
+     */
+    public static final String SERVER_SM2_PRIVATE_KEY = "0b416a279ba883e97a9b3c02f8897a431102de7a8f196ab9421bf5b925c0b06b";
+
+    /**
+     * 客户端 SM2 公钥（用于加密发给客户端的数据）
+     */
+    public static final String CLIENT_SM2_PUBLIC_KEY = "04f21a55780355bf48a7227925dceb83695ba5b6287f2d31334b5166a69afa4e760b27c3c44220176e703b16c9ccd6b0741c43625fdf8087f378878330529847a7";
+
+    /**
+     * 加密响应数据（服务端 -> 客户端）
+     * <p>
+     * 1. 生成随机 SM4 密钥和 IV
+     * 2. 使用客户端 SM2 公钥加密 SM4 密钥
+     * 3. 使用 SM4/CBC 加密实际数据
+     * 4. 返回 {sign, data, iv}
+     * </p>
+     */
     public Object encrypt(Object body) {
         try {
             String result = objectMapper.writeValueAsString(body);
-            // 生成随机AES秘钥
-            byte[] aesKeyBase64 = SecureUtil.generateKey(SymmetricAlgorithm.AES.getValue()).getEncoded();
-            String aesKey = Base64.getEncoder().encodeToString(aesKeyBase64);
-            // 对AES秘钥使用RSA公钥加密
-            RSA rsa = new RSA(null, ApiSecurity.CLIENT_RSA_PUBLIC_KEY);
-            byte[] encryptedByte = rsa.encrypt(aesKey, KeyType.PublicKey);
-            String encrypted = Base64.getEncoder().encodeToString(encryptedByte);
-            // 使用AES秘钥对实际数据进行加密
-            AES aes = new AES("CBC", "PKCS7Padding", aesKey.getBytes(StandardCharsets.UTF_8), AES_IV.getBytes(StandardCharsets.UTF_8));
-            String data = aes.encryptHex(result, StandardCharsets.UTF_8);
-            // 组装返回
+
+            // 生成随机 SM4 密钥（16 字节）
+            byte[] sm4KeyBytes = SecureUtil.generateKey("SM4").getEncoded();
+            String sm4KeyBase64 = Base64.getEncoder().encodeToString(sm4KeyBytes);
+
+            // 生成随机 IV（16 字节）
+            byte[] ivBytes = SecureUtil.generateKey("SM4").getEncoded();
+            String ivBase64 = Base64.getEncoder().encodeToString(ivBytes);
+
+            // 使用客户端 SM2 公钥加密 SM4 密钥
+            SM2 sm2 = SmUtil.sm2(null, CLIENT_SM2_PUBLIC_KEY);
+            byte[] encryptedKey = sm2.encrypt(sm4KeyBase64.getBytes(StandardCharsets.UTF_8), KeyType.PublicKey);
+            String sign = Base64.getEncoder().encodeToString(encryptedKey);
+
+            // 使用 SM4/CBC 加密数据
+            SM4 sm4 = new SM4(cn.hutool.crypto.Mode.CBC, cn.hutool.crypto.Padding.PKCS5Padding, sm4KeyBytes, ivBytes);
+            String data = sm4.encryptHex(result, StandardCharsets.UTF_8);
+
             Map<String, String> map = new HashMap<>();
-            map.put("sign", encrypted);
+            map.put("sign", sign);
             map.put("data", data);
+            map.put("iv", ivBase64);
             return map;
         } catch (Exception e) {
             log.error("加密数据时出现异常：{}", e.getMessage(), e);
@@ -68,22 +93,32 @@ public class ApiSecurity {
         }
     }
 
+    /**
+     * 解密请求数据（客户端 -> 服务端）
+     * <p>
+     * 1. 使用服务端 SM2 私钥解密出 SM4 密钥
+     * 2. 使用 SM4/CBC 解密实际数据
+     * </p>
+     */
     public String decrypt(String body) {
         String content = null;
         try {
             Map<String, String> map = objectMapper.readValue(body, new TypeReference<>() {
             });
-            // 从请求结果中获取加密数据和加密签名
             String data = map.get("data");
             String sign = map.get("sign");
+            String iv = map.get("iv");
 
-            if (StringUtils.hasText(data) && StringUtils.hasText(sign)) {
-                // 使用RSA私钥解密出加密的AES秘钥
-                RSA rsa = new RSA(ApiSecurity.SERVER_RSA_PRIVATE_KEY, null);
-                byte[] decrypt = rsa.decrypt(Base64.getDecoder().decode(sign), KeyType.PrivateKey);
-                // 使用AES秘钥对实际数据进行解密
-                AES aes = new AES("CBC", "PKCS7Padding", decrypt, ApiSecurity.AES_IV.getBytes(StandardCharsets.UTF_8));
-                content = aes.decryptStr(data, StandardCharsets.UTF_8);
+            if (StringUtils.hasText(data) && StringUtils.hasText(sign) && StringUtils.hasText(iv)) {
+                // 使用服务端 SM2 私钥解密出 SM4 密钥
+                SM2 sm2 = SmUtil.sm2(SERVER_SM2_PRIVATE_KEY, null);
+                byte[] sm4KeyBase64Bytes = sm2.decrypt(Base64.getDecoder().decode(sign), KeyType.PrivateKey);
+                byte[] sm4KeyBytes = Base64.getDecoder().decode(sm4KeyBase64Bytes);
+                byte[] ivBytes = Base64.getDecoder().decode(iv);
+
+                // 使用 SM4/CBC 解密数据
+                SM4 sm4 = new SM4(cn.hutool.crypto.Mode.CBC, cn.hutool.crypto.Padding.PKCS5Padding, sm4KeyBytes, ivBytes);
+                content = sm4.decryptStr(data, StandardCharsets.UTF_8);
             }
         } catch (Exception e) {
             log.error("解密数据时出现异常：{}", body, e);

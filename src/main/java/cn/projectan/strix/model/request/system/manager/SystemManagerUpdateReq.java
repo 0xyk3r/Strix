@@ -1,6 +1,7 @@
 package cn.projectan.strix.model.request.system.manager;
 
 import cn.projectan.strix.core.validation.annotation.DynamicDictValue;
+import cn.projectan.strix.core.validation.annotation.PasswordComplexity;
 import cn.projectan.strix.core.validation.group.InsertGroup;
 import cn.projectan.strix.core.validation.group.UpdateGroup;
 import cn.projectan.strix.model.annotation.UpdateField;
@@ -36,7 +37,8 @@ public class SystemManagerUpdateReq {
      * 登录密码
      */
     @NotEmpty(groups = {InsertGroup.class}, message = "管理人员登录密码不可为空")
-    @Size(groups = {InsertGroup.class, UpdateGroup.class}, min = 4, max = 20, message = "管理人员登录密码长度不符合要求")
+    @Size(groups = {InsertGroup.class, UpdateGroup.class}, min = 8, max = 32, message = "管理人员登录密码长度不符合要求（8-32位）")
+    @PasswordComplexity(groups = {InsertGroup.class, UpdateGroup.class})
     @UpdateField
     private String loginPassword;
 

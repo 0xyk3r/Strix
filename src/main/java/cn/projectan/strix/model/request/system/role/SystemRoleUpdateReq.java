@@ -21,7 +21,7 @@ public class SystemRoleUpdateReq {
      * 角色名称
      */
     @NotEmpty(groups = {InsertGroup.class, UpdateGroup.class}, message = "角色名称不可为空")
-    @Size(groups = {InsertGroup.class, UpdateGroup.class}, min = 2, max = 12, message = "角色名称长度不符合要求")
+    @Size(groups = {InsertGroup.class, UpdateGroup.class}, min = 2, max = 16, message = "角色名称长度不符合要求")
     @UpdateField
     private String name;
 
