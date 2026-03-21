@@ -6,9 +6,7 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -22,18 +20,20 @@ public class SystemMenuResp {
     private final List<SystemMenuItem> menuList = new ArrayList<>();
 
     public SystemMenuResp(List<SystemMenu> menus) {
-        for (SystemMenu sm : menus) {
-            if ("0".equals(sm.getParentId())) {
-                SystemMenuItem item = new SystemMenuItem(sm.getId(), sm.getName(), sm.getUrl(), sm.getIcon(), findChildren(menus, sm.getId()));
-                menuList.add(item);
-            }
+        Map<String, List<SystemMenu>> childMenuMap = menus.stream()
+                .collect(Collectors.groupingBy(SystemMenu::getParentId));
+
+        for (SystemMenu sm : childMenuMap.getOrDefault("0", Collections.emptyList())) {
+            SystemMenuItem item = new SystemMenuItem(sm.getId(), sm.getName(), sm.getUrl(), sm.getIcon(), findChildren(childMenuMap, sm.getId()));
+            menuList.add(item);
         }
     }
 
-    private List<SystemMenuItem> findChildren(List<SystemMenu> menus, String id) {
-        return menus.stream().filter(m ->
-                id.equals(m.getParentId())).sorted(Comparator.comparing(SystemMenu::getSortValue)).map(m -> new SystemMenuItem(m.getId(), m.getName(), m.getUrl(), m.getIcon(), findChildren(menus, m.getId()))
-        ).collect(Collectors.toList());
+    private List<SystemMenuItem> findChildren(Map<String, List<SystemMenu>> childMenuMap, String id) {
+        return childMenuMap.getOrDefault(id, Collections.emptyList()).stream()
+                .sorted(Comparator.comparing(SystemMenu::getSortValue))
+                .map(m -> new SystemMenuItem(m.getId(), m.getName(), m.getUrl(), m.getIcon(), findChildren(childMenuMap, m.getId())))
+                .collect(Collectors.toList());
     }
 
     @Data

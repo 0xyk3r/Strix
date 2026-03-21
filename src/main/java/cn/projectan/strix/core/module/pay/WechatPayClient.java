@@ -263,7 +263,6 @@ public class WechatPayClient extends StrixPayClient {
      * @return MediaID
      */
     public String merchantUploadMedia(File file, boolean deleteAfterHandle) {
-        ObjectMapper objectMapper = new ObjectMapper();
         try (FileInputStream is = new FileInputStream(file)) {
             String fileName = file.getName();
             String sha256 = DigestUtil.sha256Hex(is);

@@ -198,9 +198,13 @@ public class SystemManagerService extends ServiceImpl<SystemManagerMapper, Syste
         List<String> regionIds = null;
         if (systemManager.getType() == SystemManagerType.SUPER_ACCOUNT) {
             // 超级账号默认拥有所有权限
-            menus = systemMenuService.list()
+            menus = systemMenuService.lambdaQuery()
+                    .select(SystemMenu::getKey)
+                    .list()
                     .stream().map(SystemMenu::getKey).collect(Collectors.toList());
-            permissions = systemPermissionService.list()
+            permissions = systemPermissionService.lambdaQuery()
+                    .select(SystemPermission::getKey)
+                    .list()
                     .stream().map(SystemPermission::getKey).collect(Collectors.toList());
         } else {
             // 普通账号

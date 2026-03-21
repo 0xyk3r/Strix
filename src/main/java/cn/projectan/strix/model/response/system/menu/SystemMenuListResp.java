@@ -7,9 +7,8 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author ProjectAn
@@ -23,25 +22,27 @@ public class SystemMenuListResp {
 
     public SystemMenuListResp(List<SystemMenu> menus, List<SystemPermission> permissions) {
         if (menus != null && !menus.isEmpty()) {
-            menus.stream()
-                    .filter(m -> "0".equals(m.getParentId()))
+            Map<String, List<SystemMenu>> childMenuMap = menus.stream()
+                    .collect(Collectors.groupingBy(SystemMenu::getParentId));
+            Map<String, List<SystemPermission>> permByMenuId = permissions.stream()
+                    .collect(Collectors.groupingBy(SystemPermission::getMenuId));
+
+            childMenuMap.getOrDefault("0", Collections.emptyList()).stream()
                     .sorted(Comparator.comparing(SystemMenu::getSortValue))
-                    .forEach(m -> systemMenuList.add(new SystemMenuItem("menu", m.getId(), m.getKey(), m.getName(), m.getUrl(), m.getIcon(), m.getSortValue(), findChildren(menus, permissions, m.getId()))));
+                    .forEach(m -> systemMenuList.add(new SystemMenuItem("menu", m.getId(), m.getKey(), m.getName(), m.getUrl(), m.getIcon(), m.getSortValue(), findChildren(childMenuMap, permByMenuId, m.getId()))));
         }
     }
 
-    public List<SystemMenuItem> findChildren(List<SystemMenu> menus, List<SystemPermission> permissions, String id) {
+    private List<SystemMenuItem> findChildren(Map<String, List<SystemMenu>> childMenuMap, Map<String, List<SystemPermission>> permByMenuId, String id) {
         List<SystemMenuItem> children = new ArrayList<>();
 
         // 查找子菜单
-        menus.stream()
-                .filter(m -> id.equals(m.getParentId()))
+        childMenuMap.getOrDefault(id, Collections.emptyList()).stream()
                 .sorted(Comparator.comparing(SystemMenu::getSortValue))
-                .forEach(m -> children.add(new SystemMenuItem("menu", m.getId(), m.getKey(), m.getName(), m.getUrl(), m.getIcon(), m.getSortValue(), findChildren(menus, permissions, m.getId()))));
+                .forEach(m -> children.add(new SystemMenuItem("menu", m.getId(), m.getKey(), m.getName(), m.getUrl(), m.getIcon(), m.getSortValue(), findChildren(childMenuMap, permByMenuId, m.getId()))));
 
         // 查找子权限
-        permissions.stream()
-                .filter(p -> id.equals(p.getMenuId()))
+        permByMenuId.getOrDefault(id, Collections.emptyList())
                 .forEach(p -> children.add(new SystemMenuItem("permission", p.getId(), p.getKey(), p.getName(), null, null, null, null)));
 
         return children;

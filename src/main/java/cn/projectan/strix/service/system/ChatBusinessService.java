@@ -633,7 +633,7 @@ public class ChatBusinessService {
         queryWrapper.eq(ChatSessionMember::getSessionId, sessionId)
                 .eq(ChatSessionMember::getUserId, userId);
 
-        return chatSessionMemberMapper.selectCount(queryWrapper) > 0;
+        return chatSessionMemberMapper.exists(queryWrapper);
     }
 
     /**
