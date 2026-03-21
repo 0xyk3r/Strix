@@ -89,12 +89,7 @@ public class SystemMenuController extends BaseSystemController {
         SystemMenu systemMenu = systemMenuService.getById(menuId);
         Assert.notNull(systemMenu, "系统菜单信息不存在");
 
-        Assert.isTrue(
-                systemMenuService.lambdaUpdate()
-                        .eq(SystemMenu::getId, menuId)
-                        .set(SystemMenu::getIcon, req.getValue())
-                        .update(),
-                "修改失败");
+        Assert.isTrue(systemMenuService.updateIcon(menuId, req.getValue()), "修改失败");
         // 更新缓存
         systemMenuCache.updateRamAndRedis();
 

@@ -37,6 +37,24 @@ public class SystemRoleService extends ServiceImpl<SystemRoleMapper, SystemRole>
     private final SystemManagerRoleService systemManagerRoleService;
 
     /**
+     * 查询全部角色（按创建时间升序）
+     */
+    public List<SystemRole> listAll() {
+        return lambdaQuery()
+                .orderByAsc(SystemRole::getCreatedTime)
+                .list();
+    }
+
+    /**
+     * 查询全部角色（仅 id、name，用于穿梭框）
+     */
+    public List<SystemRole> listForTransfer() {
+        return lambdaQuery()
+                .select(SystemRole::getId, SystemRole::getName)
+                .list();
+    }
+
+    /**
      * 获取下拉框数据 （有缓存）
      *
      * @return 下拉框数据

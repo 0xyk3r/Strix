@@ -8,7 +8,6 @@ import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.core.validation.group.InsertGroup;
 import cn.projectan.strix.core.validation.group.UpdateGroup;
 import cn.projectan.strix.model.annotation.StrixLog;
-import cn.projectan.strix.model.db.system.SystemManager;
 import cn.projectan.strix.model.db.system.SystemRegion;
 import cn.projectan.strix.model.dict.system.SystemLogOperType;
 import cn.projectan.strix.model.request.system.region.SystemRegionListReq;
@@ -26,14 +25,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.Assert;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * 系统地区
@@ -69,23 +65,10 @@ public class SystemRegionController extends BaseSystemController {
         List<String> loginManagerRegionPermissions = loginManagerRegionPermissions();
         int maxRegionLevel = 0;
         if (notSuperManager()) {
-            // 需要获取当前可用的最大地区权限等级
-            maxRegionLevel = systemRegionService.lambdaQuery()
-                    .select(SystemRegion::getLevel)
-                    .in(!CollectionUtils.isEmpty(loginManagerRegionPermissions), SystemRegion::getId, loginManagerRegionPermissions)
-                    .orderByAsc(SystemRegion::getLevel)
-                    .last("limit 1")
-                    .oneOpt()
-                    .map(SystemRegion::getLevel)
-                    .orElse((short) 0);
+            maxRegionLevel = systemRegionService.getMaxRegionLevel(loginManagerRegionPermissions);
         }
 
-        Page<SystemRegion> page = systemRegionService.lambdaQuery()
-                .in(!CollectionUtils.isEmpty(loginManagerRegionPermissions), SystemRegion::getId, loginManagerRegionPermissions)
-                .like(StringUtils.hasText(req.getKeyword()), SystemRegion::getName, req.getKeyword())
-                .eq(notSuperManager() && !StringUtils.hasText(req.getKeyword()), SystemRegion::getLevel, maxRegionLevel)
-                .eq(isSuperManager() && !StringUtils.hasText(req.getKeyword()), SystemRegion::getParentId, SystemRegionService.ROOT_PARENT_ID)
-                .page(req.getPage());
+        Page<SystemRegion> page = systemRegionService.listPage(req, loginManagerRegionPermissions, isSuperManager(), maxRegionLevel);
 
         SystemRegionListResp resp = new SystemRegionListResp(page.getRecords(), page.getTotal());
 
@@ -118,10 +101,7 @@ public class SystemRegionController extends BaseSystemController {
         Assert.notNull(systemRegion, "系统地区信息不存在");
         checkLoginManagerRegionPermission(id);
 
-        List<SystemRegion> childrenList = systemRegionService.lambdaQuery()
-                .eq(SystemRegion::getParentId, systemRegion.getId())
-                .in(!CollectionUtils.isEmpty(loginManagerRegionPermissions), SystemRegion::getId, loginManagerRegionPermissions)
-                .list();
+        List<SystemRegion> childrenList = systemRegionService.listByParentId(systemRegion.getId(), loginManagerRegionPermissions);
 
         return RetBuilder.success(new SystemRegionChildrenListResp(childrenList));
     }
@@ -149,15 +129,7 @@ public class SystemRegionController extends BaseSystemController {
         UniqueChecker.check(systemRegion);
         Assert.isTrue(systemRegionService.save(systemRegion), "保存失败");
 
-        Map<String, String> fullInfo = systemRegionService.getFullInfo(systemRegion.getId());
-        Assert.isTrue(
-                systemRegionService.lambdaUpdate()
-                        .eq(SystemRegion::getId, systemRegion.getId())
-                        .set(SystemRegion::getFullName, fullInfo.get("name"))
-                        .set(SystemRegion::getFullPath, fullInfo.get("path"))
-                        .set(SystemRegion::getLevel, fullInfo.get("level"))
-                        .update()
-                , "处理信息失败");
+        Assert.isTrue(systemRegionService.updateFullInfo(systemRegion.getId()), "处理信息失败");
 
         systemRegionCache.refreshRedisCacheById(systemRegion.getId());
         systemRegionCache.refreshRedisCacheById(systemRegion.getParentId());
@@ -247,21 +219,12 @@ public class SystemRegionController extends BaseSystemController {
         SystemRegion systemRegion = systemRegionService.getById(id);
         Assert.notNull(systemRegion, "系统地区信息不存在");
 
-        List<String> removeIdList = systemRegionService.lambdaQuery()
-                .select(SystemRegion::getId)
-                .likeRight(SystemRegion::getFullPath, systemRegion.getFullPath())
-                .list()
-                .stream()
-                .map(SystemRegion::getId)
-                .collect(Collectors.toList());
+        List<String> removeIdList = systemRegionService.listIdsByFullPath(systemRegion.getFullPath());
 
         // 批量删除
         systemRegionService.removeByIds(removeIdList);
         // 删除管理人员的地区权限关系
-        systemManagerService.lambdaUpdate()
-                .in(SystemManager::getRegionId, removeIdList)
-                .set(SystemManager::getRegionId, null)
-                .update();
+        systemManagerService.clearRegionId(removeIdList);
 
         systemRegionCache.refreshRedisCacheById(systemRegion.getParentId());
 
@@ -283,9 +246,7 @@ public class SystemRegionController extends BaseSystemController {
     @GetMapping("cascader")
     public RetResult<CommonCascaderDataResp> getCascaderData() {
         List<String> loginManagerRegionPermissions = loginManagerRegionPermissions();
-        List<SystemRegion> systemRegionList = systemRegionService.lambdaQuery()
-                .in(!CollectionUtils.isEmpty(loginManagerRegionPermissions), SystemRegion::getId, loginManagerRegionPermissions)
-                .list();
+        List<SystemRegion> systemRegionList = systemRegionService.listByRegionPermissions(loginManagerRegionPermissions);
         return RetBuilder.success(new CommonCascaderDataResp(systemRegionList));
     }
 
@@ -295,9 +256,7 @@ public class SystemRegionController extends BaseSystemController {
     @GetMapping("tree")
     public RetResult<CommonTreeDataResp> getTreeData() {
         List<String> loginManagerRegionPermissions = loginManagerRegionPermissions();
-        List<SystemRegion> systemRegionList = systemRegionService.lambdaQuery()
-                .in(!CollectionUtils.isEmpty(loginManagerRegionPermissions), SystemRegion::getId, loginManagerRegionPermissions)
-                .list();
+        List<SystemRegion> systemRegionList = systemRegionService.listByRegionPermissions(loginManagerRegionPermissions);
         return RetBuilder.success(new CommonTreeDataResp(systemRegionList));
     }
 

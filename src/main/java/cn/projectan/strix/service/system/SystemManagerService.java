@@ -6,9 +6,13 @@ import cn.projectan.strix.model.constant.system.LoginRedisKeys;
 import cn.projectan.strix.model.db.system.*;
 import cn.projectan.strix.model.dict.system.SystemManagerType;
 import cn.projectan.strix.model.dict.system.SystemRoleRegionPermissionType;
+import cn.projectan.strix.model.enums.common.NumCategory;
+import cn.projectan.strix.model.request.system.manager.SystemManagerListReq;
 import cn.projectan.strix.service.base.NameFetcherService;
 import cn.projectan.strix.util.common.RedisUtil;
 import cn.projectan.strix.util.common.SpringUtil;
+import cn.projectan.strix.util.math.NumUtil;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,6 +47,38 @@ public class SystemManagerService extends ServiceImpl<SystemManagerMapper, Syste
     private final SystemManagerRoleService systemManagerRoleService;
     private final SystemRolePermissionService systemRolePermissionService;
     private final RedisUtil redisUtil;
+
+    /**
+     * 根据登录名查询管理人员
+     */
+    public SystemManager getByLoginName(String loginName) {
+        return lambdaQuery()
+                .eq(SystemManager::getLoginName, loginName)
+                .one();
+    }
+
+    /**
+     * 分页查询管理人员列表
+     */
+    public Page<SystemManager> listPage(SystemManagerListReq req, List<String> regionPermissions) {
+        return lambdaQuery()
+                .eq(StringUtils.hasText(req.getKeyword()), SystemManager::getNickname, req.getKeyword())
+                .or(StringUtils.hasText(req.getKeyword()), q -> q.like(SystemManager::getLoginName, req.getKeyword()))
+                .eq(NumUtil.checkCategory(req.getStatus(), NumCategory.NON_NEGATIVE), SystemManager::getStatus, req.getStatus())
+                .eq(NumUtil.checkCategory(req.getType(), NumCategory.POSITIVE), SystemManager::getType, req.getType())
+                .in(!CollectionUtils.isEmpty(regionPermissions), SystemManager::getRegionId, regionPermissions)
+                .orderByAsc(SystemManager::getCreatedTime)
+                .page(req.getPage());
+    }
+
+    /**
+     * 查询全部管理人员（仅 id、nickname，用于穿梭框）
+     */
+    public List<SystemManager> listForTransfer() {
+        return lambdaQuery()
+                .select(SystemManager::getId, SystemManager::getNickname)
+                .list();
+    }
 
     /**
      * 根据角色 ID 获取人员 ID 列表
@@ -284,6 +320,18 @@ public class SystemManagerService extends ServiceImpl<SystemManagerMapper, Syste
         if (!roleIdList.isEmpty()) {
             refreshLoginInfoByRole(roleIdList);
         }
+    }
+
+    /**
+     * 清除指定地区ID的管理人员地区权限
+     *
+     * @param regionIds 地区ID列表
+     */
+    public void clearRegionId(List<String> regionIds) {
+        lambdaUpdate()
+                .in(SystemManager::getRegionId, regionIds)
+                .set(SystemManager::getRegionId, null)
+                .update();
     }
 
     @Override

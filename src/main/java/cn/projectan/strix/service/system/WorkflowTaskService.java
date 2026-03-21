@@ -21,7 +21,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -41,6 +43,21 @@ public class WorkflowTaskService extends ServiceImpl<WorkflowTaskMapper, Workflo
     private final WorkflowTaskAssignService workflowTaskAssignService;
     private final WorkflowConfigCache workflowConfigCache;
     private final DelayedTaskManager delayedTaskManager;
+
+    /**
+     * 根据任务ID集合查询任务列表
+     *
+     * @param taskIds 任务ID集合
+     * @return 任务列表
+     */
+    public List<WorkflowTask> listByTaskIds(Set<String> taskIds) {
+        if (taskIds.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return lambdaQuery()
+                .in(WorkflowTask::getId, taskIds)
+                .list();
+    }
 
     /**
      * 创建任务

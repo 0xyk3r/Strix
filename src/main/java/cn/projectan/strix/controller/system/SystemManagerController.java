@@ -15,7 +15,6 @@ import cn.projectan.strix.model.dict.common.CommonFlag;
 import cn.projectan.strix.model.dict.system.SystemLogOperType;
 import cn.projectan.strix.model.dict.system.SystemManagerStatus;
 import cn.projectan.strix.model.dict.system.SystemManagerType;
-import cn.projectan.strix.model.enums.common.NumCategory;
 import cn.projectan.strix.model.request.common.SingleFieldModifyReq;
 import cn.projectan.strix.model.request.system.manager.SystemManagerListReq;
 import cn.projectan.strix.model.request.system.manager.SystemManagerUpdateReq;
@@ -29,7 +28,6 @@ import cn.projectan.strix.util.common.RedisUtil;
 import cn.projectan.strix.util.common.UniqueChecker;
 import cn.projectan.strix.util.common.UpdateBuilder;
 import cn.projectan.strix.util.crypto.StrixSM3Util;
-import cn.projectan.strix.util.math.NumUtil;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
@@ -77,12 +75,7 @@ public class SystemManagerController extends BaseSystemController {
         // 如果指定了角色ID，先查询拥有该角色的所有管理员ID
         List<String> managerIdsByRole;
         if (StringUtils.hasText(req.getRoleId())) {
-            managerIdsByRole = systemManagerRoleService.lambdaQuery()
-                    .eq(SystemManagerRole::getSystemRoleId, req.getRoleId())
-                    .list()
-                    .stream()
-                    .map(SystemManagerRole::getSystemManagerId)
-                    .collect(Collectors.toList());
+            managerIdsByRole = systemManagerRoleService.listManagerIdsByRoleId(req.getRoleId());
 
             // 如果没有任何管理员拥有该角色，直接返回空结果
             if (CollectionUtils.isEmpty(managerIdsByRole)) {
@@ -90,14 +83,7 @@ public class SystemManagerController extends BaseSystemController {
             }
         }
 
-        Page<SystemManager> page = systemManagerService.lambdaQuery()
-                .eq(StringUtils.hasText(req.getKeyword()), SystemManager::getNickname, req.getKeyword())
-                .or(StringUtils.hasText(req.getKeyword()), q -> q.like(SystemManager::getLoginName, req.getKeyword()))
-                .eq(NumUtil.checkCategory(req.getStatus(), NumCategory.NON_NEGATIVE), SystemManager::getStatus, req.getStatus())
-                .eq(NumUtil.checkCategory(req.getType(), NumCategory.POSITIVE), SystemManager::getType, req.getType())
-                .in(!CollectionUtils.isEmpty(loginManagerRegionPermissions), SystemManager::getRegionId, loginManagerRegionPermissions)
-                .orderByAsc(SystemManager::getCreatedTime)
-                .page(req.getPage());
+        Page<SystemManager> page = systemManagerService.listPage(req, loginManagerRegionPermissions);
 
         SystemManagerListResp resp = new SystemManagerListResp(page.getRecords(), page.getTotal());
 
@@ -155,10 +141,7 @@ public class SystemManagerController extends BaseSystemController {
                 KeyDiffUtil.handle(systemManagerRoleIds, Arrays.asList(req.getValue().split(",")),
                         (removeKeys) ->
                                 Assert.isTrue(
-                                        systemManagerRoleService.lambdaUpdate()
-                                                .eq(SystemManagerRole::getSystemManagerId, managerId)
-                                                .in(SystemManagerRole::getSystemRoleId, removeKeys)
-                                                .remove(),
+                                        systemManagerRoleService.deleteByManagerIdAndRoleIds(managerId, removeKeys),
                                         "移除该管理用户的角色失败"),
                         (addKeys) -> {
                             List<SystemManagerRole> systemManagerRoleList = addKeys.stream()
@@ -256,9 +239,7 @@ public class SystemManagerController extends BaseSystemController {
         systemManagerService.removeById(systemManager);
 
         // 删除管理人员和角色间关系
-        systemManagerRoleService.lambdaUpdate()
-                .eq(SystemManagerRole::getSystemManagerId, systemManager.getId())
-                .remove();
+        systemManagerRoleService.deleteByManagerId(systemManager.getId());
 
         // 使登录Token失效
         Object existToken = redisUtil.get(LoginRedisKeys.LOGIN_MANAGER_ID_TO_TOKEN_PREFIX + systemManager.getId());
@@ -275,9 +256,7 @@ public class SystemManagerController extends BaseSystemController {
      */
     @GetMapping("transfer")
     public RetResult<CommonTransferDataResp> getTransferData() {
-        List<SystemManager> systemManagerList = systemManagerService.lambdaQuery()
-                .select(SystemManager::getId, SystemManager::getNickname)
-                .list();
+        List<SystemManager> systemManagerList = systemManagerService.listForTransfer();
 
         return RetBuilder.success(new CommonTransferDataResp(systemManagerList, "id", "nickname", null));
     }

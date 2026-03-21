@@ -33,6 +33,24 @@ public class SystemPermissionService extends ServiceImpl<SystemPermissionMapper,
     private final SystemRolePermissionService systemRolePermissionService;
 
     /**
+     * 查询全部权限（按创建时间升序）
+     */
+    public List<SystemPermission> listAll() {
+        return lambdaQuery()
+                .orderByAsc(SystemPermission::getCreatedTime)
+                .list();
+    }
+
+    /**
+     * 查询全部权限（仅 id、name，用于穿梭框）
+     */
+    public List<SystemPermission> listForTransfer() {
+        return lambdaQuery()
+                .select(SystemPermission::getId, SystemPermission::getName)
+                .list();
+    }
+
+    /**
      * 根据 ID 集合删除系统权限
      *
      * @param idList 系统权限 ID 集合

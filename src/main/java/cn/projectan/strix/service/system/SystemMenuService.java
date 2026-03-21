@@ -33,6 +33,30 @@ public class SystemMenuService extends ServiceImpl<SystemMenuMapper, SystemMenu>
     private final SystemPermissionService systemPermissionService;
 
     /**
+     * 根据菜单 key 列表查询菜单（按排序值升序）
+     */
+    public List<SystemMenu> listByKeys(List<String> keys) {
+        return lambdaQuery()
+                .in(SystemMenu::getKey, keys)
+                .orderByAsc(SystemMenu::getSortValue)
+                .list();
+    }
+
+    /**
+     * 更新菜单图标
+     *
+     * @param menuId 菜单ID
+     * @param icon   图标
+     * @return 是否更新成功
+     */
+    public boolean updateIcon(String menuId, String icon) {
+        return lambdaUpdate()
+                .eq(SystemMenu::getId, menuId)
+                .set(SystemMenu::getIcon, icon)
+                .update();
+    }
+
+    /**
      * 获取树形数据
      *
      * @return 树形数据

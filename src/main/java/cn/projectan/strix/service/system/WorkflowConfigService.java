@@ -7,6 +7,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 /**
  * <p>
  * Strix 工作流配置 服务类
@@ -19,6 +21,29 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class WorkflowConfigService extends ServiceImpl<WorkflowConfigMapper, WorkflowConfig> {
+
+    /**
+     * 根据工作流ID列表查询配置
+     *
+     * @param workflowIdList 工作流ID列表
+     * @return 配置列表
+     */
+    public List<WorkflowConfig> listByWorkflowIds(List<String> workflowIdList) {
+        return lambdaQuery()
+                .in(WorkflowConfig::getWorkflowId, workflowIdList)
+                .list();
+    }
+
+    /**
+     * 根据工作流ID删除配置
+     *
+     * @param workflowId 工作流ID
+     */
+    public void deleteByWorkflowId(String workflowId) {
+        lambdaUpdate()
+                .eq(WorkflowConfig::getWorkflowId, workflowId)
+                .remove();
+    }
 
     /**
      * 获取最新的工作流配置

@@ -12,7 +12,6 @@ import cn.projectan.strix.model.db.system.SmsLog;
 import cn.projectan.strix.model.db.system.SmsSign;
 import cn.projectan.strix.model.db.system.SmsTemplate;
 import cn.projectan.strix.model.dict.system.SystemLogOperType;
-import cn.projectan.strix.model.enums.common.NumCategory;
 import cn.projectan.strix.model.request.system.module.sms.*;
 import cn.projectan.strix.model.response.common.CommonSelectDataResp;
 import cn.projectan.strix.model.response.system.module.sms.*;
@@ -24,7 +23,6 @@ import cn.projectan.strix.task.system.StrixSmsTask;
 import cn.projectan.strix.util.common.SpringUtil;
 import cn.projectan.strix.util.common.UniqueChecker;
 import cn.projectan.strix.util.common.UpdateBuilder;
-import cn.projectan.strix.util.math.NumUtil;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +30,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -63,10 +60,7 @@ public class SmsController extends BaseSystemController {
     @PreAuthorize("@ss.hasPermission('system:module:sms:config')")
     @StrixLog(operationGroup = "系统短信", operationName = "查询短信配置列表")
     public RetResult<SmsConfigListResp> getSmsConfigList(SmsConfigListReq req) {
-        Page<SmsConfig> page = smsConfigService.lambdaQuery()
-                .like(StringUtils.hasText(req.getKeyword()), SmsConfig::getKey, req.getKeyword())
-                .or(StringUtils.hasText(req.getKeyword()), q -> q.like(SmsConfig::getName, req.getKeyword()))
-                .page(req.getPage());
+        Page<SmsConfig> page = smsConfigService.listPage(req);
 
         SmsConfigListResp resp = new SmsConfigListResp(page.getRecords(), page.getTotal());
         return RetBuilder.success(resp);
@@ -82,14 +76,10 @@ public class SmsController extends BaseSystemController {
         SmsConfig smsConfig = smsConfigService.getById(id);
         Assert.notNull(smsConfig, "短信配置不存在");
 
-        List<SmsSign> signs = smsSignService.lambdaQuery()
-                .eq(SmsSign::getConfigKey, smsConfig.getKey())
-                .list();
+        List<SmsSign> signs = smsSignService.listByConfigKey(smsConfig.getKey());
         List<SmsSignListResp.SmsSignItem> signItems = new SmsSignListResp(signs, (long) signs.size()).getSigns();
 
-        List<SmsTemplate> templates = smsTemplateService.lambdaQuery()
-                .eq(SmsTemplate::getConfigKey, smsConfig.getKey())
-                .list();
+        List<SmsTemplate> templates = smsTemplateService.listByConfigKey(smsConfig.getKey());
         List<SmsTemplateListResp.SmsTemplateItem> templateItems = new SmsTemplateListResp(templates, (long) templates.size()).getTemplates();
 
         return RetBuilder.success(
@@ -179,11 +169,7 @@ public class SmsController extends BaseSystemController {
     @PreAuthorize("@ss.hasPermission('system:module:sms:sign')")
     @StrixLog(operationGroup = "系统短信", operationName = "查询短信签名列表")
     public RetResult<SmsSignListResp> getSmsSignList(SmsSignListReq req) {
-        Page<SmsSign> page = smsSignService.lambdaQuery()
-                .like(StringUtils.hasText(req.getKeyword()), SmsSign::getName, req.getKeyword())
-                .eq(NumUtil.checkCategory(req.getStatus(), NumCategory.POSITIVE), SmsSign::getStatus, req.getStatus())
-                .eq(StringUtils.hasText(req.getConfigKey()), SmsSign::getConfigKey, req.getConfigKey())
-                .page(req.getPage());
+        Page<SmsSign> page = smsSignService.listPage(req);
 
         return RetBuilder.success(new SmsSignListResp(page.getRecords(), page.getTotal()));
     }
@@ -195,12 +181,7 @@ public class SmsController extends BaseSystemController {
     @PreAuthorize("@ss.hasPermission('system:module:sms:template')")
     @StrixLog(operationGroup = "系统短信", operationName = "查询短信模板列表")
     public RetResult<SmsTemplateListResp> getSmsTemplateList(SmsTemplateListReq req) {
-        Page<SmsTemplate> page = smsTemplateService.lambdaQuery()
-                .like(StringUtils.hasText(req.getKeyword()), SmsTemplate::getName, req.getKeyword())
-                .eq(NumUtil.checkCategory(req.getType(), NumCategory.POSITIVE), SmsTemplate::getType, req.getType())
-                .eq(NumUtil.checkCategory(req.getStatus(), NumCategory.POSITIVE), SmsTemplate::getStatus, req.getStatus())
-                .eq(StringUtils.hasText(req.getConfigKey()), SmsTemplate::getConfigKey, req.getConfigKey())
-                .page(req.getPage());
+        Page<SmsTemplate> page = smsTemplateService.listPage(req);
 
         return RetBuilder.success(new SmsTemplateListResp(page.getRecords(), page.getTotal()));
     }
@@ -212,11 +193,7 @@ public class SmsController extends BaseSystemController {
     @PreAuthorize("@ss.hasPermission('system:module:sms:log')")
     @StrixLog(operationGroup = "系统短信", operationName = "查询短信日志列表")
     public RetResult<SmsLogListResp> getSmsLogList(SmsLogListReq req) {
-        Page<SmsLog> page = smsLogService.lambdaQuery()
-                .like(StringUtils.hasText(req.getKeyword()), SmsLog::getPhoneNumber, req.getKeyword())
-                .eq(NumUtil.checkCategory(req.getStatus(), NumCategory.POSITIVE), SmsLog::getStatus, req.getStatus())
-                .eq(StringUtils.hasText(req.getConfigKey()), SmsLog::getConfigKey, req.getConfigKey())
-                .page(req.getPage());
+        Page<SmsLog> page = smsLogService.listPage(req);
 
         return RetBuilder.success(new SmsLogListResp(page.getRecords(), page.getTotal()));
     }

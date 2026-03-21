@@ -9,7 +9,6 @@ import cn.projectan.strix.core.validation.group.UpdateGroup;
 import cn.projectan.strix.model.annotation.StrixLog;
 import cn.projectan.strix.model.db.system.Workflow;
 import cn.projectan.strix.model.db.system.WorkflowConfig;
-import cn.projectan.strix.model.db.system.WorkflowInstance;
 import cn.projectan.strix.model.dict.system.SystemLogOperType;
 import cn.projectan.strix.model.request.system.workflow.WorkflowConfigUpdateReq;
 import cn.projectan.strix.model.request.system.workflow.WorkflowListReq;
@@ -28,7 +27,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -58,14 +56,10 @@ public class SystemWorkflowConfigController extends BaseSystemController {
     @PreAuthorize("@ss.hasPermission('system:workflow:config')")
     @StrixLog(operationGroup = "工作流引擎", operationName = "查询工作流引擎列表")
     public RetResult<WorkflowListResp> list(WorkflowListReq req) {
-        Page<Workflow> page = workflowService.lambdaQuery()
-                .like(StringUtils.hasText(req.getKeyword()), Workflow::getName, req.getKeyword())
-                .page(req.getPage());
+        Page<Workflow> page = workflowService.listPage(req);
 
         List<String> workflowIdList = page.getRecords().stream().map(Workflow::getId).toList();
-        List<WorkflowConfig> workflowConfigList = workflowConfigService.lambdaQuery()
-                .in(WorkflowConfig::getWorkflowId, workflowIdList)
-                .list();
+        List<WorkflowConfig> workflowConfigList = workflowConfigService.listByWorkflowIds(workflowIdList);
 
         return RetBuilder.success(new WorkflowListResp(page.getRecords(), page.getTotal(), workflowConfigList));
     }
@@ -127,12 +121,8 @@ public class SystemWorkflowConfigController extends BaseSystemController {
     public RetResult<Object> remove(@PathVariable String id) {
         workflowService.removeById(id);
         // 删除关联的配置信息、实例信息等
-        workflowConfigService.lambdaUpdate()
-                .eq(WorkflowConfig::getWorkflowId, id)
-                .remove();
-        workflowInstanceService.lambdaUpdate()
-                .eq(WorkflowInstance::getWorkflowId, id)
-                .remove();
+        workflowConfigService.deleteByWorkflowId(id);
+        workflowInstanceService.deleteByWorkflowId(id);
         workflowConfigCache.refresh();
 
         return RetBuilder.success();

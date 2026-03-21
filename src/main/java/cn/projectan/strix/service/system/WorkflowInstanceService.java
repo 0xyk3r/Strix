@@ -9,6 +9,7 @@ import cn.projectan.strix.model.db.system.WorkflowInstance;
 import cn.projectan.strix.model.dict.system.WorkflowInstanceStatus;
 import cn.projectan.strix.model.dict.system.WorkflowNodeType;
 import cn.projectan.strix.model.other.system.workflow.WorkflowNode;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +18,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 /**
  * <p>
@@ -35,6 +38,45 @@ public class WorkflowInstanceService extends ServiceImpl<WorkflowInstanceMapper,
     private final WorkflowConfigService workflowConfigService;
     private final WorkflowTaskService workflowTaskService;
     private final WorkflowConfigCache workflowConfigCache;
+
+    /**
+     * 根据工作流ID删除实例
+     *
+     * @param workflowId 工作流ID
+     */
+    public void deleteByWorkflowId(String workflowId) {
+        lambdaUpdate()
+                .eq(WorkflowInstance::getWorkflowId, workflowId)
+                .remove();
+    }
+
+    /**
+     * 根据实例ID集合查询实例列表
+     *
+     * @param instanceIds 实例ID集合
+     * @return 实例列表
+     */
+    public List<WorkflowInstance> listByInstanceIds(Set<String> instanceIds) {
+        if (instanceIds.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return lambdaQuery()
+                .in(WorkflowInstance::getId, instanceIds)
+                .list();
+    }
+
+    /**
+     * 分页查询指定创建人的实例列表
+     *
+     * @param creatorId 创建人ID
+     * @param page      分页参数
+     * @return 分页数据
+     */
+    public Page<WorkflowInstance> listPageByCreator(String creatorId, Page<WorkflowInstance> page) {
+        return lambdaQuery()
+                .eq(WorkflowInstance::getCreatedBy, creatorId)
+                .page(page);
+    }
 
     /**
      * 创建工作流实例

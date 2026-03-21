@@ -91,9 +91,7 @@ public class SystemController extends BaseSystemController {
             return RetBuilder.build(RetCode.BAD_REQUEST, "登录失败次数过多，请 " + remainMinutes + " 分钟后再试");
         }
 
-        SystemManager systemManager = systemManagerService.lambdaQuery()
-                .eq(SystemManager::getLoginName, req.getLoginName())
-                .one();
+        SystemManager systemManager = systemManagerService.getByLoginName(req.getLoginName());
 
         if (systemManager == null || !StrixSM3Util.matches(req.getLoginPassword(), systemManager.getLoginPassword())) {
             recordLoginFailure(failureKey);
@@ -192,10 +190,7 @@ public class SystemController extends BaseSystemController {
         List<String> systemMenuKeys = Optional.ofNullable(SecurityUtil.getSystemManagerLoginInfo()).map(LoginSystemManager::getMenusKeys).orElse(null);
         Assert.notEmpty(systemMenuKeys, "当前账号无菜单权限");
 
-        List<SystemMenu> systemMenus = systemMenusService.lambdaQuery()
-                .in(SystemMenu::getKey, systemMenuKeys)
-                .orderByAsc(SystemMenu::getSortValue)
-                .list();
+        List<SystemMenu> systemMenus = systemMenusService.listByKeys(systemMenuKeys);
         Assert.notEmpty(systemMenus, "当前账号无可用菜单权限");
 
         return RetBuilder.success(new SystemMenuResp(systemMenus));

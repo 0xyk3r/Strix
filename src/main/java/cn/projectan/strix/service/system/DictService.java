@@ -4,14 +4,18 @@ import cn.projectan.strix.mapper.system.DictMapper;
 import cn.projectan.strix.model.db.system.Dict;
 import cn.projectan.strix.model.db.system.DictData;
 import cn.projectan.strix.model.dict.common.CommonSwitch;
+import cn.projectan.strix.model.enums.common.NumCategory;
 import cn.projectan.strix.model.request.system.dict.DictDataUpdateReq;
+import cn.projectan.strix.model.request.system.dict.DictListReq;
 import cn.projectan.strix.model.request.system.dict.DictUpdateReq;
 import cn.projectan.strix.model.response.common.CommonDictResp;
 import cn.projectan.strix.model.response.common.CommonDictVersionResp;
 import cn.projectan.strix.model.response.system.dict.DictDataListResp;
 import cn.projectan.strix.util.common.UniqueChecker;
 import cn.projectan.strix.util.common.UpdateBuilder;
+import cn.projectan.strix.util.math.NumUtil;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,6 +44,21 @@ import java.util.List;
 public class DictService extends ServiceImpl<DictMapper, Dict> {
 
     private final DictDataService dictDataService;
+
+    /**
+     * 分页查询字典列表
+     *
+     * @param req 查询请求
+     * @return 分页结果
+     */
+    public Page<Dict> listPage(DictListReq req) {
+        return lambdaQuery()
+                .like(StringUtils.hasText(req.getKeyword()), Dict::getKey, req.getKeyword())
+                .or(StringUtils.hasText(req.getKeyword()), q -> q.like(Dict::getName, req.getKeyword()))
+                .eq(NumUtil.checkCategory(req.getStatus(), NumCategory.NON_NEGATIVE), Dict::getStatus, req.getStatus())
+                .eq(NumUtil.checkCategory(req.getProvided(), NumCategory.NON_NEGATIVE), Dict::getProvided, req.getProvided())
+                .page(req.getPage());
+    }
 
     /**
      * 获取字典版本

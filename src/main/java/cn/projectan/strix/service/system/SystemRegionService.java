@@ -3,8 +3,10 @@ package cn.projectan.strix.service.system;
 import cn.projectan.strix.core.cache.system.SystemRegionCache;
 import cn.projectan.strix.mapper.system.SystemRegionMapper;
 import cn.projectan.strix.model.db.system.SystemRegion;
+import cn.projectan.strix.model.request.system.region.SystemRegionListReq;
 import cn.projectan.strix.service.base.NameFetcherService;
 import cn.projectan.strix.util.common.SpringUtil;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +14,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.*;
@@ -256,6 +259,99 @@ public class SystemRegionService extends ServiceImpl<SystemRegionMapper, SystemR
         if (StringUtils.hasText(systemRegion.getParentId()) && !ROOT_PARENT_ID.equals(systemRegion.getParentId())) {
             systemRegionCache.refreshRedisCacheById(systemRegion.getParentId());
         }
+    }
+
+    /**
+     * 获取可用的最大地区权限等级
+     *
+     * @param regionPermissions 地区权限ID列表
+     * @return 最大地区权限等级
+     */
+    public int getMaxRegionLevel(List<String> regionPermissions) {
+        return lambdaQuery()
+                .select(SystemRegion::getLevel)
+                .in(!CollectionUtils.isEmpty(regionPermissions), SystemRegion::getId, regionPermissions)
+                .orderByAsc(SystemRegion::getLevel)
+                .last("limit 1")
+                .oneOpt()
+                .map(SystemRegion::getLevel)
+                .orElse((short) 0);
+    }
+
+    /**
+     * 分页查询地区列表
+     *
+     * @param req               查询请求
+     * @param regionPermissions 地区权限ID列表
+     * @param isSuperManager    是否超级管理员
+     * @param maxRegionLevel    最大地区权限等级
+     * @return 分页结果
+     */
+    public Page<SystemRegion> listPage(SystemRegionListReq req, List<String> regionPermissions, boolean isSuperManager, int maxRegionLevel) {
+        return lambdaQuery()
+                .in(!CollectionUtils.isEmpty(regionPermissions), SystemRegion::getId, regionPermissions)
+                .like(StringUtils.hasText(req.getKeyword()), SystemRegion::getName, req.getKeyword())
+                .eq(!isSuperManager && !StringUtils.hasText(req.getKeyword()), SystemRegion::getLevel, maxRegionLevel)
+                .eq(isSuperManager && !StringUtils.hasText(req.getKeyword()), SystemRegion::getParentId, ROOT_PARENT_ID)
+                .page(req.getPage());
+    }
+
+    /**
+     * 根据父节点ID查询子节点列表
+     *
+     * @param parentId          父节点ID
+     * @param regionPermissions 地区权限ID列表
+     * @return 子节点列表
+     */
+    public List<SystemRegion> listByParentId(String parentId, List<String> regionPermissions) {
+        return lambdaQuery()
+                .eq(SystemRegion::getParentId, parentId)
+                .in(!CollectionUtils.isEmpty(regionPermissions), SystemRegion::getId, regionPermissions)
+                .list();
+    }
+
+    /**
+     * 更新地区的完整信息（fullName, fullPath, level）
+     *
+     * @param regionId 地区ID
+     * @return 是否更新成功
+     */
+    public boolean updateFullInfo(String regionId) {
+        Map<String, String> fullInfo = getFullInfo(regionId);
+        return lambdaUpdate()
+                .eq(SystemRegion::getId, regionId)
+                .set(SystemRegion::getFullName, fullInfo.get("name"))
+                .set(SystemRegion::getFullPath, fullInfo.get("path"))
+                .set(SystemRegion::getLevel, fullInfo.get("level"))
+                .update();
+    }
+
+    /**
+     * 根据完整路径查询所有子节点ID列表
+     *
+     * @param fullPath 完整路径
+     * @return 子节点ID列表
+     */
+    public List<String> listIdsByFullPath(String fullPath) {
+        return lambdaQuery()
+                .select(SystemRegion::getId)
+                .likeRight(SystemRegion::getFullPath, fullPath)
+                .list()
+                .stream()
+                .map(SystemRegion::getId)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 根据地区权限列表查询地区列表
+     *
+     * @param regionPermissions 地区权限ID列表
+     * @return 地区列表
+     */
+    public List<SystemRegion> listByRegionPermissions(List<String> regionPermissions) {
+        return lambdaQuery()
+                .in(!CollectionUtils.isEmpty(regionPermissions), SystemRegion::getId, regionPermissions)
+                .list();
     }
 
     @Override

@@ -10,7 +10,6 @@ import cn.projectan.strix.model.db.system.Dict;
 import cn.projectan.strix.model.db.system.DictData;
 import cn.projectan.strix.model.dict.common.CommonFlag;
 import cn.projectan.strix.model.dict.system.SystemLogOperType;
-import cn.projectan.strix.model.enums.common.NumCategory;
 import cn.projectan.strix.model.request.system.dict.DictDataListReq;
 import cn.projectan.strix.model.request.system.dict.DictDataUpdateReq;
 import cn.projectan.strix.model.request.system.dict.DictListReq;
@@ -21,13 +20,11 @@ import cn.projectan.strix.model.response.system.dict.DictListResp;
 import cn.projectan.strix.model.response.system.dict.DictResp;
 import cn.projectan.strix.service.system.DictDataService;
 import cn.projectan.strix.service.system.DictService;
-import cn.projectan.strix.util.math.NumUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -55,12 +52,7 @@ public class SystemDictController extends BaseSystemController {
     @PreAuthorize("@ss.hasPermission('system:dict')")
     @StrixLog(operationGroup = "系统字典", operationName = "查询字典列表")
     public RetResult<DictListResp> list(DictListReq req) {
-        Page<Dict> page = dictService.lambdaQuery()
-                .like(StringUtils.hasText(req.getKeyword()), Dict::getKey, req.getKeyword())
-                .or(StringUtils.hasText(req.getKeyword()), q -> q.like(Dict::getName, req.getKeyword()))
-                .eq(NumUtil.checkCategory(req.getStatus(), NumCategory.NON_NEGATIVE), Dict::getStatus, req.getStatus())
-                .eq(NumUtil.checkCategory(req.getProvided(), NumCategory.NON_NEGATIVE), Dict::getProvided, req.getProvided())
-                .page(req.getPage());
+        Page<Dict> page = dictService.listPage(req);
 
         return RetBuilder.success(
                 new DictListResp(page.getRecords(), page.getTotal())
@@ -77,8 +69,7 @@ public class SystemDictController extends BaseSystemController {
         Dict dict = dictService.getById(id);
         Assert.notNull(dict, "该数据不存在");
 
-        List<DictData> dictDataList = dictDataService.lambdaQuery()
-                .eq(DictData::getKey, dict.getKey()).list();
+        List<DictData> dictDataList = dictDataService.listByKey(dict.getKey());
         List<DictDataListResp.DictDataItem> dictDataItems = new DictDataListResp(dictDataList, dictDataList.size()).getItems();
 
         return RetBuilder.success(
@@ -157,13 +148,7 @@ public class SystemDictController extends BaseSystemController {
     @PreAuthorize("@ss.hasPermission('system:dict:data')")
     @StrixLog(operationGroup = "系统字典", operationName = "查询字典数据列表")
     public RetResult<DictDataListResp> getDictDataList(@PathVariable String key, DictDataListReq req) {
-        Page<DictData> page = dictDataService.lambdaQuery()
-                .eq(DictData::getKey, key)
-                .like(StringUtils.hasText(req.getKeyword()), DictData::getValue, req.getKeyword())
-                .or(StringUtils.hasText(req.getKeyword()), q -> q.like(DictData::getLabel, req.getKeyword()))
-                .eq(NumUtil.checkCategory(req.getStatus(), NumCategory.NON_NEGATIVE), DictData::getStatus, req.getStatus())
-                .orderByAsc(DictData::getSort)
-                .page(req.getPage());
+        Page<DictData> page = dictDataService.listPage(key, req);
 
         return RetBuilder.success(
                 new DictDataListResp(page.getRecords(), page.getTotal())

@@ -62,9 +62,7 @@ public class SystemRoleController extends BaseSystemController {
     @PreAuthorize("@ss.hasPermission('system:role')")
     @StrixLog(operationGroup = "系统角色", operationName = "查询角色列表")
     public RetResult<SystemRoleListResp> getSystemRoleList() {
-        List<SystemRole> systemRoleList = systemRoleService.lambdaQuery()
-                .orderByAsc(SystemRole::getCreatedTime)
-                .list();
+        List<SystemRole> systemRoleList = systemRoleService.listAll();
 
         return RetBuilder.success(new SystemRoleListResp(systemRoleList));
     }
@@ -143,21 +141,12 @@ public class SystemRoleController extends BaseSystemController {
         Assert.isTrue(systemRole.getBuiltin() == CommonFlag.NO, "系统内置角色不支持修改");
 
         // 修改角色的菜单权限
-        List<String> systemRoleMenuIds = systemRoleMenuService.lambdaQuery()
-                .select(SystemRoleMenu::getSystemMenuId)
-                .eq(SystemRoleMenu::getSystemRoleId, roleId)
-                .list()
-                .stream()
-                .map(SystemRoleMenu::getSystemMenuId)
-                .collect(Collectors.toList());
+        List<String> systemRoleMenuIds = systemRoleMenuService.listMenuIdsByRoleId(roleId);
 
         KeyDiffUtil.handle(systemRoleMenuIds, Arrays.asList(req.getMenuIds().split(",")),
                 (removeKeys) ->
                         Assert.isTrue(
-                                systemRoleMenuService.lambdaUpdate()
-                                        .eq(SystemRoleMenu::getSystemRoleId, roleId)
-                                        .in(SystemRoleMenu::getSystemMenuId, removeKeys)
-                                        .remove(),
+                                systemRoleMenuService.deleteByRoleIdAndMenuIds(roleId, removeKeys),
                                 "移除该角色的菜单权限失败"),
                 (addKeys) -> {
                     List<SystemRoleMenu> systemRoleMenuList = addKeys.stream()
@@ -171,21 +160,12 @@ public class SystemRoleController extends BaseSystemController {
                 }
         );
         // 修改角色的系统权限
-        List<String> systemRolePermissionIds = systemRolePermissionService.lambdaQuery()
-                .select(SystemRolePermission::getSystemPermissionId)
-                .eq(SystemRolePermission::getSystemRoleId, roleId)
-                .list()
-                .stream()
-                .map(SystemRolePermission::getSystemPermissionId)
-                .collect(Collectors.toList());
+        List<String> systemRolePermissionIds = systemRolePermissionService.listPermissionIdsByRoleId(roleId);
 
         KeyDiffUtil.handle(systemRolePermissionIds, Arrays.asList(req.getPermissionIds().split(",")),
                 (removeKeys) ->
                         Assert.isTrue(
-                                systemRolePermissionService.lambdaUpdate()
-                                        .eq(SystemRolePermission::getSystemRoleId, roleId)
-                                        .in(SystemRolePermission::getSystemPermissionId, removeKeys)
-                                        .remove(),
+                                systemRolePermissionService.deleteByRoleIdAndPermissionIds(roleId, removeKeys),
                                 "移除该角色的菜单权限失败"),
                 (addKeys) -> {
                     List<SystemRolePermission> systemRolePermissionList = addKeys.stream()
@@ -244,10 +224,7 @@ public class SystemRoleController extends BaseSystemController {
         // 查询该菜单和其子菜单的id 注意此处使用了ram缓存
         List<String> menuAndChildrenMenu = systemMenuCache.getIdListByParentMenu(menuId);
 
-        systemRoleMenuService.lambdaUpdate()
-                .eq(SystemRoleMenu::getSystemRoleId, roleId)
-                .in(SystemRoleMenu::getSystemMenuId, menuAndChildrenMenu)
-                .remove();
+        systemRoleMenuService.deleteByRoleIdAndMenuIds(roleId, menuAndChildrenMenu);
 
         // 刷新redis缓存
         systemMenuCache.updateRedisBySystemRoleId(roleId);
@@ -278,10 +255,7 @@ public class SystemRoleController extends BaseSystemController {
         Assert.notNull(systemRole, "系统角色信息不存在");
         Assert.isTrue(systemRole.getBuiltin() == CommonFlag.NO, "系统内置角色不支持修改");
 
-        systemRolePermissionService.lambdaUpdate()
-                .eq(SystemRolePermission::getSystemRoleId, roleId)
-                .eq(SystemRolePermission::getSystemPermissionId, permissionId)
-                .remove();
+        systemRolePermissionService.deleteByRoleIdAndPermissionId(roleId, permissionId);
 
         // 刷新redis缓存
         systemPermissionCache.updateRedisBySystemRoleId(roleId);
@@ -310,9 +284,7 @@ public class SystemRoleController extends BaseSystemController {
      */
     @GetMapping("transfer")
     public RetResult<CommonTransferDataResp> getTransferData() {
-        List<SystemRole> systemRoleList = systemRoleService.lambdaQuery()
-                .select(SystemRole::getId, SystemRole::getName)
-                .list();
+        List<SystemRole> systemRoleList = systemRoleService.listForTransfer();
 
         return RetBuilder.success(new CommonTransferDataResp(systemRoleList, "id", "name", null));
     }

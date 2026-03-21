@@ -3,14 +3,19 @@ package cn.projectan.strix.service.system;
 import cn.projectan.strix.mapper.system.SmsTemplateMapper;
 import cn.projectan.strix.model.constant.system.OperatorType;
 import cn.projectan.strix.model.db.system.SmsTemplate;
+import cn.projectan.strix.model.enums.common.NumCategory;
 import cn.projectan.strix.model.other.system.module.sms.StrixSmsTemplate;
+import cn.projectan.strix.model.request.system.module.sms.SmsTemplateListReq;
 import cn.projectan.strix.util.algo.KeyDiffUtil;
+import cn.projectan.strix.util.math.NumUtil;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -27,6 +32,33 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class SmsTemplateService extends ServiceImpl<SmsTemplateMapper, SmsTemplate> {
+
+    /**
+     * 根据配置key查询模板列表
+     *
+     * @param configKey 短信配置key
+     * @return 模板列表
+     */
+    public List<SmsTemplate> listByConfigKey(String configKey) {
+        return lambdaQuery()
+                .eq(SmsTemplate::getConfigKey, configKey)
+                .list();
+    }
+
+    /**
+     * 分页查询模板列表
+     *
+     * @param req 查询请求
+     * @return 分页数据
+     */
+    public Page<SmsTemplate> listPage(SmsTemplateListReq req) {
+        return lambdaQuery()
+                .like(StringUtils.hasText(req.getKeyword()), SmsTemplate::getName, req.getKeyword())
+                .eq(NumUtil.checkCategory(req.getType(), NumCategory.POSITIVE), SmsTemplate::getType, req.getType())
+                .eq(NumUtil.checkCategory(req.getStatus(), NumCategory.POSITIVE), SmsTemplate::getStatus, req.getStatus())
+                .eq(StringUtils.hasText(req.getConfigKey()), SmsTemplate::getConfigKey, req.getConfigKey())
+                .page(req.getPage());
+    }
 
     /**
      * 同步模板列表

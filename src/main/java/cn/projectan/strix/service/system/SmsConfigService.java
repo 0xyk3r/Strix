@@ -8,10 +8,12 @@ import cn.projectan.strix.model.db.system.SmsConfig;
 import cn.projectan.strix.model.db.system.SmsSign;
 import cn.projectan.strix.model.db.system.SmsTemplate;
 import cn.projectan.strix.model.dict.system.SmsPlatform;
+import cn.projectan.strix.model.request.system.module.sms.SmsConfigListReq;
 import cn.projectan.strix.model.response.common.CommonSelectDataResp;
 import cn.projectan.strix.task.system.StrixSmsTask;
 import cn.projectan.strix.util.common.SpringUtil;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +21,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 
@@ -88,6 +91,19 @@ public class SmsConfigService extends ServiceImpl<SmsConfigMapper, SmsConfig> {
     public CommonSelectDataResp getSelectData() {
         List<SmsConfig> smsConfigList = getBaseMapper().selectList(Wrappers.emptyWrapper());
         return new CommonSelectDataResp(smsConfigList, "key", "key", "name");
+    }
+
+    /**
+     * 分页查询短信配置列表
+     *
+     * @param req 查询请求
+     * @return 分页数据
+     */
+    public Page<SmsConfig> listPage(SmsConfigListReq req) {
+        return lambdaQuery()
+                .like(StringUtils.hasText(req.getKeyword()), SmsConfig::getKey, req.getKeyword())
+                .or(StringUtils.hasText(req.getKeyword()), q -> q.like(SmsConfig::getName, req.getKeyword()))
+                .page(req.getPage());
     }
 
     /**

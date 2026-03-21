@@ -50,9 +50,7 @@ public class SystemPermissionController extends BaseSystemController {
     @PreAuthorize("@ss.hasPermission('system:menu')")
     @StrixLog(operationGroup = "系统权限", operationName = "查询权限列表")
     public RetResult<SystemPermissionListResp> getSystemPermissionList() {
-        List<SystemPermission> systemPermissionList = systemPermissionService.lambdaQuery()
-                .orderByAsc(SystemPermission::getCreatedTime)
-                .list();
+        List<SystemPermission> systemPermissionList = systemPermissionService.listAll();
 
         return RetBuilder.success(new SystemPermissionListResp(systemPermissionList));
     }
@@ -132,9 +130,7 @@ public class SystemPermissionController extends BaseSystemController {
      */
     @GetMapping("transfer")
     public RetResult<CommonTransferDataResp> getTransferData() {
-        List<SystemPermission> systemPermissionList = systemPermissionService.lambdaQuery()
-                .select(SystemPermission::getId, SystemPermission::getName)
-                .list();
+        List<SystemPermission> systemPermissionList = systemPermissionService.listForTransfer();
 
         return RetBuilder.success(new CommonTransferDataResp(systemPermissionList, "id", "name", null));
     }
