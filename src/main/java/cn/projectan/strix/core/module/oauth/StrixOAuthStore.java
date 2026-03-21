@@ -3,9 +3,9 @@ package cn.projectan.strix.core.module.oauth;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Strix OAuth 客户端容器
@@ -17,7 +17,7 @@ import java.util.Set;
 @ConditionalOnProperty(prefix = "strix.module", name = "oauth", havingValue = "true")
 public class StrixOAuthStore {
 
-    private final Map<String, StrixOAuthClient> instanceMap = new HashMap<>();
+    private final Map<String, StrixOAuthClient<?>> instanceMap = new ConcurrentHashMap<>();
 
     /**
      * 添加实例
@@ -25,7 +25,7 @@ public class StrixOAuthStore {
      * @param key      OAuth 配置 Key
      * @param instance OAuth 客户端实例
      */
-    public void addInstance(String key, StrixOAuthClient instance) {
+    public void addInstance(String key, StrixOAuthClient<?> instance) {
         instanceMap.put(key, instance);
     }
 
@@ -35,7 +35,7 @@ public class StrixOAuthStore {
      * @param key OAuth 配置 Key
      * @return OAuth 客户端实例
      */
-    public StrixOAuthClient getInstance(String key) {
+    public StrixOAuthClient<?> getInstance(String key) {
         return instanceMap.get(key);
     }
 
@@ -47,8 +47,8 @@ public class StrixOAuthStore {
      * @return OAuth 客户端实例
      * @see cn.projectan.strix.model.dict.system.OAuthPlatform
      */
-    public StrixOAuthClient getInstance(String key, Short platform) {
-        StrixOAuthClient instance = instanceMap.get(key);
+    public StrixOAuthClient<?> getInstance(String key, Short platform) {
+        StrixOAuthClient<?> instance = instanceMap.get(key);
         if (instance != null && instance.getPlatform() == platform) {
             return instance;
         }

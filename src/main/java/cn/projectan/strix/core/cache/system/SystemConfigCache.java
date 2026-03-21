@@ -7,9 +7,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
 /**
@@ -25,7 +25,7 @@ public class SystemConfigCache {
 
     private final SystemConfigService systemConfigService;
 
-    private final Map<String, String> instance = new HashMap<>();
+    private final Map<String, String> instance = new ConcurrentHashMap<>();
 
     @PostConstruct
     private void init() {

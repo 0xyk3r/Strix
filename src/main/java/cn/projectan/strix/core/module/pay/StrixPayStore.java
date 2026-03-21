@@ -3,9 +3,9 @@ package cn.projectan.strix.core.module.pay;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Strix Pay 客户端容器
@@ -17,7 +17,7 @@ import java.util.Set;
 @ConditionalOnProperty(prefix = "strix.module", name = "pay", havingValue = "true")
 public class StrixPayStore {
 
-    private final Map<String, StrixPayClient> instanceMap = new HashMap<>();
+    private final Map<String, StrixPayClient> instanceMap = new ConcurrentHashMap<>();
 
     public void addInstance(String key, StrixPayClient instance) {
         instanceMap.put(key, instance);

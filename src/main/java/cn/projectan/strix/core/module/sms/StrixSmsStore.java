@@ -3,9 +3,9 @@ package cn.projectan.strix.core.module.sms;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Strix SMS 客户端容器
@@ -17,7 +17,7 @@ import java.util.Set;
 @ConditionalOnProperty(prefix = "strix.module", name = "sms", havingValue = "true")
 public class StrixSmsStore {
 
-    private final Map<String, StrixSmsClient> instanceMap = new HashMap<>();
+    private final Map<String, StrixSmsClient> instanceMap = new ConcurrentHashMap<>();
 
     public void addInstance(String key, StrixSmsClient client) {
         instanceMap.put(key, client);

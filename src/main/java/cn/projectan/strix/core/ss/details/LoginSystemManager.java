@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.jspecify.annotations.NonNull;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -36,7 +37,7 @@ public class LoginSystemManager implements UserDetails {
     private short regionPermissionType;
 
     @JsonIgnore
-    private List<GrantedAuthority> authorities;
+    private volatile List<GrantedAuthority> authorities;
 
     public LoginSystemManager(SystemManager systemManager,
                               SystemRegion systemRegion,
@@ -54,18 +55,25 @@ public class LoginSystemManager implements UserDetails {
 
     @Override
     @JsonIgnore
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        if (this.authorities == null) {
-            // 添加权限
-            this.authorities = this.permissionKeys.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList());
-            // 添加管理员角色
-            this.authorities.add(new SimpleGrantedAuthority("ROLE_SYSTEM_MANAGER"));
-            // 添加超级管理员角色
-            if (systemManager.getType() == SystemManagerType.SUPER_ACCOUNT) {
-                this.authorities.add(new SimpleGrantedAuthority("ROLE_SUPER_SYSTEM_MANAGER"));
+    public @NonNull Collection<? extends GrantedAuthority> getAuthorities() {
+        List<GrantedAuthority> result = this.authorities;
+        if (result == null) {
+            synchronized (this) {
+                result = this.authorities;
+                if (result == null) {
+                    // 添加权限
+                    result = this.permissionKeys.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList());
+                    // 添加管理员角色
+                    result.add(new SimpleGrantedAuthority("ROLE_SYSTEM_MANAGER"));
+                    if (systemManager.getType() == SystemManagerType.SUPER_ACCOUNT) {
+                        // 添加超级管理员角色
+                        result.add(new SimpleGrantedAuthority("ROLE_SUPER_SYSTEM_MANAGER"));
+                    }
+                    this.authorities = result;
+                }
             }
         }
-        return this.authorities;
+        return result;
     }
 
     @Override
@@ -76,7 +84,7 @@ public class LoginSystemManager implements UserDetails {
 
     @Override
     @JsonIgnore
-    public String getUsername() {
+    public @NonNull String getUsername() {
         return systemManager.getNickname();
     }
 

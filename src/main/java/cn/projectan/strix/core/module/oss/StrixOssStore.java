@@ -4,10 +4,9 @@ import jakarta.annotation.PreDestroy;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Strix OSS 客户端容器
@@ -19,7 +18,7 @@ import java.util.Set;
 @ConditionalOnProperty(prefix = "strix.module", name = "oss", havingValue = "true")
 public class StrixOssStore {
 
-    private final Map<String, StrixOssClient> instanceMap = new HashMap<>();
+    private final Map<String, StrixOssClient> instanceMap = new ConcurrentHashMap<>();
 
     public void addInstance(String key, StrixOssClient instance) {
         instanceMap.put(key, instance);
@@ -30,8 +29,11 @@ public class StrixOssStore {
     }
 
     public void removeInstance(String key) {
-        Optional.ofNullable(instanceMap.get(key)).ifPresent(StrixOssClient::close);
-        instanceMap.remove(key);
+        // 原子地移除并关闭，避免 check-then-act 竞态
+        StrixOssClient removed = instanceMap.remove(key);
+        if (removed != null) {
+            removed.close();
+        }
     }
 
     public Set<String> getInstanceKeySet() {
