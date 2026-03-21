@@ -23,6 +23,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * <p>
  * Strix 定时任务 服务类
@@ -114,9 +117,15 @@ public class JobService extends ServiceImpl<JobMapper, Job> {
      */
     @Transactional(rollbackFor = Exception.class)
     public void deleteJobByIds(String[] jobIds) throws SchedulerException {
-        for (String jobId : jobIds) {
-            Job job = getBaseMapper().selectById(jobId);
-            Assert.isTrue(deleteJob(job), "删除任务失败");
+        List<String> idList = Arrays.asList(jobIds);
+        List<Job> jobs = getBaseMapper().selectByIds(idList);
+        Assert.isTrue(jobs.size() == jobIds.length, "部分任务不存在");
+
+        int rows = getBaseMapper().deleteByIds(idList);
+        Assert.isTrue(rows == jobIds.length, "删除任务失败");
+
+        for (Job job : jobs) {
+            Assert.isTrue(scheduler.deleteJob(ScheduleUtil.getJobKey(job.getId(), job.getGroup())), "删除调度任务失败");
         }
     }
 

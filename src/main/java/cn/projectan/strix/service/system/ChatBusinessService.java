@@ -610,6 +610,8 @@ public class ChatBusinessService {
         // 去重
         memberUserIds = memberUserIds.stream().distinct().toList();
 
+        LocalDateTime now = LocalDateTime.now();
+        List<ChatSessionMember> members = new ArrayList<>();
         for (int i = 0; i < memberUserIds.size(); i++) {
             String memberId = memberUserIds.get(i);
             ChatSessionMember member = new ChatSessionMember();
@@ -617,10 +619,10 @@ public class ChatBusinessService {
             member.setSessionId(sessionId);
             member.setUserId(memberId);
             member.setRole(i == 0 ? ChatMemberRoleEnum.OWNER.getCodeValue() : ChatMemberRoleEnum.MEMBER.getCodeValue());
-            member.setJoinTime(LocalDateTime.now());
-
-            chatSessionMemberService.save(member);
+            member.setJoinTime(now);
+            members.add(member);
         }
+        chatSessionMemberService.saveBatch(members);
     }
 
     /**
@@ -643,20 +645,15 @@ public class ChatBusinessService {
      * @param senderId  发送者用户 ID
      */
     private void unhideSessionForReceivers(String sessionId, String senderId) {
-        LambdaQueryWrapper<ChatSessionMember> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(ChatSessionMember::getSessionId, sessionId)
+        boolean updated = chatSessionMemberService.lambdaUpdate()
+                .eq(ChatSessionMember::getSessionId, sessionId)
                 .ne(ChatSessionMember::getUserId, senderId)
-                .eq(ChatSessionMember::getHiddenStatus, 1);
-
-        List<ChatSessionMember> hiddenMembers = chatSessionMemberMapper.selectList(queryWrapper);
-
-        if (!hiddenMembers.isEmpty()) {
-            for (ChatSessionMember member : hiddenMembers) {
-                member.setHiddenStatus((short) 0);
-                member.setUpdatedTime(LocalDateTime.now());
-                chatSessionMemberService.updateById(member);
-            }
-            log.info("自动取消会话隐藏: sessionId={}, unhiddenCount={}", sessionId, hiddenMembers.size());
+                .eq(ChatSessionMember::getHiddenStatus, 1)
+                .set(ChatSessionMember::getHiddenStatus, (short) 0)
+                .set(ChatSessionMember::getUpdatedTime, LocalDateTime.now())
+                .update();
+        if (updated) {
+            log.info("自动取消会话隐藏: sessionId={}", sessionId);
         }
     }
 
