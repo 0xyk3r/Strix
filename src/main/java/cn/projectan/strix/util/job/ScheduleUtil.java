@@ -14,7 +14,7 @@ import org.quartz.*;
  *
  * @author ProjectAn
  */
-public class ScheduleUtils {
+public class ScheduleUtil {
 
     /**
      * 获取 quartz 任务类
@@ -76,7 +76,7 @@ public class ScheduleUtils {
 
         // 暂停任务
         if (job.getStatus() == JobStatus.PAUSE) {
-            scheduler.pauseJob(ScheduleUtils.getJobKey(jobId, jobGroup));
+            scheduler.pauseJob(ScheduleUtil.getJobKey(jobId, jobGroup));
         }
     }
 

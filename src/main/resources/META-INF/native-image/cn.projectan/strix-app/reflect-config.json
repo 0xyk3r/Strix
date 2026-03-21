@@ -15685,7 +15685,7 @@
     ]
   },
   {
-    "name": "cn.projectan.strix.model.other.captcha.CaptchaPointVO",
+    "name": "cn.projectan.strix.model.other.captcha.CaptchaPoint",
     "methods": [
       {
         "name": "<init>",
@@ -15968,7 +15968,7 @@
     "name": "cn.projectan.strix.model.other.security.SystemUserTokenInfo"
   },
   {
-    "name": "cn.projectan.strix.model.other.security.TokenDTO"
+    "name": "cn.projectan.strix.model.other.security.TokenInfo"
   },
   {
     "name": "cn.projectan.strix.model.properties.StrixCaptchaProperties",

@@ -97,7 +97,7 @@ public class JobController extends BaseSystemController {
         UniqueChecker.check(job);
 
         try {
-            jobService.insertJob(job);
+            jobService.createJob(job);
         } catch (Exception e) {
             return RetBuilder.error(e.getMessage());
         }

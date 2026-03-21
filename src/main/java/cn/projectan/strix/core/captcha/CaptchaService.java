@@ -2,7 +2,7 @@ package cn.projectan.strix.core.captcha;
 
 
 import cn.projectan.strix.core.ret.RetResult;
-import cn.projectan.strix.model.other.system.captcha.CaptchaDataVO;
+import cn.projectan.strix.model.other.system.captcha.CaptchaData;
 import cn.projectan.strix.model.response.system.module.captcha.CheckCaptchaResp;
 import cn.projectan.strix.model.response.system.module.captcha.GetCaptchaResp;
 
@@ -24,26 +24,26 @@ public interface CaptchaService {
     /**
      * 获取验证码
      *
-     * @param captchaDataVO 验证码VO
+     * @param captchaDataVO 验证码数据
      * @return RetResult<CaptchaGetResp>
      */
-    RetResult<GetCaptchaResp> get(CaptchaDataVO captchaDataVO);
+    RetResult<GetCaptchaResp> get(CaptchaData captchaDataVO);
 
     /**
      * 核对验证码 (前端)
      *
-     * @param captchaDataVO 验证码VO
+     * @param captchaDataVO 验证码数据
      * @return RetResult<CaptchaCheckResp>
      */
-    RetResult<CheckCaptchaResp> check(CaptchaDataVO captchaDataVO);
+    RetResult<CheckCaptchaResp> check(CaptchaData captchaDataVO);
 
     /**
      * 二次校验验证码 (后端)
      *
-     * @param captchaDataVO 验证码VO
+     * @param captchaDataVO 验证码数据
      * @return RetResult<Void>
      */
-    RetResult<Void> verification(CaptchaDataVO captchaDataVO);
+    RetResult<Void> verification(CaptchaData captchaDataVO);
 
     /***
      * 验证码类型

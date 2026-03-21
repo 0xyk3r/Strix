@@ -9,8 +9,8 @@ import cn.projectan.strix.core.ret.RetBuilder;
 import cn.projectan.strix.core.ret.RetCode;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.model.enums.system.StrixCaptchaTypeEnum;
-import cn.projectan.strix.model.other.system.captcha.CaptchaDataVO;
-import cn.projectan.strix.model.other.system.captcha.CaptchaPointVO;
+import cn.projectan.strix.model.other.system.captcha.CaptchaData;
+import cn.projectan.strix.model.other.system.captcha.CaptchaPoint;
 import cn.projectan.strix.model.response.system.module.captcha.CheckCaptchaResp;
 import cn.projectan.strix.model.response.system.module.captcha.GetCaptchaResp;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -51,7 +51,7 @@ public class BlockPuzzleCaptchaServiceImpl extends AbstractCaptchaService {
     }
 
     @Override
-    public RetResult<GetCaptchaResp> get(CaptchaDataVO captchaDataVO) {
+    public RetResult<GetCaptchaResp> get(CaptchaData captchaDataVO) {
         RetResult<GetCaptchaResp> r = super.get(captchaDataVO);
         if (!validatedReq(r)) {
             return r;
@@ -80,7 +80,7 @@ public class BlockPuzzleCaptchaServiceImpl extends AbstractCaptchaService {
     }
 
     @Override
-    public RetResult<CheckCaptchaResp> check(CaptchaDataVO captchaDataVO) {
+    public RetResult<CheckCaptchaResp> check(CaptchaData captchaDataVO) {
         RetResult<CheckCaptchaResp> r = super.check(captchaDataVO);
         if (!validatedReq(r)) {
             return r;
@@ -93,14 +93,14 @@ public class BlockPuzzleCaptchaServiceImpl extends AbstractCaptchaService {
         String s = CaptchaServiceFactory.getCache(cacheType).get(codeKey);
         // 验证码只用一次，即刻失效
         CaptchaServiceFactory.getCache(cacheType).delete(codeKey);
-        CaptchaPointVO point;
-        CaptchaPointVO point1;
+        CaptchaPoint point;
+        CaptchaPoint point1;
         String pointJson;
         try {
-            point = objectMapper.readValue(s, CaptchaPointVO.class);
+            point = objectMapper.readValue(s, CaptchaPoint.class);
             // aes解密
             pointJson = decrypt(captchaDataVO.getPointJson(), point.getSecretKey());
-            point1 = objectMapper.readValue(pointJson, CaptchaPointVO.class);
+            point1 = objectMapper.readValue(pointJson, CaptchaPoint.class);
         } catch (Exception e) {
             log.error("Strix Captcha: 验证码坐标解析失败", e);
             afterValidateFail(captchaDataVO);
@@ -136,7 +136,7 @@ public class BlockPuzzleCaptchaServiceImpl extends AbstractCaptchaService {
     }
 
     @Override
-    public RetResult<Void> verification(CaptchaDataVO captchaDataVO) {
+    public RetResult<Void> verification(CaptchaData captchaDataVO) {
         RetResult<Void> r = super.verification(captchaDataVO);
         if (!validatedReq(r)) {
             return r;
@@ -166,7 +166,7 @@ public class BlockPuzzleCaptchaServiceImpl extends AbstractCaptchaService {
             int jigsawHeight = jigsawImage.getHeight();
 
             // 随机生成拼图坐标
-            CaptchaPointVO point = generateJigsawPoint(originalWidth, originalHeight, jigsawWidth, jigsawHeight);
+            CaptchaPoint point = generateJigsawPoint(originalWidth, originalHeight, jigsawWidth, jigsawHeight);
             int x = point.getX();
             int y = point.getY();
 
@@ -248,7 +248,7 @@ public class BlockPuzzleCaptchaServiceImpl extends AbstractCaptchaService {
         return null;
     }
 
-    private String toJsonString(CaptchaPointVO point) {
+    private String toJsonString(CaptchaPoint point) {
         try {
             return objectMapper.writeValueAsString(point);
         } catch (JsonProcessingException e) {
@@ -266,7 +266,7 @@ public class BlockPuzzleCaptchaServiceImpl extends AbstractCaptchaService {
      * @param jigsawHeight   拼图高度
      * @return 拼图坐标
      */
-    private CaptchaPointVO generateJigsawPoint(int originalWidth, int originalHeight, int jigsawWidth, int jigsawHeight) {
+    private CaptchaPoint generateJigsawPoint(int originalWidth, int originalHeight, int jigsawWidth, int jigsawHeight) {
         Random random = new Random();
         int widthDifference = originalWidth - jigsawWidth;
         int heightDifference = originalHeight - jigsawHeight;
@@ -287,7 +287,7 @@ public class BlockPuzzleCaptchaServiceImpl extends AbstractCaptchaService {
         if (captchaAesStatus) {
             key = StrixCaptchaSM4Util.getKey();
         }
-        return new CaptchaPointVO(key, x, y);
+        return new CaptchaPoint(key, x, y);
     }
 
     /**

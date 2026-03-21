@@ -4,7 +4,7 @@ import cn.projectan.strix.controller.system.base.BaseSystemController;
 import cn.projectan.strix.core.captcha.CaptchaService;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.model.annotation.Anonymous;
-import cn.projectan.strix.model.other.system.captcha.CaptchaDataVO;
+import cn.projectan.strix.model.other.system.captcha.CaptchaData;
 import cn.projectan.strix.model.request.system.module.captcha.CheckCaptchaReq;
 import cn.projectan.strix.model.request.system.module.captcha.GetCaptchaReq;
 import cn.projectan.strix.model.response.system.module.captcha.CheckCaptchaResp;
@@ -43,7 +43,7 @@ public class CaptchaController extends BaseSystemController {
     @Operation(summary = "获取验证码")
     public RetResult<GetCaptchaResp> get(@RequestBody GetCaptchaReq req, HttpServletRequest request) {
         Assert.notNull(request.getRemoteHost(), "请求无效");
-        CaptchaDataVO data = new CaptchaDataVO();
+        CaptchaData data = new CaptchaData();
         data.setCaptchaType(req.getCaptchaType());
         data.setBrowserInfo(getRemoteId(request));
         return captchaService.get(data);
@@ -56,7 +56,7 @@ public class CaptchaController extends BaseSystemController {
     @PostMapping("check")
     @Operation(summary = "校验验证码")
     public RetResult<CheckCaptchaResp> check(@RequestBody CheckCaptchaReq req, HttpServletRequest request) {
-        CaptchaDataVO data = new CaptchaDataVO();
+        CaptchaData data = new CaptchaData();
         data.setCaptchaType(req.getCaptchaType());
         data.setPointJson(req.getPointJson());
         data.setToken(req.getUuid());

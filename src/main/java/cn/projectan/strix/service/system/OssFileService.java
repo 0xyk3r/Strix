@@ -10,7 +10,7 @@ import cn.projectan.strix.model.dict.system.OssFileGroupSecretType;
 import cn.projectan.strix.util.common.SnowflakeUtil;
 import cn.projectan.strix.util.file.FileMagicValidator;
 import cn.projectan.strix.util.file.FileUtil;
-import cn.projectan.strix.util.http.ServletUtils;
+import cn.projectan.strix.util.http.ServletUtil;
 import cn.projectan.strix.util.text.RegexPatterns;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.servlet.http.HttpServletResponse;
@@ -372,7 +372,7 @@ public class OssFileService extends ServiceImpl<OssFileMapper, OssFile> {
         FileAndGroup fileAndGroup = getFileAndGroup(fileId, "下载文件失败");
         StrixOssClient client = getOssClient(fileAndGroup.ossFileGroup().getConfigKey());
 
-        HttpServletResponse response = ServletUtils.getResponse();
+        HttpServletResponse response = ServletUtil.getResponse();
 
         return client.getPrivate().downloadStream(fileAndGroup.ossFileGroup().getBucketName(), fileAndGroup.ossFile().getPath(), response);
     }
@@ -392,7 +392,7 @@ public class OssFileService extends ServiceImpl<OssFileMapper, OssFile> {
 
         StrixOssClient client = getOssClient(fileAndGroup.ossFileGroup().getConfigKey());
 
-        HttpServletResponse response = ServletUtils.getResponse();
+        HttpServletResponse response = ServletUtil.getResponse();
 
         return client.getPrivate().downloadStream(fileAndGroup.ossFileGroup().getBucketName(), fileAndGroup.ossFile().getPath(), response);
     }

@@ -6,12 +6,12 @@ import java.io.Serial;
 import java.io.Serializable;
 
 /**
- * 验证码数据VO
+ * 验证码数据
  *
  * @author ProjectAn
  */
 @Data
-public class CaptchaDataVO implements Serializable {
+public class CaptchaData implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -39,7 +39,7 @@ public class CaptchaDataVO implements Serializable {
     /**
      * 滑块点选坐标
      */
-    private CaptchaPointVO point;
+    private CaptchaPoint point;
 
     /**
      * 点坐标(base64加密传输)

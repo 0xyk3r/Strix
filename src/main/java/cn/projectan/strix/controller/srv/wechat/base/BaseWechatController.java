@@ -2,7 +2,7 @@ package cn.projectan.strix.controller.srv.wechat.base;
 
 import cn.projectan.strix.controller.BaseController;
 import cn.projectan.strix.model.db.system.SystemUser;
-import cn.projectan.strix.util.system.SecurityUtils;
+import cn.projectan.strix.util.system.SecurityUtil;
 import org.springframework.util.Assert;
 
 /**
@@ -17,7 +17,7 @@ public class BaseWechatController extends BaseController {
      * 获取登录用户信息
      */
     protected SystemUser getLoginSystemUser() {
-        SystemUser systemUser = SecurityUtils.getSystemUser();
+        SystemUser systemUser = SecurityUtil.getSystemUser();
         Assert.notNull(systemUser, "获取登录信息失败");
         return systemUser;
     }

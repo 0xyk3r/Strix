@@ -1,7 +1,7 @@
 package cn.projectan.strix.config;
 
 import cn.projectan.strix.util.common.I18nUtil;
-import cn.projectan.strix.util.http.ServletUtils;
+import cn.projectan.strix.util.http.ServletUtil;
 import jakarta.annotation.Nonnull;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -28,7 +28,7 @@ public class StrixLocaleResolver implements LocaleResolver {
     private String defaultLocale;
 
     public Locale getLocal() {
-        return resolveLocale(ServletUtils.getRequest());
+        return resolveLocale(ServletUtil.getRequest());
     }
 
     @Nonnull

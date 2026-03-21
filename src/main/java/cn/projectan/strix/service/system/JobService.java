@@ -7,7 +7,7 @@ import cn.projectan.strix.model.constant.system.StrixJobConst;
 import cn.projectan.strix.model.db.system.Job;
 import cn.projectan.strix.model.dict.system.JobStatus;
 import cn.projectan.strix.util.common.CronUtil;
-import cn.projectan.strix.util.job.ScheduleUtils;
+import cn.projectan.strix.util.job.ScheduleUtil;
 import cn.projectan.strix.util.reflect.InvokeUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.quartz.JobDataMap;
@@ -52,7 +52,7 @@ public class JobService extends ServiceImpl<JobMapper, Job> {
         job.setStatus(JobStatus.PAUSE);
         int rows = getBaseMapper().updateById(job);
         if (rows > 0) {
-            scheduler.pauseJob(ScheduleUtils.getJobKey(jobId, jobGroup));
+            scheduler.pauseJob(ScheduleUtil.getJobKey(jobId, jobGroup));
         }
         return rows > 0;
     }
@@ -70,7 +70,7 @@ public class JobService extends ServiceImpl<JobMapper, Job> {
         job.setStatus(JobStatus.NORMAL);
         int rows = getBaseMapper().updateById(job);
         if (rows > 0) {
-            scheduler.resumeJob(ScheduleUtils.getJobKey(jobId, jobGroup));
+            scheduler.resumeJob(ScheduleUtil.getJobKey(jobId, jobGroup));
         }
         return rows > 0;
     }
@@ -87,7 +87,7 @@ public class JobService extends ServiceImpl<JobMapper, Job> {
         String jobGroup = job.getGroup();
         int rows = getBaseMapper().deleteById(job);
         if (rows > 0) {
-            Assert.isTrue(scheduler.deleteJob(ScheduleUtils.getJobKey(jobId, jobGroup)), "删除任务失败");
+            Assert.isTrue(scheduler.deleteJob(ScheduleUtil.getJobKey(jobId, jobGroup)), "删除任务失败");
         }
         return rows > 0;
     }
@@ -132,7 +132,7 @@ public class JobService extends ServiceImpl<JobMapper, Job> {
         // 组装参数
         JobDataMap dataMap = new JobDataMap();
         dataMap.put(StrixJobConst.TASK_PROPERTIES, job);
-        JobKey jobKey = ScheduleUtils.getJobKey(job.getId(), job.getGroup());
+        JobKey jobKey = ScheduleUtil.getJobKey(job.getId(), job.getGroup());
         if (scheduler.checkExists(jobKey)) {
             scheduler.triggerJob(jobKey, dataMap);
             return true;
@@ -147,11 +147,11 @@ public class JobService extends ServiceImpl<JobMapper, Job> {
      * @param job 调度信息
      */
     @Transactional(rollbackFor = Exception.class)
-    public void insertJob(Job job) throws SchedulerException, StrixJobException {
+    public void createJob(Job job) throws SchedulerException, StrixJobException {
         job.setStatus(JobStatus.PAUSE);
         int rows = getBaseMapper().insert(job);
         if (rows > 0) {
-            ScheduleUtils.createScheduleJob(scheduler, job);
+            ScheduleUtil.createScheduleJob(scheduler, job);
         }
     }
 
@@ -166,11 +166,11 @@ public class JobService extends ServiceImpl<JobMapper, Job> {
         String originalJobGroup = job.getGroup();
         int rows = getBaseMapper().updateById(job);
         if (rows > 0) {
-            JobKey jobKey = ScheduleUtils.getJobKey(originalJobId, originalJobGroup);
+            JobKey jobKey = ScheduleUtil.getJobKey(originalJobId, originalJobGroup);
             if (scheduler.checkExists(jobKey)) {
                 scheduler.deleteJob(jobKey);
             }
-            ScheduleUtils.createScheduleJob(scheduler, job);
+            ScheduleUtil.createScheduleJob(scheduler, job);
         }
     }
 

@@ -4,7 +4,7 @@ import cn.projectan.strix.model.annotation.StrixJob;
 import cn.projectan.strix.model.db.system.SystemConfig;
 import cn.projectan.strix.model.db.system.SystemManager;
 import cn.projectan.strix.service.system.SystemConfigService;
-import cn.projectan.strix.util.system.SecurityUtils;
+import cn.projectan.strix.util.system.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -41,7 +41,7 @@ public class StrixTestJob {
     }
 
     public boolean testCheckSystemManager() {
-        String loginManagerName = Optional.ofNullable(SecurityUtils.getSystemManager()).map(SystemManager::getNickname).orElse(null);
+        String loginManagerName = Optional.ofNullable(SecurityUtil.getSystemManager()).map(SystemManager::getNickname).orElse(null);
         log.info("Do job: `StrixTestJob.testCheckSystemManager` {}", loginManagerName);
         return "anjiongyi".equals(loginManagerName);
     }

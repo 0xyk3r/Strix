@@ -7,7 +7,7 @@ import cn.projectan.strix.model.other.system.module.pay.BasePayResult;
 import cn.projectan.strix.model.other.system.module.pay.alipay.AlipayPayConfig;
 import cn.projectan.strix.util.common.ObjectMapperUtil;
 import cn.projectan.strix.util.file.CertUtil;
-import cn.projectan.strix.util.http.ServletUtils;
+import cn.projectan.strix.util.http.ServletUtil;
 import cn.projectan.strix.util.math.Arithmetic;
 import com.alipay.api.domain.AlipayTradePagePayModel;
 import com.alipay.api.domain.AlipayTradeWapPayModel;
@@ -86,7 +86,7 @@ public class AlipayPayClient extends StrixPayClient {
         model.setProductCode("QUICK_WAP_PAY");
         model.setTimeExpire(payOrder.getExpireTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
         try {
-            HttpServletResponse response = ServletUtils.getResponse();
+            HttpServletResponse response = ServletUtil.getResponse();
             AliPayApi.wapPay(response, model, config.getReturnUrl(), config.getNotifyUrl());
             return new HashMap<>();
         } catch (Exception e) {
@@ -117,7 +117,7 @@ public class AlipayPayClient extends StrixPayClient {
          * model.setExtendParams(extendParams);
          */
         try {
-            HttpServletResponse response = ServletUtils.getResponse();
+            HttpServletResponse response = ServletUtil.getResponse();
             AliPayApi.tradePage(response, model, config.getNotifyUrl(), config.getReturnUrl());
             return new HashMap<>();
         } catch (Exception e) {
@@ -158,7 +158,7 @@ public class AlipayPayClient extends StrixPayClient {
 
     @Override
     public void respondNotify(boolean success, HttpServletResponse response) {
-        ServletUtils.write(response, success ? "success" : "failure");
+        ServletUtil.write(response, success ? "success" : "failure");
     }
 
 }

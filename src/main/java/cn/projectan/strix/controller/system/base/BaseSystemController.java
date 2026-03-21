@@ -5,7 +5,7 @@ import cn.projectan.strix.core.exception.StrixException;
 import cn.projectan.strix.core.ss.details.LoginSystemManager;
 import cn.projectan.strix.model.db.system.SystemManager;
 import cn.projectan.strix.model.dict.system.SystemRoleRegionPermissionType;
-import cn.projectan.strix.util.system.SecurityUtils;
+import cn.projectan.strix.util.system.SecurityUtil;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -23,42 +23,42 @@ public class BaseSystemController extends BaseController {
     private static final List<String> EMPTY_FILL_LIST = List.of("-1");
 
     protected SystemManager loginManager() {
-        return SecurityUtils.getSystemManager();
+        return SecurityUtil.getSystemManager();
     }
 
     /**
      * 获取当前登录账号的ID
      */
     protected String loginManagerId() {
-        return SecurityUtils.getOperatorId();
+        return SecurityUtil.getOperatorId();
     }
 
     /**
      * 获取当前登录账号的地区ID
      */
     protected String loginManagerRegionId() {
-        return Optional.ofNullable(SecurityUtils.getSystemManager()).map(SystemManager::getRegionId).orElse(null);
+        return Optional.ofNullable(SecurityUtil.getSystemManager()).map(SystemManager::getRegionId).orElse(null);
     }
 
     /**
      * 检查当前账号是否为超级管理员
      */
     protected boolean isSuperManager() {
-        return SecurityUtils.isSuperAdmin();
+        return SecurityUtil.isSuperAdmin();
     }
 
     /**
      * 检查当前账号是否非超级管理员
      */
     protected boolean notSuperManager() {
-        return !SecurityUtils.isSuperAdmin();
+        return !SecurityUtil.isSuperAdmin();
     }
 
     /**
      * 获取当前账号的地区权限
      */
     protected List<String> loginManagerRegionIdList() {
-        List<String> loginSystemManagerRegionIdList = Optional.ofNullable(SecurityUtils.getSystemManagerLoginInfo()).map(LoginSystemManager::getRegionIds).orElse(null);
+        List<String> loginSystemManagerRegionIdList = Optional.ofNullable(SecurityUtil.getSystemManagerLoginInfo()).map(LoginSystemManager::getRegionIds).orElse(null);
         if (CollectionUtils.isEmpty(loginSystemManagerRegionIdList)) {
             return EMPTY_FILL_LIST;
         }
@@ -69,7 +69,7 @@ public class BaseSystemController extends BaseController {
      * 获取当前账号的地区权限, 排除当前地区
      */
     protected List<String> loginManagerRegionIdListExcludeCurrent() {
-        List<String> loginSystemManagerRegionIdList = Optional.ofNullable(SecurityUtils.getSystemManagerLoginInfo()).map(LoginSystemManager::getRegionIds).orElse(null);
+        List<String> loginSystemManagerRegionIdList = Optional.ofNullable(SecurityUtil.getSystemManagerLoginInfo()).map(LoginSystemManager::getRegionIds).orElse(null);
         if (CollectionUtils.isEmpty(loginSystemManagerRegionIdList)) {
             return EMPTY_FILL_LIST;
         }
@@ -83,10 +83,10 @@ public class BaseSystemController extends BaseController {
      * 返回 [] 或 ["-1"] 表示无权限
      */
     protected static List<String> loginManagerRegionPermissions() {
-        if (SecurityUtils.isSuperAdmin()) {
+        if (SecurityUtil.isSuperAdmin()) {
             return null;
         }
-        short regionPermissionType = Optional.ofNullable(SecurityUtils.getSystemManagerLoginInfo())
+        short regionPermissionType = Optional.ofNullable(SecurityUtil.getSystemManagerLoginInfo())
                 .map(LoginSystemManager::getRegionPermissionType)
                 .orElse((short) -1);
         switch (regionPermissionType) {
@@ -94,10 +94,10 @@ public class BaseSystemController extends BaseController {
                 return null;
             }
             case SystemRoleRegionPermissionType.WITH_SUB_REGION -> {
-                return Optional.ofNullable(SecurityUtils.getSystemManagerLoginInfo()).map(LoginSystemManager::getRegionIds).orElse(null);
+                return Optional.ofNullable(SecurityUtil.getSystemManagerLoginInfo()).map(LoginSystemManager::getRegionIds).orElse(null);
             }
             case SystemRoleRegionPermissionType.CURR_REGION -> {
-                String regionId = Optional.ofNullable(SecurityUtils.getSystemManager()).map(SystemManager::getRegionId).orElse(null);
+                String regionId = Optional.ofNullable(SecurityUtil.getSystemManager()).map(SystemManager::getRegionId).orElse(null);
                 // 防止未配置地区ID的情况下, 查询越权
                 if (!StringUtils.hasText(regionId)) {
                     regionId = "-1";

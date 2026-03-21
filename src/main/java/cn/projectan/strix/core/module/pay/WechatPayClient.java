@@ -13,7 +13,7 @@ import cn.projectan.strix.model.other.system.module.pay.wxpay.WechatPayConfig;
 import cn.projectan.strix.model.other.system.module.pay.wxpay.WechatPayPayParam;
 import cn.projectan.strix.util.common.SpringUtil;
 import cn.projectan.strix.util.file.CertUtil;
-import cn.projectan.strix.util.http.ServletUtils;
+import cn.projectan.strix.util.http.ServletUtil;
 import com.ijpay.core.IJPayHttpResponse;
 import com.ijpay.core.enums.AuthTypeEnum;
 import com.ijpay.core.enums.RequestMethodEnum;
@@ -225,7 +225,7 @@ public class WechatPayClient extends StrixPayClient {
     @Override
     public void respondNotify(boolean success, HttpServletResponse response) {
         response.setStatus(success ? 200 : 500);
-        ServletUtils.write(response, success ? "{\"code\":\"SUCCESS\",\"message\":\"SUCCESS\"}" : "{\"code\":\"FAIL\",\"message\":\"FAIL\"}");
+        ServletUtil.write(response, success ? "{\"code\":\"SUCCESS\",\"message\":\"SUCCESS\"}" : "{\"code\":\"FAIL\",\"message\":\"FAIL\"}");
     }
 
     /**

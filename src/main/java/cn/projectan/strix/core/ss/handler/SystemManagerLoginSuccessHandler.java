@@ -1,7 +1,7 @@
 package cn.projectan.strix.core.ss.handler;
 
 import cn.projectan.strix.core.ret.RetBuilder;
-import cn.projectan.strix.util.http.ServletUtils;
+import cn.projectan.strix.util.http.ServletUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +27,7 @@ public class SystemManagerLoginSuccessHandler implements AuthenticationSuccessHa
     public void onAuthenticationSuccess(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull Authentication authentication) throws IOException {
 
         String result = objectMapper.writeValueAsString(RetBuilder.success("登录成功"));
-        ServletUtils.write(response, result);
+        ServletUtil.write(response, result);
     }
 
 }

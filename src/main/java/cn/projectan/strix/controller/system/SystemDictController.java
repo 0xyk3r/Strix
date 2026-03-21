@@ -144,7 +144,7 @@ public class SystemDictController extends BaseSystemController {
 
         Dict dict = dictService.getById(id);
         if (dict != null) {
-            dictService.removeDict(dict);
+            dictService.deleteDict(dict);
         }
 
         return RetBuilder.success();
@@ -242,7 +242,7 @@ public class SystemDictController extends BaseSystemController {
 
         DictData dictData = dictDataService.getById(id);
         if (dictData != null) {
-            dictService.removeDictData(dictData);
+            dictService.deleteDictData(dictData);
         }
 
         return RetBuilder.success();

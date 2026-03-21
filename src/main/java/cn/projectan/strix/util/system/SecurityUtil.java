@@ -23,7 +23,7 @@ import java.util.Set;
  * @since 2023/2/25 16:42
  */
 @Slf4j
-public class SecurityUtils {
+public class SecurityUtil {
 
     /**
      * 获取操作者类型

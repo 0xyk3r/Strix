@@ -5,7 +5,7 @@ import cn.hutool.core.util.StrUtil;
 import cn.projectan.strix.core.exception.StrixException;
 import cn.projectan.strix.model.annotation.UpdateField;
 import cn.projectan.strix.util.reflect.ReflectUtil;
-import cn.projectan.strix.util.system.SecurityUtils;
+import cn.projectan.strix.util.system.SecurityUtil;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import lombok.extern.slf4j.Slf4j;
@@ -48,8 +48,8 @@ public class UpdateBuilder {
         updateWrapper.eq("id", id);
 
         // 设置修改用户
-        short updatedByType = SecurityUtils.getOperatorType();
-        String updatedBy = SecurityUtils.getOperatorId();
+        short updatedByType = SecurityUtil.getOperatorType();
+        String updatedBy = SecurityUtil.getOperatorId();
         if (StringUtils.hasText(updatedBy)) {
             updateWrapper.set("updated_by_type", updatedByType);
             updateWrapper.set("updated_by", updatedBy);

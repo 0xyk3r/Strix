@@ -141,7 +141,7 @@ public class DictService extends ServiceImpl<DictMapper, Dict> {
                     @CacheEvict(value = "strix:dict:versionMap", allEntries = true)
             }
     )
-    public void removeDict(Dict dict) {
+    public void deleteDict(Dict dict) {
         Assert.isTrue(dictDataService.lambdaUpdate()
                 .eq(DictData::getKey, dict.getKey())
                 .remove(), "删除失败");
@@ -220,7 +220,7 @@ public class DictService extends ServiceImpl<DictMapper, Dict> {
             }
     )
     @Transactional(rollbackFor = Exception.class)
-    public void removeDictData(DictData dictData) {
+    public void deleteDictData(DictData dictData) {
         Dict dict = lambdaQuery()
                 .eq(Dict::getKey, dictData.getKey())
                 .one();

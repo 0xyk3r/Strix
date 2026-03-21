@@ -8,9 +8,9 @@ import cn.projectan.strix.model.db.system.SystemManager;
 import cn.projectan.strix.model.dict.system.SystemLogOperType;
 import cn.projectan.strix.service.system.AsyncSystemLogService;
 import cn.projectan.strix.util.common.I18nUtil;
-import cn.projectan.strix.util.http.ServletUtils;
+import cn.projectan.strix.util.http.ServletUtil;
 import cn.projectan.strix.util.ip.IpUtils;
-import cn.projectan.strix.util.system.SecurityUtils;
+import cn.projectan.strix.util.system.SecurityUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -44,7 +44,7 @@ public class AccessDeniedHandlerImpl implements AccessDeniedHandler {
 
         response.setContentType("application/json;charset=utf-8");
         response.setStatus(HttpServletResponse.SC_OK);
-        ServletUtils.write(response, objectMapper.writeValueAsString(RetBuilder.error(RetCode.NOT_PERMISSION, I18nUtil.get("error.notPermission"))));
+        ServletUtil.write(response, objectMapper.writeValueAsString(RetBuilder.error(RetCode.NOT_PERMISSION, I18nUtil.get("error.notPermission"))));
     }
 
     private void recordSecurityLog(HttpServletRequest request, AccessDeniedException e) {
@@ -63,7 +63,7 @@ public class AccessDeniedHandlerImpl implements AccessDeniedHandler {
             systemLog.setResponseMsg(e.getMessage());
 
             try {
-                SystemManager manager = SecurityUtils.getSystemManager();
+                SystemManager manager = SecurityUtil.getSystemManager();
                 if (manager != null) {
                     systemLog.setClientUser(manager.getId());
                     systemLog.setClientUsername(manager.getNickname());

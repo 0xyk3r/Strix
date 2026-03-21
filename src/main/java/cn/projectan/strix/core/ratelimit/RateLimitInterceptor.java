@@ -7,7 +7,7 @@ import cn.projectan.strix.model.constant.system.StrixRedisKeyConst;
 import cn.projectan.strix.model.properties.system.StrixRateLimitProperties;
 import cn.projectan.strix.util.common.RedisUtil;
 import cn.projectan.strix.util.ip.IpUtils;
-import cn.projectan.strix.util.system.SecurityUtils;
+import cn.projectan.strix.util.system.SecurityUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -104,7 +104,7 @@ public class RateLimitInterceptor implements HandlerInterceptor {
      * 确定限流标识：已认证用户用 userId，未认证用 IP
      */
     private String resolveIdentifier(HttpServletRequest request) {
-        String operatorId = SecurityUtils.getOperatorId();
+        String operatorId = SecurityUtil.getOperatorId();
         if (StringUtils.hasText(operatorId)) {
             return "u:" + operatorId;
         }

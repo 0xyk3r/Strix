@@ -6,7 +6,7 @@ import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.core.security.ApiSecurity;
 import cn.projectan.strix.model.annotation.IgnoreEncryption;
 import cn.projectan.strix.model.constant.system.StrixPasswordConst;
-import cn.projectan.strix.util.http.ServletUtils;
+import cn.projectan.strix.util.http.ServletUtil;
 import jakarta.annotation.Nonnull;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -41,7 +41,7 @@ public class EncodeResponseBodyAdvice implements ResponseBodyAdvice<Object> {
     @SneakyThrows
     @Override
     public boolean supports(@NotNull MethodParameter methodParameter, @Nonnull Class aClass) {
-        if (StrixPasswordConst.IGNORE_ENCRYPTION.equals(ServletUtils.getRequest().getHeader("ss-pwd"))) {
+        if (StrixPasswordConst.IGNORE_ENCRYPTION.equals(ServletUtil.getRequest().getHeader("ss-pwd"))) {
             return false;
         }
         String className = methodParameter.getContainingClass().getName();

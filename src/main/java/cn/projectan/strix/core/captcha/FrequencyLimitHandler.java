@@ -4,7 +4,7 @@ package cn.projectan.strix.core.captcha;
 import cn.projectan.strix.core.ret.RetBuilder;
 import cn.projectan.strix.core.ret.RetCode;
 import cn.projectan.strix.core.ret.RetResult;
-import cn.projectan.strix.model.other.system.captcha.CaptchaDataVO;
+import cn.projectan.strix.model.other.system.captcha.CaptchaData;
 import cn.projectan.strix.model.properties.system.StrixCaptchaProperties;
 import org.springframework.util.StringUtils;
 
@@ -21,7 +21,7 @@ public interface FrequencyLimitHandler {
      * @param captchaDataVO captchaVO
      * @return RetResult<?> - null表示通过, 非null表示被限流
      */
-    RetResult<?> validateGet(CaptchaDataVO captchaDataVO);
+    RetResult<?> validateGet(CaptchaData captchaDataVO);
 
     /**
      * check 接口限流
@@ -29,7 +29,7 @@ public interface FrequencyLimitHandler {
      * @param captchaDataVO captchaVO
      * @return RetResult<?> - null表示通过, 非null表示被限流
      */
-    RetResult<?> validateCheck(CaptchaDataVO captchaDataVO);
+    RetResult<?> validateCheck(CaptchaData captchaDataVO);
 
     /**
      * verify 接口限流
@@ -37,7 +37,7 @@ public interface FrequencyLimitHandler {
      * @param captchaDataVO captchaVO
      * @return RetResult<?> - null表示通过, 非null表示被限流
      */
-    RetResult<?> validateVerify(CaptchaDataVO captchaDataVO);
+    RetResult<?> validateVerify(CaptchaData captchaDataVO);
 
     /***
      * 验证码接口限流:
@@ -60,12 +60,12 @@ public interface FrequencyLimitHandler {
             this.cacheService = cacheService;
         }
 
-        private String getClientCId(CaptchaDataVO input, String type) {
+        private String getClientCId(CaptchaData input, String type) {
             return String.format(LIMIT_KEY, type, input.getClientUid());
         }
 
         @Override
-        public RetResult<?> validateGet(CaptchaDataVO d) {
+        public RetResult<?> validateGet(CaptchaData d) {
             // 无客户端身份标识，不限制
             if (!StringUtils.hasText(d.getClientUid())) {
                 return null;
@@ -104,7 +104,7 @@ public interface FrequencyLimitHandler {
         }
 
         @Override
-        public RetResult<?> validateCheck(CaptchaDataVO d) {
+        public RetResult<?> validateCheck(CaptchaData d) {
             // 无客户端身份标识，不限制
             if (!StringUtils.hasText(d.getClientUid())) {
                 return null;
@@ -123,7 +123,7 @@ public interface FrequencyLimitHandler {
         }
 
         @Override
-        public RetResult<?> validateVerify(CaptchaDataVO d) {
+        public RetResult<?> validateVerify(CaptchaData d) {
             String key = getClientCId(d, "VERIFY");
             String v = cacheService.get(key);
             if (Objects.isNull(v)) {

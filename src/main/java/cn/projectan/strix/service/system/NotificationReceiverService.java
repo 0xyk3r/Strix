@@ -7,7 +7,7 @@ import cn.projectan.strix.model.db.system.NotificationReceiver;
 import cn.projectan.strix.model.dict.common.CommonFlag;
 import cn.projectan.strix.model.request.system.notification.ListNotificationReq;
 import cn.projectan.strix.model.response.system.notification.NotificationListResp;
-import cn.projectan.strix.util.system.SecurityUtils;
+import cn.projectan.strix.util.system.SecurityUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -43,7 +43,7 @@ public class NotificationReceiverService extends ServiceImpl<NotificationReceive
      * @return 通知列表响应
      */
     public NotificationListResp getMyNotifications(ListNotificationReq req) {
-        String receiverId = SecurityUtils.getOperatorId();
+        String receiverId = SecurityUtil.getOperatorId();
         Assert.hasText(receiverId, "接收人 ID 不能为空");
 
         Page<NotificationReceiver> page = lambdaQuery()
@@ -78,7 +78,7 @@ public class NotificationReceiverService extends ServiceImpl<NotificationReceive
      * @param notificationId 通知ID
      */
     public void markAsRead(String notificationId) {
-        String receiverId = SecurityUtils.getOperatorId();
+        String receiverId = SecurityUtil.getOperatorId();
         Assert.hasText(notificationId, "通知 ID 不能为空");
         Assert.hasText(receiverId, "接收人 ID 不能为空");
 
@@ -97,7 +97,7 @@ public class NotificationReceiverService extends ServiceImpl<NotificationReceive
      * 标记全部通知为已读
      */
     public void markAllAsRead() {
-        String receiverId = SecurityUtils.getOperatorId();
+        String receiverId = SecurityUtil.getOperatorId();
         Assert.hasText(receiverId, "接收人 ID 不能为空");
 
         // 更新为已读
@@ -116,7 +116,7 @@ public class NotificationReceiverService extends ServiceImpl<NotificationReceive
      * @return 未读数量
      */
     public Long getUnreadCount() {
-        String receiverId = SecurityUtils.getOperatorId();
+        String receiverId = SecurityUtil.getOperatorId();
         Assert.hasText(receiverId, "接收人 ID 不能为空");
 
         return lambdaQuery()

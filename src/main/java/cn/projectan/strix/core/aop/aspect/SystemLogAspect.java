@@ -14,9 +14,9 @@ import cn.projectan.strix.model.db.system.SystemManager;
 import cn.projectan.strix.model.other.system.ua.UserAgent;
 import cn.projectan.strix.model.properties.system.StrixLogProperties;
 import cn.projectan.strix.service.system.AsyncSystemLogService;
-import cn.projectan.strix.util.http.ServletUtils;
+import cn.projectan.strix.util.http.ServletUtil;
 import cn.projectan.strix.util.ip.IpUtils;
-import cn.projectan.strix.util.system.SecurityUtils;
+import cn.projectan.strix.util.system.SecurityUtil;
 import cn.projectan.strix.util.ua.UserAgentUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -127,7 +127,7 @@ public class SystemLogAspect {
             systemLog.setAppVersion(versionConfig.getVersion());
 
             // 基于 Request 的信息
-            HttpServletRequest request = ServletUtils.getRequest();
+            HttpServletRequest request = ServletUtil.getRequest();
             systemLog.setOperationMethod(request.getMethod());
             systemLog.setOperationUrl(request.getRequestURI());
 
@@ -141,7 +141,7 @@ public class SystemLogAspect {
                 try {
                     if (RequestMethod.GET.name().equals(request.getMethod())) {
                         systemLog.setOperationParam(
-                                objectMapper.writeValueAsString(ServletUtils.getRequestParams(request))
+                                objectMapper.writeValueAsString(ServletUtil.getRequestParams(request))
                         );
                     } else {
                         systemLog.setOperationParam(
@@ -163,7 +163,7 @@ public class SystemLogAspect {
 
             // 当前登录用户信息
             try {
-                SystemManager systemManager = SecurityUtils.getSystemManager();
+                SystemManager systemManager = SecurityUtil.getSystemManager();
                 systemLog.setClientUser(systemManager == null ? null : systemManager.getId());
                 systemLog.setClientUsername(systemManager == null ? null : systemManager.getNickname());
             } catch (Exception ex) {

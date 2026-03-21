@@ -18,7 +18,7 @@ import java.util.Map;
  * @author ProjectAn
  * @since 2023/6/17 14:36
  */
-public class ServletUtils {
+public class ServletUtil {
 
     /**
      * 获取 RequestAttributes

@@ -11,9 +11,9 @@ import cn.projectan.strix.model.db.system.SystemManager;
 import cn.projectan.strix.model.dict.system.SystemLogOperType;
 import cn.projectan.strix.service.system.AsyncSystemLogService;
 import cn.projectan.strix.util.common.I18nUtil;
-import cn.projectan.strix.util.http.ServletUtils;
+import cn.projectan.strix.util.http.ServletUtil;
 import cn.projectan.strix.util.ip.IpUtils;
-import cn.projectan.strix.util.system.SecurityUtils;
+import cn.projectan.strix.util.system.SecurityUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -160,7 +160,7 @@ public class GlobalExceptionHandler {
      */
     private void recordAccessDeniedLog(AccessDeniedException e) {
         try {
-            HttpServletRequest request = ServletUtils.getRequest();
+            HttpServletRequest request = ServletUtil.getRequest();
             SystemLog systemLog = new SystemLog();
             systemLog.setAppId(versionConfig.getApplicationName());
             systemLog.setAppVersion(versionConfig.getVersion());
@@ -175,7 +175,7 @@ public class GlobalExceptionHandler {
             systemLog.setResponseMsg(e.getMessage());
 
             try {
-                SystemManager manager = SecurityUtils.getSystemManager();
+                SystemManager manager = SecurityUtil.getSystemManager();
                 if (manager != null) {
                     systemLog.setClientUser(manager.getId());
                     systemLog.setClientUsername(manager.getNickname());

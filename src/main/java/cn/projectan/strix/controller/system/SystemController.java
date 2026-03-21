@@ -16,7 +16,7 @@ import cn.projectan.strix.model.db.system.SystemManager;
 import cn.projectan.strix.model.db.system.SystemMenu;
 import cn.projectan.strix.model.dict.system.SystemLogOperType;
 import cn.projectan.strix.model.dict.system.SystemManagerStatus;
-import cn.projectan.strix.model.other.system.captcha.CaptchaDataVO;
+import cn.projectan.strix.model.other.system.captcha.CaptchaData;
 import cn.projectan.strix.model.request.system.login.SystemLoginReq;
 import cn.projectan.strix.model.response.system.SystemMenuResp;
 import cn.projectan.strix.model.response.system.login.SystemManagerLoginResp;
@@ -24,9 +24,9 @@ import cn.projectan.strix.service.system.SystemManagerService;
 import cn.projectan.strix.service.system.SystemMenuService;
 import cn.projectan.strix.util.common.RedisUtil;
 import cn.projectan.strix.util.crypto.StrixSM3Util;
-import cn.projectan.strix.util.http.ServletUtils;
+import cn.projectan.strix.util.http.ServletUtil;
 import cn.projectan.strix.util.ip.IpUtils;
-import cn.projectan.strix.util.system.SecurityUtils;
+import cn.projectan.strix.util.system.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
@@ -75,13 +75,13 @@ public class SystemController extends BaseSystemController {
     public RetResult<SystemManagerLoginResp> login(@RequestBody SystemLoginReq req) {
         // 验证码校验
         Assert.hasText(req.getCaptchaVerification(), "行为验证不通过，请重新验证");
-        CaptchaDataVO captchaDataVO = new CaptchaDataVO();
+        CaptchaData captchaDataVO = new CaptchaData();
         captchaDataVO.setCaptchaVerification(req.getCaptchaVerification());
         RetResult<Void> captchaResult = captchaService.verification(captchaDataVO);
         Assert.isTrue(captchaResult.getCode() == RetCode.SUCCESS, "行为验证不通过，请重新验证");
 
         // 基于客户端 IP 的登录失败次数限制
-        String clientIp = IpUtils.getIpAddr(ServletUtils.getRequest());
+        String clientIp = IpUtils.getIpAddr(ServletUtil.getRequest());
         String failureKey = StrixRedisKeyConst.STR_LOGIN_FAILURE_IP_PREFIX + clientIp;
         int maxLoginFailures = systemConfigCache.getLong("SYSTEM_MANAGER_MAX_LOGIN_FAILURES", (long) DEFAULT_MAX_LOGIN_FAILURES).intValue();
         Object failureCountObj = redisUtil.get(failureKey);
@@ -189,7 +189,7 @@ public class SystemController extends BaseSystemController {
      */
     @GetMapping("menus")
     public RetResult<SystemMenuResp> getMenuList() {
-        List<String> systemMenuKeys = Optional.ofNullable(SecurityUtils.getSystemManagerLoginInfo()).map(LoginSystemManager::getMenusKeys).orElse(null);
+        List<String> systemMenuKeys = Optional.ofNullable(SecurityUtil.getSystemManagerLoginInfo()).map(LoginSystemManager::getMenusKeys).orElse(null);
         Assert.notEmpty(systemMenuKeys, "当前账号无菜单权限");
 
         List<SystemMenu> systemMenus = systemMenusService.lambdaQuery()

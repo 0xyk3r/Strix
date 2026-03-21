@@ -1,7 +1,7 @@
 package cn.projectan.strix.config;
 
 import cn.projectan.strix.core.encrypt.FieldEncryptionInterceptor;
-import cn.projectan.strix.util.system.SecurityUtils;
+import cn.projectan.strix.util.system.SecurityUtil;
 import com.baomidou.mybatisplus.annotation.DbType;
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
 import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
@@ -71,8 +71,8 @@ public class MybatisPlusConfig {
             this.strictInsertFill(metaObject, "updatedTime", LocalDateTime.class, LocalDateTime.now());
             this.strictInsertFill(metaObject, "deletedStatus", Short.class, (short) 0);
 
-            short operatorType = SecurityUtils.getOperatorType();
-            String operatorId = Optional.ofNullable(SecurityUtils.getOperatorId()).orElse("0");
+            short operatorType = SecurityUtil.getOperatorType();
+            String operatorId = Optional.ofNullable(SecurityUtil.getOperatorId()).orElse("0");
             this.strictInsertFill(metaObject, "createdByType", Short.class, operatorType);
             this.strictInsertFill(metaObject, "updatedByType", Short.class, operatorType);
             this.strictInsertFill(metaObject, "createdBy", String.class, operatorId);
@@ -84,8 +84,8 @@ public class MybatisPlusConfig {
             // strictUpdateFill 在原对象有值时，不会覆盖原值，所以这里使用 setFieldValByName
             this.setFieldValByName("updatedTime", LocalDateTime.now(), metaObject);
 
-            short operatorType = SecurityUtils.getOperatorType();
-            String operatorId = Optional.ofNullable(SecurityUtils.getOperatorId()).orElse("0");
+            short operatorType = SecurityUtil.getOperatorType();
+            String operatorId = Optional.ofNullable(SecurityUtil.getOperatorId()).orElse("0");
             this.setFieldValByName("updatedByType", operatorType, metaObject);
             this.setFieldValByName("updatedBy", operatorId, metaObject);
         }

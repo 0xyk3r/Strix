@@ -10,7 +10,7 @@ import cn.projectan.strix.core.ret.RetBuilder;
 import cn.projectan.strix.core.ret.RetCode;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.model.enums.system.StrixCaptchaTypeEnum;
-import cn.projectan.strix.model.other.system.captcha.CaptchaDataVO;
+import cn.projectan.strix.model.other.system.captcha.CaptchaData;
 import cn.projectan.strix.model.properties.system.StrixCaptchaProperties;
 import cn.projectan.strix.model.response.system.module.captcha.CheckCaptchaResp;
 import cn.projectan.strix.model.response.system.module.captcha.GetCaptchaResp;
@@ -86,7 +86,7 @@ public abstract class AbstractCaptchaService implements CaptchaService {
     }
 
     @Override
-    public RetResult<GetCaptchaResp> get(CaptchaDataVO captchaDataVO) {
+    public RetResult<GetCaptchaResp> get(CaptchaData captchaDataVO) {
         if (limitHandler != null) {
             captchaDataVO.setClientUid(getValidateClientId(captchaDataVO));
             RetResult<?> r = limitHandler.validateGet(captchaDataVO);
@@ -98,7 +98,7 @@ public abstract class AbstractCaptchaService implements CaptchaService {
     }
 
     @Override
-    public RetResult<CheckCaptchaResp> check(CaptchaDataVO captchaDataVO) {
+    public RetResult<CheckCaptchaResp> check(CaptchaData captchaDataVO) {
         if (limitHandler != null) {
             // 服务端参数验证
             captchaDataVO.setClientUid(getValidateClientId(captchaDataVO));
@@ -111,7 +111,7 @@ public abstract class AbstractCaptchaService implements CaptchaService {
     }
 
     @Override
-    public RetResult<Void> verification(CaptchaDataVO captchaDataVO) {
+    public RetResult<Void> verification(CaptchaData captchaDataVO) {
         if (captchaDataVO == null) {
             return RetBuilder.error(RetCode.BAD_REQUEST, "captchaVO不能为空");
         }
@@ -131,7 +131,7 @@ public abstract class AbstractCaptchaService implements CaptchaService {
         return resp == null || resp.getCode() == RetCode.SUCCESS;
     }
 
-    protected String getValidateClientId(CaptchaDataVO req) {
+    protected String getValidateClientId(CaptchaData req) {
         // 以服务端获取的客户端标识 做识别标志
         if (StringUtils.hasText(req.getBrowserInfo())) {
             return DigestUtil.md5Hex(req.getBrowserInfo());
@@ -143,7 +143,7 @@ public abstract class AbstractCaptchaService implements CaptchaService {
         return null;
     }
 
-    protected void afterValidateFail(CaptchaDataVO data) {
+    protected void afterValidateFail(CaptchaData data) {
         if (limitHandler != null) {
             // 验证失败 分钟内计数
             String fails = String.format(FrequencyLimitHandler.LIMIT_KEY, "FAIL", data.getClientUid());

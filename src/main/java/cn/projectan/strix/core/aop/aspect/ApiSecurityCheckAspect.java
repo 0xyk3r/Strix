@@ -5,7 +5,7 @@ import cn.projectan.strix.core.ret.RetCode;
 import cn.projectan.strix.model.annotation.IgnoreEncryption;
 import cn.projectan.strix.model.constant.system.StrixPasswordConst;
 import cn.projectan.strix.util.common.I18nUtil;
-import cn.projectan.strix.util.http.ServletUtils;
+import cn.projectan.strix.util.http.ServletUtil;
 import cn.projectan.strix.util.system.ApiSignUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -51,7 +51,7 @@ public class ApiSecurityCheckAspect {
 
     @Around("controller()")
     public Object handle(ProceedingJoinPoint pjp) throws Throwable {
-        ServletRequestAttributes attributes = ServletUtils.getRequestAttributes();
+        ServletRequestAttributes attributes = ServletUtil.getRequestAttributes();
         if (attributes == null) {
             return pjp.proceed();
         }
@@ -102,7 +102,7 @@ public class ApiSecurityCheckAspect {
         boolean signValid;
         if ("GET".equalsIgnoreCase(request.getMethod())) {
             // GET 请求：排序后的查询参数签名
-            final Map<String, Object> paramsMap = new TreeMap<>(ServletUtils.getRequestParams(request));
+            final Map<String, Object> paramsMap = new TreeMap<>(ServletUtil.getRequestParams(request));
             // 过滤参数中的空字符串
             paramsMap.entrySet().removeIf(entry -> entry.getValue() == null || (entry.getValue() instanceof String && !StringUtils.hasText((String) entry.getValue())));
             signValid = apiSignUtil.verifySignFromParams(paramsMap, url, timestamp, sign);

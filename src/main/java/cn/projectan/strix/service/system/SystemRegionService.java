@@ -43,8 +43,8 @@ public class SystemRegionService extends ServiceImpl<SystemRegionMapper, SystemR
      * @param id 地区id
      * @return 系统地区对象
      */
-    @Cacheable(value = "strix:system:region:queryRegionById", key = "#id")
-    public SystemRegion queryRegionById(String id) {
+    @Cacheable(value = "strix:system:region:getRegionById", key = "#id")
+    public SystemRegion getRegionById(String id) {
         return getBaseMapper().selectById(id);
     }
 
@@ -67,7 +67,7 @@ public class SystemRegionService extends ServiceImpl<SystemRegionMapper, SystemR
         nameList.add(region.getName());
 
         while (StringUtils.hasText(region.getParentId()) && !ROOT_PARENT_ID.equals(region.getParentId())) {
-            region = proxy.queryRegionById(region.getParentId());
+            region = proxy.getRegionById(region.getParentId());
             pathList.addFirst(region.getId());
             nameList.addFirst(region.getName());
             level++;

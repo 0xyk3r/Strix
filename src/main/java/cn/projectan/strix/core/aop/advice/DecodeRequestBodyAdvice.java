@@ -5,7 +5,7 @@ import cn.hutool.core.util.StrUtil;
 import cn.projectan.strix.core.security.ApiSecurity;
 import cn.projectan.strix.model.annotation.IgnoreEncryption;
 import cn.projectan.strix.model.constant.system.StrixPasswordConst;
-import cn.projectan.strix.util.http.ServletUtils;
+import cn.projectan.strix.util.http.ServletUtil;
 import jakarta.annotation.Nonnull;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -44,7 +44,7 @@ public class DecodeRequestBodyAdvice implements RequestBodyAdvice {
 
     @Override
     public boolean supports(@NotNull MethodParameter methodParameter, @Nonnull Type type, @Nonnull Class<? extends HttpMessageConverter<?>> aClass) {
-        if (StrixPasswordConst.IGNORE_ENCRYPTION.equals(ServletUtils.getRequest().getHeader("ss-pwd"))) {
+        if (StrixPasswordConst.IGNORE_ENCRYPTION.equals(ServletUtil.getRequest().getHeader("ss-pwd"))) {
             return false;
         }
         String className = methodParameter.getContainingClass().getName();
@@ -82,7 +82,7 @@ public class DecodeRequestBodyAdvice implements RequestBodyAdvice {
         private InputStream body;
 
         public HttpInputMessageHandler(HttpInputMessage inputMessage, MethodParameter methodParameter) throws Exception {
-            HttpServletRequest request = ServletUtils.getRequest();
+            HttpServletRequest request = ServletUtil.getRequest();
 
             this.headers = inputMessage.getHeaders();
             this.body = inputMessage.getBody();

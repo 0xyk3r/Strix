@@ -20,13 +20,13 @@ public class SystemRegionCache {
     private final RedisUtil redisUtil;
 
     public void refreshRedisCache() {
-        redisUtil.delLike("strix:system:region:queryRegionById:*");
+        redisUtil.delLike("strix:system:region:getRegionById:*");
         redisUtil.delLike("strix:system:region:getChildrenIdList:*");
     }
 
     public void refreshRedisCacheById(String id) {
         if (StringUtils.hasText(id)) {
-            redisUtil.del("strix:system:region:queryRegionById::" + id);
+            redisUtil.del("strix:system:region:getRegionById::" + id);
             redisUtil.del("strix:system:region:getChildrenIdList::" + id);
         }
     }

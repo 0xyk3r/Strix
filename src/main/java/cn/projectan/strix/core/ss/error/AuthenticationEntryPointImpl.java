@@ -7,7 +7,7 @@ import cn.projectan.strix.model.db.system.SystemLog;
 import cn.projectan.strix.model.dict.system.SystemLogOperType;
 import cn.projectan.strix.service.system.AsyncSystemLogService;
 import cn.projectan.strix.util.common.I18nUtil;
-import cn.projectan.strix.util.http.ServletUtils;
+import cn.projectan.strix.util.http.ServletUtil;
 import cn.projectan.strix.util.ip.IpUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -42,7 +42,7 @@ public class AuthenticationEntryPointImpl implements AuthenticationEntryPoint {
 
         response.setContentType("application/json;charset=utf-8");
         response.setStatus(HttpServletResponse.SC_OK);
-        ServletUtils.write(response, objectMapper.writeValueAsString(RetBuilder.error(RetCode.NOT_LOGIN, I18nUtil.get("error.notLogin"))));
+        ServletUtil.write(response, objectMapper.writeValueAsString(RetBuilder.error(RetCode.NOT_LOGIN, I18nUtil.get("error.notLogin"))));
     }
 
     private void recordSecurityLog(HttpServletRequest request, AuthenticationException e) {

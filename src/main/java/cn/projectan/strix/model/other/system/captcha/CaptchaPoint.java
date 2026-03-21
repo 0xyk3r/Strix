@@ -9,14 +9,14 @@ import java.io.Serializable;
 import java.util.Objects;
 
 /**
- * 验证码坐标VO
+ * 验证码坐标
  *
  * @author ProjectAn
  */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CaptchaPointVO implements Serializable {
+public class CaptchaPoint implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -27,7 +27,7 @@ public class CaptchaPointVO implements Serializable {
 
     private int y;
 
-    public CaptchaPointVO(int x, int y) {
+    public CaptchaPoint(int x, int y) {
         this.x = x;
         this.y = y;
     }
@@ -40,7 +40,7 @@ public class CaptchaPointVO implements Serializable {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        CaptchaPointVO that = (CaptchaPointVO) o;
+        CaptchaPoint that = (CaptchaPoint) o;
         return x == that.x && y == that.y && Objects.equals(secretKey, that.secretKey);
     }
 
