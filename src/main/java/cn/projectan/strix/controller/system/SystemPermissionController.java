@@ -15,7 +15,6 @@ import cn.projectan.strix.model.response.system.permission.SystemPermissionListR
 import cn.projectan.strix.model.response.system.permission.SystemPermissionResp;
 import cn.projectan.strix.service.system.SystemManagerService;
 import cn.projectan.strix.service.system.SystemPermissionService;
-import cn.projectan.strix.util.common.SpringUtil;
 import cn.projectan.strix.util.common.UniqueChecker;
 import cn.projectan.strix.util.common.UpdateBuilder;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -41,6 +40,7 @@ import java.util.List;
 public class SystemPermissionController extends BaseSystemController {
 
     private final SystemPermissionService systemPermissionService;
+    private final SystemManagerService systemManagerService;
     private final SystemPermissionCache systemPermissionCache;
 
     /**
@@ -108,7 +108,6 @@ public class SystemPermissionController extends BaseSystemController {
         // 更新缓存
         systemPermissionCache.updateRamAndRedis();
         // 刷新 redis 中的登录用户信息
-        SystemManagerService systemManagerService = SpringUtil.getBean(SystemManagerService.class);
         systemManagerService.refreshLoginInfoByPermission(permissionId);
 
         return RetBuilder.success();

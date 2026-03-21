@@ -12,13 +12,13 @@ import cn.projectan.strix.model.request.system.module.oss.OssConfigListReq;
 import cn.projectan.strix.model.response.common.CommonSelectDataResp;
 import cn.projectan.strix.task.system.StrixOssTask;
 import cn.projectan.strix.util.algo.KeyDiffUtil;
-import cn.projectan.strix.util.common.SpringUtil;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -52,6 +52,8 @@ public class OssConfigService extends ServiceImpl<OssConfigMapper, OssConfig> {
     private String profiles;
 
     private final StrixOssStore strixOssStore;
+    @Lazy
+    private final StrixOssTask strixOssTask;
 
     /**
      * 分页查询存储配置列表
@@ -93,9 +95,6 @@ public class OssConfigService extends ServiceImpl<OssConfigMapper, OssConfig> {
      * @param ossConfigList 阿里云OSS配置列表
      */
     public void createInstance(List<OssConfig> ossConfigList) {
-        StrixOssTask strixOssTask = SpringUtil.getBean(StrixOssTask.class);
-        StrixOssStore strixOssStore = SpringUtil.getBean(StrixOssStore.class);
-
         for (OssConfig ossConfig : ossConfigList) {
             boolean success = true;
             try {

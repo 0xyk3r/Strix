@@ -20,7 +20,6 @@ import cn.projectan.strix.service.system.SmsLogService;
 import cn.projectan.strix.service.system.SmsSignService;
 import cn.projectan.strix.service.system.SmsTemplateService;
 import cn.projectan.strix.task.system.StrixSmsTask;
-import cn.projectan.strix.util.common.SpringUtil;
 import cn.projectan.strix.util.common.UniqueChecker;
 import cn.projectan.strix.util.common.UpdateBuilder;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -52,6 +51,8 @@ public class SmsController extends BaseSystemController {
     private final SmsSignService smsSignService;
     private final SmsTemplateService smsTemplateService;
     private final SmsLogService smsLogService;
+    private final StrixSmsTask strixSmsTask;
+    private final StrixSmsStore strixSmsStore;
 
     /**
      * 查询短信配置列表
@@ -120,7 +121,7 @@ public class SmsController extends BaseSystemController {
         Assert.isTrue(smsConfigService.save(smsConfig), "保存失败");
 
         // 重新加载配置
-        SpringUtil.getBean(StrixSmsTask.class).refreshConfig();
+        strixSmsTask.refreshConfig();
 
         return RetBuilder.success();
     }
@@ -141,8 +142,8 @@ public class SmsController extends BaseSystemController {
         Assert.isTrue(smsConfigService.update(updateWrapper), "保存失败");
 
         // 卸载原配置 重新加载
-        SpringUtil.getBean(StrixSmsStore.class).getInstance(originKey).close();
-        SpringUtil.getBean(StrixSmsTask.class).refreshConfig();
+        strixSmsStore.getInstance(originKey).close();
+        strixSmsTask.refreshConfig();
 
         return RetBuilder.success();
     }

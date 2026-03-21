@@ -11,13 +11,13 @@ import cn.projectan.strix.model.dict.system.SmsPlatform;
 import cn.projectan.strix.model.request.system.module.sms.SmsConfigListReq;
 import cn.projectan.strix.model.response.common.CommonSelectDataResp;
 import cn.projectan.strix.task.system.StrixSmsTask;
-import cn.projectan.strix.util.common.SpringUtil;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -41,6 +41,9 @@ public class SmsConfigService extends ServiceImpl<SmsConfigMapper, SmsConfig> {
 
     private final SmsSignService smsSignService;
     private final SmsTemplateService smsTemplateService;
+    @Lazy
+    private final StrixSmsTask strixSmsTask;
+    private final StrixSmsStore strixSmsStore;
 
     /**
      * 创建实例
@@ -48,9 +51,6 @@ public class SmsConfigService extends ServiceImpl<SmsConfigMapper, SmsConfig> {
      * @param smsConfigList 短信配置列表
      */
     public void createInstance(List<SmsConfig> smsConfigList) {
-        StrixSmsTask strixSmsTask = SpringUtil.getBean(StrixSmsTask.class);
-        StrixSmsStore strixSmsStore = SpringUtil.getBean(StrixSmsStore.class);
-
         for (SmsConfig smsConfig : smsConfigList) {
             boolean success = true;
             try {

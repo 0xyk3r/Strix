@@ -18,7 +18,6 @@ import cn.projectan.strix.model.response.system.menu.SystemMenuResp;
 import cn.projectan.strix.service.system.SystemManagerService;
 import cn.projectan.strix.service.system.SystemMenuService;
 import cn.projectan.strix.service.system.SystemPermissionService;
-import cn.projectan.strix.util.common.SpringUtil;
 import cn.projectan.strix.util.common.UniqueChecker;
 import cn.projectan.strix.util.common.UpdateBuilder;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -48,6 +47,7 @@ public class SystemMenuController extends BaseSystemController {
 
     private final SystemMenuService systemMenuService;
     private final SystemPermissionService systemPermissionService;
+    private final SystemManagerService systemManagerService;
     private final SystemMenuCache systemMenuCache;
 
     /**
@@ -140,7 +140,6 @@ public class SystemMenuController extends BaseSystemController {
         // 更新缓存
         systemMenuCache.updateRamAndRedis();
         // 刷新 redis 中的登录用户信息
-        SystemManagerService systemManagerService = SpringUtil.getBean(SystemManagerService.class);
         systemManagerService.refreshLoginInfoByMenu(menuId);
 
         return RetBuilder.success();

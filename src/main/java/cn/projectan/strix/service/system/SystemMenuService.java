@@ -7,10 +7,10 @@ import cn.projectan.strix.model.db.system.SystemMenu;
 import cn.projectan.strix.model.db.system.SystemPermission;
 import cn.projectan.strix.model.db.system.SystemRoleMenu;
 import cn.projectan.strix.model.response.common.CommonTreeDataResp;
-import cn.projectan.strix.util.common.SpringUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,6 +31,10 @@ public class SystemMenuService extends ServiceImpl<SystemMenuMapper, SystemMenu>
 
     private final SystemRoleMenuService systemRoleMenuService;
     private final SystemPermissionService systemPermissionService;
+    @Lazy
+    private final SystemMenuCache systemMenuCache;
+    @Lazy
+    private final SystemPermissionCache systemPermissionCache;
 
     /**
      * 根据菜单 key 列表查询菜单（按排序值升序）
@@ -99,8 +103,8 @@ public class SystemMenuService extends ServiceImpl<SystemMenuMapper, SystemMenu>
                 .remove();
 
         // 更新缓存
-        SpringUtil.getBean(SystemMenuCache.class).updateRamAndRedis();
-        SpringUtil.getBean(SystemPermissionCache.class).updateRamAndRedis();
+        systemMenuCache.updateRamAndRedis();
+        systemPermissionCache.updateRamAndRedis();
     }
 
     /**

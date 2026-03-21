@@ -16,6 +16,7 @@ import cn.projectan.strix.util.common.SpringUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -43,6 +44,8 @@ public class WorkflowTaskService extends ServiceImpl<WorkflowTaskMapper, Workflo
     private final WorkflowTaskAssignService workflowTaskAssignService;
     private final WorkflowConfigCache workflowConfigCache;
     private final DelayedTaskManager delayedTaskManager;
+    @Lazy
+    private final WorkflowInstanceService workflowInstanceService;
 
     /**
      * 根据任务ID集合查询任务列表
@@ -162,7 +165,6 @@ public class WorkflowTaskService extends ServiceImpl<WorkflowTaskMapper, Workflo
         }
         workflowTaskAssignService.updateById(assign);
 
-        WorkflowInstanceService workflowInstanceService = SpringUtil.getBean(WorkflowInstanceService.class);
         WorkflowInstance instance = workflowInstanceService.getById(task.getWorkflowInstanceId());
 
         boolean isFinish = false;

@@ -31,6 +31,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class WorkflowService extends ServiceImpl<WorkflowMapper, Workflow> implements NameFetcherService<Workflow> {
 
+    private final WorkflowConfigService workflowConfigService;
+
     /**
      * 分页查询工作流列表
      *
@@ -64,7 +66,6 @@ public class WorkflowService extends ServiceImpl<WorkflowMapper, Workflow> imple
     @Transactional(rollbackFor = Exception.class)
     public void saveConfig(String workflowId, String configJson) {
         WorkflowService workflowService = SpringUtil.getAopProxy(this);
-        WorkflowConfigService workflowConfigService = SpringUtil.getBean(WorkflowConfigService.class);
 
         Workflow workflow = workflowService.getById(workflowId);
         Assert.notNull(workflow, "工作流不存在");

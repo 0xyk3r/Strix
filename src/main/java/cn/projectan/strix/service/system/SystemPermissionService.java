@@ -5,10 +5,10 @@ import cn.projectan.strix.core.cache.system.SystemPermissionCache;
 import cn.projectan.strix.mapper.system.SystemPermissionMapper;
 import cn.projectan.strix.model.db.system.SystemPermission;
 import cn.projectan.strix.model.db.system.SystemRolePermission;
-import cn.projectan.strix.util.common.SpringUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -31,6 +31,10 @@ import java.util.List;
 public class SystemPermissionService extends ServiceImpl<SystemPermissionMapper, SystemPermission> {
 
     private final SystemRolePermissionService systemRolePermissionService;
+    @Lazy
+    private final SystemMenuCache systemMenuCache;
+    @Lazy
+    private final SystemPermissionCache systemPermissionCache;
 
     /**
      * 查询全部权限（按创建时间升序）
@@ -77,8 +81,8 @@ public class SystemPermissionService extends ServiceImpl<SystemPermissionMapper,
                 .remove();
 
         // 更新缓存
-        SpringUtil.getBean(SystemMenuCache.class).updateRamAndRedis();
-        SpringUtil.getBean(SystemPermissionCache.class).updateRamAndRedis();
+        systemMenuCache.updateRamAndRedis();
+        systemPermissionCache.updateRamAndRedis();
     }
 
 }

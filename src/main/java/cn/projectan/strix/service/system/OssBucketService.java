@@ -8,7 +8,6 @@ import cn.projectan.strix.model.db.system.OssBucket;
 import cn.projectan.strix.model.other.system.module.oss.StrixOssBucket;
 import cn.projectan.strix.model.request.system.module.oss.OssBucketListReq;
 import cn.projectan.strix.util.algo.KeyDiffUtil;
-import cn.projectan.strix.util.common.SpringUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +32,8 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class OssBucketService extends ServiceImpl<OssBucketMapper, OssBucket> {
+
+    private final StrixOssStore strixOssStore;
 
     /**
      * 同步bucket列表
@@ -116,7 +117,7 @@ public class OssBucketService extends ServiceImpl<OssBucketMapper, OssBucket> {
      * @param bucketName bucket名称
      */
     public void createBucket(String configKey, String bucketName) {
-        StrixOssClient instance = SpringUtil.getBean(StrixOssStore.class).getInstance(configKey);
+        StrixOssClient instance = strixOssStore.getInstance(configKey);
         Assert.notNull(instance, "创建存储空间失败. OSS服务配置不存在");
         instance.getPrivate().createBucket(bucketName);
     }

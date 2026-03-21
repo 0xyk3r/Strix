@@ -21,7 +21,6 @@ import cn.projectan.strix.model.response.system.role.SystemRoleListResp;
 import cn.projectan.strix.model.response.system.role.SystemRoleResp;
 import cn.projectan.strix.service.system.*;
 import cn.projectan.strix.util.algo.KeyDiffUtil;
-import cn.projectan.strix.util.common.SpringUtil;
 import cn.projectan.strix.util.common.UniqueChecker;
 import cn.projectan.strix.util.common.UpdateBuilder;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -52,6 +51,7 @@ public class SystemRoleController extends BaseSystemController {
     private final SystemRoleMenuService systemRoleMenuService;
     private final SystemManagerRoleService systemManagerRoleService;
     private final SystemRolePermissionService systemRolePermissionService;
+    private final SystemManagerService systemManagerService;
     private final SystemMenuCache systemMenuCache;
     private final SystemPermissionCache systemPermissionCache;
 
@@ -123,7 +123,6 @@ public class SystemRoleController extends BaseSystemController {
         Assert.isTrue(systemRoleService.update(updateWrapper), "保存失败");
 
         // 刷新 redis 中的登录用户信息
-        SystemManagerService systemManagerService = SpringUtil.getBean(SystemManagerService.class);
         systemManagerService.refreshLoginInfoByRole(roleId);
 
         return RetBuilder.success();
@@ -180,7 +179,6 @@ public class SystemRoleController extends BaseSystemController {
         );
 
         // 刷新 redis 中的登录用户信息
-        SystemManagerService systemManagerService = SpringUtil.getBean(SystemManagerService.class);
         systemManagerService.refreshLoginInfoByRole(roleId);
 
         // 获取最新的权限信息
@@ -229,7 +227,6 @@ public class SystemRoleController extends BaseSystemController {
         // 刷新redis缓存
         systemMenuCache.updateRedisBySystemRoleId(roleId);
         // 刷新 redis 中的登录用户信息
-        SystemManagerService systemManagerService = SpringUtil.getBean(SystemManagerService.class);
         systemManagerService.refreshLoginInfoByRole(roleId);
 
         // 返回移除后的最新关系信息
@@ -260,7 +257,6 @@ public class SystemRoleController extends BaseSystemController {
         // 刷新redis缓存
         systemPermissionCache.updateRedisBySystemRoleId(roleId);
         // 刷新 redis 中的登录用户信息
-        SystemManagerService systemManagerService = SpringUtil.getBean(SystemManagerService.class);
         systemManagerService.refreshLoginInfoByRole(roleId);
 
         // 返回移除后的最新关系信息
