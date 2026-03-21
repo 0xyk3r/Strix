@@ -7,6 +7,7 @@ import cn.projectan.strix.model.db.system.PopularityData;
 import cn.projectan.strix.service.system.PopularityConfigService;
 import cn.projectan.strix.service.system.PopularityDataService;
 import cn.projectan.strix.util.algo.KeyDiffUtil;
+import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.connection.DataType;
@@ -41,9 +42,11 @@ public class PopularityUtil {
         this.popularityConfigService = popularityConfigService;
         this.popularityDataService = popularityDataService;
         this.redisUtil = redisUtil;
+    }
 
-        // 从数据库同步数据到redis
-        // 构造方法中初始化数据, 会影响启动时间, 但可以保证数据一定被加载
+    @PostConstruct
+    public void init() {
+        // 从数据库同步数据到 Redis（在构造完成后执行，不阻塞 Bean 实例化）
         syncFormDB(false);
         log.info("Strix PopularityUtil: 载入数据完成.");
     }
