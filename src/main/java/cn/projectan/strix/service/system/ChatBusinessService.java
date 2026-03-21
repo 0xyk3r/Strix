@@ -183,139 +183,116 @@ public class ChatBusinessService {
         Map<String, List<ChatSessionMember>> sessionMembersMap = allMembers.stream()
                 .collect(Collectors.groupingBy(ChatSessionMember::getSessionId));
 
-        // 5. 收集所有需要查询的用户 ID
-        Set<String> userIdsToQuery = new HashSet<>();
-        for (ChatSession session : sessionPage.getRecords()) {
-            // 如果是一对一会话，获取对方用户 ID
-            if (ChatSessionTypeEnum.SINGLE.getCodeValue().equals(session.getType())) {
-                List<ChatSessionMember> sessionMembers = sessionMembersMap.get(session.getId());
-                if (sessionMembers != null) {
-                    for (ChatSessionMember member : sessionMembers) {
-                        if (!member.getUserId().equals(userId)) {
-                            userIdsToQuery.add(member.getUserId());
-                        }
-                    }
-                }
-            }
-            // 收集最后消息的发送者 ID
-            if (StringUtils.hasText(session.getLastMsgId())) {
-                ChatMessage lastMsg = chatMessageService.getById(session.getLastMsgId());
-                if (lastMsg != null) {
-                    userIdsToQuery.add(lastMsg.getFormUserId());
-                }
-            }
-        }
+        // 5. 收集一对一会话中对方用户 ID（用于用户信息查询和在线状态查询）
+        List<String> otherUserIds = collectOtherUserIds(sessionPage.getRecords(), sessionMembersMap, userId);
 
-        // 6. 批量查询用户信息
-        Map<String, SystemUser> userMap = new HashMap<>();
-        if (!userIdsToQuery.isEmpty()) {
-            List<SystemUser> users = systemUserService.listByIds(userIdsToQuery);
-            userMap = users.stream()
-                    .collect(Collectors.toMap(SystemUser::getId, u -> u));
-        }
-
-        // 7. 批量查询在线状态（仅一对一会话的对方）
-        List<String> onlineStatusUserIds = new ArrayList<>();
-        for (ChatSession session : sessionPage.getRecords()) {
-            if (ChatSessionTypeEnum.SINGLE.getCodeValue().equals(session.getType())) {
-                List<ChatSessionMember> sessionMembers = sessionMembersMap.get(session.getId());
-                if (sessionMembers != null) {
-                    for (ChatSessionMember member : sessionMembers) {
-                        if (!member.getUserId().equals(userId)) {
-                            onlineStatusUserIds.add(member.getUserId());
-                        }
-                    }
-                }
-            }
-        }
-        Map<String, Boolean> onlineStatusMap = userOnlineStatusService.batchGetOnlineStatus(onlineStatusUserIds);
-
-        // 8. 批量查询最后消息
+        // 6. 批量查询最后消息（提前查询以收集发送者 ID）
         List<String> lastMsgIds = sessionPage.getRecords().stream()
                 .map(ChatSession::getLastMsgId)
                 .filter(StringUtils::hasText)
                 .toList();
 
-        Map<String, ChatMessage> lastMessageMap = new HashMap<>();
-        if (!lastMsgIds.isEmpty()) {
-            List<ChatMessage> lastMessages = chatMessageService.listByIds(lastMsgIds);
-            lastMessageMap = lastMessages.stream()
-                    .collect(Collectors.toMap(ChatMessage::getId, m -> m));
-        }
+        Map<String, ChatMessage> lastMessageMap = lastMsgIds.isEmpty()
+                ? Collections.emptyMap()
+                : chatMessageService.listByIds(lastMsgIds).stream()
+                .collect(Collectors.toMap(ChatMessage::getId, m -> m));
+
+        // 7. 批量查询用户信息（对方用户 + 最后消息发送者）
+        Set<String> userIdsToQuery = new HashSet<>(otherUserIds);
+        lastMessageMap.values().stream()
+                .map(ChatMessage::getFormUserId)
+                .filter(StringUtils::hasText)
+                .forEach(userIdsToQuery::add);
+
+        Map<String, SystemUser> userMap = userIdsToQuery.isEmpty()
+                ? Collections.emptyMap()
+                : systemUserService.listByIds(userIdsToQuery).stream()
+                .collect(Collectors.toMap(SystemUser::getId, u -> u));
+
+        // 8. 批量查询在线状态（仅一对一会话的对方）
+        Map<String, Boolean> onlineStatusMap = userOnlineStatusService.batchGetOnlineStatus(otherUserIds);
 
         // 9. 构建响应
         Page<ChatSessionListItemResp> respPage = new Page<>(req.getPageIndex(), req.getPageSize(), sessionPage.getTotal());
-        List<ChatSessionListItemResp> respList = new ArrayList<>();
 
         Map<String, ChatSessionMember> memberMap = members.stream()
                 .collect(Collectors.toMap(ChatSessionMember::getSessionId, m -> m));
 
-        for (ChatSession session : sessionPage.getRecords()) {
-            ChatSessionListItemResp resp = new ChatSessionListItemResp();
-            ChatConfig config = chatConfigService.getById(session.getConfigId());
+        List<ChatSessionListItemResp> respList = sessionPage.getRecords().stream()
+                .map(session -> buildSessionListItem(session, userId, sessionMembersMap, userMap, onlineStatusMap, lastMessageMap, memberMap))
+                .toList();
 
-            resp.setSessionId(session.getId());
-            resp.setConfigId(session.getConfigId());
-            resp.setConfigKey(config != null ? config.getKey() : null);
-            resp.setConfigName(config != null ? config.getName() : null);
-            resp.setSessionType(session.getType());
-            resp.setBizType(session.getBizType());
-            resp.setBizId(session.getBizId());
-            resp.setLastMsgId(session.getLastMsgId());
-            resp.setLastMsgTime(session.getLastMsgTime());
-            resp.setCreatedTime(session.getCreatedTime());
-            resp.setGroupName(session.getGroupName());
+        respPage.setRecords(new ArrayList<>(respList));
+        return respPage;
+    }
 
-            // 设置会话显示名称
-            if (ChatSessionTypeEnum.SINGLE.getCodeValue().equals(session.getType())) {
-                // 一对一会话：显示对方昵称
-                List<ChatSessionMember> sessionMembers = sessionMembersMap.get(session.getId());
-                if (sessionMembers != null) {
-                    for (ChatSessionMember member : sessionMembers) {
-                        if (!member.getUserId().equals(userId)) {
-                            SystemUser otherUser = userMap.get(member.getUserId());
-                            if (otherUser != null) {
-                                resp.setSessionDisplayName(otherUser.getNickname());
-                                // 设置对方在线状态
-                                resp.setOtherUserOnlineStatus(onlineStatusMap.getOrDefault(member.getUserId(), false));
-                            }
-                            break;
+    /**
+     * 构建单个会话列表项响应
+     */
+    private ChatSessionListItemResp buildSessionListItem(
+            ChatSession session, String userId,
+            Map<String, List<ChatSessionMember>> sessionMembersMap,
+            Map<String, SystemUser> userMap,
+            Map<String, Boolean> onlineStatusMap,
+            Map<String, ChatMessage> lastMessageMap,
+            Map<String, ChatSessionMember> memberMap) {
+
+        ChatSessionListItemResp resp = new ChatSessionListItemResp();
+        ChatConfig config = chatConfigService.getById(session.getConfigId());
+
+        resp.setSessionId(session.getId());
+        resp.setConfigId(session.getConfigId());
+        resp.setConfigKey(config != null ? config.getKey() : null);
+        resp.setConfigName(config != null ? config.getName() : null);
+        resp.setSessionType(session.getType());
+        resp.setBizType(session.getBizType());
+        resp.setBizId(session.getBizId());
+        resp.setLastMsgId(session.getLastMsgId());
+        resp.setLastMsgTime(session.getLastMsgTime());
+        resp.setCreatedTime(session.getCreatedTime());
+        resp.setGroupName(session.getGroupName());
+
+        // 设置会话显示名称
+        if (ChatSessionTypeEnum.SINGLE.getCodeValue().equals(session.getType())) {
+            // 一对一会话：显示对方昵称
+            List<ChatSessionMember> sessionMembers = sessionMembersMap.get(session.getId());
+            if (sessionMembers != null) {
+                for (ChatSessionMember member : sessionMembers) {
+                    if (!member.getUserId().equals(userId)) {
+                        SystemUser otherUser = userMap.get(member.getUserId());
+                        if (otherUser != null) {
+                            resp.setSessionDisplayName(otherUser.getNickname());
+                            resp.setOtherUserOnlineStatus(onlineStatusMap.getOrDefault(member.getUserId(), false));
                         }
-                    }
-                }
-            } else {
-                // 群聊会话：显示群聊名称
-                resp.setSessionDisplayName(session.getGroupName());
-            }
-
-            // 设置最后消息预览和发送者名称
-            if (StringUtils.hasText(session.getLastMsgId())) {
-                ChatMessage lastMsg = lastMessageMap.get(session.getLastMsgId());
-                if (lastMsg != null) {
-                    // 生成消息摘要
-                    resp.setLastMessagePreview(generateMessagePreview(lastMsg));
-
-                    // 设置发送者名称
-                    SystemUser sender = userMap.get(lastMsg.getFormUserId());
-                    if (sender != null) {
-                        resp.setLastMessageSenderName(sender.getNickname());
+                        break;
                     }
                 }
             }
-
-            // 计算未读数
-            ChatSessionMember member = memberMap.get(session.getId());
-            if (member != null && StringUtils.hasText(session.getLastMsgId())) {
-                resp.setUnreadCount(calculateUnreadCount(session.getId(), member.getLastReadId(), userId));
-            } else {
-                resp.setUnreadCount(0);
-            }
-
-            respList.add(resp);
+        } else {
+            resp.setSessionDisplayName(session.getGroupName());
         }
 
-        respPage.setRecords(respList);
-        return respPage;
+        // 设置最后消息预览和发送者名称
+        if (StringUtils.hasText(session.getLastMsgId())) {
+            ChatMessage lastMsg = lastMessageMap.get(session.getLastMsgId());
+            if (lastMsg != null) {
+                resp.setLastMessagePreview(generateMessagePreview(lastMsg));
+                SystemUser sender = userMap.get(lastMsg.getFormUserId());
+                if (sender != null) {
+                    resp.setLastMessageSenderName(sender.getNickname());
+                }
+            }
+        }
+
+        // 计算未读数
+        ChatSessionMember member = memberMap.get(session.getId());
+        if (member != null && StringUtils.hasText(session.getLastMsgId())) {
+            resp.setUnreadCount(calculateUnreadCount(session.getId(), member.getLastReadId(), userId));
+        } else {
+            resp.setUnreadCount(0);
+        }
+
+        return resp;
     }
 
     /**
@@ -536,6 +513,28 @@ public class ChatBusinessService {
     }
 
     // ========== 私有方法 ==========
+
+    /**
+     * 收集一对一会话中对方用户 ID
+     */
+    private List<String> collectOtherUserIds(List<ChatSession> sessions,
+                                             Map<String, List<ChatSessionMember>> sessionMembersMap,
+                                             String currentUserId) {
+        List<String> otherUserIds = new ArrayList<>();
+        for (ChatSession session : sessions) {
+            if (ChatSessionTypeEnum.SINGLE.getCodeValue().equals(session.getType())) {
+                List<ChatSessionMember> sessionMembers = sessionMembersMap.get(session.getId());
+                if (sessionMembers != null) {
+                    for (ChatSessionMember member : sessionMembers) {
+                        if (!member.getUserId().equals(currentUserId)) {
+                            otherUserIds.add(member.getUserId());
+                        }
+                    }
+                }
+            }
+        }
+        return otherUserIds;
+    }
 
     /**
      * 查找现有单聊会话（会话复用逻辑）
