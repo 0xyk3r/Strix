@@ -68,7 +68,8 @@ public class AccessDeniedHandlerImpl implements AccessDeniedHandler {
                     systemLog.setClientUser(manager.getId());
                     systemLog.setClientUsername(manager.getNickname());
                 }
-            } catch (Exception ignored) {
+            } catch (Exception userEx) {
+                log.debug("获取当前登录用户信息失败", userEx);
             }
 
             asyncSystemLogService.saveAsync(systemLog);
