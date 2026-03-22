@@ -114,7 +114,12 @@ public class WechatOAController extends BaseWechatController {
 
             response.sendRedirect(config.getWebIndexUrl() + "?token=" + token + "&cfid=" + configKey + "&tp=" + model + "&params=" + params);
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            log.error("微信公众号授权失败: {}", e.getMessage(), e);
+            try {
+                response.sendRedirect(config.getWebIndexUrl() + "?error=auth_failed");
+            } catch (IOException ioEx) {
+                log.error("授权失败后重定向异常", ioEx);
+            }
         }
     }
 
