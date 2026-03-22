@@ -21,8 +21,9 @@ import cn.projectan.strix.service.system.SystemManagerService;
 import cn.projectan.strix.service.system.SystemRegionService;
 import cn.projectan.strix.util.common.UniqueChecker;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -40,20 +41,13 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequestMapping("system/region")
+@RequiredArgsConstructor
 public class SystemRegionController extends BaseSystemController {
 
     private final SystemRegionService systemRegionService;
     private final SystemManagerService systemManagerService;
     private final SystemRegionCache systemRegionCache;
-    private final StrixCommonListener strixCommonListener;
-
-    @Autowired
-    public SystemRegionController(SystemRegionService systemRegionService, SystemManagerService systemManagerService, SystemRegionCache systemRegionCache, @Autowired(required = false) StrixCommonListener strixCommonListener) {
-        this.systemRegionService = systemRegionService;
-        this.systemManagerService = systemManagerService;
-        this.systemRegionCache = systemRegionCache;
-        this.strixCommonListener = strixCommonListener;
-    }
+    private final ObjectProvider<StrixCommonListener> strixCommonListenerProvider;
 
     /**
      * 获取地区列表
@@ -232,9 +226,7 @@ public class SystemRegionController extends BaseSystemController {
         for (String removeId : removeIdList) {
             systemRegionCache.refreshRedisCacheById(removeId);
 
-            if (strixCommonListener != null) {
-                strixCommonListener.deleteSystemRegionNotify(removeId);
-            }
+            strixCommonListenerProvider.ifAvailable(listener -> listener.deleteSystemRegionNotify(removeId));
         }
 
         return RetBuilder.success();

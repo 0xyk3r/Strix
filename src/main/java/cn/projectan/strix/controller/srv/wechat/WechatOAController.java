@@ -24,13 +24,12 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Controller;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -38,14 +37,12 @@ import java.util.Map;
 
 /**
  * 微信公众号相关 API 控制器
- * <p>
- * 该类使用 @Controller 注解, 需要注意需要返回 Json 的接口，记得要加 @ResponseBody 注解.
  *
  * @author ProjectAn
  * @since 2021/8/24 16:40
  */
 @Slf4j
-@Controller
+@RestController
 @RequestMapping("srv/wechat/oa/{configKey}")
 @RequiredArgsConstructor
 public class WechatOAController extends BaseWechatController {
@@ -126,7 +123,6 @@ public class WechatOAController extends BaseWechatController {
      */
     @Anonymous
     @IgnoreEncryption
-    @ResponseBody
     @RequestMapping("config")
     public Map<String, String> config(@PathVariable String configKey, String webUrl) {
         WechatOAOAuthClient instance = (WechatOAOAuthClient) oauthConfigService.getInstance(configKey);
@@ -179,7 +175,6 @@ public class WechatOAController extends BaseWechatController {
     /**
      * 检查Token是否有效
      */
-    @ResponseBody
     @RequestMapping("checkToken")
     public RetResult<Object> checkToken(@PathVariable String configKey) {
         return RetBuilder.success();
