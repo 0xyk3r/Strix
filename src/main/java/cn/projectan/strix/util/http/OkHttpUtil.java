@@ -36,6 +36,10 @@ public class OkHttpUtil {
                             .readTimeout(30, TimeUnit.SECONDS)
                             .writeTimeout(45, TimeUnit.SECONDS)
                             .build();
+                    Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                        singleton.dispatcher().executorService().shutdown();
+                        singleton.connectionPool().evictAll();
+                    }, "okhttp-shutdown"));
                 }
             }
         }

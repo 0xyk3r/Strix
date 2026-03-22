@@ -4,6 +4,7 @@ import cn.projectan.strix.model.annotation.Anonymous;
 import cn.projectan.strix.model.db.system.SecurityUrl;
 import cn.projectan.strix.service.system.SecurityUrlService;
 import cn.projectan.strix.util.common.SpringUtil;
+import jakarta.annotation.PostConstruct;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.Ordered;
@@ -36,11 +37,18 @@ public class StrixSecurityRuleInitializer {
     private static final String ASTERISK = "*";
     private static final Pattern PATTERN = Pattern.compile("\\{(.*?)\\}");
 
-    private final Map<String, String> urlRoleMap;
-    private final Map<String, String> urlAnyRoleMap;
-    private final Set<String> anonymousUrlList;
+    private final SecurityUrlService securityUrlService;
+
+    private Map<String, String> urlRoleMap;
+    private Map<String, String> urlAnyRoleMap;
+    private Set<String> anonymousUrlList;
 
     public StrixSecurityRuleInitializer(SecurityUrlService securityUrlService) {
+        this.securityUrlService = securityUrlService;
+    }
+
+    @PostConstruct
+    private void init() {
         List<SecurityUrl> securityUrls = securityUrlService.lambdaQuery()
                 .select(SecurityUrl::getUrl, SecurityUrl::getRuleType, SecurityUrl::getRuleValue)
                 .list();
