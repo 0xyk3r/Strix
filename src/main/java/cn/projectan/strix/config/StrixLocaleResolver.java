@@ -8,16 +8,18 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.LocaleResolver;
 
 import java.util.Locale;
-import java.util.Optional;
 
 /**
  * Strix I18n 语言解析器
  * <p>
  * 通过 {@code @Component("localeResolver")} 注册为 Spring MVC 的 LocaleResolver Bean,
  * DispatcherServlet 会自动按名称 "localeResolver" 查找并使用此 Bean.
+ * <p>
+ * 优先级: 自定义 lang 头 > Accept-Language 头 > 默认配置
  *
  * @author ProjectAn
  * @since 2023/4/17 12:22
@@ -28,18 +30,28 @@ public class StrixLocaleResolver implements LocaleResolver {
 
     private final StrixProperties strixProperties;
 
-    public Locale getLocal() {
+    public Locale getLocale() {
         return resolveLocale(ServletUtil.getRequest());
     }
 
     @Nonnull
     @Override
     public Locale resolveLocale(HttpServletRequest request) {
-        // 获取请求中的语言参数
+        // 优先使用自定义 lang 头
         String requestLang = request.getHeader("lang");
-        return Optional.ofNullable(requestLang)
-                .map(I18nUtil::convertLocale)
-                .orElse(I18nUtil.convertLocale(strixProperties.getDefaultLocale()));
+        if (StringUtils.hasText(requestLang)) {
+            return I18nUtil.convertLocale(requestLang);
+        }
+
+        // 其次使用标准 Accept-Language 头
+        String acceptLanguage = request.getHeader("Accept-Language");
+        if (StringUtils.hasText(acceptLanguage)) {
+            // 取 Accept-Language 第一个语言标签 (e.g. "zh-CN,zh;q=0.9,en;q=0.8" → "zh-CN")
+            String primaryLang = acceptLanguage.split(",")[0].split(";")[0].trim();
+            return I18nUtil.convertLocale(primaryLang);
+        }
+
+        return I18nUtil.convertLocale(strixProperties.getDefaultLocale());
     }
 
     @Override

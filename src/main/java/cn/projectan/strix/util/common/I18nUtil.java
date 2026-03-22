@@ -5,11 +5,11 @@ import cn.projectan.strix.model.properties.system.StrixProperties;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.support.ReloadableResourceBundleMessageSource;
+import org.springframework.context.MessageSource;
+import org.springframework.context.NoSuchMessageException;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 
 /**
@@ -25,23 +25,17 @@ import java.util.Locale;
 @RequiredArgsConstructor
 public class I18nUtil {
 
-    private static final Locale FALLBACK_LOCALE = Locale.CHINA;
+    private static Locale fallbackLocale = Locale.CHINA;
 
     private final StrixProperties strixProperties;
     private final StrixLocaleResolver resolver;
-
-    @org.springframework.beans.factory.annotation.Value("${spring.messages.basename}")
-    private String basename;
+    private final MessageSource messageSource;
 
     private static volatile I18nUtil instance;
-    private ReloadableResourceBundleMessageSource messageSource;
 
     @PostConstruct
     private void init() {
-        messageSource = new ReloadableResourceBundleMessageSource();
-        messageSource.setDefaultEncoding(StandardCharsets.UTF_8.toString());
-        messageSource.setFallbackToSystemLocale(false);
-        messageSource.setBasenames(StringUtils.commaDelimitedListToStringArray(StringUtils.trimAllWhitespace(basename)));
+        fallbackLocale = convertLocale(strixProperties.getDefaultLocale());
         instance = this;
         log.info("Strix I18n: 初始化完成, 当前默认语言为: {}.", strixProperties.getDefaultLocale());
     }
@@ -50,7 +44,7 @@ public class I18nUtil {
      * 获取国际化消息
      */
     public String getMessage(String code) {
-        return getMessage(code, null, code, resolver.getLocal());
+        return getMessage(code, null, code, resolver.getLocale());
     }
 
     /**
@@ -67,8 +61,8 @@ public class I18nUtil {
     public String getMessage(String code, Object[] args, String defaultMessage, Locale locale) {
         try {
             return messageSource.getMessage(code, args, locale);
-        } catch (Exception e) {
-            log.error("国际化参数获取失败: {}", e.getMessage(), e);
+        } catch (NoSuchMessageException e) {
+            log.warn("I18n key not found: {}", code);
             return defaultMessage;
         }
     }
@@ -89,24 +83,20 @@ public class I18nUtil {
 
     /**
      * 将语言字符串转换为 Locale 对象（无状态，保持静态）
+     * 支持下划线格式 (zh_CN) 和连字符格式 (zh-CN)
      */
     public static Locale convertLocale(String locale) {
         if (!StringUtils.hasText(locale)) {
             if (instance == null || !StringUtils.hasText(instance.strixProperties.getDefaultLocale())) {
-                return FALLBACK_LOCALE;
+                return fallbackLocale;
             }
             return convertLocale(instance.strixProperties.getDefaultLocale());
         }
         try {
-            String[] split = locale.split("_");
-            Locale.Builder builder = new Locale.Builder().setLanguage(split[0]);
-            if (split.length >= 2) {
-                builder.setRegion(split[1]);
-            }
-            return builder.build();
+            return Locale.forLanguageTag(locale.replace("_", "-"));
         } catch (Exception ignore) {
             log.warn("无法解析语言参数：{}，将使用默认语言.", locale);
-            return FALLBACK_LOCALE;
+            return fallbackLocale;
         }
     }
 

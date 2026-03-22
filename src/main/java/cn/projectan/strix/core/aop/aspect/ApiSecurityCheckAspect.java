@@ -75,7 +75,7 @@ public class ApiSecurityCheckAspect {
                 .map(Boolean::parseBoolean)
                 .orElse(true);
         if (!security) {
-            return RetBuilder.error(RetCode.BAD_REQUEST, I18nUtil.get("error.badRequest") + "1");
+            return RetBuilder.error(RetCode.BAD_REQUEST, I18nUtil.get("error.badRequest.noDecoration"));
         }
 
         String url = (String) request.getAttribute(
@@ -84,7 +84,7 @@ public class ApiSecurityCheckAspect {
         String timestamp = request.getHeader("timestamp");
         String sign = request.getHeader("sign");
         if (!StringUtils.hasText(sign) || !StringUtils.hasText(timestamp)) {
-            return RetBuilder.error(RetCode.BAD_REQUEST, I18nUtil.get("error.badRequest") + "2");
+            return RetBuilder.error(RetCode.BAD_REQUEST, I18nUtil.get("error.badRequest.noHeaders"));
         }
 
         // 校验时间戳 60s 内有效
@@ -92,10 +92,10 @@ public class ApiSecurityCheckAspect {
         try {
             ts = Long.parseLong(timestamp);
         } catch (NumberFormatException e) {
-            return RetBuilder.error(RetCode.BAD_REQUEST, I18nUtil.get("error.badRequest") + "3");
+            return RetBuilder.error(RetCode.BAD_REQUEST, I18nUtil.get("error.badRequest.invalidTimestamp"));
         }
         if (System.currentTimeMillis() - ts > 1000 * 60) {
-            return RetBuilder.error(RetCode.BAD_REQUEST, I18nUtil.get("error.badRequest") + "3");
+            return RetBuilder.error(RetCode.BAD_REQUEST, I18nUtil.get("error.badRequest.invalidTimestamp"));
         }
 
         // 校验签名
@@ -113,7 +113,7 @@ public class ApiSecurityCheckAspect {
         }
 
         if (!signValid) {
-            return RetBuilder.error(RetCode.BAD_REQUEST, I18nUtil.get("error.badRequest") + "4");
+            return RetBuilder.error(RetCode.BAD_REQUEST, I18nUtil.get("error.badRequest.invalidSign"));
         }
 
         return pjp.proceed();

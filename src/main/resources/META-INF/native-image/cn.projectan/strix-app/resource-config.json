@@ -1298,16 +1298,7 @@
         "pattern": "\\Qi18n/strix.properties\\E"
       },
       {
-        "pattern": "\\Qi18n/strix_zh.properties\\E"
-      },
-      {
-        "pattern": "\\Qi18n/strix_zh.xml\\E"
-      },
-      {
         "pattern": "\\Qi18n/strix_zh_CN.properties\\E"
-      },
-      {
-        "pattern": "\\Qi18n/strix_en_US.properties\\E"
       },
       {
         "pattern": "\\Qio/lettuce/core/metrics/MicrometerOptions.class\\E"

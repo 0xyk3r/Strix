@@ -32,6 +32,8 @@ spring:
       add-mappings: true
   messages:
     basename: i18n/strix
+    encoding: UTF-8
+    fallback-to-system-locale: false
 server:
   forward-headers-strategy: framework
 # mybatis
