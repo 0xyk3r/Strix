@@ -1,9 +1,12 @@
 package cn.projectan.strix.config;
 
 import jakarta.annotation.PreDestroy;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.support.TaskExecutorAdapter;
+import org.springframework.scheduling.annotation.AsyncConfigurer;
 import org.springframework.scheduling.annotation.EnableAsync;
 
 import java.util.ArrayList;
@@ -18,9 +21,10 @@ import java.util.concurrent.Executors;
  * @author ProjectAn
  * @since 2025/4/10 10:33
  */
+@Slf4j
 @EnableAsync
 @Configuration
-public class AsyncConfig {
+public class AsyncConfig implements AsyncConfigurer {
 
     private final List<ExecutorService> executorServices = new ArrayList<>();
 
@@ -49,6 +53,13 @@ public class AsyncConfig {
     @PreDestroy
     public void shutdown() {
         executorServices.forEach(ExecutorService::close);
+    }
+
+    @Override
+    public AsyncUncaughtExceptionHandler getAsyncUncaughtExceptionHandler() {
+        return (ex, method, params) ->
+                log.error("异步方法 {}.{}() 执行异常: {}",
+                        method.getDeclaringClass().getSimpleName(), method.getName(), ex.getMessage(), ex);
     }
 
 }
