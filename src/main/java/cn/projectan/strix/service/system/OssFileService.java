@@ -430,22 +430,17 @@ public class OssFileService extends ServiceImpl<OssFileMapper, OssFile> {
      * @param downloaderId   下载者ID
      */
     public void delete(String fileId, Short downloaderType, String downloaderId) {
-        try {
-            OssFile ossFile = getById(fileId);
-            Assert.notNull(ossFile, "删除文件失败, 文件不存在.");
-            OssFileGroup ossFileGroup = ossFileGroupService.getGroupByKey(ossFile.getGroupKey());
-            Assert.notNull(ossFileGroup, "删除文件失败, 文件组不存在.");
+        OssFile ossFile = getById(fileId);
+        Assert.notNull(ossFile, "删除文件失败, 文件不存在.");
+        OssFileGroup ossFileGroup = ossFileGroupService.getGroupByKey(ossFile.getGroupKey());
+        Assert.notNull(ossFileGroup, "删除文件失败, 文件组不存在.");
 
-            if (downloaderType != null && downloaderId != null) {
-                Assert.isTrue(checkPermission(ossFile, ossFileGroup, downloaderType, downloaderId), "删除文件失败, 文件不存在.");
-            }
-
-            StrixOssClient client = getOssClient(ossFileGroup.getConfigKey());
-            client.getPrivate().delete(ossFileGroup.getBucketName(), ossFile.getPath());
-        } catch (Exception e) {
-            log.error("删除文件失败", e);
+        if (downloaderType != null && downloaderId != null) {
+            Assert.isTrue(checkPermission(ossFile, ossFileGroup, downloaderType, downloaderId), "删除文件失败, 文件不存在.");
         }
 
+        StrixOssClient client = getOssClient(ossFileGroup.getConfigKey());
+        client.getPrivate().delete(ossFileGroup.getBucketName(), ossFile.getPath());
         removeById(fileId);
     }
 
