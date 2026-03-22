@@ -47,4 +47,8 @@ public class SystemLogOperType implements BaseDict {
     public static final
     String SECURITY = "security";
 
+    @DictData(label = "登出", sort = 10, style = DictDataStyle.DEFAULT)
+    public static final
+    String LOGOUT = "logout";
+
 }
