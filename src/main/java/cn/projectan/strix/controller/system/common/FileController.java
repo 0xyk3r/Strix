@@ -75,16 +75,21 @@ public class FileController extends BaseSystemController {
 
         try {
             File tempFile = File.createTempFile("temp", file.getOriginalFilename());
-            IoUtil.copy(file.getInputStream(), FileUtil.getOutputStream(tempFile));
+            try {
+                try (var in = file.getInputStream();
+                     var out = FileUtil.getOutputStream(tempFile)) {
+                    IoUtil.copy(in, out);
+                }
 
-            OssFile ossFile = ossFileService.upload(groupId, tempFile);
+                OssFile ossFile = ossFileService.upload(groupId, tempFile);
 
-            //noinspection ResultOfMethodCallIgnored
-            tempFile.delete();
-
-            return RetBuilder.success(
-                    new CommonFileIdResp(ossFile.getId())
-            );
+                return RetBuilder.success(
+                        new CommonFileIdResp(ossFile.getId())
+                );
+            } finally {
+                //noinspection ResultOfMethodCallIgnored
+                tempFile.delete();
+            }
         } catch (IllegalArgumentException e) {
             throw new StrixException("上传文件失败，" + e.getMessage());
         } catch (Exception e) {

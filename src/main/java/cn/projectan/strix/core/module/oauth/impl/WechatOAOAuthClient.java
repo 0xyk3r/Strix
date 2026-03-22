@@ -138,25 +138,23 @@ public class WechatOAOAuthClient extends AbstractWechatOAuthClient<WechatOAOAuth
             }
 
             @Override
-            public void onResponse(@Nonnull Call call, @Nonnull Response response) throws IOException {
-                String responseStr = response.body().string();
-                oauthPush.setResult(responseStr);
+            public void onResponse(@Nonnull Call call, @Nonnull Response response) {
+                try (response) {
+                    ResponseBody body = response.body();
+                    String responseStr = body.string();
+                    oauthPush.setResult(responseStr);
 
-                try {
                     Map<String, Object> responseMap = objectMapper.readValue(responseStr, new TypeReference<>() {
                     });
                     Integer errCode = MapUtil.getInt(responseMap, "errcode", -1);
 
                     if (errCode == 0) {
-                        // 推送成功
                         oauthPush.setStatus(OAuthPushStatus.SUCCESS);
                         log.debug("Strix OAuth: 推送消息成功.");
                     } else if (errCode == 40001) {
-                        // AccessToken失效，不做任何处理，自行重试
                         log.warn("Strix OAuth: 推送消息失败，AccessToken失效.");
                         return;
                     } else {
-                        // 其他错误
                         oauthPush.setStatus(OAuthPushStatus.FAILURE);
                         log.warn("Strix OAuth: 推送消息失败，errcode: {}, errmsg: {}", errCode, MapUtil.getStr(responseMap, "errmsg"));
                     }

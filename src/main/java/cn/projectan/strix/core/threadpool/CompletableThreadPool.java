@@ -35,6 +35,8 @@ public class CompletableThreadPool {
                     executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
                     executor.initialize();
                     INSTANCE = executor;
+                    Runtime.getRuntime().addShutdownHook(
+                            new Thread(executor::shutdown, "thd-completable-pool-shutdown"));
                 }
             }
         }

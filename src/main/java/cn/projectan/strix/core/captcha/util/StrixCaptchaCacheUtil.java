@@ -32,6 +32,17 @@ public final class StrixCaptchaCacheUtil {
         if (second > 0L) {
             scheduledExecutor = new ScheduledThreadPoolExecutor(1, r -> new Thread(r, "thd-captcha-cache-clean"), new ThreadPoolExecutor.CallerRunsPolicy());
             scheduledExecutor.scheduleAtFixedRate(StrixCaptchaCacheUtil::refresh, 10, second, TimeUnit.SECONDS);
+            Runtime.getRuntime().addShutdownHook(new Thread(StrixCaptchaCacheUtil::shutdown, "thd-captcha-cache-shutdown"));
+        }
+    }
+
+    /**
+     * 关闭定时清理线程池
+     */
+    public static void shutdown() {
+        ScheduledExecutorService executor = scheduledExecutor;
+        if (executor != null && !executor.isShutdown()) {
+            executor.shutdown();
         }
     }
 
