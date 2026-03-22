@@ -28,22 +28,26 @@ public class SystemMenuCache {
     private final RedisUtil redisUtil;
     private final SystemMenuService systemMenuService;
 
-    private volatile List<SystemMenu> instance = new ArrayList<>();
-    private volatile Map<String, List<SystemMenu>> childrenByParentId = Map.of();
+    private record MenuCacheData(List<SystemMenu> menus, Map<String, List<SystemMenu>> childrenByParentId) {
+    }
+
+    private volatile MenuCacheData cache = new MenuCacheData(List.of(), Map.of());
 
     @PostConstruct
     private void init() {
-        instance = systemMenuService.lambdaQuery()
+        List<SystemMenu> menus = systemMenuService.lambdaQuery()
                 .orderByAsc(SystemMenu::getSortValue)
                 .list();
-        childrenByParentId = instance.stream()
+        Map<String, List<SystemMenu>> childrenByParentId = menus.stream()
                 .collect(Collectors.groupingBy(SystemMenu::getParentId));
-        log.info("Strix Cache: 管理系统菜单缓存加载完成, 缓存了 {} 个菜单.", instance.size());
+        cache = new MenuCacheData(menus, childrenByParentId);
+        log.info("Strix Cache: 管理系统菜单缓存加载完成, 缓存了 {} 个菜单.", menus.size());
     }
 
     public List<String> getIdListByParentMenu(String menuId) {
         List<String> result = new ArrayList<>();
         result.add(menuId);
+        Map<String, List<SystemMenu>> childrenByParentId = cache.childrenByParentId();
         for (SystemMenu child : childrenByParentId.getOrDefault(menuId, Collections.emptyList())) {
             result.addAll(getIdListByParentMenu(child.getId()));
         }

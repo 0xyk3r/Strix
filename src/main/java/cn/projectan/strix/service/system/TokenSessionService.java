@@ -140,6 +140,10 @@ public class TokenSessionService {
     }
 
     // ======================== Internal Shared Operations ========================
+    // 注: 以下方法的 read→modify 操作在 Redis 层面非原子性, 但竞态后果是良性的:
+    // - setExpire 在 key 已删除时为 no-op (返回 false)
+    // - 最坏情况是 getOrRefreshUserSession 在 key 被删除后重建了一个带 TTL 的短暂泄漏 key
+    // - 这些操作的并发窗口极小, 且均有 TTL 自动清理保障
 
     private void invalidateSession(String idToTokenKey, String tokenToInfoPrefix) {
         Object existToken = redisUtil.get(idToTokenKey);

@@ -13,6 +13,7 @@ import cn.projectan.strix.task.system.StrixSmsTask;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -49,12 +50,10 @@ public class SmsConfigService extends ServiceImpl<SmsConfigMapper, SmsConfig> {
 
     private Map<Short, SmsClientFactory> factoryMap;
 
-    private Map<Short, SmsClientFactory> getFactoryMap() {
-        if (factoryMap == null) {
-            factoryMap = smsClientFactories.stream()
-                    .collect(Collectors.toMap(SmsClientFactory::supportedPlatform, Function.identity()));
-        }
-        return factoryMap;
+    @PostConstruct
+    private void initFactoryMap() {
+        factoryMap = smsClientFactories.stream()
+                .collect(Collectors.toMap(SmsClientFactory::supportedPlatform, Function.identity()));
     }
 
     /**
@@ -65,7 +64,7 @@ public class SmsConfigService extends ServiceImpl<SmsConfigMapper, SmsConfig> {
     public void createInstance(List<SmsConfig> smsConfigList) {
         for (SmsConfig smsConfig : smsConfigList) {
             try {
-                SmsClientFactory factory = getFactoryMap().get(smsConfig.getPlatform());
+                SmsClientFactory factory = factoryMap.get(smsConfig.getPlatform());
                 if (factory == null) {
                     log.error("Strix SMS: 初始化短信服务实例 <{}> 失败. (不支持的平台: {})", smsConfig.getKey(), smsConfig.getPlatform());
                     continue;

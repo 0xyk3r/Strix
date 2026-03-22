@@ -117,14 +117,13 @@ public class DelayedTaskManager {
      * @param timeUnit     时间单位
      */
     public void registerConsumer(String queueName, Consumer<String> consumer, long scanInterval, TimeUnit timeUnit) {
-        if (scanners.containsKey(queueName)) {
-            log.warn("Consumer for queue [{}] already registered, skipping", queueName);
-            return;
-        }
-
         try {
             QueueScanner scanner = new QueueScanner(queueName, consumer, scanInterval, timeUnit);
-            scanners.put(queueName, scanner);
+            QueueScanner existing = scanners.putIfAbsent(queueName, scanner);
+            if (existing != null) {
+                log.warn("Consumer for queue [{}] already registered, skipping", queueName);
+                return;
+            }
             scanner.start();
             log.info("Strix DelayedTask: 已注册消费者 [{}], 扫描间隔: {}s",
                     queueName, timeUnit.toSeconds(scanInterval));

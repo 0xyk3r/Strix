@@ -61,11 +61,10 @@ public class UserOnlineStatusService {
         String key = ChatRedisKeys.USER_ONLINE_CONNECTIONS_PREFIX + userId;
         redisTemplate.opsForSet().remove(key, sessionId);
 
-        // 检查是否还有其他连接
+        // 不显式删除空 key: TTL 会自动清理, 避免 size()==0 后 delete 的竞态窗口
+        // (并发的 addConnection 可能在 size 检查和 delete 之间添加新连接)
         Long size = redisTemplate.opsForSet().size(key);
         if (size == null || size == 0) {
-            // 没有连接了，删除 key
-            redisTemplate.delete(key);
             log.info("用户已离线: userId={}", userId);
         } else {
             log.info("用户连接已移除: userId={}, sessionId={}, 剩余连接数={}", userId, sessionId, size);

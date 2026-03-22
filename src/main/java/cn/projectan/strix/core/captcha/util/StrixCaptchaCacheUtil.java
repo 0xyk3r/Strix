@@ -19,7 +19,7 @@ public final class StrixCaptchaCacheUtil {
     /**
      * 缓存最大个数
      */
-    private static Integer CACHE_MAX_NUMBER = 1000;
+    private static volatile int CACHE_MAX_NUMBER = 1000;
 
     /**
      * 初始化
@@ -35,7 +35,7 @@ public final class StrixCaptchaCacheUtil {
         }
     }
 
-    private static ScheduledExecutorService scheduledExecutor;
+    private static volatile ScheduledExecutorService scheduledExecutor;
 
     /**
      * 缓存刷新,清除过期数据

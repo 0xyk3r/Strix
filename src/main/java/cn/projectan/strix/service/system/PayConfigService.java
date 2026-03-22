@@ -6,6 +6,7 @@ import cn.projectan.strix.core.module.pay.StrixPayStore;
 import cn.projectan.strix.mapper.system.PayConfigMapper;
 import cn.projectan.strix.model.db.system.PayConfig;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -34,12 +35,10 @@ public class PayConfigService extends ServiceImpl<PayConfigMapper, PayConfig> {
 
     private Map<Short, PayClientFactory> factoryMap;
 
-    private Map<Short, PayClientFactory> getFactoryMap() {
-        if (factoryMap == null) {
-            factoryMap = payClientFactories.stream()
-                    .collect(Collectors.toMap(PayClientFactory::supportedPlatform, Function.identity()));
-        }
-        return factoryMap;
+    @PostConstruct
+    private void initFactoryMap() {
+        factoryMap = payClientFactories.stream()
+                .collect(Collectors.toMap(PayClientFactory::supportedPlatform, Function.identity()));
     }
 
     /**
@@ -58,7 +57,7 @@ public class PayConfigService extends ServiceImpl<PayConfigMapper, PayConfig> {
         for (PayConfig payConfig : payConfigList) {
             Assert.hasText(payConfig.getConfigData(), "Strix Pay: 初始化支付服务实例 <" + payConfig.getName() + "> 失败. (配置信息为空)");
             try {
-                PayClientFactory factory = getFactoryMap().get(payConfig.getPlatform());
+                PayClientFactory factory = factoryMap.get(payConfig.getPlatform());
                 if (factory == null) {
                     log.error("Strix Pay: 初始化支付服务实例 <{}> 失败. (不支持的支付平台: {})", payConfig.getName(), payConfig.getPlatform());
                     continue;

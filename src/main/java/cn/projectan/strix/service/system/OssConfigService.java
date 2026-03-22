@@ -12,6 +12,7 @@ import cn.projectan.strix.util.algo.KeyDiffUtil;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
@@ -45,12 +46,10 @@ public class OssConfigService extends ServiceImpl<OssConfigMapper, OssConfig> {
 
     private Map<Short, OssClientFactory> factoryMap;
 
-    private Map<Short, OssClientFactory> getFactoryMap() {
-        if (factoryMap == null) {
-            factoryMap = ossClientFactories.stream()
-                    .collect(Collectors.toMap(OssClientFactory::supportedPlatform, Function.identity()));
-        }
-        return factoryMap;
+    @PostConstruct
+    private void initFactoryMap() {
+        factoryMap = ossClientFactories.stream()
+                .collect(Collectors.toMap(OssClientFactory::supportedPlatform, Function.identity()));
     }
 
     /**
@@ -95,7 +94,7 @@ public class OssConfigService extends ServiceImpl<OssConfigMapper, OssConfig> {
     public void createInstance(List<OssConfig> ossConfigList) {
         for (OssConfig ossConfig : ossConfigList) {
             try {
-                OssClientFactory factory = getFactoryMap().get(ossConfig.getPlatform());
+                OssClientFactory factory = factoryMap.get(ossConfig.getPlatform());
                 if (factory == null) {
                     log.error("Strix OSS: 初始化对象存储服务实例 <{}> 失败. (不支持的平台: {})", ossConfig.getKey(), ossConfig.getPlatform());
                     continue;

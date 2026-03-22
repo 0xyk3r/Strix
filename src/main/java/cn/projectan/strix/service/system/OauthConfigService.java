@@ -6,6 +6,7 @@ import cn.projectan.strix.core.module.oauth.StrixOAuthStore;
 import cn.projectan.strix.mapper.system.OauthConfigMapper;
 import cn.projectan.strix.model.db.system.OauthConfig;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -33,12 +34,10 @@ public class OauthConfigService extends ServiceImpl<OauthConfigMapper, OauthConf
 
     private Map<Short, OAuthClientFactory> factoryMap;
 
-    private Map<Short, OAuthClientFactory> getFactoryMap() {
-        if (factoryMap == null) {
-            factoryMap = oAuthClientFactories.stream()
-                    .collect(Collectors.toMap(OAuthClientFactory::supportedPlatform, Function.identity()));
-        }
-        return factoryMap;
+    @PostConstruct
+    private void initFactoryMap() {
+        factoryMap = oAuthClientFactories.stream()
+                .collect(Collectors.toMap(OAuthClientFactory::supportedPlatform, Function.identity()));
     }
 
     /**
@@ -63,7 +62,7 @@ public class OauthConfigService extends ServiceImpl<OauthConfigMapper, OauthConf
     public void createInstance(List<OauthConfig> oauthConfigList) {
         for (OauthConfig oauthConfig : oauthConfigList) {
             try {
-                OAuthClientFactory factory = getFactoryMap().get(oauthConfig.getPlatform());
+                OAuthClientFactory factory = factoryMap.get(oauthConfig.getPlatform());
                 if (factory == null) {
                     log.error("Strix OAuth: 初始化 OAuth 服务实例 <{}> 失败. (不支持的平台: {})", oauthConfig.getName(), oauthConfig.getPlatform());
                     continue;

@@ -5,6 +5,8 @@ import cn.projectan.strix.util.common.RedisUtil;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Component;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * 验证码计数器
  *
@@ -36,13 +38,13 @@ public class VerifierCounter {
     }
 
     private boolean isOverLimit(String key, Long limit, Long seconds) {
-        if (redisUtil.hasKey(key)) {
-            long count = redisUtil.incr(key);
-            return count > limit;
-        } else {
-            redisUtil.set(key, 1, seconds);
+        // INCR 是原子操作: key 不存在时自动创建并设为 1
+        long count = redisUtil.incr(key);
+        if (count == 1) {
+            // 首次递增, 设置滑动窗口过期时间
+            redisUtil.setExpire(key, seconds, TimeUnit.SECONDS);
         }
-        return false;
+        return count > limit;
     }
 
 }
