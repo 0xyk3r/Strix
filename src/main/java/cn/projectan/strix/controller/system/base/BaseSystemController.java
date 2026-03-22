@@ -5,6 +5,7 @@ import cn.projectan.strix.core.exception.StrixException;
 import cn.projectan.strix.core.ss.details.LoginSystemManager;
 import cn.projectan.strix.model.db.system.SystemManager;
 import cn.projectan.strix.model.dict.system.SystemRoleRegionPermissionType;
+import cn.projectan.strix.util.common.I18nUtil;
 import cn.projectan.strix.util.system.SecurityUtil;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -104,7 +105,7 @@ public class BaseSystemController extends BaseController {
                 }
                 return List.of(regionId);
             }
-            default -> throw new StrixException("无效的地区权限类型");
+            default -> throw new StrixException(I18nUtil.get("error.region.invalidPermType"));
         }
     }
 
@@ -119,7 +120,7 @@ public class BaseSystemController extends BaseController {
             return;
         }
         if (!regionPermissions.contains(regionId)) {
-            throw new StrixException("无权限访问该地区数据");
+            throw new StrixException(I18nUtil.get("error.region.noAccess"));
         }
     }
 

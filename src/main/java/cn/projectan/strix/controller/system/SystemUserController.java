@@ -15,6 +15,7 @@ import cn.projectan.strix.model.request.system.user.SystemUserUpdateReq;
 import cn.projectan.strix.model.response.system.user.SystemUserListResp;
 import cn.projectan.strix.model.response.system.user.SystemUserResp;
 import cn.projectan.strix.service.system.SystemUserService;
+import cn.projectan.strix.util.common.I18nUtil;
 import cn.projectan.strix.util.common.UniqueChecker;
 import cn.projectan.strix.util.common.UpdateBuilder;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -96,7 +97,7 @@ public class SystemUserController extends BaseSystemController {
             }
             case "phoneNumber" -> queryWrapper.set(SystemUser::getPhoneNumber, req.getValue());
             default -> {
-                return RetBuilder.error("参数错误");
+                return RetBuilder.error(I18nUtil.get("error.param.invalid"));
             }
         }
 

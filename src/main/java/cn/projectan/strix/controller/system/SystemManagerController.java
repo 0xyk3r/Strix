@@ -22,6 +22,7 @@ import cn.projectan.strix.service.system.SystemManagerRoleService;
 import cn.projectan.strix.service.system.SystemManagerService;
 import cn.projectan.strix.service.system.TokenSessionService;
 import cn.projectan.strix.util.algo.KeyDiffUtil;
+import cn.projectan.strix.util.common.I18nUtil;
 import cn.projectan.strix.util.common.UniqueChecker;
 import cn.projectan.strix.util.common.UpdateBuilder;
 import cn.projectan.strix.util.crypto.StrixSM3Util;
@@ -159,7 +160,7 @@ public class SystemManagerController extends BaseSystemController {
                 );
             }
             default -> {
-                return RetBuilder.error("参数错误");
+                return RetBuilder.error(I18nUtil.get("error.param.invalid"));
             }
         }
 

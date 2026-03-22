@@ -12,6 +12,7 @@ import cn.projectan.strix.model.db.system.WorkflowTaskAssign;
 import cn.projectan.strix.model.dict.system.*;
 import cn.projectan.strix.model.other.system.workflow.WorkflowNode;
 import cn.projectan.strix.model.other.system.workflow.WorkflowProps;
+import cn.projectan.strix.util.common.I18nUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -231,7 +232,7 @@ public class WorkflowTaskService extends ServiceImpl<WorkflowTaskMapper, Workflo
                             .update();
                 }
             }
-            default -> throw new IllegalArgumentException("不支持的操作");
+            default -> throw new IllegalArgumentException(I18nUtil.get("error.workflow.unsupportedOp"));
         }
 
         // 任务完成

@@ -8,6 +8,7 @@ import cn.projectan.strix.model.db.system.OssFile;
 import cn.projectan.strix.model.db.system.OssFileGroup;
 import cn.projectan.strix.model.dict.system.OssFileGroupSecretType;
 import cn.projectan.strix.model.request.system.module.oss.OssFileListReq;
+import cn.projectan.strix.util.common.I18nUtil;
 import cn.projectan.strix.util.common.SnowflakeUtil;
 import cn.projectan.strix.util.file.FileMagicValidator;
 import cn.projectan.strix.util.file.FileUtil;
@@ -166,7 +167,7 @@ public class OssFileService extends ServiceImpl<OssFileMapper, OssFile> {
         try (InputStream is = new FileInputStream(file)) {
             validateFileMagic(is, ext);
         } catch (IOException e) {
-            throw new StrixException("上传文件失败. 文件读取异常", e);
+            throw new StrixException(I18nUtil.get("error.file.readFailed"), e);
         }
 
         String filePath = buildFilePath(ossFileGroup, originalName);
@@ -174,7 +175,7 @@ public class OssFileService extends ServiceImpl<OssFileMapper, OssFile> {
         try {
             client.getPrivate().upload(ossFileGroup.getBucketName(), filePath, file);
         } catch (Exception e) {
-            throw new StrixException("上传文件失败. 文件上传异常", e);
+            throw new StrixException(I18nUtil.get("error.file.uploadException"), e);
         }
 
         return saveOssFile(ossFileGroup, filePath, file.length(), ext);
@@ -201,7 +202,7 @@ public class OssFileService extends ServiceImpl<OssFileMapper, OssFile> {
             validateFileMagic(is, ext);
             client.getPrivate().upload(ossFileGroup.getBucketName(), filePath, is, file.getSize());
         } catch (IOException e) {
-            throw new StrixException("上传文件失败. 文件上传异常", e);
+            throw new StrixException(I18nUtil.get("error.file.uploadException"), e);
         }
 
         return saveOssFile(ossFileGroup, filePath, file.getSize(), ext);
@@ -230,7 +231,7 @@ public class OssFileService extends ServiceImpl<OssFileMapper, OssFile> {
         try {
             client.getPrivate().upload(ossFileGroup.getBucketName(), filePath, inputStream, contentLength);
         } catch (Exception e) {
-            throw new StrixException("上传文件失败. 文件上传异常", e);
+            throw new StrixException(I18nUtil.get("error.file.uploadException"), e);
         }
 
         return saveOssFile(ossFileGroup, filePath, contentLength, ext);
@@ -254,7 +255,7 @@ public class OssFileService extends ServiceImpl<OssFileMapper, OssFile> {
         try (InputStream is = new ByteArrayInputStream(data)) {
             validateFileMagic(is, ext);
         } catch (IOException e) {
-            throw new StrixException("上传文件失败. 文件读取异常", e);
+            throw new StrixException(I18nUtil.get("error.file.readFailed"), e);
         }
 
         String filePath = buildFilePath(ossFileGroup, originalName);
@@ -262,7 +263,7 @@ public class OssFileService extends ServiceImpl<OssFileMapper, OssFile> {
         try {
             client.getPrivate().upload(ossFileGroup.getBucketName(), filePath, data);
         } catch (Exception e) {
-            throw new StrixException("上传文件失败. 文件上传异常", e);
+            throw new StrixException(I18nUtil.get("error.file.uploadException"), e);
         }
 
         return saveOssFile(ossFileGroup, filePath, (long) data.length, ext);
@@ -474,7 +475,7 @@ public class OssFileService extends ServiceImpl<OssFileMapper, OssFile> {
      */
     private StrixOssClient getOssClient(String configKey) {
         StrixOssStore store = strixOssStore.orElseThrow(
-                () -> new StrixException("Strix OSS 模块未启用，请检查配置.")
+                () -> new StrixException(I18nUtil.get("error.oss.moduleDisabled"))
         );
         StrixOssClient client = store.getInstance(configKey);
         Assert.notNull(client, "Strix OSS 服务实例不存在: " + configKey);

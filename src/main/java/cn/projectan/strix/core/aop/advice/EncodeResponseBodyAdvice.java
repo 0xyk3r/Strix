@@ -7,6 +7,7 @@ import cn.projectan.strix.core.security.ApiSecurity;
 import cn.projectan.strix.model.annotation.IgnoreEncryption;
 import cn.projectan.strix.model.constant.system.StrixPasswordConst;
 import cn.projectan.strix.model.properties.system.StrixProperties;
+import cn.projectan.strix.util.common.I18nUtil;
 import cn.projectan.strix.util.http.ServletUtil;
 import jakarta.annotation.Nonnull;
 import lombok.RequiredArgsConstructor;
@@ -66,7 +67,7 @@ public class EncodeResponseBodyAdvice implements ResponseBodyAdvice<Object> {
         } catch (Exception e) {
             log.error("响应数据加密失败", e);
             try {
-                RetResult<Object> errorResponse = RetBuilder.error(RetCode.SERVER_ERROR, "响应封装时发生异常");
+                RetResult<Object> errorResponse = RetBuilder.error(RetCode.SERVER_ERROR, I18nUtil.get("error.response.encodeFailed"));
                 return apiSecurity.encrypt(errorResponse);
             } catch (Exception encryptException) {
                 log.error("加密错误响应也失败，返回未加密错误", encryptException);

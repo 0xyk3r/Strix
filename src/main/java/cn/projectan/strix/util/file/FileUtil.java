@@ -1,5 +1,6 @@
 package cn.projectan.strix.util.file;
 
+import cn.projectan.strix.util.common.I18nUtil;
 import cn.projectan.strix.util.text.StrixBase64Util;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
@@ -46,7 +47,7 @@ public final class FileUtil {
      */
     public static File toTempFile(MultipartFile multipartFile) throws IOException {
         if (multipartFile == null || multipartFile.isEmpty()) {
-            throw new IllegalArgumentException("MultipartFile 不能为空");
+            throw new IllegalArgumentException(I18nUtil.get("error.fileUtil.emptyFile"));
         }
 
         String originalFilename = multipartFile.getOriginalFilename();
@@ -73,7 +74,7 @@ public final class FileUtil {
      */
     public static void transferTo(MultipartFile multipartFile, File destFile) throws IOException {
         if (multipartFile == null || multipartFile.isEmpty()) {
-            throw new IllegalArgumentException("MultipartFile 不能为空");
+            throw new IllegalArgumentException(I18nUtil.get("error.fileUtil.emptyFile"));
         }
         multipartFile.transferTo(destFile.toPath());
     }
@@ -86,12 +87,12 @@ public final class FileUtil {
      */
     public static Base64ParseResult parseBase64Data(String base64Data) {
         if (!StringUtils.hasText(base64Data)) {
-            throw new IllegalArgumentException("Base64 数据不能为空");
+            throw new IllegalArgumentException(I18nUtil.get("error.fileUtil.emptyBase64"));
         }
 
         Matcher matcher = BASE64_DATA_PATTERN.matcher(base64Data);
         if (!matcher.matches()) {
-            throw new IllegalArgumentException("不支持的 Base64 数据格式, 期望格式: data:mime/type;base64,xxxxx");
+            throw new IllegalArgumentException(I18nUtil.get("error.fileUtil.invalidBase64Format"));
         }
 
         String mimeType = matcher.group(1);

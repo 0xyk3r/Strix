@@ -1,5 +1,7 @@
 package cn.projectan.strix.util.text;
 
+import cn.projectan.strix.util.common.I18nUtil;
+
 import java.util.Base64;
 
 /**
@@ -38,10 +40,10 @@ public final class StrixBase64Util {
      */
     public static byte[] decode(String base64, int maxLength) {
         if (base64 == null || base64.isEmpty()) {
-            throw new IllegalArgumentException("Base64 数据不能为空");
+            throw new IllegalArgumentException(I18nUtil.get("error.fileUtil.emptyBase64"));
         }
         if (base64.length() > maxLength) {
-            throw new IllegalArgumentException("Base64 数据过大，最大允许 " + maxLength + " 字符，实际 " + base64.length() + " 字符");
+            throw new IllegalArgumentException(I18nUtil.get("error.fileUtil.base64TooLarge", maxLength, base64.length()));
         }
         return Base64.getDecoder().decode(base64);
     }
@@ -59,7 +61,7 @@ public final class StrixBase64Util {
             return null;
         }
         if (base64.length() > maxLength) {
-            throw new IllegalArgumentException("Base64 数据过大，最大允许 " + maxLength + " 字符，实际 " + base64.length() + " 字符");
+            throw new IllegalArgumentException(I18nUtil.get("error.fileUtil.base64TooLarge", maxLength, base64.length()));
         }
         return Base64.getDecoder().decode(base64);
     }

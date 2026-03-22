@@ -6,6 +6,7 @@ import cn.projectan.strix.core.ret.RetCode;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.model.other.system.captcha.CaptchaData;
 import cn.projectan.strix.model.properties.system.StrixCaptchaProperties;
+import cn.projectan.strix.util.common.I18nUtil;
 import org.springframework.util.StringUtils;
 
 import java.util.Objects;
@@ -74,7 +75,7 @@ public interface FrequencyLimitHandler {
             String lockKey = getClientCId(d, "LOCK");
             // 失败次数过多，锁定
             if (Objects.nonNull(cacheService.get(lockKey))) {
-                return RetBuilder.error(RetCode.BAD_REQUEST, "验证码获取请求过于频繁，请稍后再试");
+                return RetBuilder.error(RetCode.BAD_REQUEST, I18nUtil.get("error.captcha.tooFrequent.get"));
             }
             String getCount = cacheService.get(getKey);
             if (Objects.isNull(getCount)) {
@@ -84,7 +85,7 @@ public interface FrequencyLimitHandler {
             cacheService.increment(getKey, 1);
             // 1分钟内请求次数过多
             if (Long.parseLong(getCount) > Long.parseLong(config.getProperty(StrixCaptchaProperties.Key.REQ_GET_MINUTE_LIMIT, "120"))) {
-                return RetBuilder.error(RetCode.BAD_REQUEST, "验证码获取请求过于频繁，请稍后再试");
+                return RetBuilder.error(RetCode.BAD_REQUEST, I18nUtil.get("error.captcha.tooFrequent.get"));
             }
 
             // 失败次数验证
@@ -98,7 +99,7 @@ public interface FrequencyLimitHandler {
             if (Long.parseLong(failCount) >= Long.parseLong(config.getProperty(StrixCaptchaProperties.Key.REQ_GET_LOCK_LIMIT, "5"))) {
                 // get接口锁定5分钟
                 cacheService.set(lockKey, "1", Long.parseLong(config.getProperty(StrixCaptchaProperties.Key.REQ_GET_LOCK_SECONDS, "300")));
-                return RetBuilder.error(RetCode.BAD_REQUEST, "验证码获取请求过于频繁，请稍后再试");
+                return RetBuilder.error(RetCode.BAD_REQUEST, I18nUtil.get("error.captcha.tooFrequent.get"));
             }
             return null;
         }
@@ -117,7 +118,7 @@ public interface FrequencyLimitHandler {
             }
             cacheService.increment(key, 1);
             if (Long.parseLong(v) > Long.parseLong(config.getProperty(StrixCaptchaProperties.Key.REQ_CHECK_MINUTE_LIMIT, "600"))) {
-                return RetBuilder.error(RetCode.BAD_REQUEST, "验证码校验请求过于频繁，请稍后再试");
+                return RetBuilder.error(RetCode.BAD_REQUEST, I18nUtil.get("error.captcha.tooFrequent.check"));
             }
             return null;
         }
@@ -132,7 +133,7 @@ public interface FrequencyLimitHandler {
             }
             cacheService.increment(key, 1);
             if (Long.parseLong(v) > Long.parseLong(config.getProperty(StrixCaptchaProperties.Key.REQ_VALIDATE_MINUTE_LIMIT, "600"))) {
-                return RetBuilder.error(RetCode.BAD_REQUEST, "验证码验证请求过于频繁，请稍后再试");
+                return RetBuilder.error(RetCode.BAD_REQUEST, I18nUtil.get("error.captcha.tooFrequent.verify"));
             }
             return null;
         }

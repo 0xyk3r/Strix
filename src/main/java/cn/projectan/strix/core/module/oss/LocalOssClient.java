@@ -3,6 +3,7 @@ package cn.projectan.strix.core.module.oss;
 import cn.hutool.core.io.FileUtil;
 import cn.projectan.strix.core.exception.StrixException;
 import cn.projectan.strix.model.other.system.module.oss.StrixOssBucket;
+import cn.projectan.strix.util.common.I18nUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
@@ -49,13 +50,13 @@ public class LocalOssClient implements StrixOssClient {
          */
         private File safeResolve(String objectName) {
             if (objectName == null || objectName.isBlank()) {
-                throw new StrixException("Strix OSS: 文件路径不能为空.");
+                throw new StrixException(I18nUtil.get("error.oss.pathEmpty"));
             }
             // 将路径标准化并检查是否包含路径穿越序列
             String normalized = objectName.replace('\\', '/');
             for (String segment : normalized.split("/")) {
                 if ("..".equals(segment)) {
-                    throw new StrixException("Strix OSS: 非法文件路径.");
+                    throw new StrixException(I18nUtil.get("error.oss.invalidPath"));
                 }
             }
             try {
@@ -64,11 +65,11 @@ public class LocalOssClient implements StrixOssClient {
                 File absoluteRef = file.getAbsoluteFile();
                 // 确保规范化路径以原始绝对路径的父目录开头, 防止符号链接绕过
                 if (!canonical.getPath().startsWith(absoluteRef.getParentFile().getCanonicalPath())) {
-                    throw new StrixException("Strix OSS: 非法文件路径.");
+                    throw new StrixException(I18nUtil.get("error.oss.invalidPath"));
                 }
                 return canonical;
             } catch (IOException e) {
-                throw new StrixException("Strix OSS: 文件路径解析失败.");
+                throw new StrixException(I18nUtil.get("error.oss.pathParseFailed"));
             }
         }
 
@@ -91,7 +92,7 @@ public class LocalOssClient implements StrixOssClient {
                 FileUtil.writeFromStream(byteArrayInputStream, newFile);
             } catch (IOException e) {
                 log.error("本地存储操作异常: {}", e.getMessage(), e);
-                throw new StrixException("Strix OSS: 上传文件失败.");
+                throw new StrixException(I18nUtil.get("error.oss.uploadFailed"));
             }
         }
 
@@ -102,7 +103,7 @@ public class LocalOssClient implements StrixOssClient {
                 FileUtil.writeFromStream(inputStream, newFile);
             } catch (IOException e) {
                 log.error("本地存储操作异常: {}", e.getMessage(), e);
-                throw new StrixException("Strix OSS: 上传文件失败.");
+                throw new StrixException(I18nUtil.get("error.oss.uploadFailed"));
             }
         }
 
@@ -120,7 +121,7 @@ public class LocalOssClient implements StrixOssClient {
                 FileUtil.copy(file, newFile, true);
             } catch (IOException e) {
                 log.error("本地存储操作异常: {}", e.getMessage(), e);
-                throw new StrixException("Strix OSS: 上传文件失败.");
+                throw new StrixException(I18nUtil.get("error.oss.uploadFailed"));
             }
         }
 
@@ -144,13 +145,13 @@ public class LocalOssClient implements StrixOssClient {
         public InputStream downloadAsStream(String bucketName, String objectName) {
             File file = safeResolve(objectName);
             if (!file.exists()) {
-                throw new StrixException("Strix OSS: 文件不存在.");
+                throw new StrixException(I18nUtil.get("error.oss.fileNotExist"));
             }
             try {
                 return new FileInputStream(file);
             } catch (IOException e) {
                 log.error("本地存储操作异常: {}", e.getMessage(), e);
-                throw new StrixException("Strix OSS: 下载文件失败.");
+                throw new StrixException(I18nUtil.get("error.oss.downloadFailed"));
             }
         }
 
@@ -158,7 +159,7 @@ public class LocalOssClient implements StrixOssClient {
         public void downloadToStream(String bucketName, String objectName, OutputStream outputStream) {
             File file = safeResolve(objectName);
             if (!file.exists()) {
-                throw new StrixException("Strix OSS: 文件不存在.");
+                throw new StrixException(I18nUtil.get("error.oss.fileNotExist"));
             }
             try (InputStream inputStream = new FileInputStream(file)) {
                 byte[] buffer = new byte[8192];
@@ -168,7 +169,7 @@ public class LocalOssClient implements StrixOssClient {
                 }
             } catch (IOException e) {
                 log.error("本地存储操作异常: {}", e.getMessage(), e);
-                throw new StrixException("Strix OSS: 下载文件失败.");
+                throw new StrixException(I18nUtil.get("error.oss.downloadFailed"));
             }
         }
 
@@ -182,7 +183,7 @@ public class LocalOssClient implements StrixOssClient {
         public StreamingResponseBody downloadStream(String bucketName, String objectName, HttpServletResponse response) {
             File file = safeResolve(objectName);
             if (!file.exists()) {
-                throw new StrixException("Strix OSS: 文件不存在.");
+                throw new StrixException(I18nUtil.get("error.oss.fileNotExist"));
             }
 
             // 设置响应头
@@ -200,7 +201,7 @@ public class LocalOssClient implements StrixOssClient {
                     outputStream.flush();
                 } catch (IOException e) {
                     log.error("Strix OSS: 流式下载文件失败: {}", e.getMessage(), e);
-                    throw new StrixException("Strix OSS: 流式下载文件失败.");
+                    throw new StrixException(I18nUtil.get("error.oss.streamDownloadFailed"));
                 }
             };
         }
@@ -220,7 +221,7 @@ public class LocalOssClient implements StrixOssClient {
         public void list(String bucketName, String prefix, int maxKeys) {
             File dir = new File(bucketName);
             if (!dir.exists() || !dir.isDirectory()) {
-                throw new StrixException("Strix OSS: 目录不存在或不是目录.");
+                throw new StrixException(I18nUtil.get("error.oss.dirNotExist"));
             }
 
             File[] files = dir.listFiles((d, name) -> {
@@ -230,7 +231,7 @@ public class LocalOssClient implements StrixOssClient {
                 return name.startsWith(prefix);
             });
             if (files == null) {
-                throw new StrixException("Strix OSS: 获取文件列表失败.");
+                throw new StrixException(I18nUtil.get("error.oss.listFailed"));
             }
 
             int count = 0;

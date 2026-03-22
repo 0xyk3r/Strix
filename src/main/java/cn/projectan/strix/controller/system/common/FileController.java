@@ -11,6 +11,7 @@ import cn.projectan.strix.model.db.system.OssFile;
 import cn.projectan.strix.model.dict.system.OssFileGroupSecretType;
 import cn.projectan.strix.model.response.common.CommonFileIdResp;
 import cn.projectan.strix.service.system.OssFileService;
+import cn.projectan.strix.util.common.I18nUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -91,10 +92,10 @@ public class FileController extends BaseSystemController {
                 tempFile.delete();
             }
         } catch (IllegalArgumentException e) {
-            throw new StrixException("上传文件失败，" + e.getMessage());
+            throw new StrixException(I18nUtil.get("error.file.uploadFailed") + ", " + e.getMessage());
         } catch (Exception e) {
             log.error("上传文件失败", e);
-            throw new StrixException("上传文件失败");
+            throw new StrixException(I18nUtil.get("error.file.uploadFailed"));
         }
     }
 

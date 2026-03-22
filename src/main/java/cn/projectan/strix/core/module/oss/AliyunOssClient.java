@@ -2,6 +2,7 @@ package cn.projectan.strix.core.module.oss;
 
 import cn.projectan.strix.core.exception.StrixException;
 import cn.projectan.strix.model.other.system.module.oss.StrixOssBucket;
+import cn.projectan.strix.util.common.I18nUtil;
 import cn.projectan.strix.util.file.FileUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -100,7 +101,7 @@ public class AliyunOssClient implements StrixOssClient {
                 client.putObject(putObjectRequest, RequestBody.fromBytes(buf));
             } catch (Exception e) {
                 log.error("OSS 操作异常: {}", e.getMessage(), e);
-                throw new StrixException("Strix OSS: 上传文件失败.");
+                throw new StrixException(I18nUtil.get("error.oss.uploadFailed"));
             }
         }
 
@@ -115,7 +116,7 @@ public class AliyunOssClient implements StrixOssClient {
                 client.putObject(putObjectRequest, RequestBody.fromInputStream(inputStream, contentLength));
             } catch (Exception e) {
                 log.error("OSS 操作异常: {}", e.getMessage(), e);
-                throw new StrixException("Strix OSS: 上传文件失败.");
+                throw new StrixException(I18nUtil.get("error.oss.uploadFailed"));
             }
         }
 
@@ -129,7 +130,7 @@ public class AliyunOssClient implements StrixOssClient {
                 upload(bucketName, objectName, bytes);
             } catch (Exception e) {
                 log.error("OSS 操作异常: {}", e.getMessage(), e);
-                throw new StrixException("Strix OSS: 上传文件失败.");
+                throw new StrixException(I18nUtil.get("error.oss.uploadFailed"));
             }
         }
 
@@ -143,7 +144,7 @@ public class AliyunOssClient implements StrixOssClient {
                 client.putObject(putObjectRequest, RequestBody.fromFile(file));
             } catch (Exception e) {
                 log.error("OSS 操作异常: {}", e.getMessage(), e);
-                throw new StrixException("Strix OSS: 上传文件失败.");
+                throw new StrixException(I18nUtil.get("error.oss.uploadFailed"));
             }
         }
 
@@ -159,11 +160,11 @@ public class AliyunOssClient implements StrixOssClient {
                         .putObjectRequest(putObjectRequest)
                         .build();
                 String url = presigner.presignPutObject(presignRequest).url().toString();
-                Assert.hasText(url, "Strix OSS: 获取文件上传 URL 失败.");
+                Assert.hasText(url, I18nUtil.get("error.oss.getUploadUrlFailed"));
                 return url;
             } catch (Exception e) {
                 log.error("OSS 操作异常: {}", e.getMessage(), e);
-                throw new StrixException("Strix OSS: 获取文件上传 URL 失败.");
+                throw new StrixException(I18nUtil.get("error.oss.getUploadUrlFailed"));
             }
         }
 
@@ -176,11 +177,11 @@ public class AliyunOssClient implements StrixOssClient {
                         .key(objectName)
                         .build();
                 client.getObject(getObjectRequest, file.toPath());
-                Assert.isTrue(file.exists(), "Strix OSS: 下载文件失败.");
+                Assert.isTrue(file.exists(), I18nUtil.get("error.oss.downloadFailed"));
                 return file;
             } catch (Exception e) {
                 log.error("OSS 操作异常: {}", e.getMessage(), e);
-                throw new StrixException("Strix OSS: 下载文件失败.");
+                throw new StrixException(I18nUtil.get("error.oss.downloadFailed"));
             }
         }
 
@@ -194,7 +195,7 @@ public class AliyunOssClient implements StrixOssClient {
                 return client.getObject(getObjectRequest);
             } catch (Exception e) {
                 log.error("OSS 操作异常: {}", e.getMessage(), e);
-                throw new StrixException("Strix OSS: 下载文件失败.");
+                throw new StrixException(I18nUtil.get("error.oss.downloadFailed"));
             }
         }
 
@@ -204,7 +205,7 @@ public class AliyunOssClient implements StrixOssClient {
                 FileUtil.copy(inputStream, outputStream);
             } catch (Exception e) {
                 log.error("OSS 操作异常: {}", e.getMessage(), e);
-                throw new StrixException("Strix OSS: 下载文件失败.");
+                throw new StrixException(I18nUtil.get("error.oss.downloadFailed"));
             }
         }
 
@@ -217,11 +218,11 @@ public class AliyunOssClient implements StrixOssClient {
                      FileOutputStream fileOutputStream = new FileOutputStream(file)) {
                     FileUtil.copy(s3InputStream, fileOutputStream);
                 }
-                Assert.isTrue(file.exists(), "Strix OSS: 流式下载文件失败.");
+                Assert.isTrue(file.exists(), I18nUtil.get("error.oss.streamDownloadFailed"));
                 return file;
             } catch (Exception e) {
                 log.error("OSS 操作异常: {}", e.getMessage(), e);
-                throw new StrixException("Strix OSS: 流式下载文件失败.");
+                throw new StrixException(I18nUtil.get("error.oss.streamDownloadFailed"));
             }
         }
 
@@ -245,7 +246,7 @@ public class AliyunOssClient implements StrixOssClient {
                 response.setContentType(contentType);
             } catch (Exception e) {
                 log.error("OSS 操作异常: {}", e.getMessage(), e);
-                throw new StrixException("Strix OSS: 获取文件元信息失败.");
+                throw new StrixException(I18nUtil.get("error.oss.getMetaFailed"));
             }
 
             return outputStream -> {
@@ -281,7 +282,7 @@ public class AliyunOssClient implements StrixOssClient {
                         log.warn("Strix OSS: 流式下载文件失败, 客户端可能已断开连接. 原因: {}", e.getMessage());
                     } else {
                         log.error("OSS 操作异常: {}", e.getMessage(), e);
-                        throw new StrixException("Strix OSS: 流式下载文件失败.");
+                        throw new StrixException(I18nUtil.get("error.oss.streamDownloadFailed"));
                     }
                 }
             };
@@ -299,11 +300,11 @@ public class AliyunOssClient implements StrixOssClient {
                         .getObjectRequest(getObjectRequest)
                         .build();
                 String url = presigner.presignGetObject(presignRequest).url().toString();
-                Assert.hasText(url, "Strix OSS: 获取文件下载 URL 失败.");
+                Assert.hasText(url, I18nUtil.get("error.oss.getDownloadUrlFailed"));
                 return url;
             } catch (Exception e) {
                 log.error("OSS 操作异常: {}", e.getMessage(), e);
-                throw new StrixException("Strix OSS: 获取文件下载 URL 失败.");
+                throw new StrixException(I18nUtil.get("error.oss.getDownloadUrlFailed"));
             }
         }
 
@@ -320,7 +321,7 @@ public class AliyunOssClient implements StrixOssClient {
                 return false;
             } catch (Exception e) {
                 log.error("OSS 操作异常: {}", e.getMessage(), e);
-                throw new StrixException("Strix OSS: 判断文件是否存在失败.");
+                throw new StrixException(I18nUtil.get("error.oss.checkExistFailed"));
             }
         }
 
@@ -351,7 +352,7 @@ public class AliyunOssClient implements StrixOssClient {
                 } while (Boolean.TRUE.equals(result.isTruncated()));
             } catch (Exception e) {
                 log.error("OSS 操作异常: {}", e.getMessage(), e);
-                throw new StrixException("Strix OSS: 获取文件列表失败.");
+                throw new StrixException(I18nUtil.get("error.oss.listFailed"));
             }
         }
 
@@ -365,7 +366,7 @@ public class AliyunOssClient implements StrixOssClient {
                 client.deleteObject(deleteObjectRequest);
             } catch (Exception e) {
                 log.error("OSS 操作异常: {}", e.getMessage(), e);
-                throw new StrixException("Strix OSS: 删除文件失败.");
+                throw new StrixException(I18nUtil.get("error.oss.deleteFailed"));
             }
         }
 
@@ -381,7 +382,7 @@ public class AliyunOssClient implements StrixOssClient {
                         )).collect(Collectors.toList());
             } catch (Exception e) {
                 log.error("OSS 操作异常: {}", e.getMessage(), e);
-                throw new StrixException("Strix OSS: 获取桶列表失败.");
+                throw new StrixException(I18nUtil.get("error.oss.getBucketListFailed"));
             }
         }
 
@@ -393,10 +394,10 @@ public class AliyunOssClient implements StrixOssClient {
                 client.createBucket(builder.build());
             } catch (BucketAlreadyExistsException | BucketAlreadyOwnedByYouException e) {
                 log.error("OSS 操作异常: {}", e.getMessage(), e);
-                throw new StrixException("Strix OSS: Bucket名称不可用，存储服务提供商要求Bucket名称不得与其他用户重复.");
+                throw new StrixException(I18nUtil.get("error.oss.bucketNameUnavailable"));
             } catch (Exception e) {
                 log.error("OSS 操作异常: {}", e.getMessage(), e);
-                throw new StrixException("Strix OSS: 创建Bucket失败.");
+                throw new StrixException(I18nUtil.get("error.oss.createBucketFailed"));
             }
         }
 
@@ -409,7 +410,7 @@ public class AliyunOssClient implements StrixOssClient {
                 client.deleteBucket(deleteBucketRequest);
             } catch (Exception e) {
                 log.error("OSS 操作异常: {}", e.getMessage(), e);
-                throw new StrixException("Strix OSS: 删除Bucket失败.");
+                throw new StrixException(I18nUtil.get("error.oss.deleteBucketFailed"));
             }
         }
     }

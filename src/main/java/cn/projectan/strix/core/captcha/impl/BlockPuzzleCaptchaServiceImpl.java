@@ -13,6 +13,7 @@ import cn.projectan.strix.model.other.system.captcha.CaptchaData;
 import cn.projectan.strix.model.other.system.captcha.CaptchaPoint;
 import cn.projectan.strix.model.response.system.module.captcha.CheckCaptchaResp;
 import cn.projectan.strix.model.response.system.module.captcha.GetCaptchaResp;
+import cn.projectan.strix.util.common.I18nUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -60,7 +61,7 @@ public class BlockPuzzleCaptchaServiceImpl extends AbstractCaptchaService {
         BufferedImage originalImage = StrixCaptchaImageUtils.getOriginal();
         if (null == originalImage) {
             log.error("Strix Captcha: 滑动底图未初始化成功，请检查路径");
-            return RetBuilder.error(RetCode.BAD_REQUEST, "验证码底图未初始化");
+            return RetBuilder.error(RetCode.BAD_REQUEST, I18nUtil.get("error.captcha.imageNotInit"));
         }
 
         // 抠图图片
@@ -68,13 +69,13 @@ public class BlockPuzzleCaptchaServiceImpl extends AbstractCaptchaService {
         BufferedImage jigsawImage = StrixCaptchaImageUtils.getBase64StrToImage(jigsawImageBase64);
         if (null == jigsawImage) {
             log.error("Strix Captcha: 滑动底图未初始化成功，请检查路径");
-            return RetBuilder.error(RetCode.BAD_REQUEST, "验证码底图未初始化");
+            return RetBuilder.error(RetCode.BAD_REQUEST, I18nUtil.get("error.captcha.imageNotInit"));
         }
         GetCaptchaResp captcha = pictureTemplatesCut(originalImage, jigsawImage, jigsawImageBase64);
         if (captcha == null
                 || !StringUtils.hasText(captcha.getJigsawImageBase64())
                 || !StringUtils.hasText(captcha.getOriginalImageBase64())) {
-            return RetBuilder.error(RetCode.BAD_REQUEST, "验证码生成失败");
+            return RetBuilder.error(RetCode.BAD_REQUEST, I18nUtil.get("error.captcha.generateFailed"));
         }
         return RetBuilder.success(captcha);
     }
@@ -88,7 +89,7 @@ public class BlockPuzzleCaptchaServiceImpl extends AbstractCaptchaService {
         // 取坐标信息
         String codeKey = String.format(REDIS_CAPTCHA_KEY, captchaDataVO.getToken());
         if (!CaptchaServiceFactory.getCache(cacheType).exists(codeKey)) {
-            return RetBuilder.error(RetCode.BAD_REQUEST, "验证码已失效，请重新获取");
+            return RetBuilder.error(RetCode.BAD_REQUEST, I18nUtil.get("error.captcha.expired"));
         }
         String s = CaptchaServiceFactory.getCache(cacheType).get(codeKey);
         // 验证码只用一次，即刻失效
@@ -104,17 +105,17 @@ public class BlockPuzzleCaptchaServiceImpl extends AbstractCaptchaService {
         } catch (Exception e) {
             log.error("Strix Captcha: 验证码坐标解析失败", e);
             afterValidateFail(captchaDataVO);
-            return RetBuilder.error(RetCode.BAD_REQUEST, "验证码解析失败");
+            return RetBuilder.error(RetCode.BAD_REQUEST, I18nUtil.get("error.captcha.parseFailed"));
         }
         if (point1 == null) {
             afterValidateFail(captchaDataVO);
-            return RetBuilder.error(RetCode.BAD_REQUEST, "验证码错误");
+            return RetBuilder.error(RetCode.BAD_REQUEST, I18nUtil.get("error.captcha.wrong"));
         }
         if (point.getX() - Integer.parseInt(slipOffset) > point1.getX()
                 || point1.getX() > point.getX() + Integer.parseInt(slipOffset)
                 || point.getY() != point1.getY()) {
             afterValidateFail(captchaDataVO);
-            return RetBuilder.error(RetCode.BAD_REQUEST, "验证码错误");
+            return RetBuilder.error(RetCode.BAD_REQUEST, I18nUtil.get("error.captcha.wrong"));
         }
         // 校验成功，将信息存入缓存
         String secretKey = point.getSecretKey();
@@ -124,7 +125,7 @@ public class BlockPuzzleCaptchaServiceImpl extends AbstractCaptchaService {
         } catch (Exception e) {
             log.error("Strix Captcha: SM4加密失败", e);
             afterValidateFail(captchaDataVO);
-            return RetBuilder.error(RetCode.BAD_REQUEST, "验证码处理失败");
+            return RetBuilder.error(RetCode.BAD_REQUEST, I18nUtil.get("error.captcha.processFailed"));
         }
         String secondKey = String.format(REDIS_SECOND_CAPTCHA_KEY, value);
         CaptchaServiceFactory.getCache(cacheType).set(secondKey, captchaDataVO.getToken(), EXPIRES_THREE);
@@ -144,13 +145,13 @@ public class BlockPuzzleCaptchaServiceImpl extends AbstractCaptchaService {
         try {
             String codeKey = String.format(REDIS_SECOND_CAPTCHA_KEY, captchaDataVO.getCaptchaVerification());
             if (!CaptchaServiceFactory.getCache(cacheType).exists(codeKey)) {
-                return RetBuilder.error(RetCode.BAD_REQUEST, "验证码已失效，请重新获取");
+                return RetBuilder.error(RetCode.BAD_REQUEST, I18nUtil.get("error.captcha.expired"));
             }
             // 二次校验取值后，即刻失效
             CaptchaServiceFactory.getCache(cacheType).delete(codeKey);
         } catch (Exception e) {
             log.error("Strix Captcha: 验证码坐标解析失败", e);
-            return RetBuilder.error(RetCode.BAD_REQUEST, "验证码解析失败");
+            return RetBuilder.error(RetCode.BAD_REQUEST, I18nUtil.get("error.captcha.parseFailed"));
         }
         return RetBuilder.success();
     }

@@ -14,6 +14,7 @@ import cn.projectan.strix.model.other.system.captcha.CaptchaData;
 import cn.projectan.strix.model.properties.system.StrixCaptchaProperties;
 import cn.projectan.strix.model.response.system.module.captcha.CheckCaptchaResp;
 import cn.projectan.strix.model.response.system.module.captcha.GetCaptchaResp;
+import cn.projectan.strix.util.common.I18nUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StringUtils;
 
@@ -113,10 +114,10 @@ public abstract class AbstractCaptchaService implements CaptchaService {
     @Override
     public RetResult<Void> verification(CaptchaData captchaDataVO) {
         if (captchaDataVO == null) {
-            return RetBuilder.error(RetCode.BAD_REQUEST, "captchaVO不能为空");
+            return RetBuilder.error(RetCode.BAD_REQUEST, I18nUtil.get("error.captcha.emptyVO"));
         }
         if (!StringUtils.hasText(captchaDataVO.getCaptchaVerification())) {
-            return RetBuilder.error(RetCode.BAD_REQUEST, "captchaVerification不能为空");
+            return RetBuilder.error(RetCode.BAD_REQUEST, I18nUtil.get("error.captcha.emptyVerification"));
         }
         if (limitHandler != null) {
             RetResult<?> r = limitHandler.validateVerify(captchaDataVO);

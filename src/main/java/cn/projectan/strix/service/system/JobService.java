@@ -8,6 +8,7 @@ import cn.projectan.strix.model.db.system.Job;
 import cn.projectan.strix.model.dict.system.JobStatus;
 import cn.projectan.strix.model.request.system.module.job.JobListReq;
 import cn.projectan.strix.util.common.CronUtil;
+import cn.projectan.strix.util.common.I18nUtil;
 import cn.projectan.strix.util.job.ScheduleUtil;
 import cn.projectan.strix.util.reflect.InvokeUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -141,7 +142,7 @@ public class JobService extends ServiceImpl<JobMapper, Job> {
         } else if (job.getStatus() == JobStatus.NORMAL) {
             Assert.isTrue(pauseJob(job), "切换任务状态失败");
         } else {
-            throw new IllegalArgumentException("不支持的任务状态: " + job.getStatus());
+            throw new IllegalArgumentException(I18nUtil.get("error.job.unsupportedStatus") + ": " + job.getStatus());
         }
     }
 

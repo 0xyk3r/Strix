@@ -9,6 +9,7 @@ import cn.projectan.strix.model.db.system.SystemLog;
 import cn.projectan.strix.model.request.system.monitor.log.SystemLogListReq;
 import cn.projectan.strix.model.response.system.monitor.log.SystemLogListResp;
 import cn.projectan.strix.service.system.SystemLogService;
+import cn.projectan.strix.util.common.I18nUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -46,7 +47,7 @@ public class LogController extends BaseSystemController {
             Page<SystemLog> page = systemLogService.listPage(req);
             return RetBuilder.success(new SystemLogListResp(page.getRecords(), page.getTotal()));
         } catch (Exception e) {
-            throw new StrixException("Strix 日志服务未开启，无法查询日志");
+            throw new StrixException(I18nUtil.get("error.log.serviceDisabled"));
         }
     }
 

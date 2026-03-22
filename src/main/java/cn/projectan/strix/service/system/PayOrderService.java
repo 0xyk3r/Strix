@@ -13,6 +13,7 @@ import cn.projectan.strix.model.dict.system.PayType;
 import cn.projectan.strix.model.other.system.module.pay.BasePayParam;
 import cn.projectan.strix.model.other.system.module.pay.BasePayResult;
 import cn.projectan.strix.util.async.SynchronizedUtil;
+import cn.projectan.strix.util.common.I18nUtil;
 import cn.projectan.strix.util.tool.StrixAssert;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -79,7 +80,7 @@ public class PayOrderService extends ServiceImpl<PayOrderMapper, PayOrder> {
             }
 
         } catch (JacksonException e) {
-            throw new StrixException("支付数据序列化失败");
+            throw new StrixException(I18nUtil.get("error.pay.serializeFailed"));
         }
         payOrder.setStatus(PayOrderStatus.UNPAID);
         payOrder.setTitle(title);
@@ -99,7 +100,7 @@ public class PayOrderService extends ServiceImpl<PayOrderMapper, PayOrder> {
         switch (payType) {
             case PayType.WAP -> responseMap = payClient.createWapPay(payOrder);
             case PayType.WEB -> responseMap = payClient.createWebPay(payOrder);
-            case PayType.APP -> throw new StrixException("暂不支持APP端支付");
+            case PayType.APP -> throw new StrixException(I18nUtil.get("error.pay.appNotSupported"));
         }
         Assert.notNull(responseMap, "支付订单生成失败");
 

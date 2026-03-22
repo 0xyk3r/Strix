@@ -7,6 +7,7 @@ import cn.projectan.strix.core.security.ApiSecurity;
 import cn.projectan.strix.model.annotation.IgnoreEncryption;
 import cn.projectan.strix.model.constant.system.StrixPasswordConst;
 import cn.projectan.strix.model.properties.system.StrixProperties;
+import cn.projectan.strix.util.common.I18nUtil;
 import cn.projectan.strix.util.http.ServletUtil;
 import jakarta.annotation.Nonnull;
 import jakarta.servlet.http.HttpServletRequest;
@@ -61,7 +62,7 @@ public class DecodeRequestBodyAdvice implements RequestBodyAdvice {
             Method method = methodParameter.getMethod();
             String methodName = (method != null) ? method.getDeclaringClass().getName() + "." + method.getName() : "unknown";
             log.error("对方法: 【{}】请求数据进行解密时异常", methodName, e);
-            throw new StrixException("请求数据解密失败");
+            throw new StrixException(I18nUtil.get("error.request.decryptFailed"));
         }
     }
 

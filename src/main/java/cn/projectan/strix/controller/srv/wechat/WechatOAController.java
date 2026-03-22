@@ -18,6 +18,7 @@ import cn.projectan.strix.service.system.OauthConfigService;
 import cn.projectan.strix.service.system.OauthUserService;
 import cn.projectan.strix.service.system.SystemUserService;
 import cn.projectan.strix.service.system.TokenSessionService;
+import cn.projectan.strix.util.common.I18nUtil;
 import cn.projectan.strix.util.module.oauth.WechatOAOAuthUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -73,7 +74,7 @@ public class WechatOAController extends BaseWechatController {
         try {
             response.sendRedirect(authorizeUrl);
         } catch (Exception e) {
-            throw new StrixException("跳转失败");
+            throw new StrixException(I18nUtil.get("error.wechat.redirectFailed"));
         }
     }
 
@@ -157,7 +158,7 @@ public class WechatOAController extends BaseWechatController {
             return resultMap;
         } catch (Exception e) {
             log.error("获取微信JS-SDK配置失败: {}", e.getMessage(), e);
-            throw new StrixException("获取微信JS-SDK配置失败");
+            throw new StrixException(I18nUtil.get("error.wechat.jssdkConfigFailed"));
         }
     }
 

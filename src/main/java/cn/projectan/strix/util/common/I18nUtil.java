@@ -73,6 +73,10 @@ public class I18nUtil {
         return instance.getMessage(code);
     }
 
+    public static String get(String code, Object... args) {
+        return instance.getMessage(code, args, code, instance.resolver.getLocale());
+    }
+
     public static String get(String code, String lang) {
         return instance.getMessage(code, lang);
     }
