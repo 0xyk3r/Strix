@@ -2,6 +2,7 @@ package cn.projectan.strix.model.request.system.monitor.log;
 
 import cn.projectan.strix.model.db.system.SystemLog;
 import cn.projectan.strix.model.request.base.BasePageReq;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 /**
@@ -14,6 +15,7 @@ public class SystemLogListReq extends BasePageReq<SystemLog> {
     /**
      * 操作名称
      */
+    @Size(max = 64)
     private String keyword;
 
     /**

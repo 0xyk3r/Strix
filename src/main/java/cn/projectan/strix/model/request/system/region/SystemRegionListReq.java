@@ -2,6 +2,7 @@ package cn.projectan.strix.model.request.system.region;
 
 import cn.projectan.strix.model.db.system.SystemRegion;
 import cn.projectan.strix.model.request.base.BasePageReq;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 /**
@@ -11,6 +12,7 @@ import lombok.Data;
 @Data
 public class SystemRegionListReq extends BasePageReq<SystemRegion> {
 
+    @Size(max = 64)
     private String keyword;
 
     private String parentId;

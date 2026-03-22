@@ -19,6 +19,7 @@ import cn.projectan.strix.service.system.TokenSessionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -49,7 +50,7 @@ public class WechatMPController extends BaseWechatController {
 
     @Anonymous
     @PostMapping("auth")
-    public RetResult<SystemUserLoginResp> auth(@PathVariable String configKey, @RequestBody WechatMPAuthReq req) {
+    public RetResult<SystemUserLoginResp> auth(@PathVariable String configKey, @Validated @RequestBody WechatMPAuthReq req) {
         WechatMPOAuthClient instance = (WechatMPOAuthClient) oauthConfigService.getInstance(configKey, OAuthPlatform.WECHAT_MP);
         BaseOAuthUserInfo userInfo = instance.auth(req.getCode());
         Assert.notNull(userInfo, "获取用户信息失败");

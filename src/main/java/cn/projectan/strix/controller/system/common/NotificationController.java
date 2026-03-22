@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -35,7 +36,7 @@ public class NotificationController extends BaseSystemController {
      */
     @PostMapping("")
     @Operation(summary = "获取我的通知列表")
-    public RetResult<NotificationListResp> getMyNotifications(@RequestBody ListNotificationReq req) {
+    public RetResult<NotificationListResp> getMyNotifications(@Validated @RequestBody ListNotificationReq req) {
         NotificationListResp resp = notificationReceiverService.getMyNotifications(req);
         return RetBuilder.success(resp);
     }
@@ -56,7 +57,7 @@ public class NotificationController extends BaseSystemController {
     @PostMapping("{notificationId}/read")
     @StrixLog(operationGroup = "通知", operationName = "标记已读", operationType = SystemLogOperType.UPDATE)
     @Operation(summary = "标记单个通知为已读")
-    public RetResult<Object> markAsRead(@PathVariable String notificationId) {
+    public RetResult<Void> markAsRead(@PathVariable String notificationId) {
         notificationReceiverService.markAsRead(notificationId);
         return RetBuilder.success();
     }
@@ -67,7 +68,7 @@ public class NotificationController extends BaseSystemController {
     @PostMapping("read-all")
     @StrixLog(operationGroup = "通知", operationName = "全部已读", operationType = SystemLogOperType.UPDATE)
     @Operation(summary = "标记全部通知为已读")
-    public RetResult<Object> markAllAsRead() {
+    public RetResult<Void> markAllAsRead() {
         notificationReceiverService.markAllAsRead();
         return RetBuilder.success();
     }

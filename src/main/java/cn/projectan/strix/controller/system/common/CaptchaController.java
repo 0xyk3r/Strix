@@ -15,6 +15,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -41,7 +42,7 @@ public class CaptchaController extends BaseSystemController {
     @Anonymous
     @PostMapping("get")
     @Operation(summary = "获取验证码")
-    public RetResult<GetCaptchaResp> get(@RequestBody GetCaptchaReq req, HttpServletRequest request) {
+    public RetResult<GetCaptchaResp> get(@Validated @RequestBody GetCaptchaReq req, HttpServletRequest request) {
         Assert.notNull(request.getRemoteHost(), "请求无效");
         CaptchaData data = new CaptchaData();
         data.setCaptchaType(req.getCaptchaType());
@@ -55,7 +56,7 @@ public class CaptchaController extends BaseSystemController {
     @Anonymous
     @PostMapping("check")
     @Operation(summary = "校验验证码")
-    public RetResult<CheckCaptchaResp> check(@RequestBody CheckCaptchaReq req, HttpServletRequest request) {
+    public RetResult<CheckCaptchaResp> check(@Validated @RequestBody CheckCaptchaReq req, HttpServletRequest request) {
         CaptchaData data = new CaptchaData();
         data.setCaptchaType(req.getCaptchaType());
         data.setPointJson(req.getPointJson());

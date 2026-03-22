@@ -1,6 +1,7 @@
 package cn.projectan.strix.controller.system.module.job;
 
 import cn.projectan.strix.controller.system.base.BaseSystemController;
+import cn.projectan.strix.core.exception.StrixException;
 import cn.projectan.strix.core.ret.RetBuilder;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.core.validation.group.InsertGroup;
@@ -80,7 +81,7 @@ public class JobController extends BaseSystemController {
     @PostMapping("update")
     @PreAuthorize("@ss.hasPermission('system:module:job:add')")
     @StrixLog(operationGroup = "系统定时任务", operationName = "新增定时任务", operationType = SystemLogOperType.ADD)
-    public RetResult<Object> update(@RequestBody @Validated(InsertGroup.class) JobUpdateReq req) {
+    public RetResult<Void> update(@RequestBody @Validated(InsertGroup.class) JobUpdateReq req) {
         Job job = new Job(
                 req.getName(),
                 req.getGroup(),
@@ -96,7 +97,7 @@ public class JobController extends BaseSystemController {
         try {
             jobService.createJob(job);
         } catch (Exception e) {
-            return RetBuilder.error(e.getMessage());
+            throw new StrixException(e.getMessage());
         }
 
         return RetBuilder.success();
@@ -108,7 +109,7 @@ public class JobController extends BaseSystemController {
     @PostMapping("update/{id}")
     @PreAuthorize("@ss.hasPermission('system:module:job:update')")
     @StrixLog(operationGroup = "系统定时任务", operationName = "修改定时任务", operationType = SystemLogOperType.UPDATE)
-    public RetResult<Object> update(@PathVariable String id, @RequestBody @Validated(UpdateGroup.class) JobUpdateReq req) {
+    public RetResult<Void> update(@PathVariable String id, @RequestBody @Validated(UpdateGroup.class) JobUpdateReq req) {
         Job job = jobService.getById(id);
         Assert.notNull(job, "原记录不存在");
 
@@ -118,7 +119,7 @@ public class JobController extends BaseSystemController {
         try {
             jobService.updateJob(job);
         } catch (Exception e) {
-            return RetBuilder.error(e.getMessage());
+            throw new StrixException(e.getMessage());
         }
 
         return RetBuilder.success();
@@ -130,14 +131,14 @@ public class JobController extends BaseSystemController {
     @PostMapping("remove/{id}")
     @PreAuthorize("@ss.hasPermission('system:module:job:remove')")
     @StrixLog(operationGroup = "系统定时任务", operationName = "删除定时任务", operationType = SystemLogOperType.DELETE)
-    public RetResult<Object> remove(@PathVariable String id) {
+    public RetResult<Void> remove(@PathVariable String id) {
         Job job = jobService.getById(id);
         Assert.notNull(job, "原记录不存在");
 
         try {
             jobService.deleteJob(job);
         } catch (Exception e) {
-            return RetBuilder.error(e.getMessage());
+            throw new StrixException(e.getMessage());
         }
 
         return RetBuilder.success();
@@ -149,11 +150,11 @@ public class JobController extends BaseSystemController {
     @PostMapping("run/{id}")
     @PreAuthorize("@ss.hasPermission('system:module:job:run')")
     @StrixLog(operationGroup = "系统定时任务", operationName = "运行定时任务", operationType = SystemLogOperType.OTHER)
-    public RetResult<Object> run(@PathVariable String id) {
+    public RetResult<Void> run(@PathVariable String id) {
         try {
             jobService.run(id);
         } catch (Exception e) {
-            return RetBuilder.error(e.getMessage());
+            throw new StrixException(e.getMessage());
         }
 
         return RetBuilder.success();

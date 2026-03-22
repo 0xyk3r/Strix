@@ -3,6 +3,7 @@ package cn.projectan.strix.controller.system.common;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.IoUtil;
 import cn.projectan.strix.controller.system.base.BaseSystemController;
+import cn.projectan.strix.core.exception.StrixException;
 import cn.projectan.strix.core.ret.RetBuilder;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.model.annotation.IgnoreEncryption;
@@ -85,10 +86,10 @@ public class FileController extends BaseSystemController {
                     new CommonFileIdResp(ossFile.getId())
             );
         } catch (IllegalArgumentException e) {
-            return RetBuilder.error("上传文件失败，" + e.getMessage());
+            throw new StrixException("上传文件失败，" + e.getMessage());
         } catch (Exception e) {
             log.error("上传文件失败", e);
-            return RetBuilder.error("上传文件失败");
+            throw new StrixException("上传文件失败");
         }
     }
 

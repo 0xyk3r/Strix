@@ -2,6 +2,7 @@ package cn.projectan.strix.model.request.system.module.sms;
 
 import cn.projectan.strix.model.db.system.SmsConfig;
 import cn.projectan.strix.model.request.base.BasePageReq;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 /**
@@ -11,6 +12,7 @@ import lombok.Data;
 @Data
 public class SmsConfigListReq extends BasePageReq<SmsConfig> {
 
+    @Size(max = 64)
     private String keyword;
 
 }

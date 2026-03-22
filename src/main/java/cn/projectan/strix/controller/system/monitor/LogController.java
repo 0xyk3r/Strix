@@ -1,6 +1,7 @@
 package cn.projectan.strix.controller.system.monitor;
 
 import cn.projectan.strix.controller.system.base.BaseSystemController;
+import cn.projectan.strix.core.exception.StrixException;
 import cn.projectan.strix.core.ret.RetBuilder;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.model.annotation.StrixLog;
@@ -36,12 +37,12 @@ public class LogController extends BaseSystemController {
     @GetMapping()
     @PreAuthorize("@ss.hasPermission('system:monitor:log')")
     @StrixLog(operationGroup = "系统操作日志", operationName = "查询系统操作日志")
-    public RetResult<Object> list(SystemLogListReq req) {
+    public RetResult<SystemLogListResp> list(SystemLogListReq req) {
         try {
             Page<SystemLog> page = systemLogService.listPage(req);
             return RetBuilder.success(new SystemLogListResp(page.getRecords(), page.getTotal()));
         } catch (Exception e) {
-            return RetBuilder.error("Strix 日志服务未开启，无法查询日志");
+            throw new StrixException("Strix 日志服务未开启，无法查询日志");
         }
     }
 

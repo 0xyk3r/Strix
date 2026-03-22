@@ -15,9 +15,12 @@ import cn.projectan.strix.util.http.ServletUtil;
 import cn.projectan.strix.util.ip.IpUtils;
 import cn.projectan.strix.util.system.SecurityUtil;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,6 +38,7 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -128,6 +132,27 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.OK)
                 .header(HttpHeaders.CONTENT_TYPE, "application/json")
                 .body(RetBuilder.error(e.getMessage()));
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<RetResult<Object>> handleConstraintViolation(ConstraintViolationException e) {
+        Set<ConstraintViolation<?>> violations = e.getConstraintViolations();
+        String message = violations.stream()
+                .map(ConstraintViolation::getMessage)
+                .collect(Collectors.joining("、"));
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .header(HttpHeaders.CONTENT_TYPE, "application/json")
+                .body(RetBuilder.error(message));
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<RetResult<Object>> handleDataIntegrityViolationException(DataIntegrityViolationException e) {
+        log.error("数据完整性约束异常: {}", e.getMessage(), e);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .header(HttpHeaders.CONTENT_TYPE, "application/json")
+                .body(RetBuilder.error(I18nUtil.get("error.dataIntegrityViolation")));
     }
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)

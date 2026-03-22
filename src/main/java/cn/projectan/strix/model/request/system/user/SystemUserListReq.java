@@ -2,6 +2,7 @@ package cn.projectan.strix.model.request.system.user;
 
 import cn.projectan.strix.model.db.system.SystemUser;
 import cn.projectan.strix.model.request.base.BasePageReq;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 /**
@@ -11,6 +12,7 @@ import lombok.Data;
 @Data
 public class SystemUserListReq extends BasePageReq<SystemUser> {
 
+    @Size(max = 64)
     private String keyword;
 
     private Short status;
