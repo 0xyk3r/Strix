@@ -7,7 +7,6 @@ import cn.projectan.strix.model.dict.system.OAuthPushStatus;
 import cn.projectan.strix.model.other.system.module.oauth.BaseOAuthUserInfo;
 import cn.projectan.strix.model.other.system.module.oauth.wechat.oa.WechatOAOAuthConfig;
 import cn.projectan.strix.service.system.OauthPushService;
-import cn.projectan.strix.util.common.SpringUtil;
 import cn.projectan.strix.util.http.OkHttpUtil;
 import cn.projectan.strix.util.module.oauth.WechatOAOAuthUtil;
 import jakarta.annotation.Nonnull;
@@ -23,6 +22,7 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * 微信公众号 OAuth 客户端
@@ -44,11 +44,12 @@ public class WechatOAOAuthClient extends AbstractWechatOAuthClient<WechatOAOAuth
     @Setter
     protected String jsApiTicket;
 
-    public WechatOAOAuthClient(WechatOAOAuthConfig config) {
-        super(config);
+    public WechatOAOAuthClient(WechatOAOAuthConfig config, ScheduledExecutorService scheduler,
+                               ObjectMapper objectMapper, OauthPushService oauthPushService) {
+        super(config, scheduler);
         Assert.notNull(config, "Strix OAuth: 初始化微信公众号 OAuth 服务实例失败. (配置信息为空)");
-        this.objectMapper = SpringUtil.getBean(ObjectMapper.class);
-        this.oauthPushService = SpringUtil.getBean(OauthPushService.class);
+        this.objectMapper = objectMapper;
+        this.oauthPushService = oauthPushService;
         // 初始化 AccessToken 和 JsApiTicket 刷新任务
         initAccessTokenRefreshTask(config.getAppId(), config.getAppSecret());
     }
@@ -98,16 +99,6 @@ public class WechatOAOAuthClient extends AbstractWechatOAuthClient<WechatOAOAuth
             log.error("Strix OAuth: 获取微信公众号 OAuth 授权凭证失败", e);
             throw new StrixOAuthException("Strix OAuth: 获取微信公众号 OAuth 授权凭证失败", e);
         }
-    }
-
-    @Override
-    public Map<String, String> getUserInfo(String accessToken) {
-        throw new UnsupportedOperationException("Strix OAuth: 微信公众号 OAuth 服务实例不支持获取用户信息.");
-    }
-
-    @Override
-    public String getPhoneNumber(String code) {
-        throw new UnsupportedOperationException("Strix OAuth: 微信公众号 OAuth 服务实例不支持获取用户手机号.");
     }
 
     @Override

@@ -27,64 +27,56 @@ public class WorkflowHandler {
     }
 
     public Long getTimeLimitMinute() {
-        if (node.getProps() instanceof WorkflowProps.ApprovalWorkflowProps approvalProps) {
-            return convertTimeLimitUnit(approvalProps.getTimeLimit().getValue(), approvalProps.getTimeLimit().getUnit());
-        } else if (node.getProps() instanceof WorkflowProps.TaskWorkflowProps taskProps) {
-            return convertTimeLimitUnit(taskProps.getTimeLimit().getValue(), taskProps.getTimeLimit().getUnit());
+        WorkflowProps.TimeLimit timeLimit = node.getProps().getTimeLimit();
+        if (timeLimit == null) {
+            log.warn("节点[{}]不支持获取超时时限", node.getId());
+            return null;
         }
-        log.warn("节点[{}]不支持获取超时时限", node.getId());
-        return null;
+        return convertTimeLimitUnit(timeLimit.getValue(), timeLimit.getUnit());
     }
 
     public String getTimeLimitHandler() {
-        if (node.getProps() instanceof WorkflowProps.ApprovalWorkflowProps approvalProps) {
-            return approvalProps.getTimeLimit().getHandler();
-        } else if (node.getProps() instanceof WorkflowProps.TaskWorkflowProps taskProps) {
-            return taskProps.getTimeLimit().getHandler();
+        WorkflowProps.TimeLimit timeLimit = node.getProps().getTimeLimit();
+        if (timeLimit == null) {
+            log.warn("节点[{}]不支持获取超时处理方式", node.getId());
+            return null;
         }
-        log.warn("节点[{}]不支持获取超时处理方式", node.getId());
-        return null;
+        return timeLimit.getHandler();
     }
 
     /**
      * 获取拒绝后操作配置
      */
     public WorkflowProps.Reject getRejectConfig() {
-        if (node.getProps() instanceof WorkflowProps.ApprovalWorkflowProps approvalProps) {
-            return approvalProps.getReject();
+        WorkflowProps.Reject reject = node.getProps().getReject();
+        if (reject == null) {
+            log.warn("节点[{}]不是审批节点, 不支持获取审批拒绝后操作", node.getId());
         }
-        log.warn("节点[{}]不是审批节点, 不支持获取审批拒绝后操作", node.getId());
-        return null;
+        return reject;
     }
 
     /**
      * 获取任务审批人类型
      */
     public String getAssignType() {
-        if (node.getProps() instanceof WorkflowProps.ApprovalWorkflowProps approvalProps) {
-            return approvalProps.getAssign().getType();
-        } else if (node.getProps() instanceof WorkflowProps.TaskWorkflowProps taskProps) {
-            return taskProps.getAssign().getType();
-        } else if (node.getProps() instanceof WorkflowProps.CcWorkflowProps ccProps) {
-            return ccProps.getAssign().getType();
+        WorkflowProps.Assign assign = node.getProps().getAssign();
+        if (assign == null) {
+            log.warn("节点[{}]不支持获取审批人类型", node.getId());
+            return null;
         }
-        log.warn("节点[{}]不支持获取审批人类型", node.getId());
-        return null;
+        return assign.getType();
     }
 
     /**
      * 获取任务指派模式
      */
     public String getAssignMode() {
-        if (node.getProps() instanceof WorkflowProps.ApprovalWorkflowProps approvalProps) {
-            return approvalProps.getAssign().getMode();
-        } else if (node.getProps() instanceof WorkflowProps.TaskWorkflowProps taskProps) {
-            return taskProps.getAssign().getMode();
-        } else if (node.getProps() instanceof WorkflowProps.CcWorkflowProps ccProps) {
-            return ccProps.getAssign().getMode();
+        WorkflowProps.Assign assign = node.getProps().getAssign();
+        if (assign == null) {
+            log.warn("节点[{}]不支持获取审批人模式", node.getId());
+            return null;
         }
-        log.warn("节点[{}]不支持获取审批人模式", node.getId());
-        return null;
+        return assign.getMode();
     }
 
     /**
@@ -104,15 +96,12 @@ public class WorkflowHandler {
      * 获取任务指派的人员ID列表
      */
     public List<String> getAssignList() {
-        if (node.getProps() instanceof WorkflowProps.ApprovalWorkflowProps approvalProps) {
-            return resolveAssignList(approvalProps.getAssign());
-        } else if (node.getProps() instanceof WorkflowProps.TaskWorkflowProps taskProps) {
-            return resolveAssignList(taskProps.getAssign());
-        } else if (node.getProps() instanceof WorkflowProps.CcWorkflowProps ccProps) {
-            return resolveAssignList(ccProps.getAssign());
+        WorkflowProps.Assign assign = node.getProps().getAssign();
+        if (assign == null) {
+            log.warn("节点[{}]不支持获取审批人列表", node.getId());
+            return null;
         }
-        log.warn("节点[{}]不支持获取审批人列表", node.getId());
-        return null;
+        return resolveAssignList(assign);
     }
 
     /**

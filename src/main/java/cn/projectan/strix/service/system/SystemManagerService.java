@@ -14,7 +14,9 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
@@ -244,6 +246,10 @@ public class SystemManagerService extends ServiceImpl<SystemManagerMapper, Syste
      *
      * @param managerId 管理人员 ID
      */
+    @Caching(evict = {
+            @CacheEvict(value = "strix:system:manager:menu_by_mid", key = "#managerId"),
+            @CacheEvict(value = "strix:system:manager:permission_by_mid", key = "#managerId")
+    })
     public void refreshLoginInfoByManager(String managerId) {
         LoginSystemManager loginSystemManager = this.getLoginInfo(managerId);
         tokenSessionService.refreshManagerLoginInfo(managerId, loginSystemManager);
@@ -255,10 +261,7 @@ public class SystemManagerService extends ServiceImpl<SystemManagerMapper, Syste
      * @param roleId 角色 ID
      */
     public void refreshLoginInfoByRole(String roleId) {
-        getManagerIdListByRoleId(roleId).forEach(managerId -> {
-            LoginSystemManager loginSystemManager = this.getLoginInfo(managerId);
-            tokenSessionService.refreshManagerLoginInfo(managerId, loginSystemManager);
-        });
+        refreshLoginInfoForManagers(getManagerIdListByRoleId(roleId));
     }
 
     /**
@@ -267,16 +270,14 @@ public class SystemManagerService extends ServiceImpl<SystemManagerMapper, Syste
      * @param roleIdList 角色 ID 列表
      */
     public void refreshLoginInfoByRole(List<String> roleIdList) {
-        systemManagerRoleService.lambdaQuery()
+        List<String> managerIds = systemManagerRoleService.lambdaQuery()
                 .select(SystemManagerRole::getSystemManagerId)
                 .in(SystemManagerRole::getSystemRoleId, roleIdList)
                 .list()
                 .stream()
                 .map(SystemManagerRole::getSystemManagerId)
-                .forEach(managerId -> {
-                    LoginSystemManager loginSystemManager = this.getLoginInfo(managerId);
-                    tokenSessionService.refreshManagerLoginInfo(managerId, loginSystemManager);
-                });
+                .collect(Collectors.toList());
+        refreshLoginInfoForManagers(managerIds);
     }
 
     /**
@@ -315,6 +316,17 @@ public class SystemManagerService extends ServiceImpl<SystemManagerMapper, Syste
         if (!roleIdList.isEmpty()) {
             refreshLoginInfoByRole(roleIdList);
         }
+    }
+
+    /**
+     * 批量刷新管理人员权限信息（通过 AOP 代理确保缓存正确淘汰）
+     */
+    private void refreshLoginInfoForManagers(List<String> managerIds) {
+        if (CollectionUtils.isEmpty(managerIds)) {
+            return;
+        }
+        SystemManagerService proxy = SpringUtil.getAopProxy(this);
+        managerIds.forEach(proxy::refreshLoginInfoByManager);
     }
 
     /**

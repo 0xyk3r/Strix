@@ -11,6 +11,7 @@ import cn.projectan.strix.model.response.srv.chat.ChatSessionListItemResp;
 import cn.projectan.strix.model.response.srv.chat.ChatSessionResp;
 import cn.projectan.strix.model.response.srv.chat.SendMessageResultResp;
 import cn.projectan.strix.service.system.ChatBusinessService;
+import cn.projectan.strix.service.system.ChatMessageBusinessService;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -38,6 +39,7 @@ import java.util.List;
 public class ChatController extends BaseSrvController {
 
     private final ChatBusinessService chatBusinessService;
+    private final ChatMessageBusinessService chatMessageBusinessService;
 
     /**
      * 获取或创建会话
@@ -71,7 +73,7 @@ public class ChatController extends BaseSrvController {
     @Operation(summary = "拉取消息", description = "拉取新消息（lastMessageId）或历史消息（firstMessageId）")
     public RetResult<List<ChatMessageResp>> pullMessages(@Valid @RequestBody PullMessageReq req) {
         String userId = getLoginUserId();
-        List<ChatMessageResp> messages = chatBusinessService.pullMessages(req, userId);
+        List<ChatMessageResp> messages = chatMessageBusinessService.pullMessages(req, userId);
         return RetBuilder.success(messages);
     }
 
@@ -83,7 +85,7 @@ public class ChatController extends BaseSrvController {
     @Operation(summary = "发送消息", description = "发送文本/图片/卡片消息，支持幂等")
     public RetResult<SendMessageResultResp> sendMessage(@Valid @RequestBody SendMessageReq req) {
         String userId = getLoginUserId();
-        SendMessageResultResp resp = chatBusinessService.sendMessage(req, userId);
+        SendMessageResultResp resp = chatMessageBusinessService.sendMessage(req, userId);
         return RetBuilder.success(resp);
     }
 
@@ -95,7 +97,7 @@ public class ChatController extends BaseSrvController {
     @Operation(summary = "标记已读", description = "标记会话中最后已读消息 ID")
     public RetResult<Void> markRead(@Valid @RequestBody MarkReadReq req) {
         String userId = getLoginUserId();
-        chatBusinessService.markRead(req, userId);
+        chatMessageBusinessService.markRead(req, userId);
         return RetBuilder.success();
     }
 

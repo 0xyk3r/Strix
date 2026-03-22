@@ -17,6 +17,27 @@ import java.util.List;
 public class WorkflowProps {
 
     /**
+     * 获取指派配置（子类可覆盖）
+     */
+    public Assign getAssign() {
+        return null;
+    }
+
+    /**
+     * 获取时限配置（子类可覆盖）
+     */
+    public TimeLimit getTimeLimit() {
+        return null;
+    }
+
+    /**
+     * 获取拒绝操作配置（子类可覆盖）
+     */
+    public Reject getReject() {
+        return null;
+    }
+
+    /**
      * 审批节点配置
      */
     @Data

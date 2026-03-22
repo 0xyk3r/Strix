@@ -6,8 +6,11 @@ import cn.projectan.strix.model.db.system.OauthConfig;
 import cn.projectan.strix.model.dict.system.OAuthPlatform;
 import cn.projectan.strix.model.other.system.module.oauth.wechat.mp.WechatMPOAuthConfig;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import tools.jackson.databind.ObjectMapper;
+
+import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * 微信小程序 OAuth 客户端工厂
@@ -19,6 +22,8 @@ import tools.jackson.databind.ObjectMapper;
 public class WechatMPOAuthClientFactory implements OAuthClientFactory {
 
     private final ObjectMapper objectMapper;
+    @Qualifier("strixOAuthScheduler")
+    private final ScheduledExecutorService scheduler;
 
     @Override
     public short supportedPlatform() {
@@ -32,7 +37,7 @@ public class WechatMPOAuthClientFactory implements OAuthClientFactory {
         oauthConfig.setKey(config.getKey());
         oauthConfig.setName(config.getName());
         oauthConfig.setPlatform(config.getPlatform());
-        return new WechatMPOAuthClient(oauthConfig);
+        return new WechatMPOAuthClient(oauthConfig, scheduler);
     }
 
 }

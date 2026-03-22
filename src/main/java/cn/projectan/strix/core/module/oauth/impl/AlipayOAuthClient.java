@@ -2,7 +2,6 @@ package cn.projectan.strix.core.module.oauth.impl;
 
 import cn.projectan.strix.core.exception.StrixOAuthException;
 import cn.projectan.strix.core.module.oauth.StrixOAuthClient;
-import cn.projectan.strix.model.db.system.OauthPush;
 import cn.projectan.strix.model.other.system.module.oauth.AlipayOAuthConfig;
 import cn.projectan.strix.model.other.system.module.oauth.BaseOAuthUserInfo;
 import com.alipay.api.CertAlipayRequest;
@@ -109,24 +108,5 @@ public class AlipayOAuthClient extends StrixOAuthClient<AlipayOAuthConfig> {
         }
     }
 
-    @Override
-    public String getPhoneNumber(String code) {
-        throw new UnsupportedOperationException("Strix OAuth: 支付宝 OAuth 服务实例不支持获取用户手机号.");
-    }
-
-    @Override
-    public boolean supportPush() {
-        return false;
-    }
-
-    @Override
-    public void generatePush(String openId, String content) {
-        throw new UnsupportedOperationException("Strix OAuth: 支付宝 OAuth 服务实例不支持生成推送服务.");
-    }
-
-    @Override
-    public void push(OauthPush oauthPush) {
-        throw new UnsupportedOperationException("Strix OAuth: 支付宝 OAuth 服务实例不支持推送服务.");
-    }
 
 }

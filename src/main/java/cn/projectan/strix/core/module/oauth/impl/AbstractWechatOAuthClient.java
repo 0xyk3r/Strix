@@ -2,7 +2,6 @@ package cn.projectan.strix.core.module.oauth.impl;
 
 import cn.projectan.strix.core.module.oauth.StrixOAuthClient;
 import cn.projectan.strix.model.other.system.module.oauth.BaseOAuthConfig;
-import cn.projectan.strix.util.common.SpringUtil;
 import cn.projectan.strix.util.module.oauth.WechatCommonUtil;
 import lombok.Getter;
 import lombok.Setter;
@@ -25,8 +24,11 @@ public abstract class AbstractWechatOAuthClient<T extends BaseOAuthConfig> exten
     @Setter
     protected String accessToken;
 
-    protected AbstractWechatOAuthClient(T config) {
+    protected final ScheduledExecutorService scheduler;
+
+    protected AbstractWechatOAuthClient(T config, ScheduledExecutorService scheduler) {
         super(config);
+        this.scheduler = scheduler;
     }
 
     /**
@@ -41,7 +43,6 @@ public abstract class AbstractWechatOAuthClient<T extends BaseOAuthConfig> exten
         refreshTask.run();
 
         // 定时刷新（每60分钟）
-        ScheduledExecutorService scheduler = SpringUtil.getBean("strixOAuthScheduler", ScheduledExecutorService.class);
         scheduler.scheduleWithFixedDelay(refreshTask, 60, 60, TimeUnit.MINUTES);
     }
 

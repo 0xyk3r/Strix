@@ -64,7 +64,9 @@ public abstract class StrixOAuthClient<T extends BaseOAuthConfig> {
      * @param accessToken 用户accessToken
      * @return 用户信息，如果平台不支持返回空Map
      */
-    public abstract Map<String, String> getUserInfo(String accessToken);
+    public Map<String, String> getUserInfo(String accessToken) {
+        return Map.of();
+    }
 
     /**
      * 使用 code 换取用户手机号
@@ -72,14 +74,18 @@ public abstract class StrixOAuthClient<T extends BaseOAuthConfig> {
      * @param code code
      * @return 手机号，如果平台不支持返回null
      */
-    public abstract String getPhoneNumber(String code);
+    public String getPhoneNumber(String code) {
+        return null;
+    }
 
     /**
      * 是否支持推送服务
      *
      * @return true表示支持，false表示不支持
      */
-    public abstract boolean supportPush();
+    public boolean supportPush() {
+        return false;
+    }
 
     /**
      * 生成推送消息
@@ -87,13 +93,17 @@ public abstract class StrixOAuthClient<T extends BaseOAuthConfig> {
      * @param openId  用户OpenId
      * @param content 推送内容
      */
-    public abstract void generatePush(String openId, String content);
+    public void generatePush(String openId, String content) {
+        // 默认不支持推送
+    }
 
     /**
      * 推送消息
      *
      * @param oauthPush 推送信息
      */
-    public abstract void push(OauthPush oauthPush);
+    public void push(OauthPush oauthPush) {
+        // 默认不支持推送
+    }
 
 }

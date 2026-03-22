@@ -1,8 +1,6 @@
 package cn.projectan.strix.controller.system;
 
 import cn.projectan.strix.controller.system.base.BaseSystemController;
-import cn.projectan.strix.core.cache.system.SystemMenuCache;
-import cn.projectan.strix.core.cache.system.SystemPermissionCache;
 import cn.projectan.strix.core.ret.RetBuilder;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.core.validation.group.InsertGroup;
@@ -58,8 +56,6 @@ public class SystemManagerController extends BaseSystemController {
 
     private final SystemManagerService systemManagerService;
     private final SystemManagerRoleService systemManagerRoleService;
-    private final SystemMenuCache systemMenuCache;
-    private final SystemPermissionCache systemPermissionCache;
     private final TokenSessionService tokenSessionService;
 
     /**
@@ -149,9 +145,8 @@ public class SystemManagerController extends BaseSystemController {
                             Assert.isTrue(systemManagerRoleService.saveBatch(systemManagerRoleList), "增加该角色的菜单权限失败");
                         },
                         () -> {
-                            // 刷新redis缓存
-                            systemMenuCache.updateRedisBySystemManageId(managerId);
-                            systemPermissionCache.updateRedisBySystemManageId(managerId);
+                            // 刷新redis缓存和会话
+                            systemManagerService.refreshLoginInfoByManager(managerId);
                             needReturnNewData.set(true);
                         }
                 );

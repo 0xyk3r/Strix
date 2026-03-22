@@ -3,24 +3,20 @@ package cn.projectan.strix.service.system;
 import cn.hutool.core.util.IdUtil;
 import cn.projectan.strix.mapper.system.ChatMessageMapper;
 import cn.projectan.strix.mapper.system.ChatSessionMemberMapper;
-import cn.projectan.strix.model.constant.system.ChatRedisKeys;
 import cn.projectan.strix.model.db.system.*;
 import cn.projectan.strix.model.enums.system.ChatMemberRoleEnum;
-import cn.projectan.strix.model.enums.system.ChatMessageTypeEnum;
 import cn.projectan.strix.model.enums.system.ChatSessionTypeEnum;
-import cn.projectan.strix.model.event.ChatNewMessageEvent;
 import cn.projectan.strix.model.event.ChatSessionCreatedEvent;
-import cn.projectan.strix.model.request.srv.chat.*;
-import cn.projectan.strix.model.response.srv.chat.ChatMessageResp;
+import cn.projectan.strix.model.request.srv.chat.CreateSessionReq;
+import cn.projectan.strix.model.request.srv.chat.DeleteSessionReq;
+import cn.projectan.strix.model.request.srv.chat.SessionListReq;
 import cn.projectan.strix.model.response.srv.chat.ChatSessionListItemResp;
 import cn.projectan.strix.model.response.srv.chat.ChatSessionResp;
-import cn.projectan.strix.model.response.srv.chat.SendMessageResultResp;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -28,13 +24,12 @@ import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
- * 聊天业务服务
+ * 聊天会话业务服务
  * <p>
- * 核心业务逻辑：会话管理、消息收发、未读数计算等
+ * 会话创建、查询、删除/退出等操作
  *
  * @author ProjectAn
  * @since 2026/2/1 12:00
@@ -48,11 +43,9 @@ public class ChatBusinessService {
     private final ChatSessionService chatSessionService;
     private final ChatSessionMemberService chatSessionMemberService;
     private final ChatMessageService chatMessageService;
-    private final ChatNotificationService chatNotificationService;
-    private final ChatCardDataService chatCardDataService;
+    private final ChatMessageBusinessService chatMessageBusinessService;
     private final ChatSessionMemberMapper chatSessionMemberMapper;
     private final ChatMessageMapper chatMessageMapper;
-    private final RedisTemplate<String, Object> redisTemplate;
     private final ApplicationEventPublisher eventPublisher;
     private final SystemUserService systemUserService;
     private final UserOnlineStatusService userOnlineStatusService;
@@ -287,7 +280,7 @@ public class ChatBusinessService {
         if (StringUtils.hasText(session.getLastMsgId())) {
             ChatMessage lastMsg = lastMessageMap.get(session.getLastMsgId());
             if (lastMsg != null) {
-                resp.setLastMessagePreview(generateMessagePreview(lastMsg));
+                resp.setLastMessagePreview(chatMessageBusinessService.generateMessagePreview(lastMsg));
                 SystemUser sender = userMap.get(lastMsg.getFormUserId());
                 if (sender != null) {
                     resp.setLastMessageSenderName(sender.getNickname());
@@ -304,169 +297,6 @@ public class ChatBusinessService {
         }
 
         return resp;
-    }
-
-    /**
-     * 拉取消息
-     *
-     * @param req    请求
-     * @param userId 当前用户 ID
-     * @return 消息列表
-     */
-    public List<ChatMessageResp> pullMessages(PullMessageReq req, String userId) {
-        // 验证用户是会话成员
-        Assert.isTrue(isSessionMember(req.getSessionId(), userId), "您不是该会话的成员");
-
-        // 防御性校验：确保 limit 在安全范围内
-        int safeLimit = Math.max(1, Math.min(req.getLimit() != null ? req.getLimit() : 20, 100));
-
-        LambdaQueryWrapper<ChatMessage> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(ChatMessage::getSessionId, req.getSessionId());
-
-        List<ChatMessage> messages;
-
-        // 拉取新消息（id > lastMessageId）
-        if (StringUtils.hasText(req.getLastMessageId())) {
-            queryWrapper.gt(ChatMessage::getId, req.getLastMessageId())
-                    .orderByAsc(ChatMessage::getId)
-                    .last("LIMIT " + safeLimit);
-
-            messages = chatMessageMapper.selectList(queryWrapper);
-        }
-        // 拉取历史消息（id < firstMessageId）
-        else if (StringUtils.hasText(req.getFirstMessageId())) {
-            queryWrapper.lt(ChatMessage::getId, req.getFirstMessageId())
-                    .orderByDesc(ChatMessage::getId)
-                    .last("LIMIT " + safeLimit);
-
-            messages = chatMessageMapper.selectList(queryWrapper);
-            // 反转顺序（从旧到新）
-            Collections.reverse(messages);
-        }
-        // 默认拉取最新消息
-        else {
-            queryWrapper.orderByDesc(ChatMessage::getId)
-                    .last("LIMIT " + safeLimit);
-
-            messages = chatMessageMapper.selectList(queryWrapper);
-            Collections.reverse(messages);
-        }
-
-        // 如果没有消息，直接返回
-        if (messages.isEmpty()) {
-            return new ArrayList<>();
-        }
-
-        // 批量查询发送者用户信息（性能优化）
-        Set<String> senderIds = messages.stream()
-                .map(ChatMessage::getFormUserId)
-                .filter(StringUtils::hasText)
-                .collect(Collectors.toSet());
-
-        Map<String, SystemUser> senderMap = new HashMap<>();
-        if (!senderIds.isEmpty()) {
-            List<SystemUser> senders = systemUserService.listByIds(senderIds);
-            senderMap = senders.stream()
-                    .collect(Collectors.toMap(SystemUser::getId, s -> s));
-        }
-
-        // 构建响应（填充发送者信息）
-        final Map<String, SystemUser> finalSenderMap = senderMap;
-        return messages.stream()
-                .map(msg -> buildMessageResp(msg, finalSenderMap))
-                .toList();
-    }
-
-    /**
-     * 发送消息
-     *
-     * @param req    请求
-     * @param userId 当前用户 ID
-     * @return 发送结果
-     */
-    @Transactional(rollbackFor = Exception.class)
-    public SendMessageResultResp sendMessage(SendMessageReq req, String userId) {
-        // 1. 验证用户是会话成员
-        Assert.isTrue(isSessionMember(req.getSessionId(), userId), "您不是该会话的成员");
-
-        // 2. 验证消息类型
-        ChatMessageTypeEnum msgType = ChatMessageTypeEnum.parseFromCodeValue(req.getMsgType());
-        Assert.notNull(msgType, "消息类型无效");
-
-        // 3. 幂等检查
-        String idempotentKey = ChatRedisKeys.CHAT_MESSAGE_IDEMPOTENT_PREFIX + req.getClientMsgId();
-        String existingMsgId = (String) redisTemplate.opsForValue().get(idempotentKey);
-
-        if (StringUtils.hasText(existingMsgId)) {
-            // 幂等：返回已有消息
-            ChatMessage existingMsg = chatMessageService.getById(existingMsgId);
-            if (existingMsg != null) {
-                log.info("消息幂等命中: clientMsgId={}, messageId={}", req.getClientMsgId(), existingMsgId);
-                return buildSendResultResp(existingMsg);
-            }
-        }
-
-        // 4. 验证消息内容
-        validateMessageContent(req, msgType);
-
-        // 5. 保存消息
-        ChatMessage message = new ChatMessage();
-        message.setId(IdUtil.getSnowflakeNextIdStr());
-        message.setSessionId(req.getSessionId());
-        message.setFormUserId(userId);
-        message.setMsgType(req.getMsgType());
-        message.setContent(req.getContent());
-        message.setImageFileId(req.getImageFileId());
-        message.setCardType(req.getCardType());
-        message.setCardDataId(req.getCardDataId());
-        message.setSendTime(LocalDateTime.now());
-
-        chatMessageService.save(message);
-
-        // 6. 自动取消隐藏（如果接收方隐藏了会话）
-        unhideSessionForReceivers(req.getSessionId(), userId);
-
-        // 7. 更新会话的最后消息 ID 和时间
-        ChatSession session = chatSessionService.getById(req.getSessionId());
-        session.setLastMsgId(message.getId());
-        session.setLastMsgTime(message.getSendTime());
-        session.setUpdatedTime(LocalDateTime.now());
-        chatSessionService.updateById(session);
-
-        // 8. 写入幂等 Key
-        redisTemplate.opsForValue().set(idempotentKey, message.getId(),
-                ChatRedisKeys.CHAT_MESSAGE_IDEMPOTENT_EXPIRE, TimeUnit.SECONDS);
-
-        // 9. 发布新消息事件（事务提交后会触发 WebSocket 通知）
-        eventPublisher.publishEvent(new ChatNewMessageEvent(this, req.getSessionId(), message.getId()));
-
-        log.info("消息发送成功: sessionId={}, messageId={}, msgType={}", req.getSessionId(), message.getId(), req.getMsgType());
-        return buildSendResultResp(message);
-    }
-
-    /**
-     * 标记已读
-     *
-     * @param req    请求
-     * @param userId 当前用户 ID
-     */
-    @Transactional(rollbackFor = Exception.class)
-    public void markRead(MarkReadReq req, String userId) {
-        // 验证用户是会话成员
-        Assert.isTrue(isSessionMember(req.getSessionId(), userId), "您不是该会话的成员");
-
-        // 更新成员的 lastReadId
-        LambdaQueryWrapper<ChatSessionMember> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(ChatSessionMember::getSessionId, req.getSessionId())
-                .eq(ChatSessionMember::getUserId, userId);
-
-        ChatSessionMember member = chatSessionMemberMapper.selectOne(queryWrapper);
-        if (member != null) {
-            member.setLastReadId(req.getLastReadId());
-            member.setUpdatedTime(LocalDateTime.now());
-            chatSessionMemberService.updateById(member);
-            log.info("标记已读成功: sessionId={}, userId={}, lastReadId={}", req.getSessionId(), userId, req.getLastReadId());
-        }
     }
 
     /**
@@ -648,27 +478,6 @@ public class ChatBusinessService {
     }
 
     /**
-     * 自动取消接收方的会话隐藏状态
-     * <p>
-     * 当发送消息时，如果接收方隐藏了会话，自动将其 hiddenStatus 设为 0
-     *
-     * @param sessionId 会话 ID
-     * @param senderId  发送者用户 ID
-     */
-    private void unhideSessionForReceivers(String sessionId, String senderId) {
-        boolean updated = chatSessionMemberService.lambdaUpdate()
-                .eq(ChatSessionMember::getSessionId, sessionId)
-                .ne(ChatSessionMember::getUserId, senderId)
-                .eq(ChatSessionMember::getHiddenStatus, 1)
-                .set(ChatSessionMember::getHiddenStatus, (short) 0)
-                .set(ChatSessionMember::getUpdatedTime, LocalDateTime.now())
-                .update();
-        if (updated) {
-            log.info("自动取消会话隐藏: sessionId={}", sessionId);
-        }
-    }
-
-    /**
      * 移交 OWNER 权限给下一个成员
      * <p>
      * 按照 joinTime ASC, userId ASC 排序，选择第一个未删除的成员
@@ -702,7 +511,6 @@ public class ChatBusinessService {
      */
     private Integer calculateUnreadCount(String sessionId, String lastReadId, String userId) {
         if (!StringUtils.hasText(lastReadId)) {
-            // 如果从未读过，计算所有消息
             LambdaQueryWrapper<ChatMessage> queryWrapper = new LambdaQueryWrapper<>();
             queryWrapper.eq(ChatMessage::getSessionId, sessionId)
                     .ne(ChatMessage::getFormUserId, userId);
@@ -718,25 +526,6 @@ public class ChatBusinessService {
     }
 
     /**
-     * 验证消息内容
-     */
-    private void validateMessageContent(SendMessageReq req, ChatMessageTypeEnum msgType) {
-        switch (msgType) {
-            case TEXT:
-                Assert.hasText(req.getContent(), "文本消息内容不能为空");
-                break;
-            case IMAGE:
-                Assert.hasText(req.getImageFileId(), "图片文件 ID 不能为空");
-                break;
-            case CARD:
-                Assert.hasText(req.getCardType(), "卡片类型不能为空");
-                Assert.hasText(req.getCardDataId(), "卡片数据 ID 不能为空");
-                Assert.isTrue(chatCardDataService.isSupportedCardType(req.getCardType()), "不支持的卡片类型");
-                break;
-        }
-    }
-
-    /**
      * 构建会话响应
      */
     private ChatSessionResp buildSessionResp(ChatSession session, ChatConfig config) {
@@ -744,87 +533,6 @@ public class ChatBusinessService {
         resp.setConfigKey(config.getKey());
         resp.setConfigName(config.getName());
         return resp;
-    }
-
-    /**
-     * 构建消息响应（不含发送者信息）
-     * <p>
-     * 用于会话列表查询等场景
-     */
-    private ChatMessageResp buildMessageResp(ChatMessage message) {
-        return buildMessageResp(message, null);
-    }
-
-    /**
-     * 构建消息响应（含发送者信息）
-     *
-     * @param message   消息
-     * @param senderMap 发送者信息 Map（可选）
-     */
-    private ChatMessageResp buildMessageResp(ChatMessage message, Map<String, SystemUser> senderMap) {
-        ChatMessageResp resp = new ChatMessageResp(message);
-
-        // 填充发送者信息
-        if (senderMap != null && StringUtils.hasText(message.getFormUserId())) {
-            SystemUser sender = senderMap.get(message.getFormUserId());
-            if (sender != null) {
-                resp.setFromUserName(sender.getNickname());
-                // TODO: 如果 SystemUser 未来增加头像字段，可以在这里填充
-                // resp.setFromUserAvatar(sender.getAvatar());
-            }
-        }
-
-        // 加载卡片数据
-        if (ChatMessageTypeEnum.CARD.getCodeValue().equals(message.getMsgType())
-                && StringUtils.hasText(message.getCardType())
-                && StringUtils.hasText(message.getCardDataId())) {
-            Object cardData = chatCardDataService.getCardData(message.getCardType(), message.getCardDataId());
-            resp.setCardData(cardData);
-        }
-
-        return resp;
-    }
-
-    /**
-     * 构建发送消息结果响应
-     */
-    private SendMessageResultResp buildSendResultResp(ChatMessage message) {
-        SendMessageResultResp resp = new SendMessageResultResp();
-        resp.setMessageId(message.getId());
-        resp.setSessionId(message.getSessionId());
-        resp.setSendTime(message.getSendTime());
-        return resp;
-    }
-
-    /**
-     * 生成消息摘要
-     *
-     * @param message 消息
-     * @return 消息摘要
-     */
-    private String generateMessagePreview(ChatMessage message) {
-        if (message == null) {
-            return "";
-        }
-
-        ChatMessageTypeEnum msgType = ChatMessageTypeEnum.parseFromCodeValue(message.getMsgType());
-        if (msgType == null) {
-            return "";
-        }
-
-        return switch (msgType) {
-            case TEXT -> {
-                // 文本消息：返回前 50 个字符
-                if (StringUtils.hasText(message.getContent())) {
-                    yield message.getContent().length() > 50
-                            ? message.getContent().substring(0, 50) + "..."
-                            : message.getContent();
-                }
-                yield "";
-            }
-            case IMAGE -> "[图片]";
-            case CARD -> "[卡片]";
-        };
     }
 
 }
