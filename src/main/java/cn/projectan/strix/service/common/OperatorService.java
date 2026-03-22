@@ -46,34 +46,33 @@ public class OperatorService {
                 Object o = redisUtil.hGet(StrixRedisKeyConst.HASH_OPERATOR_INFO_PREFIX + operatorType, operatorId);
                 if (o instanceof CommonOperatorInfoResp resp) {
                     return resp;
-                } else {
-                    SystemManager systemManager = systemManagerService.getById(operatorId);
-                    if (systemManager != null) {
-                        CommonOperatorInfoResp resp = new CommonOperatorInfoResp(systemManager.getId(), OperatorType.SYSTEM_MANAGER, systemManager.getNickname(), systemManager);
-                        redisUtil.hSet(StrixRedisKeyConst.HASH_OPERATOR_INFO_PREFIX + operatorType, operatorId, resp);
-                        return resp;
-                    }
                 }
+                SystemManager systemManager = systemManagerService.getById(operatorId);
+                if (systemManager != null) {
+                    CommonOperatorInfoResp resp = new CommonOperatorInfoResp(systemManager.getId(), OperatorType.SYSTEM_MANAGER, systemManager.getNickname(), systemManager);
+                    redisUtil.hSet(StrixRedisKeyConst.HASH_OPERATOR_INFO_PREFIX + operatorType, operatorId, resp);
+                    return resp;
+                }
+                return new CommonOperatorInfoResp(operatorId, OperatorType.SYSTEM_MANAGER, "未知管理员", null);
             }
             case OperatorType.SYSTEM_USER -> {
                 Object o = redisUtil.hGet(StrixRedisKeyConst.HASH_OPERATOR_INFO_PREFIX + operatorType, operatorId);
                 if (o instanceof CommonOperatorInfoResp resp) {
                     return resp;
-                } else {
-                    SystemUser systemUser = systemUserService.getById(operatorId);
-                    if (systemUser != null) {
-                        CommonOperatorInfoResp resp = new CommonOperatorInfoResp(systemUser.getId(), OperatorType.SYSTEM_USER, systemUser.getNickname(), systemUser);
-                        redisUtil.hSet(StrixRedisKeyConst.HASH_OPERATOR_INFO_PREFIX + operatorType, operatorId, resp);
-                        return resp;
-                    }
                 }
+                SystemUser systemUser = systemUserService.getById(operatorId);
+                if (systemUser != null) {
+                    CommonOperatorInfoResp resp = new CommonOperatorInfoResp(systemUser.getId(), OperatorType.SYSTEM_USER, systemUser.getNickname(), systemUser);
+                    redisUtil.hSet(StrixRedisKeyConst.HASH_OPERATOR_INFO_PREFIX + operatorType, operatorId, resp);
+                    return resp;
+                }
+                return new CommonOperatorInfoResp(operatorId, OperatorType.SYSTEM_USER, "未知用户", null);
             }
             default -> {
                 log.warn("未知的操作人员类型：{}", operatorType);
                 return new CommonOperatorInfoResp(null, OperatorType.NONE, "未知", null);
             }
         }
-        return null;
     }
 
 }

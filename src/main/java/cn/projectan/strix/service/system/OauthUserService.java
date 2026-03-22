@@ -76,12 +76,43 @@ public class OauthUserService extends ServiceImpl<OauthUserMapper, OauthUser> {
      */
     @Transactional(rollbackFor = Exception.class)
     public SystemUser loginOrCreateSystemUser(BaseOAuthUserInfo info, Short platform) {
-        SystemUser existUser = loginThirdUser(info, platform);
-        if (existUser != null) {
-            return existUser;
+        // 查找已有的 OAuth 用户
+        OauthUser oauthUser = lambdaQuery()
+                .eq(OauthUser::getPlatform, platform)
+                .and(wrapper -> wrapper.eq(OauthUser::getOpenId, info.getOpenId())
+                        .or().eq(StringUtils.hasText(info.getUnionId()), OauthUser::getUnionId, info.getUnionId()))
+                .one();
+
+        if (oauthUser != null) {
+            // OAuth 用户已存在，查找关联的系统用户
+            String systemUserId = systemUserRelationService.lambdaQuery()
+                    .select(SystemUserRelation::getSystemUserId)
+                    .eq(SystemUserRelation::getRelationType, platform)
+                    .eq(SystemUserRelation::getRelationId, oauthUser.getId())
+                    .oneOpt()
+                    .map(SystemUserRelation::getSystemUserId)
+                    .orElse(null);
+
+            if (systemUserId != null) {
+                SystemUser systemUser = systemUserService.getById(systemUserId);
+                if (systemUser != null) {
+                    return systemUser;
+                }
+                // 系统用户已被删除，清理失效关联
+                systemUserRelationService.lambdaUpdate()
+                        .eq(SystemUserRelation::getSystemUserId, systemUserId)
+                        .eq(SystemUserRelation::getRelationId, oauthUser.getId())
+                        .remove();
+            }
+
+            // 关联不存在或系统用户已被删除，创建新系统用户并绑定到已有 OAuth 用户
+            SystemUser systemUser = systemUserService.createSystemUser(NicknameGenerator.generateWithPaddedSuffix(), null);
+            systemUserService.bindThirdUser(systemUser.getId(), platform, oauthUser.getId());
+            return systemUser;
         }
 
-        OauthUser oauthUser = new OauthUser();
+        // OAuth 用户不存在，创建完整的新用户
+        oauthUser = new OauthUser();
         oauthUser.setConfigId(info.getConfigId());
         oauthUser.setAppId(info.getAppId());
         oauthUser.setOpenId(info.getOpenId());
@@ -91,7 +122,6 @@ public class OauthUserService extends ServiceImpl<OauthUserMapper, OauthUser> {
 
         SystemUser systemUser = systemUserService.createSystemUser(NicknameGenerator.generateWithPaddedSuffix(), null);
         systemUserService.bindThirdUser(systemUser.getId(), platform, oauthUser.getId());
-
         return systemUser;
     }
 

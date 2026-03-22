@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -170,6 +171,7 @@ public class SystemManagerService extends ServiceImpl<SystemManagerMapper, Syste
      */
     public LoginSystemManager getLoginInfo(String managerId) {
         SystemManager systemManager = getById(managerId);
+        Assert.notNull(systemManager, "管理账号不存在: " + managerId);
         SystemRegion systemRegion = null;
         if (StringUtils.hasText(systemManager.getRegionId())) {
             systemRegion = systemRegionService.getById(systemManager.getRegionId());

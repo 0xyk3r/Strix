@@ -146,6 +146,7 @@ public class SystemUserService extends ServiceImpl<SystemUserMapper, SystemUser>
      */
     public LoginSystemUser getLoginInfo(String userId) {
         SystemUser systemUser = getById(userId);
+        Assert.notNull(systemUser, "用户不存在: " + userId);
         return new LoginSystemUser(systemUser);
     }
 
