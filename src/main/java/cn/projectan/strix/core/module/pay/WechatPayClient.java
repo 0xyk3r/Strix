@@ -324,11 +324,10 @@ public class WechatPayClient extends StrixPayClient {
             String serialNumber = MapUtil.getStr(result, "serialNumber");
             String body = MapUtil.getStr(result, "body");
             int status = MapUtil.getInt(result, "status");
-            System.out.println("serialNumber:" + serialNumber);
-            System.out.println("status:" + status);
+            log.debug("微信支付平台证书: serialNumber={}, status={}", serialNumber, status);
             // 根据证书序列号查询对应的证书来验证签名结果
             boolean verifySignature = WxPayKit.verifySignature(response, config.getV3PlatformCertPath());
-            System.out.println("verifySignature:" + verifySignature + "\nbody:" + body);
+            log.debug("微信支付签名验证: {}", verifySignature);
 
             // TODO 解析 body 判断是否有证书更新 并调用 savePlatformCert 方法存储最新文件
         } catch (Exception e) {

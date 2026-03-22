@@ -51,7 +51,7 @@ public class StrixOAuthPushTask {
                 client.push(op);
             }
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            log.error("OAuth 推送异常: {}", e.getMessage(), e);
         }
     }
 

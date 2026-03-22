@@ -47,7 +47,7 @@ public class CommonTreeDataResp {
                 }
             }
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            log.error("树形数据构建异常: {}", e.getMessage(), e);
         }
     }
 
@@ -64,7 +64,7 @@ public class CommonTreeDataResp {
                 }
             }
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            log.error("树形数据构建异常: {}", e.getMessage(), e);
         }
         return result;
     }

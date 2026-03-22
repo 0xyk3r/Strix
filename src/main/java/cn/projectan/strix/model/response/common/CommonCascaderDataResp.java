@@ -46,7 +46,7 @@ public class CommonCascaderDataResp {
                 }
             }
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            log.error("级联数据构建异常: {}", e.getMessage(), e);
         }
     }
 
@@ -63,7 +63,7 @@ public class CommonCascaderDataResp {
                 }
             }
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            log.error("级联数据构建异常: {}", e.getMessage(), e);
         }
         return !result.isEmpty() ? result : null;
     }

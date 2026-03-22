@@ -87,6 +87,7 @@ public class PayOrderService extends ServiceImpl<PayOrderMapper, PayOrder> {
         payOrder.setTotalPayAmount(0L);
         payOrder.setTotalRefundAmount(0L);
         Assert.isTrue(save(payOrder), "创建订单失败");
+        log.info("支付订单创建成功: orderId={}, configId={}, amount={}, payType={}", payOrder.getId(), configId, amount, payType);
 
         delayedTaskManager.schedule(DelayedTaskConst.PAY_ORDER_EXPIRE, payOrder.getId(), expireMin, TimeUnit.MINUTES);
 
@@ -125,6 +126,7 @@ public class PayOrderService extends ServiceImpl<PayOrderMapper, PayOrder> {
             payOrder.setNotifyContent(payResult.getOriginalResult());
 
             Assert.isTrue(updateById(payOrder), "更新订单信息失败");
+            log.info("支付成功: orderId={}, platform={}, amount={}", payOrder.getId(), payOrder.getPlatform(), payResult.getTotalAmount());
 
             // 移除订单过期队列
             delayedTaskManager.cancel(DelayedTaskConst.PAY_ORDER_EXPIRE, payOrder.getId());

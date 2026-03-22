@@ -48,7 +48,7 @@ public class CommonTransferDataResp {
                 }
             }
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            log.error("穿梭框数据构建异常: {}", e.getMessage(), e);
         }
     }
 

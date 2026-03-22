@@ -49,7 +49,7 @@ public class SameValueFinder {
                 }
             });
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            log.error("数据比对异常: {}", e.getMessage(), e);
             return null;
         }
 

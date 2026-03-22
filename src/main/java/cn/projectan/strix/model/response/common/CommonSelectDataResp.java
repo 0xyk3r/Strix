@@ -47,7 +47,7 @@ public class CommonSelectDataResp {
                 }
             }
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            log.error("选择数据构建异常: {}", e.getMessage(), e);
         }
     }
 

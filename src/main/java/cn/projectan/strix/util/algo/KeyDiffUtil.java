@@ -39,7 +39,7 @@ public class KeyDiffUtil {
                 addFunc.apply(addKeys);
             }
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            log.error("差异处理异常: {}", e.getMessage(), e);
         }
     }
 
@@ -71,7 +71,7 @@ public class KeyDiffUtil {
                 updatedFunc.apply();
             }
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            log.error("差异处理异常: {}", e.getMessage(), e);
         }
     }
 

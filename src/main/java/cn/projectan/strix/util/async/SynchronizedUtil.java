@@ -98,7 +98,7 @@ public class SynchronizedUtil {
                     }
                 }
             } else {
-                log.error("获取锁: {} 超时, 自动放弃", key);
+                log.warn("获取锁: {} 超时, 自动放弃", key);
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -145,7 +145,7 @@ public class SynchronizedUtil {
                     }
                 }
             } else {
-                log.error("获取锁: {} 超时, 自动放弃", key);
+                log.warn("获取锁: {} 超时, 自动放弃", key);
                 return null;
             }
         } catch (InterruptedException e) {
@@ -199,7 +199,7 @@ public class SynchronizedUtil {
                     }
                 }
             } else {
-                log.error("获取读锁: {} 超时, 自动放弃", key);
+                log.warn("获取读锁: {} 超时, 自动放弃", key);
                 return null;
             }
         } catch (InterruptedException e) {
@@ -245,7 +245,7 @@ public class SynchronizedUtil {
                     }
                 }
             } else {
-                log.error("获取写锁: {} 超时, 自动放弃", key);
+                log.warn("获取写锁: {} 超时, 自动放弃", key);
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -293,7 +293,7 @@ public class SynchronizedUtil {
                     }
                 }
             } else {
-                log.error("获取写锁: {} 超时, 自动放弃", key);
+                log.warn("获取写锁: {} 超时, 自动放弃", key);
                 return null;
             }
         } catch (InterruptedException e) {

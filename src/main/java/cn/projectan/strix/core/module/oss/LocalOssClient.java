@@ -90,7 +90,7 @@ public class LocalOssClient implements StrixOssClient {
                 File newFile = createFile(objectName);
                 FileUtil.writeFromStream(byteArrayInputStream, newFile);
             } catch (IOException e) {
-                log.error(e.getMessage(), e);
+                log.error("本地存储操作异常: {}", e.getMessage(), e);
                 throw new StrixException("Strix OSS: 上传文件失败.");
             }
         }
@@ -101,7 +101,7 @@ public class LocalOssClient implements StrixOssClient {
                 File newFile = createFile(objectName);
                 FileUtil.writeFromStream(inputStream, newFile);
             } catch (IOException e) {
-                log.error(e.getMessage(), e);
+                log.error("本地存储操作异常: {}", e.getMessage(), e);
                 throw new StrixException("Strix OSS: 上传文件失败.");
             }
         }
@@ -119,7 +119,7 @@ public class LocalOssClient implements StrixOssClient {
                 // 注意: 这里覆盖了原文件
                 FileUtil.copy(file, newFile, true);
             } catch (IOException e) {
-                log.error(e.getMessage(), e);
+                log.error("本地存储操作异常: {}", e.getMessage(), e);
                 throw new StrixException("Strix OSS: 上传文件失败.");
             }
         }
@@ -149,7 +149,7 @@ public class LocalOssClient implements StrixOssClient {
             try {
                 return new FileInputStream(file);
             } catch (IOException e) {
-                log.error(e.getMessage(), e);
+                log.error("本地存储操作异常: {}", e.getMessage(), e);
                 throw new StrixException("Strix OSS: 下载文件失败.");
             }
         }
@@ -167,7 +167,7 @@ public class LocalOssClient implements StrixOssClient {
                     outputStream.write(buffer, 0, bytesRead);
                 }
             } catch (IOException e) {
-                log.error(e.getMessage(), e);
+                log.error("本地存储操作异常: {}", e.getMessage(), e);
                 throw new StrixException("Strix OSS: 下载文件失败.");
             }
         }
@@ -238,7 +238,7 @@ public class LocalOssClient implements StrixOssClient {
                 if (count >= maxKeys) {
                     break;
                 }
-                System.out.println(file.getName());
+                log.debug("本地文件列表: {}", file.getName());
                 count++;
             }
         }

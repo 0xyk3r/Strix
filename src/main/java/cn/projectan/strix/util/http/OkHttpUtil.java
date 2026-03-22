@@ -169,7 +169,7 @@ public class OkHttpUtil {
             ResponseBody body = response.body();
             return body.string();
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            log.error("HTTP 请求异常: {}", e.getMessage(), e);
             return null;
         }
     }

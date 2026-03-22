@@ -98,7 +98,7 @@ public class UniqueChecker {
         } catch (StrixUniqueCheckerException e) {
             throw e;
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            log.error("唯一性检查异常: {}", e.getMessage(), e);
             throw new StrixUniqueCheckerException("重复检查器工作异常");
         }
     }
