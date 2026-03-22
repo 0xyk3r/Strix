@@ -18,7 +18,9 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.Assert;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
@@ -45,6 +47,7 @@ public class PayOrderService extends ServiceImpl<PayOrderMapper, PayOrder> {
     private final SynchronizedUtil synchronizedUtil;
     private final StrixPayStore strixPayStore;
     private final ObjectMapper objectMapper;
+    private final PlatformTransactionManager transactionManager;
 
     /**
      * 生成支付订单
@@ -60,7 +63,6 @@ public class PayOrderService extends ServiceImpl<PayOrderMapper, PayOrder> {
      * @return 订单信息
      * @see PayType 支付类型
      */
-    @Transactional(rollbackFor = Exception.class)
     public Map<String, String> createOrder(String configId, String title, BasePayParam param, String attach, Long amount, Integer expireMin, String handlerId, Short payType) {
         StrixPayClient payClient = strixPayStore.getInstance(configId);
         Assert.notNull(payClient, "收款配置异常, 创建订单失败");
@@ -107,32 +109,34 @@ public class PayOrderService extends ServiceImpl<PayOrderMapper, PayOrder> {
      *
      * @param payResult 支付结果
      */
-    @Transactional(rollbackFor = Exception.class)
     public void handlePayResult(BasePayResult payResult) {
         Assert.isTrue(payResult.getSuccess(), "支付结果非成功");
         Assert.hasText(payResult.getOrderId(), "支付结果订单号为空");
 
         synchronizedUtil.exec("PayOrder" + payResult.getOrderId(), () -> {
-            PayOrder payOrder = getById(payResult.getOrderId());
-            Assert.notNull(payOrder, "支付订单不存在");
-            // 防止重复通知
-            // 这里允许未支付和过期状态的订单处理支付成功通知
-            StrixAssert.in(payOrder.getStatus(), "当前订单状态异常, 可能重复通知", PayOrderStatus.UNPAID, PayOrderStatus.EXPIRED);
-            Assert.isTrue(payOrder.getTotalAmount().equals(payResult.getTotalAmount()), "支付金额不一致");
+            // 编程式事务：仅包裹DB操作，锁获取在事务外
+            new TransactionTemplate(transactionManager).executeWithoutResult(status -> {
+                PayOrder payOrder = getById(payResult.getOrderId());
+                Assert.notNull(payOrder, "支付订单不存在");
+                // 防止重复通知
+                // 这里允许未支付和过期状态的订单处理支付成功通知
+                StrixAssert.in(payOrder.getStatus(), "当前订单状态异常, 可能重复通知", PayOrderStatus.UNPAID, PayOrderStatus.EXPIRED);
+                Assert.isTrue(payOrder.getTotalAmount().equals(payResult.getTotalAmount()), "支付金额不一致");
 
-            payOrder.setStatus(PayOrderStatus.PAID);
-            payOrder.setPayTime(LocalDateTime.now());
-            payOrder.setTotalPayAmount(payResult.getTotalAmount());
-            payOrder.setNotifyContent(payResult.getOriginalResult());
+                payOrder.setStatus(PayOrderStatus.PAID);
+                payOrder.setPayTime(LocalDateTime.now());
+                payOrder.setTotalPayAmount(payResult.getTotalAmount());
+                payOrder.setNotifyContent(payResult.getOriginalResult());
 
-            Assert.isTrue(updateById(payOrder), "更新订单信息失败");
-            log.info("支付成功: orderId={}, platform={}, amount={}", payOrder.getId(), payOrder.getPlatform(), payResult.getTotalAmount());
+                Assert.isTrue(updateById(payOrder), "更新订单信息失败");
+                log.info("支付成功: orderId={}, platform={}, amount={}", payOrder.getId(), payOrder.getPlatform(), payResult.getTotalAmount());
 
-            // 移除订单过期队列
-            delayedTaskManager.cancel(DelayedTaskConst.PAY_ORDER_EXPIRE, payOrder.getId());
+                // 调用订单业务处理器
+                payHandlerService.handleSuccess(payOrder.getHandlerId(), payOrder.getId());
+            });
 
-            // 调用订单业务处理器
-            payHandlerService.handleSuccess(payOrder.getHandlerId(), payOrder.getId());
+            // 事务提交后移除订单过期队列
+            delayedTaskManager.cancel(DelayedTaskConst.PAY_ORDER_EXPIRE, payResult.getOrderId());
         });
     }
 
@@ -141,6 +145,7 @@ public class PayOrderService extends ServiceImpl<PayOrderMapper, PayOrder> {
      *
      * @param orderId 订单id
      */
+    @Transactional(rollbackFor = Exception.class)
     public void handleExpired(String orderId) {
         Assert.hasText(orderId, "订单号为空");
         synchronizedUtil.exec("PayOrder" + orderId, () -> {

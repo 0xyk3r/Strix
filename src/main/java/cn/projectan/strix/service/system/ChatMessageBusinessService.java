@@ -22,6 +22,8 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
@@ -158,11 +160,7 @@ public class ChatMessageBusinessService {
         session.setUpdatedTime(LocalDateTime.now());
         chatSessionService.updateById(session);
 
-        // 写入幂等 Key
-        redisTemplate.opsForValue().set(idempotentKey, message.getId(),
-                ChatRedisKeys.CHAT_MESSAGE_IDEMPOTENT_EXPIRE, TimeUnit.SECONDS);
-
-        eventPublisher.publishEvent(new ChatNewMessageEvent(this, req.getSessionId(), message.getId()));
+        eventPublisher.publishEvent(new ChatNewMessageEvent(this, req.getSessionId(), message.getId(), req.getClientMsgId()));
 
         log.info("消息发送成功: sessionId={}, messageId={}, msgType={}", req.getSessionId(), message.getId(), req.getMsgType());
         return buildSendResultResp(message);
@@ -189,6 +187,23 @@ public class ChatMessageBusinessService {
             chatSessionMemberService.updateById(member);
             log.info("标记已读成功: sessionId={}, userId={}, lastReadId={}", req.getSessionId(), userId, req.getLastReadId());
         }
+    }
+
+    // ========== 事件监听器 ==========
+
+    /**
+     * 事务提交后写入幂等Key，避免Redis操作在事务内
+     *
+     * @param event 新消息事件
+     */
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void writeIdempotentKeyAfterCommit(ChatNewMessageEvent event) {
+        if (!StringUtils.hasText(event.getClientMsgId())) {
+            return;
+        }
+        String idempotentKey = ChatRedisKeys.CHAT_MESSAGE_IDEMPOTENT_PREFIX + event.getClientMsgId();
+        redisTemplate.opsForValue().set(idempotentKey, event.getMessageId(),
+                ChatRedisKeys.CHAT_MESSAGE_IDEMPOTENT_EXPIRE, TimeUnit.SECONDS);
     }
 
     // ========== 包内可见方法（供 ChatBusinessService 使用） ==========

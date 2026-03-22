@@ -12,7 +12,6 @@ import cn.projectan.strix.model.db.system.WorkflowTaskAssign;
 import cn.projectan.strix.model.dict.system.*;
 import cn.projectan.strix.model.other.system.workflow.WorkflowNode;
 import cn.projectan.strix.model.other.system.workflow.WorkflowProps;
-import cn.projectan.strix.util.common.SpringUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -87,7 +86,7 @@ public class WorkflowTaskService extends ServiceImpl<WorkflowTaskMapper, Workflo
                 .setOperationType(operationType)
                 .setStartTime(isRoot ? instance.getStartTime() : LocalDateTime.now())
                 .setEndTime(isDone ? instance.getEndTime() : (isRoot || isAutoComplete ? LocalDateTime.now() : null));
-        Assert.isTrue(SpringUtil.getAopProxy(this).save(task), "任务创建失败");
+        Assert.isTrue(save(task), "任务创建失败");
 
         if (isRoot || isDone) {
             return;
@@ -239,7 +238,7 @@ public class WorkflowTaskService extends ServiceImpl<WorkflowTaskMapper, Workflo
             task.setOperatorId(operatorId);
             task.setOperationType(operationType);
             task.setEndTime(LocalDateTime.now());
-            SpringUtil.getAopProxy(this).updateById(task);
+            updateById(task);
             // 移除定时器
             delayedTaskManager.cancel(DelayedTaskConst.WORKFLOW_TASK_EXPIRE, taskId);
         }

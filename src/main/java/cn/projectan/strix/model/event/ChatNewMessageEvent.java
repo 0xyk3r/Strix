@@ -24,10 +24,20 @@ public class ChatNewMessageEvent extends ApplicationEvent {
      */
     private final String messageId;
 
+    /**
+     * 客户端消息 ID（用于幂等key写入）
+     */
+    private final String clientMsgId;
+
     public ChatNewMessageEvent(Object source, String sessionId, String messageId) {
+        this(source, sessionId, messageId, null);
+    }
+
+    public ChatNewMessageEvent(Object source, String sessionId, String messageId, String clientMsgId) {
         super(source);
         this.sessionId = sessionId;
         this.messageId = messageId;
+        this.clientMsgId = clientMsgId;
     }
 
 }

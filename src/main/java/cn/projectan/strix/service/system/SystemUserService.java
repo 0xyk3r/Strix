@@ -83,6 +83,7 @@ public class SystemUserService extends ServiceImpl<SystemUserMapper, SystemUser>
      * @param relationType 都三方平台类型
      * @param oauthUserId  第三方平台用户id
      */
+    @Transactional(rollbackFor = Exception.class)
     public void bindThirdUser(String systemUserId, Short relationType, String oauthUserId) {
         Assert.isTrue(
                 !systemUserRelationService.lambdaQuery()
