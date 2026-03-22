@@ -130,24 +130,16 @@ public class GlobalExceptionHandler {
                 .body(RetBuilder.error(e.getMessage()));
     }
 
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<RetResult<Object>> handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException e) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .header(HttpHeaders.CONTENT_TYPE, "application/json")
+                .body(RetBuilder.build(RetCode.METHOD_ERROR, I18nUtil.get("error.apiMethodUnsupported")));
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<RetResult<Object>> handleException(Exception e) {
-        if (e instanceof NoHandlerFoundException) {
-            return ResponseEntity
-                    .status(HttpStatus.OK)
-                    .header(HttpHeaders.CONTENT_TYPE, "application/json")
-                    .body(RetBuilder.build(RetCode.NOT_FOUND, I18nUtil.get("error.apiNotFound")));
-        } else if (e instanceof NoResourceFoundException) {
-            return ResponseEntity
-                    .status(HttpStatus.OK)
-                    .header(HttpHeaders.CONTENT_TYPE, "application/json")
-                    .body(RetBuilder.build(RetCode.NOT_FOUND, I18nUtil.get("error.apiNotFound")));
-        } else if (e instanceof HttpRequestMethodNotSupportedException) {
-            return ResponseEntity
-                    .status(HttpStatus.OK)
-                    .header(HttpHeaders.CONTENT_TYPE, "application/json")
-                    .body(RetBuilder.build(RetCode.METHOD_ERROR, I18nUtil.get("error.apiMethodUnsupported")));
-        }
         log.error(e.getMessage(), e);
         return ResponseEntity
                 .status(HttpStatus.OK)

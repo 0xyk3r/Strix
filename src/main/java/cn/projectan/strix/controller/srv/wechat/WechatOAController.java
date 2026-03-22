@@ -149,9 +149,9 @@ public class WechatOAController extends BaseWechatController {
 
             return resultMap;
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            log.error("获取微信JS-SDK配置失败: {}", e.getMessage(), e);
+            throw new StrixException("获取微信JS-SDK配置失败");
         }
-        return null;
     }
 
     /**

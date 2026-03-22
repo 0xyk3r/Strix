@@ -30,6 +30,7 @@ import cn.projectan.strix.util.system.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -73,7 +74,7 @@ public class SystemController extends BaseSystemController {
     @Anonymous
     @PostMapping("login")
     @StrixLog(operationGroup = "系统登录", operationName = "系统登录", operationType = SystemLogOperType.LOGIN)
-    public RetResult<SystemManagerLoginResp> login(@RequestBody SystemLoginReq req) {
+    public RetResult<SystemManagerLoginResp> login(@RequestBody @Validated SystemLoginReq req) {
         // 验证码校验
         Assert.hasText(req.getCaptchaVerification(), "行为验证不通过，请重新验证");
         CaptchaData captchaDataVO = new CaptchaData();
