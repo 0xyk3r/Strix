@@ -29,6 +29,9 @@ class UpdateBuilderEncryptionTest {
     @Autowired
     private SystemManagerService systemManagerService;
 
+    @Autowired
+    private FieldEncryptUtil fieldEncryptUtil;
+
     private String testUserId;
 
     /**
@@ -153,14 +156,14 @@ class UpdateBuilderEncryptionTest {
         log.info("解密后的密码: {}", decryptedPassword);
 
         // 手动加密相同的密码
-        String manualEncrypted = FieldEncryptUtil.encrypt(decryptedPassword);
+        String manualEncrypted = fieldEncryptUtil.encrypt(decryptedPassword);
         log.info("手动加密结果: {}", manualEncrypted);
 
         // 验证：解密后再加密应该能得到一致的密文
         assertTrue(FieldEncryptUtil.isEncrypted(manualEncrypted), "加密结果应该是密文格式");
 
         // 验证：能正确解密
-        String manualDecrypted = FieldEncryptUtil.decrypt(manualEncrypted);
+        String manualDecrypted = fieldEncryptUtil.decrypt(manualEncrypted);
         assertEquals(decryptedPassword, manualDecrypted, "加密解密应该可逆");
 
         log.info("✅ 数据库加密验证通过！");
