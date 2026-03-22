@@ -62,24 +62,22 @@ public class SystemRegionService extends ServiceImpl<SystemRegionMapper, SystemR
         SystemRegion region = getBaseMapper().selectById(id);
         Assert.notNull(region, "地区信息不存在");
 
-        List<String> pathList = new ArrayList<>();
+        // 从 fullPath 解析所有祖先 ID，批量查询（利用缓存）
+        String fullPath = region.getFullPath();
+        List<String> allIds = Arrays.stream(fullPath.split(PATH_SEPARATOR))
+                .filter(StringUtils::hasText)
+                .toList();
+
         List<String> nameList = new ArrayList<>();
-        int level = 1;
-
-        pathList.add(region.getId());
-        nameList.add(region.getName());
-
-        while (StringUtils.hasText(region.getParentId()) && !ROOT_PARENT_ID.equals(region.getParentId())) {
-            region = proxy.getRegionById(region.getParentId());
-            pathList.addFirst(region.getId());
-            nameList.addFirst(region.getName());
-            level++;
+        for (String nodeId : allIds) {
+            SystemRegion node = proxy.getRegionById(nodeId);
+            nameList.add(node != null ? node.getName() : nodeId);
         }
 
         return Map.of(
-                "path", PATH_SEPARATOR + String.join(PATH_SEPARATOR, pathList) + PATH_SEPARATOR,
+                "path", fullPath,
                 "name", String.join(NAME_SEPARATOR, nameList),
-                "level", String.valueOf(level)
+                "level", String.valueOf(allIds.size())
         );
     }
 

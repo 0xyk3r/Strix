@@ -212,14 +212,24 @@ public class ChatBusinessService {
         // 8. 批量查询在线状态（仅一对一会话的对方）
         Map<String, Boolean> onlineStatusMap = userOnlineStatusService.batchGetOnlineStatus(otherUserIds);
 
-        // 9. 构建响应
+        // 9. 预加载聊天配置（避免循环中逐条查询）
+        Set<String> configIds = sessionPage.getRecords().stream()
+                .map(ChatSession::getConfigId)
+                .filter(StringUtils::hasText)
+                .collect(Collectors.toSet());
+        Map<String, ChatConfig> configMap = configIds.isEmpty()
+                ? Collections.emptyMap()
+                : chatConfigService.listByIds(configIds).stream()
+                .collect(Collectors.toMap(ChatConfig::getId, c -> c));
+
+        // 10. 构建响应
         Page<ChatSessionListItemResp> respPage = new Page<>(req.getPageIndex(), req.getPageSize(), sessionPage.getTotal());
 
         Map<String, ChatSessionMember> memberMap = members.stream()
                 .collect(Collectors.toMap(ChatSessionMember::getSessionId, m -> m));
 
         List<ChatSessionListItemResp> respList = sessionPage.getRecords().stream()
-                .map(session -> buildSessionListItem(session, userId, sessionMembersMap, userMap, onlineStatusMap, lastMessageMap, memberMap))
+                .map(session -> buildSessionListItem(session, userId, sessionMembersMap, userMap, onlineStatusMap, lastMessageMap, memberMap, configMap))
                 .toList();
 
         respPage.setRecords(new ArrayList<>(respList));
@@ -235,10 +245,11 @@ public class ChatBusinessService {
             Map<String, SystemUser> userMap,
             Map<String, Boolean> onlineStatusMap,
             Map<String, ChatMessage> lastMessageMap,
-            Map<String, ChatSessionMember> memberMap) {
+            Map<String, ChatSessionMember> memberMap,
+            Map<String, ChatConfig> configMap) {
 
         ChatSessionListItemResp resp = new ChatSessionListItemResp();
-        ChatConfig config = chatConfigService.getById(session.getConfigId());
+        ChatConfig config = configMap.get(session.getConfigId());
 
         resp.setSessionId(session.getId());
         resp.setConfigId(session.getConfigId());

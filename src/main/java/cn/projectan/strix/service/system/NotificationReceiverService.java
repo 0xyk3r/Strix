@@ -14,6 +14,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
@@ -77,6 +78,7 @@ public class NotificationReceiverService extends ServiceImpl<NotificationReceive
      *
      * @param notificationId 通知ID
      */
+    @Transactional(rollbackFor = Exception.class)
     public void markAsRead(String notificationId) {
         String receiverId = SecurityUtil.getOperatorId();
         Assert.hasText(notificationId, "通知 ID 不能为空");
@@ -96,6 +98,7 @@ public class NotificationReceiverService extends ServiceImpl<NotificationReceive
     /**
      * 标记全部通知为已读
      */
+    @Transactional(rollbackFor = Exception.class)
     public void markAllAsRead() {
         String receiverId = SecurityUtil.getOperatorId();
         Assert.hasText(receiverId, "接收人 ID 不能为空");

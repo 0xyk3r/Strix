@@ -91,6 +91,7 @@ public class OssBucketService extends ServiceImpl<OssBucketMapper, OssBucket> {
      *
      * @param configKey 配置key
      */
+    @Transactional(rollbackFor = Exception.class)
     public void deleteByConfigKey(String configKey) {
         lambdaUpdate()
                 .eq(OssBucket::getConfigKey, configKey)

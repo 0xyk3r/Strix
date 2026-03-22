@@ -17,10 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -103,7 +100,6 @@ public class PopularityService {
 
     /**
      * 从redis同步数据到数据库
-     * <br>性能在数据量大时可能存在问题, 待优化
      */
     public void syncToDB() {
         List<PopularityData> addDataList = new ArrayList<>();
@@ -136,12 +132,17 @@ public class PopularityService {
                     popularityConfigService.saveBatch(addConfigList);
                 }
         );
-        // 数据检索 & 差异处理
+        // 批量查询所有 configKey 的数据（替代逐 key 循环查询）
+        Map<String, List<PopularityData>> dbDataByKey = configKeyList.isEmpty()
+                ? Collections.emptyMap()
+                : popularityDataService.lambdaQuery()
+                .in(PopularityData::getConfigKey, configKeyList)
+                .select(PopularityData::getId, PopularityData::getConfigKey, PopularityData::getDataId, PopularityData::getOriginalValue)
+                .list().stream()
+                .collect(Collectors.groupingBy(PopularityData::getConfigKey));
+        // 数据差异处理
         for (String key : configKeyList) {
-            List<PopularityData> dbDataList = popularityDataService.lambdaQuery()
-                    .eq(PopularityData::getConfigKey, key)
-                    .select(PopularityData::getId, PopularityData::getDataId, PopularityData::getOriginalValue)
-                    .list();
+            List<PopularityData> dbDataList = dbDataByKey.getOrDefault(key, Collections.emptyList());
             Set<ZSetOperations.TypedTuple<Object>> redisSet = redisUtil.zGet(StrixRedisKeyConst.HASH_POPULARITY_DATA_PREFIX + key);
             List<PopularityData> redisDataList = (redisSet != null ? redisSet.stream() : Stream.<ZSetOperations.TypedTuple<Object>>empty())
                     .filter(typedTuple -> typedTuple != null && typedTuple.getValue() != null && typedTuple.getScore() != null)
@@ -183,15 +184,22 @@ public class PopularityService {
         List<String> configKeyList = popularityConfigService.lambdaQuery()
                 .select(PopularityConfig::getConfigKey)
                 .list().stream().map(PopularityConfig::getConfigKey).toList();
-        for (String key : configKeyList) {
-            boolean isExistInRedis = redisUtil.isType(StrixRedisKeyConst.HASH_POPULARITY_DATA_PREFIX + key, DataType.ZSET);
-            if (isExistInRedis && !force) {
-                continue;
-            }
-            List<PopularityData> dataList = popularityDataService.lambdaQuery()
-                    .eq(PopularityData::getConfigKey, key)
-                    .select(PopularityData::getDataId, PopularityData::getOriginalValue)
-                    .list();
+        // 筛选出需要加载的 key（Redis 中不存在或强制同步）
+        List<String> keysToLoad = configKeyList.stream()
+                .filter(key -> force || !redisUtil.isType(StrixRedisKeyConst.HASH_POPULARITY_DATA_PREFIX + key, DataType.ZSET))
+                .toList();
+        if (keysToLoad.isEmpty()) {
+            return;
+        }
+        // 批量查询所有需要加载的数据
+        Map<String, List<PopularityData>> dataByKey = popularityDataService.lambdaQuery()
+                .in(PopularityData::getConfigKey, keysToLoad)
+                .select(PopularityData::getConfigKey, PopularityData::getDataId, PopularityData::getOriginalValue)
+                .list().stream()
+                .collect(Collectors.groupingBy(PopularityData::getConfigKey));
+        // 写入 Redis
+        for (String key : keysToLoad) {
+            List<PopularityData> dataList = dataByKey.getOrDefault(key, Collections.emptyList());
             Set<ZSetOperations.TypedTuple<Object>> tuples = dataList.stream()
                     .map(data ->
                             new DefaultTypedTuple<Object>(data.getDataId(), data.getOriginalValue().doubleValue())
