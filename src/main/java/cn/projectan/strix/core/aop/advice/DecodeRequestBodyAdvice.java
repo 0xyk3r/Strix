@@ -2,6 +2,7 @@ package cn.projectan.strix.core.aop.advice;
 
 import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.projectan.strix.core.exception.StrixException;
 import cn.projectan.strix.core.security.ApiSecurity;
 import cn.projectan.strix.model.annotation.IgnoreEncryption;
 import cn.projectan.strix.model.constant.system.StrixPasswordConst;
@@ -62,7 +63,7 @@ public class DecodeRequestBodyAdvice implements RequestBodyAdvice {
             Method method = methodParameter.getMethod();
             String methodName = (method != null) ? method.getDeclaringClass().getName() + "." + method.getName() : "unknown";
             log.error("对方法: 【{}】请求数据进行解密时异常", methodName, e);
-            return inputMessage;
+            throw new StrixException("请求数据解密失败");
         }
     }
 

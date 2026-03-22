@@ -66,11 +66,13 @@ public class EncodeResponseBodyAdvice implements ResponseBodyAdvice<Object> {
             }
             return apiSecurity.encrypt(body);
         } catch (Exception e) {
+            log.error("响应数据加密失败", e);
             try {
-                RetResult<Object> errorResponse = RetBuilder.error(RetCode.BAD_REQUEST, "响应封装时发生异常");
+                RetResult<Object> errorResponse = RetBuilder.error(RetCode.SERVER_ERROR, "响应封装时发生异常");
                 return apiSecurity.encrypt(errorResponse);
-            } catch (Exception exception) {
-                return "An exception occurred in the API server !";
+            } catch (Exception encryptException) {
+                log.error("加密错误响应也失败，返回未加密错误", encryptException);
+                return RetBuilder.error(RetCode.SERVER_ERROR, "Internal server error");
             }
         }
     }
