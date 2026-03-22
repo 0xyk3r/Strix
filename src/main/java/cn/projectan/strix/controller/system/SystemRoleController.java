@@ -83,11 +83,7 @@ public class SystemRoleController extends BaseSystemController {
         SystemRole systemRole = systemRoleService.getById(roleId);
         Assert.notNull(systemRole, "系统角色信息不存在");
 
-        List<SystemMenu> menusByRoleId = systemRoleService.getMenusByRoleId(systemRole.getId());
-        List<SystemPermission> systemPermissionByRoleId = systemRoleService.getSystemPermissionByRoleId(roleId);
-        List<SystemMenuListResp.SystemMenuManageItem> menuItems = new SystemMenuListResp(menusByRoleId, systemPermissionByRoleId).getSystemMenuList();
-        List<SystemPermissionListResp.SystemPermissionItem> permissionList = new SystemPermissionListResp(systemPermissionByRoleId).getSystemPermissionList();
-        return RetBuilder.success(new SystemRoleResp(systemRole.getId(), systemRole.getName(), systemRole.getRegionPermissionType(), menuItems, permissionList));
+        return RetBuilder.success(buildRoleResp(systemRole, roleId));
     }
 
     /**
@@ -191,11 +187,7 @@ public class SystemRoleController extends BaseSystemController {
         systemManagerService.refreshLoginInfoByRole(roleId);
 
         // 获取最新的权限信息
-        List<SystemMenu> menusByRoleId = systemRoleService.getMenusByRoleId(systemRole.getId());
-        List<SystemPermission> systemPermissionByRoleId = systemRoleService.getSystemPermissionByRoleId(roleId);
-        List<SystemMenuListResp.SystemMenuManageItem> menuItems = new SystemMenuListResp(menusByRoleId, systemPermissionByRoleId).getSystemMenuList();
-        List<SystemPermissionListResp.SystemPermissionItem> permissionList = new SystemPermissionListResp(systemPermissionByRoleId).getSystemPermissionList();
-        return RetBuilder.success(new SystemRoleResp(systemRole.getId(), systemRole.getName(), systemRole.getRegionPermissionType(), menuItems, permissionList));
+        return RetBuilder.success(buildRoleResp(systemRole, roleId));
     }
 
     /**
@@ -241,12 +233,7 @@ public class SystemRoleController extends BaseSystemController {
         systemManagerService.refreshLoginInfoByRole(roleId);
 
         // 返回移除后的最新关系信息
-        List<SystemMenu> menusByRoleId = systemRoleService.getMenusByRoleId(systemRole.getId());
-        List<SystemPermission> systemPermissionByRoleId = systemRoleService.getSystemPermissionByRoleId(roleId);
-        List<SystemMenuListResp.SystemMenuManageItem> menuItems = new SystemMenuListResp(menusByRoleId, systemPermissionByRoleId).getSystemMenuList();
-        // 需要删除
-        List<SystemPermissionListResp.SystemPermissionItem> permissionList = new SystemPermissionListResp(systemPermissionByRoleId).getSystemPermissionList();
-        return RetBuilder.success(new SystemRoleResp(systemRole.getId(), systemRole.getName(), systemRole.getRegionPermissionType(), menuItems, permissionList));
+        return RetBuilder.success(buildRoleResp(systemRole, roleId));
     }
 
     /**
@@ -272,11 +259,7 @@ public class SystemRoleController extends BaseSystemController {
         systemManagerService.refreshLoginInfoByRole(roleId);
 
         // 返回移除后的最新关系信息
-        List<SystemMenu> menusByRoleId = systemRoleService.getMenusByRoleId(systemRole.getId());
-        List<SystemPermission> systemPermissionByRoleId = systemRoleService.getSystemPermissionByRoleId(roleId);
-        List<SystemMenuListResp.SystemMenuManageItem> menuItems = new SystemMenuListResp(menusByRoleId, systemPermissionByRoleId).getSystemMenuList();
-        List<SystemPermissionListResp.SystemPermissionItem> permissionList = new SystemPermissionListResp(systemPermissionByRoleId).getSystemPermissionList();
-        return RetBuilder.success(new SystemRoleResp(systemRole.getId(), systemRole.getName(), systemRole.getRegionPermissionType(), menuItems, permissionList));
+        return RetBuilder.success(buildRoleResp(systemRole, roleId));
     }
 
     /**
@@ -297,6 +280,14 @@ public class SystemRoleController extends BaseSystemController {
         List<SystemRole> systemRoleList = systemRoleService.listForTransfer();
 
         return RetBuilder.success(new CommonTransferDataResp(systemRoleList, "id", "name", null));
+    }
+
+    private SystemRoleResp buildRoleResp(SystemRole systemRole, String roleId) {
+        List<SystemMenu> menusByRoleId = systemRoleService.getMenusByRoleId(systemRole.getId());
+        List<SystemPermission> systemPermissionByRoleId = systemRoleService.getSystemPermissionByRoleId(roleId);
+        List<SystemMenuListResp.SystemMenuManageItem> menuItems = new SystemMenuListResp(menusByRoleId, systemPermissionByRoleId).getSystemMenuList();
+        List<SystemPermissionListResp.SystemPermissionItem> permissionList = new SystemPermissionListResp(systemPermissionByRoleId).getSystemPermissionList();
+        return new SystemRoleResp(systemRole.getId(), systemRole.getName(), systemRole.getRegionPermissionType(), menuItems, permissionList);
     }
 
 }

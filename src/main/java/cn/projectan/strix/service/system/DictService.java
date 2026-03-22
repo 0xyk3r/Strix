@@ -180,16 +180,7 @@ public class DictService extends ServiceImpl<DictMapper, Dict> {
     @Transactional(rollbackFor = Exception.class)
     public void saveDictData(DictData dictData) {
         UniqueChecker.check(dictData);
-
-        Dict dict = lambdaQuery()
-                .eq(Dict::getKey, dictData.getKey())
-                .one();
-        Assert.notNull(dict, "字典不存在");
-        lambdaUpdate()
-                .eq(Dict::getKey, dictData.getKey())
-                .set(Dict::getVersion, dict.getVersion() + 1)
-                .update();
-
+        incrementDictVersion(dictData.getKey());
         Assert.isTrue(dictDataService.save(dictData), "保存失败");
     }
 
@@ -209,17 +200,7 @@ public class DictService extends ServiceImpl<DictMapper, Dict> {
     public void updateDictData(DictData dictData, DictDataUpdateReq req) {
         LambdaUpdateWrapper<DictData> updateWrapper = UpdateBuilder.build(dictData, req);
         UniqueChecker.check(dictData);
-
-
-        Dict dict = lambdaQuery()
-                .eq(Dict::getKey, dictData.getKey())
-                .one();
-        Assert.notNull(dict, "字典不存在");
-        lambdaUpdate()
-                .eq(Dict::getKey, dictData.getKey())
-                .set(Dict::getVersion, dict.getVersion() + 1)
-                .update();
-
+        incrementDictVersion(dictData.getKey());
         Assert.isTrue(dictDataService.update(updateWrapper), "保存失败");
     }
 
@@ -236,19 +217,20 @@ public class DictService extends ServiceImpl<DictMapper, Dict> {
     )
     @Transactional(rollbackFor = Exception.class)
     public void deleteDictData(DictData dictData) {
-        Dict dict = lambdaQuery()
-                .eq(Dict::getKey, dictData.getKey())
-                .one();
-        Assert.notNull(dict, "字典不存在");
-        lambdaUpdate()
-                .eq(Dict::getKey, dictData.getKey())
-                .set(Dict::getVersion, dict.getVersion() + 1)
-                .update();
+        incrementDictVersion(dictData.getKey());
 
         dictDataService.lambdaUpdate()
                 .eq(DictData::getKey, dictData.getKey())
                 .eq(DictData::getValue, dictData.getValue())
                 .remove();
+    }
+
+    private void incrementDictVersion(String dictKey) {
+        boolean updated = lambdaUpdate()
+                .eq(Dict::getKey, dictKey)
+                .setSql("version = version + 1")
+                .update();
+        Assert.isTrue(updated, "字典不存在");
     }
 
 
