@@ -60,7 +60,7 @@ public class GlobalExceptionHandler {
     private final ApplicationVersionConfig versionConfig;
 
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
-    public ResponseEntity<RetResult<Object>> handleConstraintViolationException(MethodArgumentNotValidException e) {
+    public ResponseEntity<RetResult<Object>> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
         List<ObjectError> allErrors = e.getBindingResult().getAllErrors();
         String message = allErrors.stream()
                 .map(DefaultMessageSourceResolvable::getDefaultMessage)
@@ -87,7 +87,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<RetResult<Object>> handleHttpMessageNotReadableException(HttpMessageNotReadableException e) {
-        log.error(e.getMessage(), e);
+        log.warn("请求体解析失败: {}", e.getMessage());
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .header(HttpHeaders.CONTENT_TYPE, "application/json")
@@ -165,7 +165,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<RetResult<Object>> handleDataIntegrityViolationException(DataIntegrityViolationException e) {
-        log.error("数据完整性约束异常: {}", e.getMessage(), e);
+        log.warn("数据完整性约束异常: {}", e.getMessage());
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .header(HttpHeaders.CONTENT_TYPE, "application/json")
@@ -206,7 +206,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<RetResult<Object>> handleException(Exception e) {
-        log.error(e.getMessage(), e);
+        log.error("未处理的异常: {}", e.getMessage(), e);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .header(HttpHeaders.CONTENT_TYPE, "application/json")
