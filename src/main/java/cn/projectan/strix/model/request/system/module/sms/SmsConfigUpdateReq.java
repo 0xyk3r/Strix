@@ -4,6 +4,7 @@ import cn.projectan.strix.core.validation.annotation.DynamicDictValue;
 import cn.projectan.strix.core.validation.group.InsertGroup;
 import cn.projectan.strix.core.validation.group.UpdateGroup;
 import cn.projectan.strix.model.annotation.UpdateField;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -13,12 +14,14 @@ import lombok.Data;
  * @author ProjectAn
  * @since 2023/5/22 11:59
  */
+@Schema(description = "短信配置更新请求")
 @Data
 public class SmsConfigUpdateReq {
 
     /**
      * 配置 key
      */
+    @Schema(description = "配置 key")
     @NotEmpty(groups = {InsertGroup.class, UpdateGroup.class}, message = "配置 key 不可为空")
     @Size(groups = {InsertGroup.class, UpdateGroup.class}, min = 2, max = 32, message = "配置 key 长度不符合要求")
     @UpdateField
@@ -27,6 +30,7 @@ public class SmsConfigUpdateReq {
     /**
      * 短信服务名称
      */
+    @Schema(description = "短信服务名称")
     @NotEmpty(groups = {InsertGroup.class, UpdateGroup.class}, message = "短信服务名称不可为空")
     @Size(groups = {InsertGroup.class, UpdateGroup.class}, min = 2, max = 32, message = "短信服务名称长度不符合要求")
     @UpdateField
@@ -37,6 +41,7 @@ public class SmsConfigUpdateReq {
      *
      * @see cn.projectan.strix.model.dict.system.SmsPlatform
      */
+    @Schema(description = "短信服务平台")
     @NotNull(groups = {InsertGroup.class, UpdateGroup.class}, message = "短信服务平台不可为空")
     @DynamicDictValue(groups = {InsertGroup.class, UpdateGroup.class}, dictName = "SmsPlatform", message = "短信服务平台不合法")
     @UpdateField
@@ -45,6 +50,7 @@ public class SmsConfigUpdateReq {
     /**
      * 短信服务地区ID
      */
+    @Schema(description = "短信服务地区ID")
     @NotEmpty(groups = {InsertGroup.class, UpdateGroup.class}, message = "短信服务地域不可为空")
     @Size(groups = {InsertGroup.class, UpdateGroup.class}, min = 1, max = 32, message = "短信服务地域长度不符合要求")
     @UpdateField
@@ -53,6 +59,7 @@ public class SmsConfigUpdateReq {
     /**
      * 授权令牌key
      */
+    @Schema(description = "授权令牌key")
     @NotEmpty(groups = {InsertGroup.class, UpdateGroup.class}, message = "AccessKey 不可为空")
     @Size(groups = {InsertGroup.class, UpdateGroup.class}, max = 64, message = "AccessKey 长度不符合要求")
     @UpdateField
@@ -61,6 +68,7 @@ public class SmsConfigUpdateReq {
     /**
      * 授权令牌秘钥
      */
+    @Schema(description = "授权令牌秘钥")
     @NotEmpty(groups = {InsertGroup.class}, message = "AccessSecret 不可为空")
     @Size(groups = {InsertGroup.class, UpdateGroup.class}, max = 64, message = "AccessSecret 长度不符合要求")
     @UpdateField
@@ -69,6 +77,7 @@ public class SmsConfigUpdateReq {
     /**
      * 备注
      */
+    @Schema(description = "备注")
     @Size(groups = {InsertGroup.class, UpdateGroup.class}, max = 255, message = "备注长度不符合要求")
     @UpdateField(allowEmpty = true)
     private String remark;

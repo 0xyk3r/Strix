@@ -10,6 +10,8 @@ import cn.projectan.strix.model.request.system.monitor.log.SystemLogListReq;
 import cn.projectan.strix.model.response.system.monitor.log.SystemLogListResp;
 import cn.projectan.strix.service.system.SystemLogService;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -27,6 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("system/monitor/log")
 @RequiredArgsConstructor
+@Tag(name = "系统监控 - 操作日志")
 public class LogController extends BaseSystemController {
 
     private final SystemLogService systemLogService;
@@ -37,6 +40,7 @@ public class LogController extends BaseSystemController {
     @GetMapping()
     @PreAuthorize("@ss.hasPermission('system:monitor:log')")
     @StrixLog(operationGroup = "系统操作日志", operationName = "查询系统操作日志")
+    @Operation(summary = "操作日志列表")
     public RetResult<SystemLogListResp> list(SystemLogListReq req) {
         try {
             Page<SystemLog> page = systemLogService.listPage(req);

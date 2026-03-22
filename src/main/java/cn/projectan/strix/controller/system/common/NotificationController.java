@@ -10,6 +10,7 @@ import cn.projectan.strix.model.response.system.notification.NotificationListRes
 import cn.projectan.strix.model.response.system.notification.NotificationUnreadCountResp;
 import cn.projectan.strix.service.system.NotificationReceiverService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -57,7 +58,7 @@ public class NotificationController extends BaseSystemController {
     @PostMapping("{notificationId}/read")
     @StrixLog(operationGroup = "通知", operationName = "标记已读", operationType = SystemLogOperType.UPDATE)
     @Operation(summary = "标记单个通知为已读")
-    public RetResult<Void> markAsRead(@PathVariable String notificationId) {
+    public RetResult<Void> markAsRead(@Parameter(description = "通知 ID") @PathVariable String notificationId) {
         notificationReceiverService.markAsRead(notificationId);
         return RetBuilder.success();
     }

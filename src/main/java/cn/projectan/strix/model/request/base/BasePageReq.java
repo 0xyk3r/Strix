@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
  * @author ProjectAn
  * @since 2023/5/23
  */
+@Schema(description = "分页基础请求")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

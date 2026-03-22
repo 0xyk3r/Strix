@@ -3,12 +3,14 @@ package cn.projectan.strix.model.dict.system;
 import cn.projectan.strix.model.annotation.Dict;
 import cn.projectan.strix.model.annotation.DictData;
 import cn.projectan.strix.model.dict.base.BaseDict;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 /**
  * @author ProjectAn
  * @since 2023/6/17 15:14
  */
 @Dict(key = "SystemLogOperType", value = "系统日志-操作类型")
+@Schema(description = "系统日志-操作类型")
 public class SystemLogOperType implements BaseDict {
 
     @DictData(label = "查询", sort = 1, style = DictDataStyle.INFO)

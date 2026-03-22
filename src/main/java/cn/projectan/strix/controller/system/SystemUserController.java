@@ -19,6 +19,9 @@ import cn.projectan.strix.util.common.UniqueChecker;
 import cn.projectan.strix.util.common.UpdateBuilder;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -36,6 +39,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("system/user")
 @RequiredArgsConstructor
+@Tag(name = "系统 - 用户管理")
 public class SystemUserController extends BaseSystemController {
 
     private final SystemUserService systemUserService;
@@ -43,6 +47,7 @@ public class SystemUserController extends BaseSystemController {
     /**
      * 查询用户列表
      */
+    @Operation(summary = "用户列表")
     @GetMapping("")
     @PreAuthorize("@ss.hasPermission('system:user')")
     @StrixLog(operationGroup = "系统用户", operationName = "查询用户列表")
@@ -57,10 +62,11 @@ public class SystemUserController extends BaseSystemController {
     /**
      * 查询用户信息
      */
+    @Operation(summary = "用户详情")
     @GetMapping("{userId}")
     @PreAuthorize("@ss.hasPermission('system:user')")
     @StrixLog(operationGroup = "系统用户", operationName = "查询用户信息")
-    public RetResult<SystemUserResp> getSystemUser(@PathVariable String userId) {
+    public RetResult<SystemUserResp> getSystemUser(@Parameter(description = "用户 ID") @PathVariable String userId) {
         SystemUser systemUser = systemUserService.getById(userId);
         Assert.notNull(systemUser, "系统用户信息不存在");
 
@@ -70,10 +76,11 @@ public class SystemUserController extends BaseSystemController {
     /**
      * 修改用户信息
      */
+    @Operation(summary = "修改用户字段")
     @PostMapping("modify/{userId}")
     @PreAuthorize("@ss.hasPermission('system:user:update')")
     @StrixLog(operationGroup = "系统用户", operationName = "更改用户信息", operationType = SystemLogOperType.UPDATE)
-    public RetResult<Object> modifyField(@PathVariable String userId, @RequestBody SingleFieldModifyReq req) {
+    public RetResult<Object> modifyField(@Parameter(description = "用户 ID") @PathVariable String userId, @RequestBody SingleFieldModifyReq req) {
         Assert.hasText(req.getField(), "参数错误");
         SystemUser systemUser = systemUserService.getById(userId);
         Assert.notNull(systemUser, "系统用户信息不存在");
@@ -101,6 +108,7 @@ public class SystemUserController extends BaseSystemController {
     /**
      * 新增用户
      */
+    @Operation(summary = "新增用户")
     @PostMapping("update")
     @PreAuthorize("@ss.hasPermission('system:user:add')")
     @StrixLog(operationGroup = "系统用户", operationName = "新增用户", operationType = SystemLogOperType.ADD)
@@ -125,10 +133,11 @@ public class SystemUserController extends BaseSystemController {
     /**
      * 修改用户
      */
+    @Operation(summary = "编辑用户")
     @PostMapping("update/{userId}")
     @PreAuthorize("@ss.hasPermission('system:user:update')")
     @StrixLog(operationGroup = "系统用户", operationName = "修改用户", operationType = SystemLogOperType.UPDATE)
-    public RetResult<Object> update(@PathVariable String userId, @RequestBody @Validated(UpdateGroup.class) SystemUserUpdateReq req) {
+    public RetResult<Object> update(@Parameter(description = "用户 ID") @PathVariable String userId, @RequestBody @Validated(UpdateGroup.class) SystemUserUpdateReq req) {
         Assert.notNull(req, "参数错误");
         SystemUser systemUser = systemUserService.getById(userId);
         Assert.notNull(systemUser, "系统用户信息不存在");
@@ -143,10 +152,11 @@ public class SystemUserController extends BaseSystemController {
     /**
      * 删除用户
      */
+    @Operation(summary = "删除用户")
     @PostMapping("remove/{userId}")
     @PreAuthorize("@ss.hasPermission('system:user:remove')")
     @StrixLog(operationGroup = "系统用户", operationName = "删除用户", operationType = SystemLogOperType.DELETE)
-    public RetResult<Object> remove(@PathVariable String userId) {
+    public RetResult<Object> remove(@Parameter(description = "用户 ID") @PathVariable String userId) {
         SystemUser systemUser = systemUserService.getById(userId);
         Assert.notNull(systemUser, "系统用户信息不存在");
 

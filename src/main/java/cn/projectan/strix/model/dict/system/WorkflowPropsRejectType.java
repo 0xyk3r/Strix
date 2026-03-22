@@ -3,12 +3,14 @@ package cn.projectan.strix.model.dict.system;
 import cn.projectan.strix.model.annotation.Dict;
 import cn.projectan.strix.model.annotation.DictData;
 import cn.projectan.strix.model.dict.base.BaseDict;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 /**
  * @author ProjectAn
  * @since 2024-10-10 14:24:09
  */
 @Dict(key = "WorkflowPropsRejectType", value = "工作流-配置-审批拒绝后操作")
+@Schema(description = "工作流-配置-审批拒绝后操作")
 public class WorkflowPropsRejectType implements BaseDict {
 
     @DictData(label = "结束流程", sort = 1, style = DictDataStyle.DEFAULT)

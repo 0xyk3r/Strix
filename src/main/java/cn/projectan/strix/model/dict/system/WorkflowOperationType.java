@@ -3,12 +3,14 @@ package cn.projectan.strix.model.dict.system;
 import cn.projectan.strix.model.annotation.Dict;
 import cn.projectan.strix.model.annotation.DictData;
 import cn.projectan.strix.model.dict.base.BaseDict;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 /**
  * @author ProjectAn
  * @since 2024-10-09 11:22:42
  */
 @Dict(key = "WorkflowOperationType", value = "工作流-操作-类型")
+@Schema(description = "工作流-操作-类型")
 public class WorkflowOperationType implements BaseDict {
 
     @DictData(label = "发起", sort = 1, style = DictDataStyle.DEFAULT)

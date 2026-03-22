@@ -8,6 +8,9 @@ import cn.projectan.strix.model.annotation.IgnoreEncryption;
 import cn.projectan.strix.model.db.system.SystemUser;
 import cn.projectan.strix.service.system.SystemUserService;
 import cn.projectan.strix.service.system.TokenSessionService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,16 +33,18 @@ import java.io.IOException;
 @RequestMapping("srv/wechat/oa/{configKey}")
 @ConditionalOnProperty(prefix = "strix.debug", name = "wechat-dev-mode", havingValue = "true")
 @RequiredArgsConstructor
+@Tag(name = "服务 - 微信公众号开发调试")
 public class WechatOADevController extends BaseWechatController {
 
     private final SystemUserService systemUserService;
     private final SystemConfigCache systemConfigCache;
     private final TokenSessionService tokenSessionService;
 
+    @Operation(summary = "开发模式模拟授权")
     @Anonymous
     @IgnoreEncryption
     @RequestMapping("giveMeSessionTokenOnDevMode")
-    public void devMode(@PathVariable String configKey, HttpServletResponse response) throws IOException {
+    public void devMode(@Parameter(description = "公众号配置 Key") @PathVariable String configKey, HttpServletResponse response) throws IOException {
         log.warn("通过api获取微信Token (开发模式)...");
 
         String devUserId = "1775599867535130625";

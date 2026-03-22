@@ -1,7 +1,7 @@
 package cn.projectan.strix.model.other.system.workflow;
 
-import cn.projectan.strix.model.dict.system.WorkflowPropsTimeLimitHandler;
-import cn.projectan.strix.model.dict.system.WorkflowPropsTimeLimitUnit;
+import io.swagger.v3.oas.annotations.media.DiscriminatorMapping;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,6 +14,16 @@ import java.util.List;
  * @author ProjectAn
  * @date 2024/3/21 12:25
  */
+@Schema(
+        description = "工作流节点配置（多态基类，根据节点 type 字段区分子类型）",
+        discriminatorProperty = "type",
+        discriminatorMapping = {
+                @DiscriminatorMapping(value = "approval", schema = WorkflowProps.ApprovalWorkflowProps.class),
+                @DiscriminatorMapping(value = "task", schema = WorkflowProps.TaskWorkflowProps.class),
+                @DiscriminatorMapping(value = "cc", schema = WorkflowProps.CcWorkflowProps.class),
+                @DiscriminatorMapping(value = "condition", schema = WorkflowProps.ConditionWorkflowProps.class)
+        }
+)
 public class WorkflowProps {
 
     /**
@@ -43,6 +53,7 @@ public class WorkflowProps {
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
+    @Schema(description = "审批节点配置 (type=approval)")
     public static class ApprovalWorkflowProps extends WorkflowProps {
 
         /**
@@ -66,6 +77,7 @@ public class WorkflowProps {
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
+    @Schema(description = "办理节点配置 (type=task)")
     public static class TaskWorkflowProps extends WorkflowProps {
 
         /**
@@ -85,6 +97,7 @@ public class WorkflowProps {
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
+    @Schema(description = "抄送节点配置 (type=cc)")
     public static class CcWorkflowProps extends WorkflowProps {
 
         /**
@@ -104,6 +117,7 @@ public class WorkflowProps {
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
+    @Schema(description = "条件节点配置 (type=condition)")
     public static class ConditionWorkflowProps extends WorkflowProps {
 
         /**
@@ -128,26 +142,13 @@ public class WorkflowProps {
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
+    @Schema(description = "指派人员配置")
     public static class Assign {
-        /**
-         * 人员类型 <br> <br>
-         * 指定人员: USER <br>
-         * 指定角色: ROLE <br>
-         * 发起人自选: SELECT <br>
-         * 发起人自己: SELF <br>
-         * 系统自动拒绝: AUTO_REJECT <br>
-         */
+        @Schema(description = "人员类型: USER=指定人员, ROLE=指定角色, SELECT=发起人自选, SELF=发起人自己, AUTO_REJECT=系统自动拒绝")
         private String type;
-        /**
-         * 人员/角色 id 列表
-         */
+        @Schema(description = "人员/角色 ID 列表")
         private List<String> id;
-        /**
-         * 审批顺序类型 <br> <br>
-         * 或签 (任意一人同意即可): ANY <br>
-         * 会签 (允许同时审批, 所有人都需要同意): ALL <br>
-         * 会签 (按选择顺序审批, 所有人都需要同意): SEQ <br>
-         */
+        @Schema(description = "审批顺序类型: ANY=或签, ALL=会签(允许同时), SEQ=会签(按顺序)")
         private String mode;
     }
 
@@ -160,26 +161,13 @@ public class WorkflowProps {
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
+    @Schema(description = "条件")
     public static class Condition {
-        /**
-         * 字段
-         */
+        @Schema(description = "字段名")
         private String field;
-        /**
-         * 操作符 <br> <br>
-         * 等于 EQ <br>
-         * 不等于 NEQ <br>
-         * 大于 GT <br>
-         * 大于等于 GTE <br>
-         * 小于 LT <br>
-         * 小于等于 LTE <br>
-         * 包含 IN <br>
-         * 不包含 NIN <br>
-         */
+        @Schema(description = "操作符: EQ=等于, NEQ=不等于, GT=大于, GTE=大于等于, LT=小于, LTE=小于等于, IN=包含, NIN=不包含")
         private String operator;
-        /**
-         * 值
-         */
+        @Schema(description = "比较值")
         private String value;
     }
 
@@ -192,15 +180,11 @@ public class WorkflowProps {
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
+    @Schema(description = "条件组")
     public static class ConditionGroup {
-        /**
-         * 条件之间的关系 <br>
-         * AND 或 OR
-         */
+        @Schema(description = "条件之间的关系: AND 或 OR")
         private String type;
-        /**
-         * 条件组
-         */
+        @Schema(description = "条件列表")
         private List<Condition> conditions;
     }
 
@@ -213,16 +197,11 @@ public class WorkflowProps {
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
+    @Schema(description = "审批驳回后操作")
     public static class Reject {
-        /**
-         * 审批驳回自动操作 <br> <br>
-         * 结束流程：END <br>
-         * 返回指定节点：NODE <br>
-         */
+        @Schema(description = "驳回操作类型: END=结束流程, NODE=返回指定节点")
         private String type;
-        /**
-         * 返回指定节点ID
-         */
+        @Schema(description = "返回指定节点 ID (type=NODE 时必填)")
         private String nodeId;
     }
 
@@ -235,22 +214,13 @@ public class WorkflowProps {
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
+    @Schema(description = "时限配置")
     public static class TimeLimit {
-        /**
-         * 时限值
-         */
+        @Schema(description = "时限值")
         private Long value;
-        /**
-         * 时限单位
-         *
-         * @see WorkflowPropsTimeLimitUnit
-         */
+        @Schema(description = "时限单位: MINUTE=分钟, HOUR=小时, DAY=天")
         private String unit;
-        /**
-         * 超时处理
-         *
-         * @see WorkflowPropsTimeLimitHandler
-         */
+        @Schema(description = "超时处理: NOTIFY=通知提醒, AUTO_PASS=自动通过, AUTO_REJECT=自动拒绝")
         private String handler;
     }
 

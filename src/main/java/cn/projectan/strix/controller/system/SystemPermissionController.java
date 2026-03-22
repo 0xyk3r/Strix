@@ -18,6 +18,9 @@ import cn.projectan.strix.service.system.SystemPermissionService;
 import cn.projectan.strix.util.common.UniqueChecker;
 import cn.projectan.strix.util.common.UpdateBuilder;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -37,6 +40,7 @@ import java.util.List;
 @RestController
 @RequestMapping("system/permission")
 @RequiredArgsConstructor
+@Tag(name = "系统 - 权限管理")
 public class SystemPermissionController extends BaseSystemController {
 
     private final SystemPermissionService systemPermissionService;
@@ -46,6 +50,7 @@ public class SystemPermissionController extends BaseSystemController {
     /**
      * 查询权限列表
      */
+    @Operation(summary = "权限列表")
     @GetMapping("")
     @PreAuthorize("@ss.hasPermission('system:menu')")
     @StrixLog(operationGroup = "系统权限", operationName = "查询权限列表")
@@ -58,10 +63,11 @@ public class SystemPermissionController extends BaseSystemController {
     /**
      * 查询权限信息
      */
+    @Operation(summary = "权限详情")
     @GetMapping("{permissionId}")
     @PreAuthorize("@ss.hasPermission('system:menu')")
     @StrixLog(operationGroup = "系统权限", operationName = "查询权限信息")
-    public RetResult<SystemPermissionResp> getSystemPermission(@PathVariable String permissionId) {
+    public RetResult<SystemPermissionResp> getSystemPermission(@Parameter(description = "权限 ID") @PathVariable String permissionId) {
         SystemPermission systemPermission = systemPermissionService.getById(permissionId);
         Assert.notNull(systemPermission, "系统权限信息不存在");
 
@@ -71,6 +77,7 @@ public class SystemPermissionController extends BaseSystemController {
     /**
      * 新增权限
      */
+    @Operation(summary = "新增权限")
     @PostMapping("update")
     @PreAuthorize("@ss.anyPermission('system:menu:add', 'system:menu:update')")
     @StrixLog(operationGroup = "系统权限", operationName = "新增权限", operationType = SystemLogOperType.ADD)
@@ -94,10 +101,11 @@ public class SystemPermissionController extends BaseSystemController {
     /**
      * 修改权限
      */
+    @Operation(summary = "编辑权限")
     @PostMapping("update/{permissionId}")
     @PreAuthorize("@ss.anyPermission('system:menu:add', 'system:menu:update')")
     @StrixLog(operationGroup = "系统权限", operationName = "修改权限", operationType = SystemLogOperType.UPDATE)
-    public RetResult<Object> update(@PathVariable String permissionId, @RequestBody @Validated(UpdateGroup.class) SystemPermissionUpdateReq req) {
+    public RetResult<Object> update(@Parameter(description = "权限 ID") @PathVariable String permissionId, @RequestBody @Validated(UpdateGroup.class) SystemPermissionUpdateReq req) {
         Assert.notNull(req, "参数错误");
         SystemPermission systemPermission = systemPermissionService.getById(permissionId);
         Assert.notNull(systemPermission, "系统权限信息不存在");
@@ -116,10 +124,11 @@ public class SystemPermissionController extends BaseSystemController {
     /**
      * 删除权限
      */
+    @Operation(summary = "删除权限")
     @PostMapping("remove/{permissionId}")
     @PreAuthorize("@ss.hasPermission('system:menu:remove')")
     @StrixLog(operationGroup = "系统权限", operationName = "删除权限", operationType = SystemLogOperType.DELETE)
-    public RetResult<Object> remove(@PathVariable String permissionId) {
+    public RetResult<Object> remove(@Parameter(description = "权限 ID") @PathVariable String permissionId) {
         systemPermissionService.deleteByIds(List.of(permissionId));
         return RetBuilder.success();
     }
@@ -127,6 +136,7 @@ public class SystemPermissionController extends BaseSystemController {
     /**
      * 权限穿梭框数据
      */
+    @Operation(summary = "获取穿梭框数据")
     @GetMapping("transfer")
     public RetResult<CommonTransferDataResp> getTransferData() {
         List<SystemPermission> systemPermissionList = systemPermissionService.listForTransfer();

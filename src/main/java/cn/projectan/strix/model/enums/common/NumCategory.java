@@ -1,11 +1,14 @@
 package cn.projectan.strix.model.enums.common;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 /**
  * 数字类别枚举
  *
  * @author ProjectAn
  * @since 2024/4/1 17:09
  */
+@Schema(description = "数值分类")
 public enum NumCategory {
     /**
      * 正数

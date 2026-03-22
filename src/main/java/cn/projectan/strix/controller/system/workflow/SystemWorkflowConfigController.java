@@ -23,6 +23,9 @@ import cn.projectan.strix.util.common.UniqueChecker;
 import cn.projectan.strix.util.common.UpdateBuilder;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -42,6 +45,7 @@ import java.util.List;
 @RestController
 @RequestMapping("system/workflow/config")
 @RequiredArgsConstructor
+@Tag(name = "系统 - 工作流配置")
 public class SystemWorkflowConfigController extends BaseSystemController {
 
     private final WorkflowService workflowService;
@@ -52,6 +56,7 @@ public class SystemWorkflowConfigController extends BaseSystemController {
     /**
      * 查询工作流引擎列表
      */
+    @Operation(summary = "工作流配置列表")
     @GetMapping("")
     @PreAuthorize("@ss.hasPermission('system:workflow:config')")
     @StrixLog(operationGroup = "工作流引擎", operationName = "查询工作流引擎列表")
@@ -67,10 +72,11 @@ public class SystemWorkflowConfigController extends BaseSystemController {
     /**
      * 查询工作流引擎信息
      */
+    @Operation(summary = "工作流配置详情")
     @GetMapping("{id}")
     @PreAuthorize("@ss.hasPermission('system:workflow:config')")
     @StrixLog(operationGroup = "工作流引擎", operationName = "查询工作流引擎信息")
-    public RetResult<WorkflowResp> info(@PathVariable String id) {
+    public RetResult<WorkflowResp> info(@Parameter(description = "工作流配置 ID") @PathVariable String id) {
         Workflow workflow = workflowService.getById(id);
         Assert.notNull(workflow, "工作流信息不存在");
 
@@ -80,6 +86,7 @@ public class SystemWorkflowConfigController extends BaseSystemController {
     /**
      * 新增工作流引擎
      */
+    @Operation(summary = "新增工作流配置")
     @PostMapping("update")
     @PreAuthorize("@ss.hasPermission('system:workflow:config:add')")
     @StrixLog(operationGroup = "工作流引擎", operationName = "新增工作流引擎", operationType = SystemLogOperType.ADD)
@@ -97,10 +104,11 @@ public class SystemWorkflowConfigController extends BaseSystemController {
     /**
      * 修改工作流引擎
      */
+    @Operation(summary = "编辑工作流配置")
     @PostMapping("update/{id}")
     @PreAuthorize("@ss.hasPermission('system:workflow:config:update')")
     @StrixLog(operationGroup = "工作流引擎", operationName = "修改工作流引擎", operationType = SystemLogOperType.UPDATE)
-    public RetResult<Object> update(@PathVariable String id, @RequestBody @Validated(UpdateGroup.class) WorkflowUpdateReq req) {
+    public RetResult<Object> update(@Parameter(description = "工作流配置 ID") @PathVariable String id, @RequestBody @Validated(UpdateGroup.class) WorkflowUpdateReq req) {
         Workflow workflow = workflowService.getById(id);
         Assert.notNull(workflow, "原记录不存在");
 
@@ -115,10 +123,11 @@ public class SystemWorkflowConfigController extends BaseSystemController {
     /**
      * 删除工作流引擎
      */
+    @Operation(summary = "删除工作流配置")
     @PostMapping("remove/{id}")
     @PreAuthorize("@ss.hasPermission('system:workflow:config:remove')")
     @StrixLog(operationGroup = "工作流引擎", operationName = "删除工作流引擎", operationType = SystemLogOperType.DELETE)
-    public RetResult<Object> remove(@PathVariable String id) {
+    public RetResult<Object> remove(@Parameter(description = "工作流配置 ID") @PathVariable String id) {
         workflowService.removeById(id);
         // 删除关联的配置信息、实例信息等
         workflowConfigService.deleteByWorkflowId(id);
@@ -131,6 +140,7 @@ public class SystemWorkflowConfigController extends BaseSystemController {
     /**
      * 获取工作流引擎下拉列表
      */
+    @Operation(summary = "获取配置下拉列表")
     @GetMapping("select")
     public RetResult<CommonSelectDataResp> getSmsConfigSelectList() {
         return RetBuilder.success(workflowService.getSelectData());
@@ -139,10 +149,11 @@ public class SystemWorkflowConfigController extends BaseSystemController {
     /**
      * 获取工作流配置
      */
+    @Operation(summary = "获取工作流配置信息")
     @GetMapping("config/{configId}")
     @PreAuthorize("@ss.hasPermission('system:workflow:config')")
     @StrixLog(operationGroup = "工作流引擎", operationName = "获取工作流配置")
-    public RetResult<Object> getConfig(@PathVariable String configId) {
+    public RetResult<Object> getConfig(@Parameter(description = "工作流配置 ID") @PathVariable String configId) {
         WorkflowConfig workflowConfig = workflowConfigService.getById(configId);
         Assert.notNull(workflowConfig, "配置信息不存在");
 
@@ -152,10 +163,11 @@ public class SystemWorkflowConfigController extends BaseSystemController {
     /**
      * 添加工作流配置
      */
+    @Operation(summary = "更新工作流配置")
     @PostMapping("update/{id}/config")
     @PreAuthorize("@ss.hasPermission('system:workflow:config:update')")
     @StrixLog(operationGroup = "工作流引擎", operationName = "添加工作流配置", operationType = SystemLogOperType.ADD)
-    public RetResult<Object> updateConfig(@PathVariable String id, @RequestBody @Validated(UpdateGroup.class) WorkflowConfigUpdateReq req) {
+    public RetResult<Object> updateConfig(@Parameter(description = "工作流配置 ID") @PathVariable String id, @RequestBody @Validated(UpdateGroup.class) WorkflowConfigUpdateReq req) {
         workflowService.saveConfig(id, req.getContent());
         workflowConfigCache.refresh();
 

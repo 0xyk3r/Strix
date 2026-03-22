@@ -1,6 +1,7 @@
 package cn.projectan.strix.model.response.common;
 
 import cn.projectan.strix.util.reflect.ReflectUtil;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,11 +15,13 @@ import java.util.List;
  * @author ProjectAn
  * @since 2021/7/19 11:14
  */
+@Schema(description = "下拉选择数据响应")
 @Data
 @Slf4j
 @NoArgsConstructor
 public class CommonSelectDataResp {
 
+    @Schema(description = "下拉选项列表")
     private List<SelectDataItem> options = new ArrayList<>();
 
     public <T> CommonSelectDataResp(List<T> data) {
@@ -51,15 +54,19 @@ public class CommonSelectDataResp {
         }
     }
 
+    @Schema(description = "下拉选择数据项")
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
     public static class SelectDataItem {
 
+        @Schema(description = "选项值")
         private String value;
 
+        @Schema(description = "选项标签")
         private String label;
 
+        @Schema(description = "附加数据")
         private String attach;
 
     }

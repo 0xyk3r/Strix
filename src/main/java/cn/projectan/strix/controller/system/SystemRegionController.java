@@ -21,6 +21,9 @@ import cn.projectan.strix.service.system.SystemManagerService;
 import cn.projectan.strix.service.system.SystemRegionService;
 import cn.projectan.strix.util.common.UniqueChecker;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.ObjectProvider;
@@ -42,6 +45,7 @@ import java.util.List;
 @RestController
 @RequestMapping("system/region")
 @RequiredArgsConstructor
+@Tag(name = "系统 - 地区管理")
 public class SystemRegionController extends BaseSystemController {
 
     private final SystemRegionService systemRegionService;
@@ -52,6 +56,7 @@ public class SystemRegionController extends BaseSystemController {
     /**
      * 获取地区列表
      */
+    @Operation(summary = "地区列表")
     @GetMapping("")
     @PreAuthorize("@ss.hasPermission('system:region')")
     @StrixLog(operationGroup = "系统地区", operationName = "查询地区列表")
@@ -72,10 +77,11 @@ public class SystemRegionController extends BaseSystemController {
     /**
      * 获取地区信息
      */
+    @Operation(summary = "地区详情")
     @GetMapping("{id}")
     @PreAuthorize("@ss.hasPermission('system:region')")
     @StrixLog(operationGroup = "系统地区", operationName = "查询地区信息")
-    public RetResult<SystemRegionResp> getSystemRegion(@PathVariable String id) {
+    public RetResult<SystemRegionResp> getSystemRegion(@Parameter(description = "地区 ID") @PathVariable String id) {
         SystemRegion systemRegion = systemRegionService.getById(id);
         Assert.notNull(systemRegion, "系统地区信息不存在");
         checkLoginManagerRegionPermission(id);
@@ -86,9 +92,10 @@ public class SystemRegionController extends BaseSystemController {
     /**
      * 获取地区子节点
      */
+    @Operation(summary = "获取子级地区")
     @GetMapping("{id}/children")
     @PreAuthorize("@ss.hasPermission('system:region')")
-    public RetResult<SystemRegionChildrenListResp> getSystemRegionChildren(@PathVariable String id) {
+    public RetResult<SystemRegionChildrenListResp> getSystemRegionChildren(@Parameter(description = "父级地区 ID") @PathVariable String id) {
         List<String> loginManagerRegionPermissions = loginManagerRegionPermissions();
 
         SystemRegion systemRegion = systemRegionService.getById(id);
@@ -103,6 +110,7 @@ public class SystemRegionController extends BaseSystemController {
     /**
      * 新增地区
      */
+    @Operation(summary = "新增地区")
     @PostMapping("update")
     @PreAuthorize("@ss.hasPermission('system:region:add')")
     @StrixLog(operationGroup = "系统地区", operationName = "新增地区", operationType = SystemLogOperType.ADD)
@@ -134,10 +142,11 @@ public class SystemRegionController extends BaseSystemController {
     /**
      * 修改地区
      */
+    @Operation(summary = "编辑地区")
     @PostMapping("update/{id}")
     @PreAuthorize("@ss.hasPermission('system:region:update')")
     @StrixLog(operationGroup = "系统地区", operationName = "修改地区", operationType = SystemLogOperType.UPDATE)
-    public RetResult<Object> update(@PathVariable String id, @RequestBody @Validated(UpdateGroup.class) SystemRegionUpdateReq req) {
+    public RetResult<Object> update(@Parameter(description = "地区 ID") @PathVariable String id, @RequestBody @Validated(UpdateGroup.class) SystemRegionUpdateReq req) {
         Assert.notNull(req, "参数错误");
         SystemRegion systemRegion = systemRegionService.getById(id);
         Assert.notNull(systemRegion, "系统地区信息不存在");
@@ -204,10 +213,11 @@ public class SystemRegionController extends BaseSystemController {
     /**
      * 删除地区
      */
+    @Operation(summary = "删除地区")
     @PostMapping("remove/{id}")
     @PreAuthorize("@ss.hasPermission('system:region:remove')")
     @StrixLog(operationGroup = "系统地区", operationName = "删除地区", operationType = SystemLogOperType.DELETE)
-    public RetResult<Object> remove(@PathVariable String id) {
+    public RetResult<Object> remove(@Parameter(description = "地区 ID") @PathVariable String id) {
         checkLoginManagerRegionPermission(id);
 
         SystemRegion systemRegion = systemRegionService.getById(id);
@@ -235,6 +245,7 @@ public class SystemRegionController extends BaseSystemController {
     /**
      * 获取地区级联数据
      */
+    @Operation(summary = "获取级联选择器数据")
     @GetMapping("cascader")
     public RetResult<CommonCascaderDataResp> getCascaderData() {
         List<String> loginManagerRegionPermissions = loginManagerRegionPermissions();
@@ -245,6 +256,7 @@ public class SystemRegionController extends BaseSystemController {
     /**
      * 获取地区树形数据
      */
+    @Operation(summary = "获取树形数据")
     @GetMapping("tree")
     public RetResult<CommonTreeDataResp> getTreeData() {
         List<String> loginManagerRegionPermissions = loginManagerRegionPermissions();

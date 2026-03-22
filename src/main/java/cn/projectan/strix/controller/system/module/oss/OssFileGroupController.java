@@ -19,6 +19,9 @@ import cn.projectan.strix.util.common.UniqueChecker;
 import cn.projectan.strix.util.common.UpdateBuilder;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -38,6 +41,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("system/oss/fileGroup")
 @ConditionalOnBean(StrixOssStore.class)
 @RequiredArgsConstructor
+@Tag(name = "系统模块 - 文件分组管理")
 public class OssFileGroupController extends BaseSystemController {
 
     private final OssFileGroupService ossFileGroupService;
@@ -48,6 +52,7 @@ public class OssFileGroupController extends BaseSystemController {
     @GetMapping("")
     @PreAuthorize("@ss.hasPermission('system:module:oss:filegroup')")
     @StrixLog(operationGroup = "系统存储分组", operationName = "查询存储分组列表")
+    @Operation(summary = "文件分组列表")
     public RetResult<OssFileGroupListResp> getOssFileGroupList(OssFileGroupListReq req) {
         Page<OssFileGroup> page = ossFileGroupService.listPage(req);
 
@@ -60,7 +65,8 @@ public class OssFileGroupController extends BaseSystemController {
     @GetMapping("{id}")
     @PreAuthorize("@ss.hasPermission('system:module:oss:filegroup')")
     @StrixLog(operationGroup = "系统存储分组", operationName = "查询存储分组信息")
-    public RetResult<OssFileGroupResp> getOssFileGroupInfo(@PathVariable String id) {
+    @Operation(summary = "文件分组详情")
+    public RetResult<OssFileGroupResp> getOssFileGroupInfo(@Parameter(description = "文件分组 ID") @PathVariable String id) {
         OssFileGroup ossFileGroup = ossFileGroupService.getById(id);
         Assert.notNull(ossFileGroup, "记录不存在");
 
@@ -86,6 +92,7 @@ public class OssFileGroupController extends BaseSystemController {
     @PostMapping("update")
     @PreAuthorize("@ss.hasPermission('system:module:oss:filegroup:add')")
     @StrixLog(operationGroup = "系统存储分组", operationName = "新增存储分组", operationType = SystemLogOperType.ADD)
+    @Operation(summary = "新增文件分组")
     public RetResult<Object> update(@RequestBody @Validated(InsertGroup.class) OssFileGroupUpdateReq req) {
         OssFileGroup ossFileGroup = new OssFileGroup(
                 req.getKey(),
@@ -113,7 +120,8 @@ public class OssFileGroupController extends BaseSystemController {
     @PostMapping("update/{id}")
     @PreAuthorize("@ss.hasPermission('system:module:oss:filegroup:update')")
     @StrixLog(operationGroup = "系统存储分组", operationName = "修改存储分组", operationType = SystemLogOperType.UPDATE)
-    public RetResult<Object> update(@PathVariable String id, @RequestBody @Validated(UpdateGroup.class) OssFileGroupUpdateReq req) {
+    @Operation(summary = "编辑文件分组")
+    public RetResult<Object> update(@Parameter(description = "文件分组 ID") @PathVariable String id, @RequestBody @Validated(UpdateGroup.class) OssFileGroupUpdateReq req) {
         OssFileGroup ossFileGroup = ossFileGroupService.getById(id);
         Assert.notNull(ossFileGroup, "原记录不存在");
 
@@ -130,7 +138,8 @@ public class OssFileGroupController extends BaseSystemController {
     @PostMapping("remove/{id}")
     @PreAuthorize("@ss.hasPermission('system:module:oss:filegroup:remove')")
     @StrixLog(operationGroup = "系统存储分组", operationName = "删除存储分组", operationType = SystemLogOperType.DELETE)
-    public RetResult<Object> remove(@PathVariable String id) {
+    @Operation(summary = "删除文件分组")
+    public RetResult<Object> remove(@Parameter(description = "文件分组 ID") @PathVariable String id) {
         ossFileGroupService.removeById(id);
         return RetBuilder.success();
     }
@@ -139,7 +148,8 @@ public class OssFileGroupController extends BaseSystemController {
      * 获取存储分组下拉列表
      */
     @GetMapping(value = {"select", "select/{configKey}"})
-    public RetResult<CommonSelectDataResp> getOssFileGroupSelectList(@PathVariable(required = false) String configKey) {
+    @Operation(summary = "获取文件分组下拉列表")
+    public RetResult<CommonSelectDataResp> getOssFileGroupSelectList(@Parameter(description = "OSS 配置 Key (可选)") @PathVariable(required = false) String configKey) {
         return RetBuilder.success(ossFileGroupService.getSelectData(configKey));
     }
 

@@ -16,6 +16,9 @@ import cn.projectan.strix.service.system.OauthConfigService;
 import cn.projectan.strix.service.system.OauthUserService;
 import cn.projectan.strix.service.system.SystemUserService;
 import cn.projectan.strix.service.system.TokenSessionService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
@@ -32,6 +35,7 @@ import java.time.LocalDateTime;
 @RestController
 @RequestMapping("srv/wechat/mp/{configKey}")
 @RequiredArgsConstructor
+@Tag(name = "服务 - 微信小程序")
 public class WechatMPController extends BaseWechatController {
 
     private final SystemUserService systemUserService;
@@ -40,17 +44,19 @@ public class WechatMPController extends BaseWechatController {
     private final SystemConfigCache systemConfigCache;
     private final TokenSessionService tokenSessionService;
 
+    @Operation(summary = "小程序测试接口")
     @GetMapping("test")
-    public RetResult<Void> test(@PathVariable String configKey) {
+    public RetResult<Void> test(@Parameter(description = "小程序配置 Key") @PathVariable String configKey) {
         log.info("test{}", configKey);
         log.info("test user: {}", getLoginSystemUserId());
 
         return RetBuilder.success();
     }
 
+    @Operation(summary = "小程序登录授权")
     @Anonymous
     @PostMapping("auth")
-    public RetResult<SystemUserLoginResp> auth(@PathVariable String configKey, @Validated @RequestBody WechatMPAuthReq req) {
+    public RetResult<SystemUserLoginResp> auth(@Parameter(description = "小程序配置 Key") @PathVariable String configKey, @Validated @RequestBody WechatMPAuthReq req) {
         WechatMPOAuthClient instance = (WechatMPOAuthClient) oauthConfigService.getInstance(configKey, OAuthPlatform.WECHAT_MP);
         BaseOAuthUserInfo userInfo = instance.auth(req.getCode());
         Assert.notNull(userInfo, "获取用户信息失败");

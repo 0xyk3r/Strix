@@ -3,12 +3,14 @@ package cn.projectan.strix.model.dict.system;
 import cn.projectan.strix.model.annotation.Dict;
 import cn.projectan.strix.model.annotation.DictData;
 import cn.projectan.strix.model.dict.base.BaseDict;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 /**
  * @author ProjectAn
  * @since 2023/6/9 17:12
  */
 @Dict(key = "DictDataStyle", value = "系统字典-数据-样式")
+@Schema(description = "系统字典-数据-样式")
 public class DictDataStyle implements BaseDict {
 
     @DictData(label = "默认", sort = 1, style = DictDataStyle.DEFAULT)

@@ -5,6 +5,7 @@ import cn.projectan.strix.core.validation.group.InsertGroup;
 import cn.projectan.strix.core.validation.group.UpdateGroup;
 import cn.projectan.strix.model.annotation.UpdateField;
 import cn.projectan.strix.model.dict.system.SystemRoleRegionPermissionType;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -14,12 +15,14 @@ import lombok.Data;
  * @author ProjectAn
  * @since 2021/7/1 17:14
  */
+@Schema(description = "角色更新请求")
 @Data
 public class SystemRoleUpdateReq {
 
     /**
      * 角色名称
      */
+    @Schema(description = "角色名称")
     @NotEmpty(groups = {InsertGroup.class, UpdateGroup.class}, message = "角色名称不可为空")
     @Size(groups = {InsertGroup.class, UpdateGroup.class}, min = 2, max = 16, message = "角色名称长度不符合要求")
     @UpdateField
@@ -30,6 +33,7 @@ public class SystemRoleUpdateReq {
      *
      * @see SystemRoleRegionPermissionType
      */
+    @Schema(description = "地区权限类型")
     @NotNull(groups = {InsertGroup.class, UpdateGroup.class}, message = "地区权限类型不可为空")
     @ConstantDictValue(groups = {InsertGroup.class, UpdateGroup.class}, dict = SystemRoleRegionPermissionType.class, message = "地区权限类型不合法")
     @UpdateField

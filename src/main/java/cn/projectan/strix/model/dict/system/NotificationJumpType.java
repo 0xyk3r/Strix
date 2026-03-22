@@ -3,6 +3,7 @@ package cn.projectan.strix.model.dict.system;
 import cn.projectan.strix.model.annotation.Dict;
 import cn.projectan.strix.model.annotation.DictData;
 import cn.projectan.strix.model.dict.base.BaseDict;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 /**
  * 通知跳转类型
@@ -11,6 +12,7 @@ import cn.projectan.strix.model.dict.base.BaseDict;
  * @since 2026/1/13 16:30
  */
 @Dict(key = "NotificationJumpType", value = "通知-跳转类型")
+@Schema(description = "通知-跳转类型")
 public class NotificationJumpType implements BaseDict {
 
     @DictData(label = "页面跳转", sort = 1, style = DictDataStyle.INFO)

@@ -3,12 +3,14 @@ package cn.projectan.strix.model.dict.system;
 import cn.projectan.strix.model.annotation.Dict;
 import cn.projectan.strix.model.annotation.DictData;
 import cn.projectan.strix.model.dict.base.BaseDict;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 /**
  * @author ProjectAn
  * @since 2023/5/20 18:46
  */
 @Dict(key = "SmsTemplateType", value = "短信服务-短信模板-类型")
+@Schema(description = "短信服务-短信模板-类型")
 public class SmsTemplateType implements BaseDict {
 
     @DictData(label = "验证码", sort = 1, style = DictDataStyle.SUCCESS)

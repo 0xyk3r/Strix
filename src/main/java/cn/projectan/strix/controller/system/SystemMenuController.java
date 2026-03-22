@@ -21,6 +21,9 @@ import cn.projectan.strix.service.system.SystemPermissionService;
 import cn.projectan.strix.util.common.UniqueChecker;
 import cn.projectan.strix.util.common.UpdateBuilder;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -43,6 +46,7 @@ import java.util.Set;
 @RestController
 @RequestMapping("system/menu")
 @RequiredArgsConstructor
+@Tag(name = "系统 - 菜单管理")
 public class SystemMenuController extends BaseSystemController {
 
     private final SystemMenuService systemMenuService;
@@ -53,6 +57,7 @@ public class SystemMenuController extends BaseSystemController {
     /**
      * 查询菜单列表
      */
+    @Operation(summary = "菜单列表")
     @GetMapping("")
     @PreAuthorize("@ss.hasPermission('system:menu')")
     @StrixLog(operationGroup = "系统菜单", operationName = "查询菜单列表")
@@ -66,10 +71,11 @@ public class SystemMenuController extends BaseSystemController {
     /**
      * 查询菜单信息
      */
+    @Operation(summary = "菜单详情")
     @GetMapping("{menuId}")
     @PreAuthorize("@ss.hasPermission('system:menu')")
     @StrixLog(operationGroup = "系统菜单", operationName = "查询菜单信息")
-    public RetResult<SystemMenuResp> getSystemMenu(@PathVariable String menuId) {
+    public RetResult<SystemMenuResp> getSystemMenu(@Parameter(description = "菜单 ID") @PathVariable String menuId) {
         SystemMenu sm = systemMenuService.getById(menuId);
         Assert.notNull(sm, "系统菜单信息不存在");
 
@@ -79,10 +85,11 @@ public class SystemMenuController extends BaseSystemController {
     /**
      * 更改菜单信息
      */
+    @Operation(summary = "修改菜单字段")
     @PostMapping("modify/{menuId}")
     @PreAuthorize("@ss.hasPermission('system:menu:update')")
     @StrixLog(operationGroup = "系统菜单", operationName = "更改菜单信息", operationType = SystemLogOperType.UPDATE)
-    public RetResult<Object> modifyField(@PathVariable String menuId, @RequestBody SingleFieldModifyReq req) {
+    public RetResult<Object> modifyField(@Parameter(description = "菜单 ID") @PathVariable String menuId, @RequestBody SingleFieldModifyReq req) {
         Assert.hasText(req.getField(), "参数错误");
         Assert.isTrue("icon".equals(req.getField()), "参数错误");
 
@@ -99,6 +106,7 @@ public class SystemMenuController extends BaseSystemController {
     /**
      * 新增菜单
      */
+    @Operation(summary = "新增菜单")
     @PostMapping("update")
     @PreAuthorize("@ss.hasPermission('system:menu:add')")
     @StrixLog(operationGroup = "系统菜单", operationName = "新增菜单", operationType = SystemLogOperType.ADD)
@@ -126,10 +134,11 @@ public class SystemMenuController extends BaseSystemController {
     /**
      * 修改菜单
      */
+    @Operation(summary = "编辑菜单")
     @PostMapping("update/{menuId}")
     @PreAuthorize("@ss.hasPermission('system:menu:update')")
     @StrixLog(operationGroup = "系统菜单", operationName = "修改菜单", operationType = SystemLogOperType.UPDATE)
-    public RetResult<Object> update(@PathVariable String menuId, @RequestBody @Validated(UpdateGroup.class) SystemMenuUpdateReq req) {
+    public RetResult<Object> update(@Parameter(description = "菜单 ID") @PathVariable String menuId, @RequestBody @Validated(UpdateGroup.class) SystemMenuUpdateReq req) {
         Assert.notNull(req, "参数错误");
         SystemMenu systemMenu = systemMenuService.getById(menuId);
         Assert.notNull(systemMenu, "系统菜单信息不存在");
@@ -148,10 +157,11 @@ public class SystemMenuController extends BaseSystemController {
     /**
      * 删除菜单
      */
+    @Operation(summary = "删除菜单")
     @PostMapping("remove/{menuId}")
     @PreAuthorize("@ss.hasPermission('system:menu:remove')")
     @StrixLog(operationGroup = "系统菜单", operationName = "删除菜单", operationType = SystemLogOperType.DELETE)
-    public RetResult<Object> remove(@PathVariable String menuId) {
+    public RetResult<Object> remove(@Parameter(description = "菜单 ID") @PathVariable String menuId) {
         systemMenuService.deleteByIds(List.of(menuId));
         return RetBuilder.success();
     }
@@ -159,6 +169,7 @@ public class SystemMenuController extends BaseSystemController {
     /**
      * 获取菜单树
      */
+    @Operation(summary = "获取菜单树")
     @GetMapping("tree")
     public RetResult<CommonTreeDataResp> getSystemMenuTree() {
         return RetBuilder.success(systemMenuService.getTreeData());

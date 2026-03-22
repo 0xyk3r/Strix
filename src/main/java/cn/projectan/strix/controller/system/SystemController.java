@@ -14,6 +14,8 @@ import cn.projectan.strix.model.response.system.login.SystemManagerLoginResp;
 import cn.projectan.strix.service.system.SystemLoginService;
 import cn.projectan.strix.service.system.SystemMenuService;
 import cn.projectan.strix.util.system.SecurityUtil;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
@@ -33,6 +35,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("system")
 @RequiredArgsConstructor
+@Tag(name = "系统 - 认证")
 public class SystemController extends BaseSystemController {
 
     private final SystemMenuService systemMenusService;
@@ -41,6 +44,7 @@ public class SystemController extends BaseSystemController {
     /**
      * 系统登录
      */
+    @Operation(summary = "管理员登录")
     @Anonymous
     @PostMapping("login")
     @StrixLog(operationGroup = "系统登录", operationName = "系统登录", operationType = SystemLogOperType.LOGIN)
@@ -51,6 +55,7 @@ public class SystemController extends BaseSystemController {
     /**
      * 重新获取Token
      */
+    @Operation(summary = "续期 Token")
     @PostMapping("renewToken")
     public RetResult<SystemManagerLoginResp> renewToken() {
         return systemLoginService.renewToken(loginManagerId());
@@ -59,6 +64,7 @@ public class SystemController extends BaseSystemController {
     /**
      * 获取系统菜单
      */
+    @Operation(summary = "获取菜单列表")
     @GetMapping("menus")
     public RetResult<SystemMenuResp> getMenuList() {
         List<String> systemMenuKeys = Optional.ofNullable(SecurityUtil.getSystemManagerLoginInfo()).map(LoginSystemManager::getMenusKeys).orElse(null);

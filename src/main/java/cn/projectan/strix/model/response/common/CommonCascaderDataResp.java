@@ -1,6 +1,7 @@
 package cn.projectan.strix.model.response.common;
 
 import cn.projectan.strix.util.reflect.ReflectUtil;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,11 +14,13 @@ import java.util.List;
  * @author ProjectAn
  * @since 2021/7/19 11:14
  */
+@Schema(description = "级联选择器数据响应")
 @Data
 @Slf4j
 @NoArgsConstructor
 public class CommonCascaderDataResp {
 
+    @Schema(description = "级联选项列表")
     private List<CascaderDataItem> options = new ArrayList<>();
 
     public <T> CommonCascaderDataResp(List<T> data) {
@@ -68,15 +71,19 @@ public class CommonCascaderDataResp {
         return !result.isEmpty() ? result : null;
     }
 
+    @Schema(description = "级联选择器数据项")
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
     public static class CascaderDataItem {
 
+        @Schema(description = "选项值")
         private String value;
 
+        @Schema(description = "选项标签")
         private String label;
 
+        @Schema(description = "子级选项列表")
         private List<CascaderDataItem> children;
 
     }

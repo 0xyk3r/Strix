@@ -3,6 +3,7 @@ package cn.projectan.strix.model.dict.system;
 import cn.projectan.strix.model.annotation.Dict;
 import cn.projectan.strix.model.annotation.DictData;
 import cn.projectan.strix.model.dict.base.BaseDict;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 /**
  * 系统管理用户 类型
@@ -11,6 +12,7 @@ import cn.projectan.strix.model.dict.base.BaseDict;
  * @since 2021/6/16 15:32
  */
 @Dict(key = "SystemRoleRegionPermissionType", value = "系统角色-地区权限类型")
+@Schema(description = "系统角色-地区权限类型")
 public class SystemRoleRegionPermissionType implements BaseDict {
 
     @DictData(label = "全部数据权限", sort = 1, style = DictDataStyle.SUCCESS)

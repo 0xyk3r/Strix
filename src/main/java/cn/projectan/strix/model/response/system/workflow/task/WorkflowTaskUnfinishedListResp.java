@@ -4,6 +4,7 @@ import cn.projectan.strix.model.db.system.WorkflowInstance;
 import cn.projectan.strix.model.db.system.WorkflowTask;
 import cn.projectan.strix.model.db.system.WorkflowTaskAssign;
 import cn.projectan.strix.model.response.base.BasePageResp;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
@@ -19,13 +20,15 @@ import java.util.stream.Collectors;
  * @since 2024-11-13 06:25:07
  */
 @Getter
+@Schema(description = "工作流待办任务列表响应")
 public class WorkflowTaskUnfinishedListResp extends BasePageResp {
 
-    private final List<Item> items;
+    @Schema(description = "待办任务列表项")
+    private final List<UnfinishedTaskItem> items;
 
     public WorkflowTaskUnfinishedListResp(Collection<WorkflowTaskAssign> data, Long total, Collection<WorkflowTask> taskData, Collection<WorkflowInstance> instanceData) {
         items = taskData.stream()
-                .map(d -> new Item(
+                .map(d -> new UnfinishedTaskItem(
                         d.getId(),
                         d.getWorkflowId(),
                         d.getWorkflowInstanceId(),
@@ -64,32 +67,46 @@ public class WorkflowTaskUnfinishedListResp extends BasePageResp {
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class Item {
+    @Schema(description = "待办任务项")
+    public static class UnfinishedTaskItem {
 
+        @Schema(description = "任务ID")
         private String id;
 
+        @Schema(description = "工作流ID")
         private String workflowId;
 
+        @Schema(description = "工作流实例ID")
         private String instanceId;
 
+        @Schema(description = "工作流配置ID")
         private String workflowConfigId;
 
+        @Schema(description = "节点ID")
         private String nodeId;
 
+        @Schema(description = "节点类型")
         private String nodeType;
 
+        @Schema(description = "操作人ID")
         private String operatorId;
 
+        @Schema(description = "操作类型")
         private Short operationType;
 
+        @Schema(description = "实例名称")
         private String instanceName;
 
+        @Schema(description = "实例创建人类型")
         private Short instanceCreatedByType;
 
+        @Schema(description = "实例创建人")
         private String instanceCreatedBy;
 
+        @Schema(description = "实例创建时间")
         private LocalDateTime instanceCreatedTime;
 
+        @Schema(description = "任务分配开始时间")
         private LocalDateTime taskAssignStartTime;
 
     }

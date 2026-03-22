@@ -24,6 +24,9 @@ import cn.projectan.strix.util.algo.KeyDiffUtil;
 import cn.projectan.strix.util.common.UniqueChecker;
 import cn.projectan.strix.util.common.UpdateBuilder;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -45,6 +48,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("system/role")
 @RequiredArgsConstructor
+@Tag(name = "系统 - 角色管理")
 public class SystemRoleController extends BaseSystemController {
 
     private final SystemRoleService systemRoleService;
@@ -58,6 +62,7 @@ public class SystemRoleController extends BaseSystemController {
     /**
      * 查询角色列表
      */
+    @Operation(summary = "角色列表")
     @GetMapping("")
     @PreAuthorize("@ss.hasPermission('system:role')")
     @StrixLog(operationGroup = "系统角色", operationName = "查询角色列表")
@@ -70,16 +75,17 @@ public class SystemRoleController extends BaseSystemController {
     /**
      * 查询角色信息
      */
+    @Operation(summary = "角色详情")
     @GetMapping("{roleId}")
     @PreAuthorize("@ss.hasPermission('system:role')")
     @StrixLog(operationGroup = "系统角色", operationName = "查询角色信息")
-    public RetResult<SystemRoleResp> getSystemRole(@PathVariable String roleId) {
+    public RetResult<SystemRoleResp> getSystemRole(@Parameter(description = "角色 ID") @PathVariable String roleId) {
         SystemRole systemRole = systemRoleService.getById(roleId);
         Assert.notNull(systemRole, "系统角色信息不存在");
 
         List<SystemMenu> menusByRoleId = systemRoleService.getMenusByRoleId(systemRole.getId());
         List<SystemPermission> systemPermissionByRoleId = systemRoleService.getSystemPermissionByRoleId(roleId);
-        List<SystemMenuListResp.SystemMenuItem> menuItems = new SystemMenuListResp(menusByRoleId, systemPermissionByRoleId).getSystemMenuList();
+        List<SystemMenuListResp.SystemMenuManageItem> menuItems = new SystemMenuListResp(menusByRoleId, systemPermissionByRoleId).getSystemMenuList();
         List<SystemPermissionListResp.SystemPermissionItem> permissionList = new SystemPermissionListResp(systemPermissionByRoleId).getSystemPermissionList();
         return RetBuilder.success(new SystemRoleResp(systemRole.getId(), systemRole.getName(), systemRole.getRegionPermissionType(), menuItems, permissionList));
     }
@@ -87,6 +93,7 @@ public class SystemRoleController extends BaseSystemController {
     /**
      * 新增角色
      */
+    @Operation(summary = "新增角色")
     @PostMapping("update")
     @PreAuthorize("@ss.hasPermission('system:role:add')")
     @StrixLog(operationGroup = "系统角色", operationName = "新增角色", operationType = SystemLogOperType.ADD)
@@ -109,10 +116,11 @@ public class SystemRoleController extends BaseSystemController {
     /**
      * 修改角色
      */
+    @Operation(summary = "编辑角色")
     @PostMapping("update/{roleId}")
     @PreAuthorize("@ss.hasPermission('system:role:update')")
     @StrixLog(operationGroup = "系统角色", operationName = "修改角色", operationType = SystemLogOperType.UPDATE)
-    public RetResult<Object> update(@PathVariable String roleId, @RequestBody @Validated(UpdateGroup.class) SystemRoleUpdateReq req) {
+    public RetResult<Object> update(@Parameter(description = "角色 ID") @PathVariable String roleId, @RequestBody @Validated(UpdateGroup.class) SystemRoleUpdateReq req) {
         Assert.notNull(req, "参数错误");
         SystemRole systemRole = systemRoleService.getById(roleId);
         Assert.notNull(systemRole, "系统角色信息不存在");
@@ -131,10 +139,11 @@ public class SystemRoleController extends BaseSystemController {
     /**
      * 修改角色的菜单权限
      */
+    @Operation(summary = "更新角色菜单")
     @PostMapping("update/{roleId}/menu")
     @PreAuthorize("@ss.hasPermission('system:role:update')")
     @StrixLog(operationGroup = "系统角色", operationName = "修改角色菜单权限", operationType = SystemLogOperType.UPDATE)
-    public RetResult<Object> updateMenu(@PathVariable String roleId, @RequestBody @Validated(UpdateGroup.class) SystemRoleUpdateMenuReq req) {
+    public RetResult<Object> updateMenu(@Parameter(description = "角色 ID") @PathVariable String roleId, @RequestBody @Validated(UpdateGroup.class) SystemRoleUpdateMenuReq req) {
         SystemRole systemRole = systemRoleService.getById(roleId);
         Assert.notNull(systemRole, "系统角色信息不存在");
         Assert.isTrue(systemRole.getBuiltin() == CommonFlag.NO, "系统内置角色不支持修改");
@@ -184,7 +193,7 @@ public class SystemRoleController extends BaseSystemController {
         // 获取最新的权限信息
         List<SystemMenu> menusByRoleId = systemRoleService.getMenusByRoleId(systemRole.getId());
         List<SystemPermission> systemPermissionByRoleId = systemRoleService.getSystemPermissionByRoleId(roleId);
-        List<SystemMenuListResp.SystemMenuItem> menuItems = new SystemMenuListResp(menusByRoleId, systemPermissionByRoleId).getSystemMenuList();
+        List<SystemMenuListResp.SystemMenuManageItem> menuItems = new SystemMenuListResp(menusByRoleId, systemPermissionByRoleId).getSystemMenuList();
         List<SystemPermissionListResp.SystemPermissionItem> permissionList = new SystemPermissionListResp(systemPermissionByRoleId).getSystemPermissionList();
         return RetBuilder.success(new SystemRoleResp(systemRole.getId(), systemRole.getName(), systemRole.getRegionPermissionType(), menuItems, permissionList));
     }
@@ -192,10 +201,11 @@ public class SystemRoleController extends BaseSystemController {
     /**
      * 删除角色
      */
+    @Operation(summary = "删除角色")
     @PostMapping("remove/{roleId}")
     @PreAuthorize("@ss.hasPermission('system:role:remove')")
     @StrixLog(operationGroup = "系统角色", operationName = "删除角色", operationType = SystemLogOperType.DELETE)
-    public RetResult<Object> remove(@PathVariable String roleId) {
+    public RetResult<Object> remove(@Parameter(description = "角色 ID") @PathVariable String roleId) {
         SystemRole systemRole = systemRoleService.getById(roleId);
         Assert.notNull(systemRole, "系统角色信息不存在");
         Assert.isTrue(systemRole.getBuiltin() == CommonFlag.NO, "系统内置角色不支持删除");
@@ -211,10 +221,11 @@ public class SystemRoleController extends BaseSystemController {
      * @param roleId 角色ID
      * @param menuId 菜单ID
      */
+    @Operation(summary = "移除角色菜单关联")
     @PostMapping("remove/{roleId}/menu/{menuId}")
     @PreAuthorize("@ss.hasPermission('system:role:modifyPermission')")
     @StrixLog(operationGroup = "系统角色", operationName = "移除角色的菜单权限", operationType = SystemLogOperType.UPDATE)
-    public RetResult<SystemRoleResp> removeRoleMenu(@PathVariable String roleId, @PathVariable String menuId) {
+    public RetResult<SystemRoleResp> removeRoleMenu(@Parameter(description = "角色 ID") @PathVariable String roleId, @Parameter(description = "菜单 ID") @PathVariable String menuId) {
         SystemRole systemRole = systemRoleService.getById(roleId);
         Assert.notNull(systemRole, "系统角色信息不存在");
         Assert.isTrue(systemRole.getBuiltin() == CommonFlag.NO, "系统内置角色不支持修改");
@@ -232,7 +243,7 @@ public class SystemRoleController extends BaseSystemController {
         // 返回移除后的最新关系信息
         List<SystemMenu> menusByRoleId = systemRoleService.getMenusByRoleId(systemRole.getId());
         List<SystemPermission> systemPermissionByRoleId = systemRoleService.getSystemPermissionByRoleId(roleId);
-        List<SystemMenuListResp.SystemMenuItem> menuItems = new SystemMenuListResp(menusByRoleId, systemPermissionByRoleId).getSystemMenuList();
+        List<SystemMenuListResp.SystemMenuManageItem> menuItems = new SystemMenuListResp(menusByRoleId, systemPermissionByRoleId).getSystemMenuList();
         // 需要删除
         List<SystemPermissionListResp.SystemPermissionItem> permissionList = new SystemPermissionListResp(systemPermissionByRoleId).getSystemPermissionList();
         return RetBuilder.success(new SystemRoleResp(systemRole.getId(), systemRole.getName(), systemRole.getRegionPermissionType(), menuItems, permissionList));
@@ -244,10 +255,11 @@ public class SystemRoleController extends BaseSystemController {
      * @param roleId       角色id
      * @param permissionId 系统权限id
      */
+    @Operation(summary = "移除角色权限关联")
     @PostMapping("remove/{roleId}/permission/{permissionId}")
     @PreAuthorize("@ss.hasPermission('system:role:modifyPermission')")
     @StrixLog(operationGroup = "系统角色", operationName = "移除角色的系统权限", operationType = SystemLogOperType.UPDATE)
-    public RetResult<SystemRoleResp> removeRolePermission(@PathVariable String roleId, @PathVariable String permissionId) {
+    public RetResult<SystemRoleResp> removeRolePermission(@Parameter(description = "角色 ID") @PathVariable String roleId, @Parameter(description = "权限 ID") @PathVariable String permissionId) {
         SystemRole systemRole = systemRoleService.getById(roleId);
         Assert.notNull(systemRole, "系统角色信息不存在");
         Assert.isTrue(systemRole.getBuiltin() == CommonFlag.NO, "系统内置角色不支持修改");
@@ -262,7 +274,7 @@ public class SystemRoleController extends BaseSystemController {
         // 返回移除后的最新关系信息
         List<SystemMenu> menusByRoleId = systemRoleService.getMenusByRoleId(systemRole.getId());
         List<SystemPermission> systemPermissionByRoleId = systemRoleService.getSystemPermissionByRoleId(roleId);
-        List<SystemMenuListResp.SystemMenuItem> menuItems = new SystemMenuListResp(menusByRoleId, systemPermissionByRoleId).getSystemMenuList();
+        List<SystemMenuListResp.SystemMenuManageItem> menuItems = new SystemMenuListResp(menusByRoleId, systemPermissionByRoleId).getSystemMenuList();
         List<SystemPermissionListResp.SystemPermissionItem> permissionList = new SystemPermissionListResp(systemPermissionByRoleId).getSystemPermissionList();
         return RetBuilder.success(new SystemRoleResp(systemRole.getId(), systemRole.getName(), systemRole.getRegionPermissionType(), menuItems, permissionList));
     }
@@ -270,6 +282,7 @@ public class SystemRoleController extends BaseSystemController {
     /**
      * 获取系统角色下拉列表
      */
+    @Operation(summary = "获取角色下拉列表")
     @GetMapping("select")
     public RetResult<CommonSelectDataResp> getSystemRoleSelectList() {
         return RetBuilder.success(systemRoleService.getSelectData());
@@ -278,6 +291,7 @@ public class SystemRoleController extends BaseSystemController {
     /**
      * 获取系统角色穿梭框数据
      */
+    @Operation(summary = "获取穿梭框数据")
     @GetMapping("transfer")
     public RetResult<CommonTransferDataResp> getTransferData() {
         List<SystemRole> systemRoleList = systemRoleService.listForTransfer();

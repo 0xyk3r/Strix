@@ -19,6 +19,9 @@ import cn.projectan.strix.service.system.OauthUserService;
 import cn.projectan.strix.service.system.SystemUserService;
 import cn.projectan.strix.service.system.TokenSessionService;
 import cn.projectan.strix.util.module.oauth.WechatOAOAuthUtil;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -46,6 +49,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("srv/wechat/oa/{configKey}")
 @RequiredArgsConstructor
+@Tag(name = "服务 - 微信公众号")
 public class WechatOAController extends BaseWechatController {
 
     private final Environment environment;
@@ -58,10 +62,11 @@ public class WechatOAController extends BaseWechatController {
     /**
      * 统一跳转入口
      */
+    @Operation(summary = "跳转授权页面")
     @Anonymous
     @IgnoreEncryption
     @RequestMapping("jump/{model}")
-    public void jumpToModel(@PathVariable String configKey, @PathVariable String model, @RequestParam(defaultValue = "") String params, HttpServletResponse response) {
+    public void jumpToModel(@Parameter(description = "公众号配置 Key") @PathVariable String configKey, @Parameter(description = "授权模式") @PathVariable String model, @Parameter(description = "回调参数") @RequestParam(defaultValue = "") String params, HttpServletResponse response) {
         WechatOAOAuthClient instance = (WechatOAOAuthClient) oauthConfigService.getInstance(configKey, OAuthPlatform.WECHAT_OA);
         WechatOAOAuthConfig config = (WechatOAOAuthConfig) instance.getConfig();
         String authorizeUrl = instance.getAuthorizeUrl(config.getAuthUrl() + configKey + "/auth?model=" + model + "&params=" + params);
@@ -75,10 +80,11 @@ public class WechatOAController extends BaseWechatController {
     /**
      * 统一授权接口
      */
+    @Operation(summary = "用户授权回调")
     @Anonymous
     @IgnoreEncryption
     @RequestMapping("auth")
-    public void userAuth(@PathVariable String configKey, String model, String params,
+    public void userAuth(@Parameter(description = "公众号配置 Key") @PathVariable String configKey, String model, String params,
                          HttpServletRequest request, HttpServletResponse response) {
         WechatOAOAuthClient instance = (WechatOAOAuthClient) oauthConfigService.getInstance(configKey);
         WechatOAOAuthConfig config = (WechatOAOAuthConfig) instance.getConfig();
@@ -125,10 +131,11 @@ public class WechatOAController extends BaseWechatController {
     /**
      * 初始化H5 js-sdk 使用的api
      */
+    @Operation(summary = "JS-SDK 配置签名")
     @Anonymous
     @IgnoreEncryption
     @RequestMapping("config")
-    public Map<String, String> config(@PathVariable String configKey, String webUrl) {
+    public Map<String, String> config(@Parameter(description = "公众号配置 Key") @PathVariable String configKey, String webUrl) {
         WechatOAOAuthClient instance = (WechatOAOAuthClient) oauthConfigService.getInstance(configKey);
         WechatOAOAuthConfig config = (WechatOAOAuthConfig) instance.getConfig();
         try {
@@ -157,8 +164,9 @@ public class WechatOAController extends BaseWechatController {
     /**
      * 检查Token是否有效
      */
+    @Operation(summary = "公众号 Token 验证")
     @RequestMapping("checkToken")
-    public RetResult<Object> checkToken(@PathVariable String configKey) {
+    public RetResult<Object> checkToken(@Parameter(description = "公众号配置 Key") @PathVariable String configKey) {
         return RetBuilder.success();
     }
 

@@ -1,6 +1,7 @@
 package cn.projectan.strix.model.response.common;
 
 import cn.projectan.strix.util.reflect.ReflectUtil;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,11 +15,13 @@ import java.util.List;
  * @author ProjectAn
  * @since 2021/9/30 13:41
  */
+@Schema(description = "树形数据响应")
 @Data
 @Slf4j
 @NoArgsConstructor
 public class CommonTreeDataResp {
 
+    @Schema(description = "树形数据列表")
     private List<TreeDataItem> tree = new ArrayList<>();
 
     public <T> CommonTreeDataResp(List<T> data) {
@@ -69,17 +72,22 @@ public class CommonTreeDataResp {
         return result;
     }
 
+    @Schema(description = "树形数据项")
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
     public static class TreeDataItem {
 
+        @Schema(description = "节点值")
         private String value;
 
+        @Schema(description = "节点标签")
         private String label;
 
+        @Schema(description = "子节点列表")
         private List<TreeDataItem> children;
 
+        @Schema(description = "是否为叶子节点")
         private Boolean isLeaf;
 
         public Boolean getIsLeaf() {

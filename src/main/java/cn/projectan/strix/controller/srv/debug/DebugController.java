@@ -10,6 +10,7 @@ import cn.projectan.strix.model.response.system.login.SystemUserLoginResp;
 import cn.projectan.strix.service.system.SystemUserService;
 import cn.projectan.strix.service.system.TokenSessionService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,7 +41,7 @@ public class DebugController extends BaseSrvController {
 
     @GetMapping("loginAnyUser/{userId}")
     @Operation(summary = "登录任意用户", description = "调试用，登录任意用户，返回该用户的登录信息和 token")
-    public RetResult<SystemUserLoginResp> loginAnyUser(@PathVariable String userId) {
+    public RetResult<SystemUserLoginResp> loginAnyUser(@Parameter(description = "用户 ID") @PathVariable String userId) {
         SystemUser systemUser = systemUserService.getById(userId);
         Assert.notNull(systemUser, "用户不存在: " + userId);
         LoginSystemUser loginInfo = systemUserService.getLoginInfo(systemUser.getId());

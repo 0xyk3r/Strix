@@ -24,6 +24,9 @@ import cn.projectan.strix.util.common.UniqueChecker;
 import cn.projectan.strix.util.common.UpdateBuilder;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -45,6 +48,7 @@ import java.util.List;
 @RequestMapping("system/sms")
 @ConditionalOnBean(StrixSmsStore.class)
 @RequiredArgsConstructor
+@Tag(name = "系统模块 - 短信管理")
 public class SmsController extends BaseSystemController {
 
     private final SmsConfigService smsConfigService;
@@ -59,6 +63,7 @@ public class SmsController extends BaseSystemController {
     @GetMapping("")
     @PreAuthorize("@ss.hasPermission('system:module:sms:config')")
     @StrixLog(operationGroup = "系统短信", operationName = "查询短信配置列表")
+    @Operation(summary = "短信配置列表")
     public RetResult<SmsConfigListResp> getSmsConfigList(SmsConfigListReq req) {
         Page<SmsConfig> page = smsConfigService.listPage(req);
 
@@ -72,7 +77,8 @@ public class SmsController extends BaseSystemController {
     @GetMapping("{id}")
     @PreAuthorize("@ss.hasPermission('system:module:sms:config')")
     @StrixLog(operationGroup = "系统短信", operationName = "查询短信配置信息")
-    public RetResult<SmsConfigResp> getSmsConfigInfo(@PathVariable String id) {
+    @Operation(summary = "短信配置详情")
+    public RetResult<SmsConfigResp> getSmsConfigInfo(@Parameter(description = "短信配置 ID") @PathVariable String id) {
         SmsConfig smsConfig = smsConfigService.getById(id);
         Assert.notNull(smsConfig, "短信配置不存在");
 
@@ -104,6 +110,7 @@ public class SmsController extends BaseSystemController {
     @PostMapping("update")
     @PreAuthorize("@ss.hasPermission('system:module:sms:config:add')")
     @StrixLog(operationGroup = "系统短信", operationName = "新增短信配置", operationType = SystemLogOperType.ADD)
+    @Operation(summary = "新增短信配置")
     public RetResult<Object> update(@RequestBody @Validated(InsertGroup.class) SmsConfigUpdateReq req) {
         SmsConfig smsConfig = new SmsConfig(
                 req.getKey(),
@@ -131,7 +138,8 @@ public class SmsController extends BaseSystemController {
     @PostMapping("update/{id}")
     @PreAuthorize("@ss.hasPermission('system:module:sms:config:update')")
     @StrixLog(operationGroup = "系统短信", operationName = "修改短信配置", operationType = SystemLogOperType.UPDATE)
-    public RetResult<Object> update(@PathVariable String id, @RequestBody @Validated(UpdateGroup.class) SmsConfigUpdateReq req) {
+    @Operation(summary = "编辑短信配置")
+    public RetResult<Object> update(@Parameter(description = "短信配置 ID") @PathVariable String id, @RequestBody @Validated(UpdateGroup.class) SmsConfigUpdateReq req) {
         SmsConfig smsConfig = smsConfigService.getById(id);
         Assert.notNull(smsConfig, "原记录不存在");
         String originKey = smsConfig.getKey();
@@ -153,7 +161,8 @@ public class SmsController extends BaseSystemController {
     @PostMapping("remove/{id}")
     @PreAuthorize("@ss.hasPermission('system:module:sms:config:remove')")
     @StrixLog(operationGroup = "系统短信", operationName = "删除短信配置", operationType = SystemLogOperType.DELETE)
-    public RetResult<Object> remove(@PathVariable String id) {
+    @Operation(summary = "删除短信配置")
+    public RetResult<Object> remove(@Parameter(description = "短信配置 ID") @PathVariable String id) {
         SmsConfig smsConfig = smsConfigService.getById(id);
         Assert.notNull(smsConfig, "原记录不存在");
 
@@ -168,6 +177,7 @@ public class SmsController extends BaseSystemController {
     @GetMapping("sign")
     @PreAuthorize("@ss.hasPermission('system:module:sms:sign')")
     @StrixLog(operationGroup = "系统短信", operationName = "查询短信签名列表")
+    @Operation(summary = "短信签名列表")
     public RetResult<SmsSignListResp> getSmsSignList(SmsSignListReq req) {
         Page<SmsSign> page = smsSignService.listPage(req);
 
@@ -180,6 +190,7 @@ public class SmsController extends BaseSystemController {
     @GetMapping("template")
     @PreAuthorize("@ss.hasPermission('system:module:sms:template')")
     @StrixLog(operationGroup = "系统短信", operationName = "查询短信模板列表")
+    @Operation(summary = "短信模板列表")
     public RetResult<SmsTemplateListResp> getSmsTemplateList(SmsTemplateListReq req) {
         Page<SmsTemplate> page = smsTemplateService.listPage(req);
 
@@ -192,6 +203,7 @@ public class SmsController extends BaseSystemController {
     @GetMapping("log")
     @PreAuthorize("@ss.hasPermission('system:module:sms:log')")
     @StrixLog(operationGroup = "系统短信", operationName = "查询短信日志列表")
+    @Operation(summary = "短信发送记录列表")
     public RetResult<SmsLogListResp> getSmsLogList(SmsLogListReq req) {
         Page<SmsLog> page = smsLogService.listPage(req);
 
@@ -202,6 +214,7 @@ public class SmsController extends BaseSystemController {
      * 查询短信配置下拉列表
      */
     @GetMapping("config/select")
+    @Operation(summary = "获取短信配置下拉列表")
     public RetResult<CommonSelectDataResp> getSmsConfigSelectList() {
         return RetBuilder.success(smsConfigService.getSelectData());
     }

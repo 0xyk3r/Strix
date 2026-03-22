@@ -8,6 +8,9 @@ import cn.projectan.strix.model.other.system.module.pay.BasePayResult;
 import cn.projectan.strix.service.system.PayConfigService;
 import cn.projectan.strix.service.system.PayOrderService;
 import cn.projectan.strix.util.common.I18nUtil;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("pay/{configId}")
 @ConditionalOnProperty(prefix = "strix.module", name = "pay", havingValue = "true")
 @RequiredArgsConstructor
+@Tag(name = "支付 - 回调通知")
 public class PayNotifyController extends BaseController {
 
     private final PayOrderService payOrderService;
@@ -39,8 +43,9 @@ public class PayNotifyController extends BaseController {
     /**
      * 支付回调
      */
+    @Operation(summary = "支付结果通知回调")
     @RequestMapping("notify")
-    public void payNotify(@PathVariable String configId, HttpServletRequest request, HttpServletResponse response) {
+    public void payNotify(@Parameter(description = "支付配置 ID") @PathVariable String configId, HttpServletRequest request, HttpServletResponse response) {
         StrixPayClient client = payConfigService.getInstance(configId);
 
         boolean verified = client.verifyNotify(request);

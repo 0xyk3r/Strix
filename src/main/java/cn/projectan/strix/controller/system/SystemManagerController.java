@@ -27,6 +27,9 @@ import cn.projectan.strix.util.common.UpdateBuilder;
 import cn.projectan.strix.util.crypto.StrixSM3Util;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -52,6 +55,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("system/manager")
 @RequiredArgsConstructor
+@Tag(name = "系统 - 管理员管理")
 public class SystemManagerController extends BaseSystemController {
 
     private final SystemManagerService systemManagerService;
@@ -61,6 +65,7 @@ public class SystemManagerController extends BaseSystemController {
     /**
      * 查询人员列表
      */
+    @Operation(summary = "管理员列表")
     @GetMapping("")
     @PreAuthorize("@ss.hasPermission('system:manager')")
     @StrixLog(operationGroup = "系统人员", operationName = "查询人员列表")
@@ -88,10 +93,11 @@ public class SystemManagerController extends BaseSystemController {
     /**
      * 查询人员信息
      */
+    @Operation(summary = "管理员详情")
     @GetMapping("{managerId}")
     @PreAuthorize("@ss.hasPermission('system:manager')")
     @StrixLog(operationGroup = "系统人员", operationName = "查询人员信息")
-    public RetResult<SystemManagerResp> getSystemManager(@PathVariable String managerId) {
+    public RetResult<SystemManagerResp> getSystemManager(@Parameter(description = "管理员 ID") @PathVariable String managerId) {
         SystemManager systemManager = systemManagerService.getById(managerId);
         Assert.notNull(systemManager, "系统人员信息不存在");
         checkLoginManagerRegionPermission(systemManager.getRegionId());
@@ -104,10 +110,11 @@ public class SystemManagerController extends BaseSystemController {
     /**
      * 更改人员信息
      */
+    @Operation(summary = "修改管理员字段")
     @PostMapping("modify/{managerId}")
     @PreAuthorize("@ss.hasPermission('system:manager:update')")
     @StrixLog(operationGroup = "系统人员", operationName = "更改人员信息", operationType = SystemLogOperType.UPDATE)
-    public RetResult<Object> modifyField(@PathVariable String managerId, @RequestBody SingleFieldModifyReq req) {
+    public RetResult<Object> modifyField(@Parameter(description = "管理员 ID") @PathVariable String managerId, @RequestBody SingleFieldModifyReq req) {
         Assert.hasText(req.getField(), "参数错误");
         SystemManager systemManager = systemManagerService.getById(managerId);
         Assert.notNull(systemManager, "系统人员信息不存在");
@@ -167,6 +174,7 @@ public class SystemManagerController extends BaseSystemController {
     /**
      * 新增人员
      */
+    @Operation(summary = "新增管理员")
     @PostMapping("update")
     @PreAuthorize("@ss.hasPermission('system:manager:add')")
     @StrixLog(operationGroup = "系统人员", operationName = "新增人员", operationType = SystemLogOperType.ADD)
@@ -194,10 +202,11 @@ public class SystemManagerController extends BaseSystemController {
     /**
      * 修改人员
      */
+    @Operation(summary = "编辑管理员")
     @PostMapping("update/{managerId}")
     @PreAuthorize("@ss.hasPermission('system:manager:update')")
     @StrixLog(operationGroup = "系统人员", operationName = "修改人员", operationType = SystemLogOperType.UPDATE)
-    public RetResult<Object> update(@PathVariable String managerId, @RequestBody @Validated(UpdateGroup.class) SystemManagerUpdateReq req) {
+    public RetResult<Object> update(@Parameter(description = "管理员 ID") @PathVariable String managerId, @RequestBody @Validated(UpdateGroup.class) SystemManagerUpdateReq req) {
         Assert.notNull(req, "参数错误");
         SystemManager systemManager = systemManagerService.getById(managerId);
         Assert.notNull(systemManager, "系统人员信息不存在");
@@ -221,10 +230,11 @@ public class SystemManagerController extends BaseSystemController {
     /**
      * 删除人员
      */
+    @Operation(summary = "删除管理员")
     @PostMapping("remove/{managerId}")
     @PreAuthorize("@ss.hasPermission('system:manager:remove')")
     @StrixLog(operationGroup = "系统人员", operationName = "删除人员", operationType = SystemLogOperType.DELETE)
-    public RetResult<Object> remove(@PathVariable String managerId) {
+    public RetResult<Object> remove(@Parameter(description = "管理员 ID") @PathVariable String managerId) {
         SystemManager systemManager = systemManagerService.getById(managerId);
         Assert.notNull(systemManager, "系统人员信息不存在");
         Assert.isTrue(systemManager.getBuiltin() == CommonFlag.NO, "内置用户不允许修改");
@@ -244,6 +254,7 @@ public class SystemManagerController extends BaseSystemController {
     /**
      * 获取系统人员穿梭框数据
      */
+    @Operation(summary = "获取穿梭框数据")
     @GetMapping("transfer")
     public RetResult<CommonTransferDataResp> getTransferData() {
         List<SystemManager> systemManagerList = systemManagerService.listForTransfer();

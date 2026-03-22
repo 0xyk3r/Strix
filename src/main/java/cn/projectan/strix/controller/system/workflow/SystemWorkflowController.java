@@ -15,6 +15,8 @@ import cn.projectan.strix.service.system.WorkflowTaskAssignService;
 import cn.projectan.strix.service.system.WorkflowTaskService;
 import cn.projectan.strix.util.async.ParallelExecution;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -36,6 +38,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("system/workflow")
 @RequiredArgsConstructor
+@Tag(name = "系统 - 工作流")
 public class SystemWorkflowController extends BaseSystemController {
 
     private final WorkflowInstanceService workflowInstanceService;
@@ -45,6 +48,7 @@ public class SystemWorkflowController extends BaseSystemController {
     /**
      * 查询我的工作区待处理任务列表
      */
+    @Operation(summary = "待办工作流列表")
     @GetMapping("unfinished")
     @PreAuthorize("@ss.hasPermission('system:workflow')")
     @StrixLog(operationGroup = "工作区", operationName = "查询我的工作区待处理任务列表")
@@ -79,6 +83,7 @@ public class SystemWorkflowController extends BaseSystemController {
     /**
      * 查询我的工作区已处理任务列表
      */
+    @Operation(summary = "已办工作流列表")
     @GetMapping("finished")
     @PreAuthorize("@ss.hasPermission('system:workflow')")
     @StrixLog(operationGroup = "工作区", operationName = "查询我的工作区已处理任务列表")
@@ -113,6 +118,7 @@ public class SystemWorkflowController extends BaseSystemController {
     /**
      * 查询我的工作区已发起任务列表
      */
+    @Operation(summary = "我发起的工作流列表")
     @GetMapping("initiated")
     @PreAuthorize("@ss.hasPermission('system:workflow')")
     @StrixLog(operationGroup = "工作区", operationName = "查询我的工作区已发起任务列表")
@@ -125,6 +131,7 @@ public class SystemWorkflowController extends BaseSystemController {
     /**
      * 查询我的工作区被抄送任务列表
      */
+    @Operation(summary = "抄送我的工作流列表")
     @GetMapping("cc")
     @PreAuthorize("@ss.hasPermission('system:workflow')")
     @StrixLog(operationGroup = "工作区", operationName = "查询我的工作区被抄送任务列表")

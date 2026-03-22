@@ -21,6 +21,9 @@ import cn.projectan.strix.model.response.system.dict.DictResp;
 import cn.projectan.strix.service.system.DictDataService;
 import cn.projectan.strix.service.system.DictService;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -40,6 +43,7 @@ import java.util.List;
 @RestController
 @RequestMapping("system/dict")
 @RequiredArgsConstructor
+@Tag(name = "系统 - 字典管理")
 public class SystemDictController extends BaseSystemController {
 
     private final DictService dictService;
@@ -48,6 +52,7 @@ public class SystemDictController extends BaseSystemController {
     /**
      * 查询字典列表
      */
+    @Operation(summary = "字典列表")
     @GetMapping("")
     @PreAuthorize("@ss.hasPermission('system:dict')")
     @StrixLog(operationGroup = "系统字典", operationName = "查询字典列表")
@@ -62,10 +67,11 @@ public class SystemDictController extends BaseSystemController {
     /**
      * 查询字典信息
      */
+    @Operation(summary = "字典详情")
     @GetMapping("{id}")
     @PreAuthorize("@ss.hasPermission('system:dict')")
     @StrixLog(operationGroup = "系统字典", operationName = "查询字典信息")
-    public RetResult<DictResp> info(@PathVariable String id) {
+    public RetResult<DictResp> info(@Parameter(description = "字典 ID") @PathVariable String id) {
         Dict dict = dictService.getById(id);
         Assert.notNull(dict, "该数据不存在");
 
@@ -90,6 +96,7 @@ public class SystemDictController extends BaseSystemController {
     /**
      * 新增字典
      */
+    @Operation(summary = "新增字典")
     @PostMapping("update")
     @PreAuthorize("@ss.hasPermission('system:dict:add')")
     @StrixLog(operationGroup = "系统字典", operationName = "新增字典", operationType = SystemLogOperType.ADD)
@@ -112,10 +119,11 @@ public class SystemDictController extends BaseSystemController {
     /**
      * 修改字典
      */
+    @Operation(summary = "编辑字典")
     @PostMapping("update/{id}")
     @PreAuthorize("@ss.hasPermission('system:dict:update')")
     @StrixLog(operationGroup = "系统字典", operationName = "修改字典", operationType = SystemLogOperType.UPDATE)
-    public RetResult<Object> update(@PathVariable String id, @RequestBody @Validated(UpdateGroup.class) DictUpdateReq req) {
+    public RetResult<Object> update(@Parameter(description = "字典 ID") @PathVariable String id, @RequestBody @Validated(UpdateGroup.class) DictUpdateReq req) {
         Dict dict = dictService.getById(id);
         Assert.notNull(dict, "原数据不存在");
 
@@ -127,10 +135,11 @@ public class SystemDictController extends BaseSystemController {
     /**
      * 删除字典
      */
+    @Operation(summary = "删除字典")
     @PostMapping("remove/{id}")
     @PreAuthorize("@ss.hasPermission('system:dict:remove')")
     @StrixLog(operationGroup = "系统字典", operationName = "删除字典", operationType = SystemLogOperType.DELETE)
-    public RetResult<Object> remove(@PathVariable String id) {
+    public RetResult<Object> remove(@Parameter(description = "字典 ID") @PathVariable String id) {
         Assert.hasText(id, "参数错误");
 
         Dict dict = dictService.getById(id);
@@ -144,10 +153,11 @@ public class SystemDictController extends BaseSystemController {
     /**
      * 查询字典数据列表
      */
+    @Operation(summary = "字典数据列表")
     @GetMapping("data/{key}")
     @PreAuthorize("@ss.hasPermission('system:dict:data')")
     @StrixLog(operationGroup = "系统字典", operationName = "查询字典数据列表")
-    public RetResult<DictDataListResp> getDictDataList(@PathVariable String key, DictDataListReq req) {
+    public RetResult<DictDataListResp> getDictDataList(@Parameter(description = "字典 Key") @PathVariable String key, DictDataListReq req) {
         Page<DictData> page = dictDataService.listPage(key, req);
 
         return RetBuilder.success(
@@ -158,10 +168,11 @@ public class SystemDictController extends BaseSystemController {
     /**
      * 查询字典数据信息
      */
+    @Operation(summary = "字典数据详情")
     @GetMapping("data/{key}/{id}")
     @PreAuthorize("@ss.hasPermission('system:dict:data')")
     @StrixLog(operationGroup = "系统字典", operationName = "查询字典数据信息")
-    public RetResult<DictDataResp> getDictDataInfo(@PathVariable String key, @PathVariable String id) {
+    public RetResult<DictDataResp> getDictDataInfo(@Parameter(description = "字典 Key") @PathVariable String key, @Parameter(description = "字典数据 ID") @PathVariable String id) {
         DictData dictData = dictDataService.getById(id);
         Assert.notNull(dictData, "该数据不存在");
 
@@ -182,6 +193,7 @@ public class SystemDictController extends BaseSystemController {
     /**
      * 新增字典数据
      */
+    @Operation(summary = "新增字典数据")
     @PostMapping("data/{key}/update")
     @PreAuthorize("@ss.hasPermission('system:dict:data:add')")
     @StrixLog(operationGroup = "系统字典", operationName = "新增字典数据", operationType = SystemLogOperType.ADD)
@@ -204,10 +216,11 @@ public class SystemDictController extends BaseSystemController {
     /**
      * 修改字典数据
      */
+    @Operation(summary = "编辑字典数据")
     @PostMapping("data/{key}/update/{id}")
     @PreAuthorize("@ss.hasPermission('system:dict:data:update')")
     @StrixLog(operationGroup = "系统字典", operationName = "修改字典数据", operationType = SystemLogOperType.UPDATE)
-    public RetResult<Object> updateDictData(@PathVariable String id, @RequestBody @Validated(UpdateGroup.class) DictDataUpdateReq req) {
+    public RetResult<Object> updateDictData(@Parameter(description = "字典数据 ID") @PathVariable String id, @RequestBody @Validated(UpdateGroup.class) DictDataUpdateReq req) {
         DictData dictData = dictDataService.getById(id);
         Assert.notNull(dictData, "原数据不存在");
 
@@ -219,10 +232,11 @@ public class SystemDictController extends BaseSystemController {
     /**
      * 删除字典数据
      */
+    @Operation(summary = "删除字典数据")
     @PostMapping("data/{key}/remove/{id}")
     @PreAuthorize("@ss.hasPermission('system:dict:data:remove')")
     @StrixLog(operationGroup = "系统字典", operationName = "删除字典数据", operationType = SystemLogOperType.DELETE)
-    public RetResult<Object> removeDictData(@PathVariable String id) {
+    public RetResult<Object> removeDictData(@Parameter(description = "字典数据 ID") @PathVariable String id) {
         Assert.hasText(id, "参数错误");
 
         DictData dictData = dictDataService.getById(id);

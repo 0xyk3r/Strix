@@ -3,12 +3,14 @@ package cn.projectan.strix.model.dict.system;
 import cn.projectan.strix.model.annotation.Dict;
 import cn.projectan.strix.model.annotation.DictData;
 import cn.projectan.strix.model.dict.base.BaseDict;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 /**
  * @author ProjectAn
  * @since 2024-10-15 14:53:53
  */
 @Dict(key = "WorkflowPropsTimeLimitUnit", value = "工作流-配置-超时时间单位")
+@Schema(description = "工作流-配置-超时时间单位")
 public class WorkflowPropsTimeLimitUnit implements BaseDict {
 
     @DictData(label = "分钟", sort = 1, style = DictDataStyle.DEFAULT)

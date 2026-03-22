@@ -3,12 +3,14 @@ package cn.projectan.strix.model.dict.system;
 import cn.projectan.strix.model.annotation.Dict;
 import cn.projectan.strix.model.annotation.DictData;
 import cn.projectan.strix.model.dict.base.BaseDict;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 /**
  * @author ProjectAn
  * @since 2024-10-10 14:00:43
  */
 @Dict(key = "WorkflowPropsAssignMode", value = "工作流-配置-指派人员模式")
+@Schema(description = "工作流-配置-指派人员模式")
 public class WorkflowPropsAssignMode implements BaseDict {
 
     @DictData(label = "任一", sort = 1, style = DictDataStyle.DEFAULT)

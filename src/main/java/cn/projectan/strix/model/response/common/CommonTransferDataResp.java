@@ -1,6 +1,7 @@
 package cn.projectan.strix.model.response.common;
 
 import cn.projectan.strix.util.reflect.ReflectUtil;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,10 +17,12 @@ import java.util.List;
  * @author ProjectAn
  * @since 2021/7/6 15:58
  */
+@Schema(description = "穿梭框数据响应")
 @Data
 @Slf4j
 public class CommonTransferDataResp {
 
+    @Schema(description = "穿梭框数据列表")
     private List<TransferDataItem> transferData = new ArrayList<>();
 
     public <T> CommonTransferDataResp(List<T> data) {
@@ -52,15 +55,19 @@ public class CommonTransferDataResp {
         }
     }
 
+    @Schema(description = "穿梭框数据项")
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
     public static class TransferDataItem {
 
+        @Schema(description = "选项值")
         private String value;
 
+        @Schema(description = "选项标签")
         private String label;
 
+        @Schema(description = "状态")
         private Integer status;
 
     }

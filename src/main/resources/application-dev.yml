@@ -60,6 +60,7 @@ springdoc:
     - group: 'default'
       paths-to-match: '/**'
       packages-to-scan: cn.projectan
+  use-fqn: true
   default-flat-param-object: true
   override-with-generic-response: false
 knife4j:

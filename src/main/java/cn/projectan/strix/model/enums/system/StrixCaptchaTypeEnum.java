@@ -1,5 +1,6 @@
 package cn.projectan.strix.model.enums.system;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 
 /**
@@ -9,6 +10,7 @@ import lombok.Getter;
  * @since 2024/3/30 13:00
  */
 @Getter
+@Schema(description = "验证码类型")
 public enum StrixCaptchaTypeEnum {
 
     /**

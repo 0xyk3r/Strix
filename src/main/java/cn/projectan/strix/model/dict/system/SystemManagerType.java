@@ -3,6 +3,7 @@ package cn.projectan.strix.model.dict.system;
 import cn.projectan.strix.model.annotation.Dict;
 import cn.projectan.strix.model.annotation.DictData;
 import cn.projectan.strix.model.dict.base.BaseDict;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 /**
  * 系统管理用户 类型
@@ -12,6 +13,7 @@ import cn.projectan.strix.model.dict.base.BaseDict;
  */
 
 @Dict(key = "SystemManagerType", value = "系统人员-类型")
+@Schema(description = "系统人员-类型")
 public class SystemManagerType implements BaseDict {
 
     @DictData(label = "超级账号", sort = 99, style = DictDataStyle.SUCCESS)

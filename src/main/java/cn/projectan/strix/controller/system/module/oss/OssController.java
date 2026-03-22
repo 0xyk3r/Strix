@@ -25,6 +25,9 @@ import cn.projectan.strix.util.common.UniqueChecker;
 import cn.projectan.strix.util.common.UpdateBuilder;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -46,6 +49,7 @@ import java.util.List;
 @RequestMapping("system/oss")
 @ConditionalOnBean(StrixOssStore.class)
 @RequiredArgsConstructor
+@Tag(name = "系统模块 - OSS 配置管理")
 public class OssController extends BaseSystemController {
 
     private final OssConfigService ossConfigService;
@@ -59,6 +63,7 @@ public class OssController extends BaseSystemController {
     @GetMapping("")
     @PreAuthorize("@ss.hasPermission('system:module:oss:config')")
     @StrixLog(operationGroup = "系统存储", operationName = "查询存储配置列表")
+    @Operation(summary = "OSS 配置列表")
     public RetResult<OssConfigListResp> getList(OssConfigListReq req) {
         Page<OssConfig> page = ossConfigService.listPage(req);
         return RetBuilder.success(new OssConfigListResp(page.getRecords(), page.getTotal()));
@@ -70,7 +75,8 @@ public class OssController extends BaseSystemController {
     @GetMapping("{id}")
     @PreAuthorize("@ss.hasPermission('system:module:oss:config')")
     @StrixLog(operationGroup = "系统存储", operationName = "查询存储配置信息")
-    public RetResult<OssConfigResp> getInfo(@PathVariable String id) {
+    @Operation(summary = "OSS 配置详情")
+    public RetResult<OssConfigResp> getInfo(@Parameter(description = "OSS 配置 ID") @PathVariable String id) {
         OssConfig ossConfig = ossConfigService.getById(id);
         Assert.notNull(ossConfig, "配置不存在");
 
@@ -104,6 +110,7 @@ public class OssController extends BaseSystemController {
     @PostMapping("update")
     @PreAuthorize("@ss.hasPermission('system:module:oss:config:add')")
     @StrixLog(operationGroup = "系统存储", operationName = "新增存储配置", operationType = SystemLogOperType.ADD)
+    @Operation(summary = "新增 OSS 配置")
     public RetResult<Object> update(@RequestBody @Validated(InsertGroup.class) OssConfigUpdateReq req) {
         OssConfig ossConfig = new OssConfig(
                 req.getKey(),
@@ -133,7 +140,8 @@ public class OssController extends BaseSystemController {
     @PostMapping("update/{id}")
     @PreAuthorize("@ss.hasPermission('system:module:oss:config:update')")
     @StrixLog(operationGroup = "系统存储", operationName = "修改存储配置", operationType = SystemLogOperType.UPDATE)
-    public RetResult<Object> update(@PathVariable String id, @RequestBody @Validated(UpdateGroup.class) OssConfigUpdateReq req) {
+    @Operation(summary = "编辑 OSS 配置")
+    public RetResult<Object> update(@Parameter(description = "OSS 配置 ID") @PathVariable String id, @RequestBody @Validated(UpdateGroup.class) OssConfigUpdateReq req) {
         OssConfig ossConfig = ossConfigService.getById(id);
         Assert.notNull(ossConfig, "原记录不存在");
         String originKey = ossConfig.getKey();
@@ -155,7 +163,8 @@ public class OssController extends BaseSystemController {
     @PostMapping("remove/{id}")
     @PreAuthorize("@ss.hasPermission('system:module:oss:config:remove')")
     @StrixLog(operationGroup = "系统存储", operationName = "删除存储配置", operationType = SystemLogOperType.DELETE)
-    public RetResult<Object> remove(@PathVariable String id) {
+    @Operation(summary = "删除 OSS 配置")
+    public RetResult<Object> remove(@Parameter(description = "OSS 配置 ID") @PathVariable String id) {
         OssConfig ossConfig = ossConfigService.getById(id);
         Assert.notNull(ossConfig, "原记录不存在");
         String key = ossConfig.getKey();
@@ -175,6 +184,7 @@ public class OssController extends BaseSystemController {
      * 查询存储配置下拉列表
      */
     @GetMapping("config/select")
+    @Operation(summary = "获取 OSS 配置下拉列表")
     public RetResult<CommonSelectDataResp> getOssConfigSelectList() {
         return RetBuilder.success(ossConfigService.getSelectData());
     }
@@ -185,6 +195,7 @@ public class OssController extends BaseSystemController {
     @GetMapping("file")
     @PreAuthorize("@ss.hasPermission('system:module:oss:file')")
     @StrixLog(operationGroup = "系统存储", operationName = "查询存储文件列表")
+    @Operation(summary = "OSS 文件列表")
     public RetResult<OssFileListResp> getOssFileList(OssFileListReq req) {
         Page<OssFile> page = ossFileService.listPage(req);
 
@@ -197,7 +208,8 @@ public class OssController extends BaseSystemController {
     @PostMapping("file/remove/{id}")
     @PreAuthorize("@ss.hasPermission('system:module:oss:file:remove')")
     @StrixLog(operationGroup = "系统存储", operationName = "删除存储文件", operationType = SystemLogOperType.DELETE)
-    public RetResult<Object> removeFile(@PathVariable String id) {
+    @Operation(summary = "删除 OSS 文件")
+    public RetResult<Object> removeFile(@Parameter(description = "文件 ID") @PathVariable String id) {
         ossFileService.delete(id);
         return RetBuilder.success();
     }

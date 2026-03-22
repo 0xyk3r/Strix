@@ -5,6 +5,9 @@ import cn.projectan.strix.model.annotation.Anonymous;
 import cn.projectan.strix.model.annotation.IgnoreEncryption;
 import cn.projectan.strix.model.properties.system.StrixProperties;
 import cn.projectan.strix.service.system.OssFileService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController("SrvCommonFileController")
 @RequestMapping("srv/common/file")
 @RequiredArgsConstructor
+@Tag(name = "服务 - 文件")
 public class FileController extends BaseSrvController {
 
     private final OssFileService ossFileService;
@@ -31,10 +35,11 @@ public class FileController extends BaseSrvController {
     /**
      * 获取图片
      */
+    @Operation(summary = "获取图片")
     @Anonymous
     @GetMapping("{fileId}")
     @IgnoreEncryption
-    public void getImage(@PathVariable String fileId, HttpServletResponse response) throws Exception {
+    public void getImage(@Parameter(description = "文件 ID") @PathVariable String fileId, HttpServletResponse response) throws Exception {
         // 注意权限验证
         response.setContentType("image/jpeg");
         response.sendRedirect(ossFileService.getUrl(fileId, strixProperties.getOss().getDefaultImageUrl()));

@@ -1,5 +1,6 @@
 package cn.projectan.strix.model.enums.system;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 
 /**
@@ -9,6 +10,7 @@ import lombok.Getter;
  * @since 2026/2/1 12:00
  */
 @Getter
+@Schema(description = "聊天消息类型")
 public enum ChatMessageTypeEnum {
 
     /**

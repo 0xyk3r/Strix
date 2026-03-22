@@ -5,6 +5,8 @@ import cn.projectan.strix.controller.system.base.BaseSystemController;
 import cn.projectan.strix.core.ret.RetBuilder;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.model.annotation.StrixLog;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.connection.RedisServerCommands;
@@ -31,6 +33,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("system/monitor/cache")
 @RequiredArgsConstructor
+@Tag(name = "系统监控 - 缓存管理")
 public class CacheController extends BaseSystemController {
 
     private final RedisTemplate<String, Object> redisTemplate;
@@ -41,6 +44,7 @@ public class CacheController extends BaseSystemController {
     @GetMapping()
     @PreAuthorize("@ss.hasPermission('system:monitor:cache')")
     @StrixLog(operationGroup = "系统缓存信息", operationName = "查询系统缓存信息")
+    @Operation(summary = "获取缓存信息")
     public RetResult<Object> getCacheInfo() {
         Properties info = (Properties) redisTemplate.execute((RedisCallback<Object>) RedisServerCommands::info);
         Properties commandStats = (Properties) redisTemplate.execute((RedisCallback<Object>) connection -> connection.serverCommands().info("commandstats"));

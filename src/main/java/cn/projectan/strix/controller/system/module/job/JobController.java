@@ -17,6 +17,9 @@ import cn.projectan.strix.service.system.JobService;
 import cn.projectan.strix.util.common.UniqueChecker;
 import cn.projectan.strix.util.common.UpdateBuilder;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -36,6 +39,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("system/job")
 @ConditionalOnProperty(prefix = "strix.module", name = "job", havingValue = "true")
 @RequiredArgsConstructor
+@Tag(name = "系统模块 - 定时任务")
 public class JobController extends BaseSystemController {
 
     private final JobService jobService;
@@ -46,6 +50,7 @@ public class JobController extends BaseSystemController {
     @GetMapping("")
     @PreAuthorize("@ss.hasPermission('system:module:job')")
     @StrixLog(operationGroup = "系统定时任务", operationName = "查询定时任务列表")
+    @Operation(summary = "任务列表")
     public RetResult<JobListResp> getList(JobListReq req) {
         Page<Job> page = jobService.listPage(req);
         return RetBuilder.success(new JobListResp(page.getRecords(), page.getTotal()));
@@ -57,7 +62,8 @@ public class JobController extends BaseSystemController {
     @GetMapping("{id}")
     @PreAuthorize("@ss.hasPermission('system:module:job')")
     @StrixLog(operationGroup = "系统定时任务", operationName = "查询定时任务信息")
-    public RetResult<JobResp> getInfo(@PathVariable String id) {
+    @Operation(summary = "任务详情")
+    public RetResult<JobResp> getInfo(@Parameter(description = "任务 ID") @PathVariable String id) {
         Job job = jobService.getById(id);
         Assert.notNull(job, "定时任务不存在");
 
@@ -81,6 +87,7 @@ public class JobController extends BaseSystemController {
     @PostMapping("update")
     @PreAuthorize("@ss.hasPermission('system:module:job:add')")
     @StrixLog(operationGroup = "系统定时任务", operationName = "新增定时任务", operationType = SystemLogOperType.ADD)
+    @Operation(summary = "新增任务")
     public RetResult<Void> update(@RequestBody @Validated(InsertGroup.class) JobUpdateReq req) {
         Job job = new Job(
                 req.getName(),
@@ -109,7 +116,8 @@ public class JobController extends BaseSystemController {
     @PostMapping("update/{id}")
     @PreAuthorize("@ss.hasPermission('system:module:job:update')")
     @StrixLog(operationGroup = "系统定时任务", operationName = "修改定时任务", operationType = SystemLogOperType.UPDATE)
-    public RetResult<Void> update(@PathVariable String id, @RequestBody @Validated(UpdateGroup.class) JobUpdateReq req) {
+    @Operation(summary = "编辑任务")
+    public RetResult<Void> update(@Parameter(description = "任务 ID") @PathVariable String id, @RequestBody @Validated(UpdateGroup.class) JobUpdateReq req) {
         Job job = jobService.getById(id);
         Assert.notNull(job, "原记录不存在");
 
@@ -131,7 +139,8 @@ public class JobController extends BaseSystemController {
     @PostMapping("remove/{id}")
     @PreAuthorize("@ss.hasPermission('system:module:job:remove')")
     @StrixLog(operationGroup = "系统定时任务", operationName = "删除定时任务", operationType = SystemLogOperType.DELETE)
-    public RetResult<Void> remove(@PathVariable String id) {
+    @Operation(summary = "删除任务")
+    public RetResult<Void> remove(@Parameter(description = "任务 ID") @PathVariable String id) {
         Job job = jobService.getById(id);
         Assert.notNull(job, "原记录不存在");
 
@@ -150,7 +159,8 @@ public class JobController extends BaseSystemController {
     @PostMapping("run/{id}")
     @PreAuthorize("@ss.hasPermission('system:module:job:run')")
     @StrixLog(operationGroup = "系统定时任务", operationName = "运行定时任务", operationType = SystemLogOperType.OTHER)
-    public RetResult<Void> run(@PathVariable String id) {
+    @Operation(summary = "立即执行任务")
+    public RetResult<Void> run(@Parameter(description = "任务 ID") @PathVariable String id) {
         try {
             jobService.run(id);
         } catch (Exception e) {

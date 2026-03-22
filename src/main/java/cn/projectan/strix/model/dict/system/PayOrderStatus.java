@@ -3,6 +3,7 @@ package cn.projectan.strix.model.dict.system;
 import cn.projectan.strix.model.annotation.Dict;
 import cn.projectan.strix.model.annotation.DictData;
 import cn.projectan.strix.model.dict.base.BaseDict;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 /**
  * 支付订单状态
@@ -11,6 +12,7 @@ import cn.projectan.strix.model.dict.base.BaseDict;
  * @since 2021/9/3 11:02
  */
 @Dict(key = "PayOrderStatus", value = "支付订单状态")
+@Schema(description = "支付订单状态")
 public class PayOrderStatus implements BaseDict {
 
     @DictData(label = "未支付", sort = 1, style = DictDataStyle.DEFAULT)
