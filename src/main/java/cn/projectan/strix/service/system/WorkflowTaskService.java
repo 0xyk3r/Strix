@@ -165,6 +165,7 @@ public class WorkflowTaskService extends ServiceImpl<WorkflowTaskMapper, Workflo
         workflowTaskAssignService.updateById(assign);
 
         WorkflowInstance instance = workflowInstanceService.getById(task.getWorkflowInstanceId());
+        Assert.notNull(instance, "工作流实例不存在");
 
         boolean isFinish = false;
         switch (operationType) {

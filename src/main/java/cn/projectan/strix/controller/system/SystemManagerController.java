@@ -114,7 +114,7 @@ public class SystemManagerController extends BaseSystemController {
     @PostMapping("modify/{managerId}")
     @PreAuthorize("@ss.hasPermission('system:manager:update')")
     @StrixLog(operationGroup = "系统人员", operationName = "更改人员信息", operationType = SystemLogOperType.UPDATE)
-    public RetResult<Object> modifyField(@Parameter(description = "管理员 ID") @PathVariable String managerId, @RequestBody SingleFieldModifyReq req) {
+    public RetResult<Object> modifyField(@Parameter(description = "管理员 ID") @PathVariable String managerId, @RequestBody @Validated SingleFieldModifyReq req) {
         Assert.hasText(req.getField(), "参数错误");
         SystemManager systemManager = systemManagerService.getById(managerId);
         Assert.notNull(systemManager, "系统人员信息不存在");

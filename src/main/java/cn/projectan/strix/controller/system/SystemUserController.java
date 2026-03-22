@@ -80,7 +80,7 @@ public class SystemUserController extends BaseSystemController {
     @PostMapping("modify/{userId}")
     @PreAuthorize("@ss.hasPermission('system:user:update')")
     @StrixLog(operationGroup = "系统用户", operationName = "更改用户信息", operationType = SystemLogOperType.UPDATE)
-    public RetResult<Object> modifyField(@Parameter(description = "用户 ID") @PathVariable String userId, @RequestBody SingleFieldModifyReq req) {
+    public RetResult<Object> modifyField(@Parameter(description = "用户 ID") @PathVariable String userId, @RequestBody @Validated SingleFieldModifyReq req) {
         Assert.hasText(req.getField(), "参数错误");
         SystemUser systemUser = systemUserService.getById(userId);
         Assert.notNull(systemUser, "系统用户信息不存在");

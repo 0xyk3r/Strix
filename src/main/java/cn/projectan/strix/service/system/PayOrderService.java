@@ -88,6 +88,8 @@ public class PayOrderService extends ServiceImpl<PayOrderMapper, PayOrder> {
         payOrder.setTotalAmount(amount);
         payOrder.setTotalPayAmount(0L);
         payOrder.setTotalRefundAmount(0L);
+        Assert.isTrue(amount > 0, "支付金额必须大于0");
+        Assert.isTrue(expireMin > 0, "过期时间必须大于0");
         Assert.isTrue(save(payOrder), "创建订单失败");
         log.info("支付订单创建成功: orderId={}, configId={}, amount={}, payType={}", payOrder.getId(), configId, amount, payType);
 

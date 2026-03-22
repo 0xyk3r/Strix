@@ -89,7 +89,7 @@ public class SystemMenuController extends BaseSystemController {
     @PostMapping("modify/{menuId}")
     @PreAuthorize("@ss.hasPermission('system:menu:update')")
     @StrixLog(operationGroup = "系统菜单", operationName = "更改菜单信息", operationType = SystemLogOperType.UPDATE)
-    public RetResult<Object> modifyField(@Parameter(description = "菜单 ID") @PathVariable String menuId, @RequestBody SingleFieldModifyReq req) {
+    public RetResult<Object> modifyField(@Parameter(description = "菜单 ID") @PathVariable String menuId, @RequestBody @Validated SingleFieldModifyReq req) {
         Assert.hasText(req.getField(), "参数错误");
         Assert.isTrue("icon".equals(req.getField()), "参数错误");
 

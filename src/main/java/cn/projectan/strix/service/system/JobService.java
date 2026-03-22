@@ -140,6 +140,8 @@ public class JobService extends ServiceImpl<JobMapper, Job> {
             Assert.isTrue(resumeJob(job), "切换任务状态失败");
         } else if (job.getStatus() == JobStatus.NORMAL) {
             Assert.isTrue(pauseJob(job), "切换任务状态失败");
+        } else {
+            throw new IllegalArgumentException("不支持的任务状态: " + job.getStatus());
         }
     }
 
