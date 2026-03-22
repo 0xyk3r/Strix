@@ -13,7 +13,6 @@ import cn.projectan.strix.util.common.SmsService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
-import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -30,7 +29,6 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 @Component
-@EnableScheduling
 @ConditionalOnBean(StrixSmsStore.class)
 @RequiredArgsConstructor
 public class StrixSmsTask {
