@@ -2,7 +2,9 @@ package cn.projectan.strix.core.module.oss;
 
 import cn.projectan.strix.model.db.system.OssConfig;
 import cn.projectan.strix.model.dict.system.OssPlatform;
-import org.springframework.beans.factory.annotation.Value;
+import lombok.RequiredArgsConstructor;
+import org.springframework.core.env.Environment;
+import org.springframework.core.env.Profiles;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
@@ -20,10 +22,10 @@ import java.net.URI;
  * @author ProjectAn
  */
 @Component
+@RequiredArgsConstructor
 public class AliyunOssClientFactory implements OssClientFactory {
 
-    @Value("${spring.profiles.active}")
-    private String profiles;
+    private final Environment environment;
 
     @Override
     public short supportedPlatform() {
@@ -58,7 +60,7 @@ public class AliyunOssClientFactory implements OssClientFactory {
         S3Client privateClient = publicClient;
         S3Presigner privatePresigner = publicPresigner;
 
-        if ("prod".equals(profiles)) {
+        if (environment.acceptsProfiles(Profiles.of("prod"))) {
             privateClient = S3Client.builder()
                     .endpointOverride(URI.create(config.getPrivateEndpoint()))
                     .credentialsProvider(credentialsProvider)

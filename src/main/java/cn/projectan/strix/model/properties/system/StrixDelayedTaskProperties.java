@@ -1,8 +1,10 @@
 package cn.projectan.strix.model.properties.system;
 
+import jakarta.validation.constraints.Positive;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.validation.annotation.Validated;
 
 /**
  * 延迟任务配置属性
@@ -12,6 +14,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  */
 @Getter
 @Setter
+@Validated
 @ConfigurationProperties(prefix = "strix.delayed-task")
 public class StrixDelayedTaskProperties {
 
@@ -23,6 +26,7 @@ public class StrixDelayedTaskProperties {
     /**
      * 每次扫描获取的最大任务数
      */
+    @Positive
     private Integer batchSize = 100;
 
 }

@@ -1,8 +1,10 @@
 package cn.projectan.strix.model.properties.system;
 
+import jakarta.validation.constraints.Positive;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.validation.annotation.Validated;
 
 /**
  * API 速率限制配置属性
@@ -12,6 +14,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  */
 @Getter
 @Setter
+@Validated
 @ConfigurationProperties(prefix = "strix.rate-limit")
 public class StrixRateLimitProperties {
 
@@ -23,11 +26,13 @@ public class StrixRateLimitProperties {
     /**
      * 默认时间窗口内最大请求数
      */
+    @Positive
     private int defaultLimit = 600;
 
     /**
      * 默认时间窗口（秒）
      */
+    @Positive
     private int defaultWindow = 60;
 
 }

@@ -71,3 +71,6 @@ knife4j:
     language: zh_cn
     enable-footer-custom: true
     footer-custom-content: Copyright 2025 - ProjectAn
+strix:
+  debug:
+    wechat-dev-mode: true

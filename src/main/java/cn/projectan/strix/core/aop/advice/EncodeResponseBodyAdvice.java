@@ -6,13 +6,13 @@ import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.core.security.ApiSecurity;
 import cn.projectan.strix.model.annotation.IgnoreEncryption;
 import cn.projectan.strix.model.constant.system.StrixPasswordConst;
+import cn.projectan.strix.model.properties.system.StrixProperties;
 import cn.projectan.strix.util.http.ServletUtil;
 import jakarta.annotation.Nonnull;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
 import org.springframework.http.server.ServerHttpRequest;
@@ -34,9 +34,7 @@ public class EncodeResponseBodyAdvice implements ResponseBodyAdvice<Object> {
 
     private final ApiSecurity apiSecurity;
     private final ObjectMapper objectMapper;
-
-    @Value("${strix.show-response:false}")
-    private Boolean showResponse;
+    private final StrixProperties strixProperties;
 
     @SneakyThrows
     @Override
@@ -53,7 +51,7 @@ public class EncodeResponseBodyAdvice implements ResponseBodyAdvice<Object> {
     @Override
     public Object beforeBodyWrite(Object body, @Nonnull MethodParameter methodParameter, @Nonnull MediaType mediaType, @Nonnull Class aClass, @Nonnull ServerHttpRequest serverHttpRequest, @Nonnull ServerHttpResponse serverHttpResponse) {
         try {
-            if (showResponse && methodParameter.getMethod() != null) {
+            if (strixProperties.isShowResponse() && methodParameter.getMethod() != null) {
                 String fullMethodName = methodParameter.getContainingClass().getName() + "." + methodParameter.getMethod().getName();
                 log.info("""
                                 

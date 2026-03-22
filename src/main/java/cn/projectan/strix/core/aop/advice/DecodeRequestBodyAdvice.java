@@ -6,13 +6,13 @@ import cn.projectan.strix.core.exception.StrixException;
 import cn.projectan.strix.core.security.ApiSecurity;
 import cn.projectan.strix.model.annotation.IgnoreEncryption;
 import cn.projectan.strix.model.constant.system.StrixPasswordConst;
+import cn.projectan.strix.model.properties.system.StrixProperties;
 import cn.projectan.strix.util.http.ServletUtil;
 import jakarta.annotation.Nonnull;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpInputMessage;
@@ -39,9 +39,7 @@ import java.util.Optional;
 public class DecodeRequestBodyAdvice implements RequestBodyAdvice {
 
     private final ApiSecurity apiSecurity;
-
-    @Value("${strix.show-request:false}")
-    private Boolean showRequest;
+    private final StrixProperties strixProperties;
 
     @Override
     public boolean supports(@NotNull MethodParameter methodParameter, @Nonnull Type type, @Nonnull Class<? extends HttpMessageConverter<?>> aClass) {
@@ -92,7 +90,7 @@ public class DecodeRequestBodyAdvice implements RequestBodyAdvice {
             String decryptBodyStr = handleSecurity(originalBody);
 
             Method method = methodParameter.getMethod();
-            if (showRequest && method != null) {
+            if (strixProperties.isShowRequest() && method != null) {
                 String fullMethodName = methodParameter.getContainingClass().getName() + "." + method.getName();
                 log.info("""
                                 

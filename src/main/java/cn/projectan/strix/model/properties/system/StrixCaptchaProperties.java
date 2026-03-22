@@ -2,13 +2,16 @@ package cn.projectan.strix.model.properties.system;
 
 
 import cn.projectan.strix.model.enums.system.StrixCaptchaTypeEnum;
+import jakarta.validation.constraints.Positive;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.validation.annotation.Validated;
 
 /**
  * Strix 验证码配置
  */
 @Data
+@Validated
 @ConfigurationProperties(StrixCaptchaProperties.PREFIX)
 public class StrixCaptchaProperties {
     public static final String PREFIX = "strix.captcha";
@@ -76,26 +79,31 @@ public class StrixCaptchaProperties {
     /**
      * 一分钟内 check 接口失败次数
      */
+    @Positive
     private int reqGetLockLimit = 5;
 
     /**
      * 失败后锁定时间(秒)
      */
+    @Positive
     private int reqGetLockSeconds = 300;
 
     /**
      * get 接口一分钟内限制访问数
      */
+    @Positive
     private int reqGetMinuteLimit = 100;
 
     /**
      * check 接口一分钟内限制访问数
      */
+    @Positive
     private int reqCheckMinuteLimit = 100;
 
     /**
      * verify 接口一分钟内限制访问数
      */
+    @Positive
     private int reqVerifyMinuteLimit = 100;
 
     public enum StorageType {

@@ -1,11 +1,12 @@
 package cn.projectan.strix.config;
 
+import cn.projectan.strix.model.properties.system.StrixProperties;
 import cn.projectan.strix.util.common.I18nUtil;
 import cn.projectan.strix.util.http.ServletUtil;
 import jakarta.annotation.Nonnull;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Value;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.LocaleResolver;
 
@@ -22,10 +23,10 @@ import java.util.Optional;
  * @since 2023/4/17 12:22
  */
 @Component("localeResolver")
+@RequiredArgsConstructor
 public class StrixLocaleResolver implements LocaleResolver {
 
-    @Value("${strix.default-locale:zh_CN}")
-    private String defaultLocale;
+    private final StrixProperties strixProperties;
 
     public Locale getLocal() {
         return resolveLocale(ServletUtil.getRequest());
@@ -38,7 +39,7 @@ public class StrixLocaleResolver implements LocaleResolver {
         String requestLang = request.getHeader("lang");
         return Optional.ofNullable(requestLang)
                 .map(I18nUtil::convertLocale)
-                .orElse(I18nUtil.convertLocale(defaultLocale));
+                .orElse(I18nUtil.convertLocale(strixProperties.getDefaultLocale()));
     }
 
     @Override

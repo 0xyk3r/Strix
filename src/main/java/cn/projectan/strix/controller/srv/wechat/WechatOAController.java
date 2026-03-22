@@ -23,7 +23,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
+import org.springframework.core.env.Profiles;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -47,9 +48,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class WechatOAController extends BaseWechatController {
 
-    @Value("${spring.profiles.active}")
-    private String env;
-
+    private final Environment environment;
     private final SystemUserService systemUserService;
     private final OauthUserService oauthUserService;
     private final OauthConfigService oauthConfigService;
@@ -133,7 +132,7 @@ public class WechatOAController extends BaseWechatController {
         WechatOAOAuthClient instance = (WechatOAOAuthClient) oauthConfigService.getInstance(configKey);
         WechatOAOAuthConfig config = (WechatOAOAuthConfig) instance.getConfig();
         try {
-            if (!"dev".equals(env)) {
+            if (!environment.acceptsProfiles(Profiles.of("dev"))) {
                 Assert.isTrue(StringUtils.hasText(webUrl) && (webUrl.startsWith(config.getWebIndexUrl())), "域名不合法");
             }
             Map<String, String> signMap = new HashMap<>();
@@ -152,28 +151,6 @@ public class WechatOAController extends BaseWechatController {
         } catch (Exception e) {
             log.error("获取微信JS-SDK配置失败: {}", e.getMessage(), e);
             throw new StrixException("获取微信JS-SDK配置失败");
-        }
-    }
-
-    /**
-     * 本地开发时使用
-     */
-    @Anonymous
-    @IgnoreEncryption
-    @RequestMapping("giveMeSessionTokenOnDevMode")
-    public void devMode(@PathVariable String configKey, HttpServletResponse response) throws IOException {
-        if ("dev".equals(env)) {
-            log.warn("通过api获取微信Token...");
-
-            String devUserId = "1775599867535130625";
-            SystemUser systemUser = systemUserService.getById(devUserId);
-            LoginSystemUser loginInfo = systemUserService.getLoginInfo(devUserId);
-            long tokenTTL = systemConfigCache.getLong("SYSTEM_USER_LOGIN_EFFECTIVE_TIME", 1440L);
-
-            tokenSessionService.invalidateUserSession(systemUser.getId());
-            String token = tokenSessionService.createUserSession(systemUser.getId(), loginInfo, tokenTTL);
-
-            response.sendRedirect("http://localhost:8080/?token=" + token + "&cfid=" + configKey);
         }
     }
 
