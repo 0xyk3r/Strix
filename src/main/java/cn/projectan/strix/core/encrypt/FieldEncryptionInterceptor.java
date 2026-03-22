@@ -48,6 +48,12 @@ import java.util.regex.Pattern;
 })
 public class FieldEncryptionInterceptor implements Interceptor {
 
+    private final FieldEncryptUtil fieldEncryptUtil;
+
+    public FieldEncryptionInterceptor(FieldEncryptUtil fieldEncryptUtil) {
+        this.fieldEncryptUtil = fieldEncryptUtil;
+    }
+
     /**
      * 缓存类的加密字段信息
      */
@@ -175,7 +181,7 @@ public class FieldEncryptionInterceptor implements Interceptor {
                 field.setAccessible(true);
                 Object value = field.get(obj);
                 if (value instanceof String strValue) {
-                    String encrypted = FieldEncryptUtil.encrypt(strValue);
+                    String encrypted = fieldEncryptUtil.encrypt(strValue);
                     field.set(obj, encrypted);
                 }
             } catch (Exception e) {
@@ -258,13 +264,13 @@ public class FieldEncryptionInterceptor implements Interceptor {
             for (String paramName : paramsToEncrypt) {
                 Object value = paramNameValuePairs.get(paramName);
                 if (value instanceof String strValue && !FieldEncryptUtil.isEncrypted(strValue)) {
-                    paramNameValuePairs.put(paramName, FieldEncryptUtil.encrypt(strValue));
+                    paramNameValuePairs.put(paramName, fieldEncryptUtil.encrypt(strValue));
                 } else if (value instanceof Collection<?> collection) {
                     // 处理 IN 条件中的集合
                     List<Object> encryptedList = new ArrayList<>();
                     for (Object item : collection) {
                         if (item instanceof String strItem && !FieldEncryptUtil.isEncrypted(strItem)) {
-                            encryptedList.add(FieldEncryptUtil.encrypt(strItem));
+                            encryptedList.add(fieldEncryptUtil.encrypt(strItem));
                         } else {
                             encryptedList.add(item);
                         }
@@ -363,7 +369,7 @@ public class FieldEncryptionInterceptor implements Interceptor {
                 field.setAccessible(true);
                 Object value = field.get(obj);
                 if (value instanceof String strValue) {
-                    String decrypted = FieldEncryptUtil.decrypt(strValue);
+                    String decrypted = fieldEncryptUtil.decrypt(strValue);
                     field.set(obj, decrypted);
                 }
             } catch (Exception e) {

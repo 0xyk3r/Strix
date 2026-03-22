@@ -1,38 +1,39 @@
 package cn.projectan.strix.core.encrypt;
 
 import cn.hutool.crypto.symmetric.SM4;
+import cn.projectan.strix.model.properties.system.StrixProperties;
+import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
 
 /**
- * 字段加密解密工具类
+ * 字段加密解密服务
  * <p>
- * 使用 SM4/CBC/PKCS7Padding 算法进行加密解密，密钥和IV通过配置文件指定。
+ * 使用 SM4/CBC/PKCS7Padding 算法进行加密解密，密钥通过 {@link StrixProperties} 配置。
  *
  * @author ProjectAn
  * @since 2026/01/29 02:00
  */
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class FieldEncryptUtil {
 
     private static final String SM4_PREFIX = "SM4:";
+    private static final String IV = "StrixFieldCrypt!";
 
-    private static SM4 sm4;
+    private final StrixProperties strixProperties;
 
-    /**
-     * 初始化 SM4 加密器
-     *
-     * @param key 密钥，必须是 16 字节
-     */
-    @Value("${strix.encrypt.field.key:Strix@FieldCrypt}")
-    public void setKey(String key) {
-        String iv = "StrixFieldCrypt!";
+    private SM4 sm4;
+
+    @PostConstruct
+    private void init() {
+        String key = strixProperties.getEncrypt().getField().getKey();
         byte[] keyBytes = key.getBytes(StandardCharsets.UTF_8);
-        byte[] ivBytes = iv.getBytes(StandardCharsets.UTF_8);
+        byte[] ivBytes = IV.getBytes(StandardCharsets.UTF_8);
         sm4 = new SM4("CBC", "PKCS7Padding", keyBytes, ivBytes);
     }
 
@@ -42,7 +43,7 @@ public class FieldEncryptUtil {
      * @param plainText 明文
      * @return 密文（带 SM4: 前缀），如果输入为 null 则返回 null
      */
-    public static String encrypt(String plainText) {
+    public String encrypt(String plainText) {
         if (plainText == null || plainText.isEmpty()) {
             return plainText;
         }
@@ -64,7 +65,7 @@ public class FieldEncryptUtil {
      * @param cipherText 密文（带 SM4: 前缀）
      * @return 明文，如果输入为 null 则返回 null
      */
-    public static String decrypt(String cipherText) {
+    public String decrypt(String cipherText) {
         if (cipherText == null || cipherText.isEmpty()) {
             return cipherText;
         }

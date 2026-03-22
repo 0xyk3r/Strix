@@ -1,5 +1,6 @@
 package cn.projectan.strix.config;
 
+import cn.projectan.strix.core.encrypt.FieldEncryptUtil;
 import cn.projectan.strix.core.encrypt.FieldEncryptionInterceptor;
 import cn.projectan.strix.util.system.SecurityUtil;
 import com.baomidou.mybatisplus.annotation.DbType;
@@ -52,8 +53,8 @@ public class MybatisPlusConfig {
      * 自动对带有 @EncryptField 注解的字段进行加密解密
      */
     @Bean
-    public FieldEncryptionInterceptor fieldEncryptionInterceptor() {
-        return new FieldEncryptionInterceptor();
+    public FieldEncryptionInterceptor fieldEncryptionInterceptor(FieldEncryptUtil fieldEncryptUtil) {
+        return new FieldEncryptionInterceptor(fieldEncryptUtil);
     }
 
     /**
