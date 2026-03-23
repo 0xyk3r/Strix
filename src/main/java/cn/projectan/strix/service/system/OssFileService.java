@@ -30,6 +30,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 
 /**
@@ -121,7 +122,7 @@ public class OssFileService extends ServiceImpl<OssFileMapper, OssFile> {
         try {
             StrixOssClient client = getOssClient(ossFileGroup.getConfigKey());
 
-            String url = client.getPublic().signDownloadUrl(ossFileGroup.getBucketName(), ossFile.getPath(), 300 * 1000);
+            String url = client.getPublic().signDownloadUrl(ossFileGroup.getBucketName(), ossFile.getPath(), TimeUnit.MINUTES.toMillis(5));
             // 处理自定义域名
             if (StringUtils.hasText(url) && StringUtils.hasText(ossFileGroup.getBucketDomain())) {
                 Matcher matcher = RegexPatterns.DOMAIN_PATTERN.matcher(url);

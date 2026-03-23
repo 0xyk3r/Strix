@@ -4,9 +4,9 @@ import cn.projectan.strix.core.captcha.CaptchaCacheService;
 import cn.projectan.strix.core.captcha.CaptchaService;
 import cn.projectan.strix.model.properties.system.StrixCaptchaProperties;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 验证码服务工厂
@@ -18,8 +18,8 @@ import java.util.Properties;
  */
 public class CaptchaServiceFactory {
 
-    private static final Map<String, CaptchaService> instances = new HashMap<>();
-    private static final Map<String, CaptchaCacheService> cacheService = new HashMap<>();
+    private static final Map<String, CaptchaService> instances = new ConcurrentHashMap<>();
+    private static final Map<String, CaptchaCacheService> cacheService = new ConcurrentHashMap<>();
     private static volatile boolean initialized = false;
 
     private CaptchaServiceFactory() {

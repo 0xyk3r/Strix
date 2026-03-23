@@ -52,6 +52,7 @@ public class PayNotifyController extends BaseController {
         try {
             Assert.isTrue(verified, I18nUtil.get("error.pay.invalidSign"));
             BasePayResult payResult = client.resolveResult(request);
+            Assert.notNull(payResult, I18nUtil.get("error.pay.resolveResultFailed"));
             Assert.isTrue(payResult.getSuccess(), I18nUtil.get("error.pay.badStatus"));
             Assert.hasText(payResult.getOrderId(), I18nUtil.get("error.pay.badOrderId"));
 
