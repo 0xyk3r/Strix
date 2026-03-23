@@ -1,9 +1,6 @@
 package cn.projectan.strix.controller.system.common;
 
-import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.io.IoUtil;
 import cn.projectan.strix.controller.system.base.BaseSystemController;
-import cn.projectan.strix.core.exception.StrixException;
 import cn.projectan.strix.core.ret.RetBuilder;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.model.annotation.IgnoreEncryption;
@@ -17,7 +14,6 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.MediaTypeFactory;
 import org.springframework.util.Assert;
@@ -25,7 +21,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
-import java.io.File;
 import java.util.Optional;
 
 /**
@@ -34,7 +29,6 @@ import java.util.Optional;
  * @author ProjectAn
  * @since 2023/5/26 21:57
  */
-@Slf4j
 @RestController("SystemCommonFileController")
 @RequestMapping("system/common/file")
 @RequiredArgsConstructor
@@ -74,29 +68,8 @@ public class FileController extends BaseSystemController {
         Assert.hasText(groupId, I18nUtil.get("error.param.invalid"));
         Assert.notNull(file, I18nUtil.get("assert.file.notSelected"));
 
-        try {
-            File tempFile = File.createTempFile("temp", file.getOriginalFilename());
-            try {
-                try (var in = file.getInputStream();
-                     var out = FileUtil.getOutputStream(tempFile)) {
-                    IoUtil.copy(in, out);
-                }
-
-                OssFile ossFile = ossFileService.upload(groupId, tempFile);
-
-                return RetBuilder.success(
-                        new CommonFileIdResp(ossFile.getId())
-                );
-            } finally {
-                //noinspection ResultOfMethodCallIgnored
-                tempFile.delete();
-            }
-        } catch (IllegalArgumentException e) {
-            throw new StrixException(I18nUtil.get("error.file.uploadFailed") + ", " + e.getMessage());
-        } catch (Exception e) {
-            log.error("上传文件失败", e);
-            throw new StrixException(I18nUtil.get("error.file.uploadFailed"));
-        }
+        OssFile ossFile = ossFileService.upload(groupId, file);
+        return RetBuilder.success(new CommonFileIdResp(ossFile.getId()));
     }
 
 }

@@ -2,8 +2,11 @@ package cn.projectan.strix.config;
 
 import cn.projectan.strix.core.captcha.CaptchaCacheService;
 import cn.projectan.strix.core.captcha.CaptchaService;
+import cn.projectan.strix.core.captcha.impl.CaptchaCacheServiceImpl;
 import cn.projectan.strix.core.captcha.impl.CaptchaServiceFactory;
 import cn.projectan.strix.model.properties.system.StrixCaptchaProperties;
+import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -19,8 +22,16 @@ import java.util.Properties;
  */
 @Slf4j
 @Configuration
+@RequiredArgsConstructor
 @EnableConfigurationProperties(StrixCaptchaProperties.class)
 public class StrixCaptchaConfig {
+
+    private final CaptchaCacheServiceImpl captchaCacheServiceImpl;
+
+    @PostConstruct
+    public void initFactory() {
+        CaptchaServiceFactory.init(captchaCacheServiceImpl);
+    }
 
     @Bean(name = "StrixCaptchaCacheService")
     public CaptchaCacheService captchaCacheService(StrixCaptchaProperties strixCaptchaProperties) {
@@ -52,6 +63,4 @@ public class StrixCaptchaConfig {
 
         return CaptchaServiceFactory.getInstance(config);
     }
-
-
 }
