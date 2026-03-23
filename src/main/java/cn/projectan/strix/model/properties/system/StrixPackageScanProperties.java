@@ -4,6 +4,7 @@ import cn.projectan.strix.util.reflect.ReflectUtil;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.validation.annotation.Validated;
 
 /**
  * @author ProjectAn
@@ -11,6 +12,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  */
 @Getter
 @Setter
+@Validated
 @ConfigurationProperties(prefix = "strix.package-scan")
 public class StrixPackageScanProperties {
 

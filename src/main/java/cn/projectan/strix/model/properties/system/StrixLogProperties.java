@@ -3,6 +3,7 @@ package cn.projectan.strix.model.properties.system;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.validation.annotation.Validated;
 
 /**
  * @author ProjectAn
@@ -10,12 +11,13 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  */
 @Getter
 @Setter
+@Validated
 @ConfigurationProperties(prefix = "strix.log")
 public class StrixLogProperties {
 
     /**
      * 是否启用日志
      */
-    private Boolean enable = false;
+    private boolean enable = true;
 
 }

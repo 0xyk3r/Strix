@@ -54,12 +54,14 @@ public class StrixCaptchaProperties {
     /**
      * local 缓存的阈值
      */
-    private String cacheNumber = "1000";
+    @Positive
+    private int cacheNumber = 1000;
 
     /**
      * 定时清理过期local缓存 (秒)
      */
-    private String timingClear = "180";
+    @Positive
+    private int timingClear = 180;
 
     /**
      * 缓存类型

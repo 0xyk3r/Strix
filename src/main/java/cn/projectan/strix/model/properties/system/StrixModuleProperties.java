@@ -3,6 +3,7 @@ package cn.projectan.strix.model.properties.system;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.validation.annotation.Validated;
 
 /**
  * @author ProjectAn
@@ -10,37 +11,38 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  */
 @Getter
 @Setter
+@Validated
 @ConfigurationProperties(prefix = "strix.module")
 public class StrixModuleProperties {
 
     /**
      * 是否启用 SMS 服务
      */
-    private Boolean sms = false;
+    private boolean sms = false;
 
     /**
      * 是否启用 OSS 服务
      */
-    private Boolean oss = false;
+    private boolean oss = false;
 
     /**
      * 是否启用 Job 定时任务服务
      */
-    private Boolean job = false;
+    private boolean job = false;
 
     /**
      * 是否启用 OAuth 服务
      */
-    private Boolean oauth = false;
+    private boolean oauth = false;
 
     /**
      * 是否启用 Push 服务
      */
-    private Boolean push = false;
+    private boolean push = false;
 
     /**
      * 是否启用 Pay 服务
      */
-    private Boolean pay = false;
+    private boolean pay = false;
 
 }

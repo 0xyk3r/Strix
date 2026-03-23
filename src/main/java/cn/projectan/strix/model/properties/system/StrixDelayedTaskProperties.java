@@ -21,12 +21,12 @@ public class StrixDelayedTaskProperties {
     /**
      * 是否启用延迟任务功能
      */
-    private Boolean enabled = false;
+    private boolean enabled = false;
 
     /**
      * 每次扫描获取的最大任务数
      */
     @Positive
-    private Integer batchSize = 100;
+    private int batchSize = 100;
 
 }

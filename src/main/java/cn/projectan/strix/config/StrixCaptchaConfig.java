@@ -49,8 +49,8 @@ public class StrixCaptchaConfig {
         config.put(StrixCaptchaProperties.Key.CAPTCHA_SLIP_OFFSET, prop.getSlipOffset());
         config.put(StrixCaptchaProperties.Key.CAPTCHA_AES_STATUS, String.valueOf(prop.getAesStatus()));
         config.put(StrixCaptchaProperties.Key.CAPTCHA_WATER_FONT, prop.getWaterFont());
-        config.put(StrixCaptchaProperties.Key.CAPTCHA_CACHE_MAX_NUMBER, prop.getCacheNumber());
-        config.put(StrixCaptchaProperties.Key.CAPTCHA_TIMING_CLEAR_SECOND, prop.getTimingClear());
+        config.put(StrixCaptchaProperties.Key.CAPTCHA_CACHE_MAX_NUMBER, String.valueOf(prop.getCacheNumber()));
+        config.put(StrixCaptchaProperties.Key.CAPTCHA_TIMING_CLEAR_SECOND, String.valueOf(prop.getTimingClear()));
 
         config.put(StrixCaptchaProperties.Key.HISTORY_DATA_CLEAR_ENABLE, prop.getHistoryDataClearEnable() ? "1" : "0");
 
