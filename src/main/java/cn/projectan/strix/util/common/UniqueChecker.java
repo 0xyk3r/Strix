@@ -39,7 +39,7 @@ public class UniqueChecker {
             Field[] fields = clazz.getDeclaredFields();
             if (fields.length == 0) {
                 log.warn("UniqueDetectionTool: 对象 {} 未获取到 Fields.", clazz.getName());
-                throw new StrixUniqueCheckerException("数据重复检查失败 (e01)");
+                throw new StrixUniqueCheckerException(I18nUtil.get("error.unique.checkFailed") + " (e01)");
             }
 
             // 获取 ID, ID 存在有效值则代表修改，会自动根据 ID 排除自身
@@ -54,7 +54,7 @@ public class UniqueChecker {
                 for (UniqueField annotation : annotationsByType) {
                     String groupKey = "group" + annotation.group();
                     groups.computeIfAbsent(groupKey, k -> new HashSet<>()).add(field.getName());
-                    names.merge(groupKey, annotation.value(), (oldVal, newVal) -> oldVal + (annotation.group() == 0 ? "或" : "和") + newVal);
+                    names.merge(groupKey, annotation.value(), (oldVal, newVal) -> oldVal + (annotation.group() == 0 ? I18nUtil.get("common.or") : I18nUtil.get("common.and")) + newVal);
                 }
             }
 
@@ -62,7 +62,7 @@ public class UniqueChecker {
             IService<T> service = findServiceForEntityClass((Class<T>) clazz);
             if (service == null) {
                 log.error("UniqueDetectionTool: 未找到实体类 {} 对应的 IService 实现", clazz.getName());
-                throw new StrixUniqueCheckerException("数据重复检查失败 (e02)");
+                throw new StrixUniqueCheckerException(I18nUtil.get("error.unique.checkFailed") + " (e02)");
             }
 
             for (Map.Entry<String, Set<String>> group : groups.entrySet()) {
@@ -92,14 +92,14 @@ public class UniqueChecker {
 
                 if (service.count(checkQueryWrapper) > 0) {
                     String tips = names.get(group.getKey());
-                    throw new StrixUniqueCheckerException(StringUtils.hasText(tips) ? tips + "与系统内已有数据重复" : "数据重复检查不通过");
+                    throw new StrixUniqueCheckerException(StringUtils.hasText(tips) ? tips + I18nUtil.get("error.unique.duplicateData") : I18nUtil.get("error.unique.checkNotPassed"));
                 }
             }
         } catch (StrixUniqueCheckerException e) {
             throw e;
         } catch (Exception e) {
-            log.error("唯一性检查异常: {}", e.getMessage(), e);
-            throw new StrixUniqueCheckerException("重复检查器工作异常");
+            log.error("UniqueChecker exception: {}", e.getMessage(), e);
+            throw new StrixUniqueCheckerException(I18nUtil.get("error.unique.checkerError"));
         }
     }
 

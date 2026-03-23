@@ -20,6 +20,7 @@ import cn.projectan.strix.service.system.SmsLogService;
 import cn.projectan.strix.service.system.SmsSignService;
 import cn.projectan.strix.service.system.SmsTemplateService;
 import cn.projectan.strix.task.system.StrixSmsTask;
+import cn.projectan.strix.util.common.I18nUtil;
 import cn.projectan.strix.util.common.UniqueChecker;
 import cn.projectan.strix.util.common.UpdateBuilder;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -80,7 +81,7 @@ public class SmsController extends BaseSystemController {
     @Operation(summary = "短信配置详情")
     public RetResult<SmsConfigResp> getSmsConfigInfo(@Parameter(description = "短信配置 ID") @PathVariable String id) {
         SmsConfig smsConfig = smsConfigService.getById(id);
-        Assert.notNull(smsConfig, "短信配置不存在");
+        Assert.notNull(smsConfig, I18nUtil.notFound("field.smsConfig"));
 
         List<SmsSign> signs = smsSignService.listByConfigKey(smsConfig.getKey());
         List<SmsSignListResp.SmsSignItem> signItems = new SmsSignListResp(signs, (long) signs.size()).getSigns();
@@ -141,7 +142,7 @@ public class SmsController extends BaseSystemController {
     @Operation(summary = "编辑短信配置")
     public RetResult<Object> update(@Parameter(description = "短信配置 ID") @PathVariable String id, @RequestBody @Validated(UpdateGroup.class) SmsConfigUpdateReq req) {
         SmsConfig smsConfig = smsConfigService.getById(id);
-        Assert.notNull(smsConfig, "原记录不存在");
+        Assert.notNull(smsConfig, I18nUtil.notFound("field.originalData"));
         String originKey = smsConfig.getKey();
 
         LambdaUpdateWrapper<SmsConfig> updateWrapper = UpdateBuilder.build(smsConfig, req);
@@ -164,7 +165,7 @@ public class SmsController extends BaseSystemController {
     @Operation(summary = "删除短信配置")
     public RetResult<Object> remove(@Parameter(description = "短信配置 ID") @PathVariable String id) {
         SmsConfig smsConfig = smsConfigService.getById(id);
-        Assert.notNull(smsConfig, "原记录不存在");
+        Assert.notNull(smsConfig, I18nUtil.notFound("field.originalData"));
 
         smsConfigService.deleteConfigWithRelations(smsConfig);
 

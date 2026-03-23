@@ -8,6 +8,7 @@ import cn.projectan.strix.model.response.common.CommonOperatorInfoResp;
 import cn.projectan.strix.service.common.OperatorService;
 import cn.projectan.strix.service.system.WorkflowInstanceService;
 import cn.projectan.strix.service.system.WorkflowTaskService;
+import cn.projectan.strix.util.common.I18nUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -58,7 +59,7 @@ public class DebugController extends BaseController {
     @GetMapping("operator/{operatorType}/{operatorId}")
     public RetResult<Object> queryOperatorInfo(@Parameter(description = "操作人类型") @PathVariable Short operatorType, @Parameter(description = "操作人 ID") @PathVariable String operatorId) {
         CommonOperatorInfoResp operatorInfoResp = operatorService.queryOperatorInfo(operatorType, operatorId);
-        Assert.notNull(operatorInfoResp, "未找到该人员信息");
+        Assert.notNull(operatorInfoResp, I18nUtil.notFound("field.systemManager"));
         return RetBuilder.success(operatorInfoResp);
     }
 

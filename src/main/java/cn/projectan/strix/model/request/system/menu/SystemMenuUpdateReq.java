@@ -19,8 +19,8 @@ public class SystemMenuUpdateReq {
      * 菜单权限标识
      */
     @Schema(description = "菜单权限标识", example = "system:user:list")
-    @NotEmpty(groups = {InsertGroup.class, UpdateGroup.class}, message = "菜单权限标识不可为空")
-    @Size(groups = {InsertGroup.class, UpdateGroup.class}, min = 2, max = 64, message = "菜单权限标识长度不符合要求")
+    @NotEmpty(groups = {InsertGroup.class, UpdateGroup.class}, message = "{validation.required:field.menu.permKey}")
+    @Size(groups = {InsertGroup.class, UpdateGroup.class}, min = 2, max = 64, message = "{validation.length:field.menu.permKey}")
     @UpdateField
     private String key;
 
@@ -28,8 +28,8 @@ public class SystemMenuUpdateReq {
      * 菜单名称
      */
     @Schema(description = "菜单名称", example = "用户管理")
-    @NotEmpty(groups = {InsertGroup.class, UpdateGroup.class}, message = "菜单名称不可为空")
-    @Size(groups = {InsertGroup.class, UpdateGroup.class}, min = 2, max = 10, message = "菜单名称长度不符合要求")
+    @NotEmpty(groups = {InsertGroup.class, UpdateGroup.class}, message = "{validation.required:field.menu.name}")
+    @Size(groups = {InsertGroup.class, UpdateGroup.class}, min = 2, max = 10, message = "{validation.length:field.menu.name}")
     @UpdateField
     private String name;
 
@@ -37,8 +37,8 @@ public class SystemMenuUpdateReq {
      * 访问地址
      */
     @Schema(description = "菜单路由地址", example = "/system/user")
-    @NotEmpty(groups = {InsertGroup.class, UpdateGroup.class}, message = "菜单路由不可为空")
-    @Size(groups = {InsertGroup.class, UpdateGroup.class}, min = 1, max = 128, message = "菜单路由长度不符合要求")
+    @NotEmpty(groups = {InsertGroup.class, UpdateGroup.class}, message = "{validation.required:field.menu.route}")
+    @Size(groups = {InsertGroup.class, UpdateGroup.class}, min = 1, max = 128, message = "{validation.length:field.menu.route}")
     @UpdateField
     private String url;
 
@@ -60,9 +60,9 @@ public class SystemMenuUpdateReq {
      * 排序值 越小越靠前
      */
     @Schema(description = "排序值，越小越靠前", example = "1")
-    @NotNull(groups = {InsertGroup.class, UpdateGroup.class}, message = "菜单排序值不可为空")
-    @Min(groups = {InsertGroup.class, UpdateGroup.class}, value = 0, message = "菜单排序值超出可用范围")
-    @Max(groups = {InsertGroup.class, UpdateGroup.class}, value = 1000000, message = "菜单排序值超出可用范围")
+    @NotNull(groups = {InsertGroup.class, UpdateGroup.class}, message = "{validation.required:field.menu.sort}")
+    @Min(groups = {InsertGroup.class, UpdateGroup.class}, value = 0, message = "{validation.outOfRange:field.menu.sort}")
+    @Max(groups = {InsertGroup.class, UpdateGroup.class}, value = 1000000, message = "{validation.outOfRange:field.menu.sort}")
     @UpdateField
     private Integer sortValue;
 

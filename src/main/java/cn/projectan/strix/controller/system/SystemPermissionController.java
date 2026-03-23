@@ -15,6 +15,7 @@ import cn.projectan.strix.model.response.system.permission.SystemPermissionListR
 import cn.projectan.strix.model.response.system.permission.SystemPermissionResp;
 import cn.projectan.strix.service.system.SystemManagerService;
 import cn.projectan.strix.service.system.SystemPermissionService;
+import cn.projectan.strix.util.common.I18nUtil;
 import cn.projectan.strix.util.common.UniqueChecker;
 import cn.projectan.strix.util.common.UpdateBuilder;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -69,7 +70,7 @@ public class SystemPermissionController extends BaseSystemController {
     @StrixLog(operationGroup = "系统权限", operationName = "查询权限信息")
     public RetResult<SystemPermissionResp> getSystemPermission(@Parameter(description = "权限 ID") @PathVariable String permissionId) {
         SystemPermission systemPermission = systemPermissionService.getById(permissionId);
-        Assert.notNull(systemPermission, "系统权限信息不存在");
+        Assert.notNull(systemPermission, I18nUtil.notFound("field.systemPermission"));
 
         return RetBuilder.success(new SystemPermissionResp(systemPermission.getId(), systemPermission.getName(), systemPermission.getKey(), systemPermission.getMenuId(), systemPermission.getDescription()));
     }
@@ -82,7 +83,7 @@ public class SystemPermissionController extends BaseSystemController {
     @PreAuthorize("@ss.anyPermission('system:menu:add', 'system:menu:update')")
     @StrixLog(operationGroup = "系统权限", operationName = "新增权限", operationType = SystemLogOperType.ADD)
     public RetResult<Object> update(@RequestBody @Validated(InsertGroup.class) SystemPermissionUpdateReq req) {
-        Assert.notNull(req, "参数错误");
+        Assert.notNull(req, I18nUtil.get("error.param.invalid"));
 
         SystemPermission systemPermission = new SystemPermission(
                 req.getName(),
@@ -106,9 +107,9 @@ public class SystemPermissionController extends BaseSystemController {
     @PreAuthorize("@ss.anyPermission('system:menu:add', 'system:menu:update')")
     @StrixLog(operationGroup = "系统权限", operationName = "修改权限", operationType = SystemLogOperType.UPDATE)
     public RetResult<Object> update(@Parameter(description = "权限 ID") @PathVariable String permissionId, @RequestBody @Validated(UpdateGroup.class) SystemPermissionUpdateReq req) {
-        Assert.notNull(req, "参数错误");
+        Assert.notNull(req, I18nUtil.get("error.param.invalid"));
         SystemPermission systemPermission = systemPermissionService.getById(permissionId);
-        Assert.notNull(systemPermission, "系统权限信息不存在");
+        Assert.notNull(systemPermission, I18nUtil.notFound("field.systemPermission"));
 
         LambdaUpdateWrapper<SystemPermission> updateWrapper = UpdateBuilder.build(systemPermission, req);
         UniqueChecker.check(systemPermission);

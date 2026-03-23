@@ -17,8 +17,8 @@ import lombok.Data;
 public class WorkflowUpdateReq {
 
     @Schema(description = "工作流名称")
-    @NotEmpty(groups = {InsertGroup.class, UpdateGroup.class}, message = "工作流名称不可为空")
-    @Size(groups = {InsertGroup.class, UpdateGroup.class}, min = 2, max = 32, message = "工作流名称长度不符合要求")
+    @NotEmpty(groups = {InsertGroup.class, UpdateGroup.class}, message = "{validation.required:field.workflow.name}")
+    @Size(groups = {InsertGroup.class, UpdateGroup.class}, min = 2, max = 32, message = "{validation.length:field.workflow.name}")
     @UpdateField
     private String name;
 

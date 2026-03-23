@@ -13,6 +13,7 @@ import cn.projectan.strix.model.response.system.SystemMenuResp;
 import cn.projectan.strix.model.response.system.login.SystemManagerLoginResp;
 import cn.projectan.strix.service.system.SystemLoginService;
 import cn.projectan.strix.service.system.SystemMenuService;
+import cn.projectan.strix.util.common.I18nUtil;
 import cn.projectan.strix.util.system.SecurityUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -68,10 +69,10 @@ public class SystemController extends BaseSystemController {
     @GetMapping("menus")
     public RetResult<SystemMenuResp> getMenuList() {
         List<String> systemMenuKeys = Optional.ofNullable(SecurityUtil.getSystemManagerLoginInfo()).map(LoginSystemManager::getMenusKeys).orElse(null);
-        Assert.notEmpty(systemMenuKeys, "当前账号无菜单权限");
+        Assert.notEmpty(systemMenuKeys, I18nUtil.get("assert.menu.noPermission"));
 
         List<SystemMenu> systemMenus = systemMenusService.listByKeys(systemMenuKeys);
-        Assert.notEmpty(systemMenus, "当前账号无可用菜单权限");
+        Assert.notEmpty(systemMenus, I18nUtil.get("assert.menu.noAvailablePermission"));
 
         return RetBuilder.success(new SystemMenuResp(systemMenus));
     }

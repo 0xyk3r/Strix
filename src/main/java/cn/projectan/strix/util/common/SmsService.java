@@ -31,7 +31,7 @@ public class SmsService {
 
     public void send(SmsLog sms) {
         StrixSmsClient client = strixSmsStore.getInstance(sms.getConfigKey());
-        Assert.notNull(client, "Strix SMS: 发送短信失败. (短信服务实例不存在)");
+        Assert.notNull(client, I18nUtil.get("assert.sms.sendFailed"));
 
         client.send(sms);
         smsLogService.save(sms);
@@ -39,14 +39,14 @@ public class SmsService {
 
     public List<StrixSmsSign> getSignList(String configKey) {
         StrixSmsClient client = strixSmsStore.getInstance(configKey);
-        Assert.notNull(client, "Strix SMS: 获取短信签名列表失败. (短信服务实例不存在)");
+        Assert.notNull(client, I18nUtil.get("assert.sms.getSignListFailed"));
 
         return client.getSignList();
     }
 
     public List<StrixSmsTemplate> getTemplateList(String configKey) {
         StrixSmsClient client = strixSmsStore.getInstance(configKey);
-        Assert.notNull(client, "Strix SMS: 获取短信模板列表失败. (短信服务实例不存在)");
+        Assert.notNull(client, I18nUtil.get("assert.sms.getTemplateListFailed"));
 
         return client.getTemplateList();
     }

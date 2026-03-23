@@ -1,6 +1,7 @@
 package cn.projectan.strix.util.file;
 
 import cn.hutool.core.util.StrUtil;
+import cn.projectan.strix.util.common.I18nUtil;
 import com.ijpay.core.kit.PayKit;
 import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -64,11 +65,11 @@ public class CertUtil {
             cert.checkValidity();
             return cert;
         } catch (CertificateExpiredException e) {
-            throw new RuntimeException("证书已过期", e);
+            throw new RuntimeException(I18nUtil.get("error.cert.expired"), e);
         } catch (CertificateNotYetValidException e) {
-            throw new RuntimeException("证书尚未生效", e);
+            throw new RuntimeException(I18nUtil.get("error.cert.notYetValid"), e);
         } catch (CertificateException e) {
-            throw new RuntimeException("无效的证书", e);
+            throw new RuntimeException(I18nUtil.get("error.cert.invalid"), e);
         }
     }
 
@@ -85,7 +86,7 @@ public class CertUtil {
         try (InputStream inputStream = FileUtil.open(Path.of(path))) {
             return getCertificate(inputStream);
         } catch (IOException e) {
-            throw new RuntimeException("请检查证书路径是否正确", e);
+            throw new RuntimeException(I18nUtil.get("error.cert.pathError"), e);
         }
     }
 

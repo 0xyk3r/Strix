@@ -110,7 +110,7 @@ public class WechatOAController extends BaseWechatController {
                 // 如果数据库中有 OAuth 用户信息, 则获取
                 systemUser = systemUserService.getSystemUser(oauthUser.getPlatform(), oauthUser.getId());
             }
-            Assert.notNull(systemUser, "系统用户信息获取失败");
+            Assert.notNull(systemUser, I18nUtil.failed("field.systemUser"));
 
             LoginSystemUser loginInfo = systemUserService.getLoginInfo(systemUser.getId());
             long tokenTTL = systemConfigCache.getLong("SYSTEM_USER_LOGIN_EFFECTIVE_TIME", 1440L);

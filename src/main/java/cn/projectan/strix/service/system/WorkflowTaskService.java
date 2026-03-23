@@ -142,18 +142,18 @@ public class WorkflowTaskService extends ServiceImpl<WorkflowTaskMapper, Workflo
     @Transactional(rollbackFor = Exception.class)
     public void completeTask(String taskId, String operatorId, Short operationType, String comment) {
         WorkflowTask task = getById(taskId);
-        Assert.notNull(task, "任务不存在");
+        Assert.notNull(task, I18nUtil.notFound("field.workflowTask"));
         WorkflowTaskAssign assign = workflowTaskAssignService.lambdaQuery()
                 .eq(WorkflowTaskAssign::getTaskId, taskId)
                 .eq(!"TimeLimit".equals(operatorId), WorkflowTaskAssign::getOperatorId, operatorId)
                 .isNull(WorkflowTaskAssign::getOperationType)
                 .one();
-        Assert.notNull(assign, "任务不存在");
+        Assert.notNull(assign, I18nUtil.notFound("field.workflowTaskAssign"));
 
         List<WorkflowNode> nodes = workflowConfigCache.getConfigById(task.getWorkflowConfigId());
-        Assert.notEmpty(nodes, "工作流配置为空");
+        Assert.notEmpty(nodes, I18nUtil.notEmpty("field.workflowNodes"));
         WorkflowNode currentNode = WorkflowTool.findNodeById(nodes, task.getNodeId());
-        Assert.notNull(currentNode, "工作流配置当前节点不存在");
+        Assert.notNull(currentNode, I18nUtil.notFound("field.workflowCurrentNode"));
         WorkflowHandler handler = new WorkflowHandler(currentNode);
         Assert.isTrue(handler.isAssignOperator(operatorId), "任务不存在");
 
@@ -166,7 +166,7 @@ public class WorkflowTaskService extends ServiceImpl<WorkflowTaskMapper, Workflo
         workflowTaskAssignService.updateById(assign);
 
         WorkflowInstance instance = workflowInstanceService.getById(task.getWorkflowInstanceId());
-        Assert.notNull(instance, "工作流实例不存在");
+        Assert.notNull(instance, I18nUtil.notFound("field.workflowInstance"));
 
         boolean isFinish = false;
         switch (operationType) {

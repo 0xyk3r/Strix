@@ -5,6 +5,7 @@ import cn.projectan.strix.model.db.system.PayOrder;
 import cn.projectan.strix.model.dict.system.PayPlatform;
 import cn.projectan.strix.model.other.system.module.pay.BasePayResult;
 import cn.projectan.strix.model.other.system.module.pay.alipay.AlipayPayConfig;
+import cn.projectan.strix.util.common.I18nUtil;
 import cn.projectan.strix.util.common.ObjectMapperUtil;
 import cn.projectan.strix.util.file.CertUtil;
 import cn.projectan.strix.util.http.ServletUtil;
@@ -38,7 +39,7 @@ public class AlipayPayClient extends StrixPayClient {
 
     public AlipayPayClient(AlipayPayConfig config) {
         super();
-        Assert.notNull(config, "Strix Pay: 初始化支付宝支付服务实例失败. (配置信息为空)");
+        Assert.notNull(config, I18nUtil.get("assert.pay.initFailed", I18nUtil.get("field.pay.alipay")));
         this.config = config;
         try {
             this.apiConfig = AliPayApiConfig.builder()
@@ -55,7 +56,7 @@ public class AlipayPayClient extends StrixPayClient {
                     );
             AliPayApiConfigKit.setThreadLocalAliPayApiConfig(apiConfig);
         } catch (Exception e) {
-            throw new RuntimeException("Strix Pay: 初始化支付宝支付服务实例失败. (配置信息错误)", e);
+            throw new RuntimeException(I18nUtil.get("assert.pay.alipayInitConfigError"), e);
         }
     }
 

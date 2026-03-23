@@ -2,6 +2,7 @@ package cn.projectan.strix.core.module.sms;
 
 import cn.projectan.strix.model.db.system.SmsConfig;
 import cn.projectan.strix.model.dict.system.SmsPlatform;
+import cn.projectan.strix.util.common.I18nUtil;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
@@ -25,7 +26,7 @@ public class AliyunSmsClientFactory implements SmsClientFactory {
                 .setAccessKeySecret(config.getAccessSecret())
                 .setRegionId(config.getRegionId());
         com.aliyun.dysmsapi20170525.Client client = new com.aliyun.dysmsapi20170525.Client(sdkConfig);
-        Assert.notNull(client, "阿里云短信客户端初始化失败");
+        Assert.notNull(client, I18nUtil.initFailed("field.aliyunSmsClient"));
         return new AliyunSmsClient(client);
     }
 

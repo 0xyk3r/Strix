@@ -15,17 +15,17 @@ import lombok.Data;
 public class SystemLoginReq {
 
     @Schema(description = "登录账号", example = "admin")
-    @NotBlank(message = "登录名不能为空")
-    @Size(max = 32, message = "登录名长度不能超过32个字符")
+    @NotBlank(message = "{validation.required:field.login.name}")
+    @Size(max = 32, message = "{validation.length:field.login.name}")
     private String loginName;
 
     @Schema(description = "登录密码", example = "password123")
-    @NotBlank(message = "密码不能为空")
+    @NotBlank(message = "{validation.required:field.login.password}")
     @DataMask
     private String loginPassword;
 
     @Schema(description = "验证码校验参数")
-    @NotBlank(message = "验证码不能为空")
+    @NotBlank(message = "{validation.required:field.login.captcha}")
     private String captchaVerification;
 
 }

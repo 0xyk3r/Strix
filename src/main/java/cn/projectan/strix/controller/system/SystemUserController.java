@@ -69,7 +69,7 @@ public class SystemUserController extends BaseSystemController {
     @StrixLog(operationGroup = "系统用户", operationName = "查询用户信息")
     public RetResult<SystemUserResp> getSystemUser(@Parameter(description = "用户 ID") @PathVariable String userId) {
         SystemUser systemUser = systemUserService.getById(userId);
-        Assert.notNull(systemUser, "系统用户信息不存在");
+        Assert.notNull(systemUser, I18nUtil.notFound("field.systemUser"));
 
         return RetBuilder.success(new SystemUserResp(systemUser));
     }
@@ -84,7 +84,7 @@ public class SystemUserController extends BaseSystemController {
     public RetResult<Object> modifyField(@Parameter(description = "用户 ID") @PathVariable String userId, @RequestBody @Validated SingleFieldModifyReq req) {
         Assert.hasText(req.getField(), "参数错误");
         SystemUser systemUser = systemUserService.getById(userId);
-        Assert.notNull(systemUser, "系统用户信息不存在");
+        Assert.notNull(systemUser, I18nUtil.notFound("field.systemUser"));
 
         LambdaUpdateWrapper<SystemUser> queryWrapper = new LambdaUpdateWrapper<>();
         queryWrapper.eq(SystemUser::getId, userId);
@@ -114,7 +114,7 @@ public class SystemUserController extends BaseSystemController {
     @PreAuthorize("@ss.hasPermission('system:user:add')")
     @StrixLog(operationGroup = "系统用户", operationName = "新增用户", operationType = SystemLogOperType.ADD)
     public RetResult<Object> update(@RequestBody @Validated(InsertGroup.class) SystemUserUpdateReq req) {
-        Assert.notNull(req, "参数错误");
+        Assert.notNull(req, I18nUtil.get("error.param.invalid"));
 
         SystemUser systemUser = new SystemUser(
                 req.getNickname(),
@@ -139,9 +139,9 @@ public class SystemUserController extends BaseSystemController {
     @PreAuthorize("@ss.hasPermission('system:user:update')")
     @StrixLog(operationGroup = "系统用户", operationName = "修改用户", operationType = SystemLogOperType.UPDATE)
     public RetResult<Object> update(@Parameter(description = "用户 ID") @PathVariable String userId, @RequestBody @Validated(UpdateGroup.class) SystemUserUpdateReq req) {
-        Assert.notNull(req, "参数错误");
+        Assert.notNull(req, I18nUtil.get("error.param.invalid"));
         SystemUser systemUser = systemUserService.getById(userId);
-        Assert.notNull(systemUser, "系统用户信息不存在");
+        Assert.notNull(systemUser, I18nUtil.notFound("field.systemUser"));
 
         LambdaUpdateWrapper<SystemUser> updateWrapper = UpdateBuilder.build(systemUser, req);
         UniqueChecker.check(systemUser);
@@ -159,7 +159,7 @@ public class SystemUserController extends BaseSystemController {
     @StrixLog(operationGroup = "系统用户", operationName = "删除用户", operationType = SystemLogOperType.DELETE)
     public RetResult<Object> remove(@Parameter(description = "用户 ID") @PathVariable String userId) {
         SystemUser systemUser = systemUserService.getById(userId);
-        Assert.notNull(systemUser, "系统用户信息不存在");
+        Assert.notNull(systemUser, I18nUtil.notFound("field.systemUser"));
 
         systemUserService.deleteUserWithRelations(systemUser);
 

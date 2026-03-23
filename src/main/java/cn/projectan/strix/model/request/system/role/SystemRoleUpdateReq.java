@@ -23,8 +23,8 @@ public class SystemRoleUpdateReq {
      * 角色名称
      */
     @Schema(description = "角色名称")
-    @NotEmpty(groups = {InsertGroup.class, UpdateGroup.class}, message = "角色名称不可为空")
-    @Size(groups = {InsertGroup.class, UpdateGroup.class}, min = 2, max = 16, message = "角色名称长度不符合要求")
+    @NotEmpty(groups = {InsertGroup.class, UpdateGroup.class}, message = "{validation.required:field.role.name}")
+    @Size(groups = {InsertGroup.class, UpdateGroup.class}, min = 2, max = 16, message = "{validation.length:field.role.name}")
     @UpdateField
     private String name;
 
@@ -34,8 +34,8 @@ public class SystemRoleUpdateReq {
      * @see SystemRoleRegionPermissionType
      */
     @Schema(description = "地区权限类型")
-    @NotNull(groups = {InsertGroup.class, UpdateGroup.class}, message = "地区权限类型不可为空")
-    @ConstantDictValue(groups = {InsertGroup.class, UpdateGroup.class}, dict = SystemRoleRegionPermissionType.class, message = "地区权限类型不合法")
+    @NotNull(groups = {InsertGroup.class, UpdateGroup.class}, message = "{validation.required:field.role.regionPermType}")
+    @ConstantDictValue(groups = {InsertGroup.class, UpdateGroup.class}, dict = SystemRoleRegionPermissionType.class, message = "{validation.invalid:field.role.regionPermType}")
     @UpdateField
     private Short regionPermissionType;
 

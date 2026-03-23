@@ -11,6 +11,7 @@ import cn.projectan.strix.model.dict.system.PayPlatform;
 import cn.projectan.strix.model.other.system.module.pay.BasePayResult;
 import cn.projectan.strix.model.other.system.module.pay.wxpay.WechatPayConfig;
 import cn.projectan.strix.model.other.system.module.pay.wxpay.WechatPayPayParam;
+import cn.projectan.strix.util.common.I18nUtil;
 import cn.projectan.strix.util.common.SpringUtil;
 import cn.projectan.strix.util.file.CertUtil;
 import cn.projectan.strix.util.http.ServletUtil;
@@ -62,7 +63,7 @@ public class WechatPayClient extends StrixPayClient {
 
     public WechatPayClient(WechatPayConfig config) {
         super();
-        Assert.notNull(config, "Strix Pay: 初始化微信支付服务实例失败. (配置信息为空)");
+        Assert.notNull(config, I18nUtil.get("assert.pay.initFailed", I18nUtil.get("field.pay.wechat")));
         this.config = config;
         this.objectMapper = SpringUtil.getBean(ObjectMapper.class);
     }
@@ -113,7 +114,7 @@ public class WechatPayClient extends StrixPayClient {
             Assert.isTrue(response.getStatus() == 200, "Strix Pay: 微信创建JSAPI订单响应异常： " + response.getBody());
             // 根据证书序列号查询对应的证书来验证签名结果
             boolean verifySignature = WxPayKit.verifySignature(response, config.getV3PlatformCertPath());
-            Assert.isTrue(verifySignature, "Strix Pay: 校验微信支付响应签名失败： " + response.getBody());
+            Assert.isTrue(verifySignature, I18nUtil.get("assert.pay.verifySignFailed", response.getBody()));
 
             Map<String, Object> responseMap = objectMapper.readValue(response.getBody(), new TypeReference<>() {
             });
@@ -155,7 +156,7 @@ public class WechatPayClient extends StrixPayClient {
             Assert.isTrue(response.getStatus() == 200, "Strix Pay: 微信创建JSAPI订单响应异常： " + response.getBody());
             // 根据证书序列号查询对应的证书来验证签名结果
             boolean verifySignature = WxPayKit.verifySignature(response, config.getV3PlatformCertPath());
-            Assert.isTrue(verifySignature, "Strix Pay: 校验微信支付响应签名失败： " + response.getBody());
+            Assert.isTrue(verifySignature, I18nUtil.get("assert.pay.verifySignFailed", response.getBody()));
 
             Map<String, Object> responseMap = objectMapper.readValue(response.getBody(), new TypeReference<>() {
             });
@@ -197,7 +198,7 @@ public class WechatPayClient extends StrixPayClient {
         try {
             String payResult = WxPayKit.verifyNotify(serialNo, body, signature, nonce, timestamp,
                     config.getV3ApiKey(), config.getV3PlatformCertPath());
-            Assert.hasText(payResult, "微信支付回调异常: 解密数据失败: " + payResult);
+            Assert.hasText(payResult, I18nUtil.get("assert.pay.callbackDecryptFailed", payResult));
             Map<String, Object> params = objectMapper.readValue(payResult, new TypeReference<>() {
             });
 
@@ -281,12 +282,12 @@ public class WechatPayClient extends StrixPayClient {
             );
 
             boolean verifySignature = WxPayKit.verifySignature(response, config.getV3PlatformCertPath());
-            Assert.isTrue(verifySignature, "校验微信JSAPI支付请求响应签名失败： " + response.getBody());
+            Assert.isTrue(verifySignature, I18nUtil.get("assert.pay.jsapiSignFailed", response.getBody()));
             Map<String, Object> respMap = objectMapper.readValue(response.getBody(), new TypeReference<>() {
             });
 
             String mediaId = MapUtil.getStr(respMap, "media_id");
-            Assert.hasText(mediaId, "上传图片至微信支付平台时失败");
+            Assert.hasText(mediaId, I18nUtil.get("assert.pay.uploadImageFailed"));
 
             if (deleteAfterHandle) {
                 //noinspection ResultOfMethodCallIgnored

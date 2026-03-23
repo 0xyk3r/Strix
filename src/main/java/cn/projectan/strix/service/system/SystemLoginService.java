@@ -12,6 +12,7 @@ import cn.projectan.strix.model.dict.system.SystemManagerStatus;
 import cn.projectan.strix.model.other.system.captcha.CaptchaData;
 import cn.projectan.strix.model.request.system.login.SystemLoginReq;
 import cn.projectan.strix.model.response.system.login.SystemManagerLoginResp;
+import cn.projectan.strix.util.common.I18nUtil;
 import cn.projectan.strix.util.common.RedisUtil;
 import cn.projectan.strix.util.crypto.StrixSM3Util;
 import cn.projectan.strix.util.http.ServletUtil;
@@ -96,11 +97,11 @@ public class SystemLoginService {
      * 续期 Token
      */
     public RetResult<SystemManagerLoginResp> renewToken(String managerId) {
-        Assert.hasText(managerId, "请重新登陆");
+        Assert.hasText(managerId, I18nUtil.get("assert.login.relogin"));
         SystemManager systemManager = systemManagerService.getById(managerId);
 
         LoginSystemManager loginSystemManager = tokenSessionService.getManagerLoginInfoById(managerId);
-        Assert.notNull(loginSystemManager, "旧token已失效，请重新登陆");
+        Assert.notNull(loginSystemManager, I18nUtil.get("assert.login.tokenExpired"));
 
         long effectiveTime = systemConfigCache.getLong("SYSTEM_MANAGER_LOGIN_EFFECTIVE_TIME", 1440L);
         tokenSessionService.refreshManagerSessionTTL(systemManager.getId(), effectiveTime);

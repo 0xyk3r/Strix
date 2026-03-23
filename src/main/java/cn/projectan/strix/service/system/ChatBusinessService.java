@@ -12,6 +12,7 @@ import cn.projectan.strix.model.request.srv.chat.DeleteSessionReq;
 import cn.projectan.strix.model.request.srv.chat.SessionListReq;
 import cn.projectan.strix.model.response.srv.chat.ChatSessionListItemResp;
 import cn.projectan.strix.model.response.srv.chat.ChatSessionResp;
+import cn.projectan.strix.util.common.I18nUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
@@ -66,10 +67,10 @@ public class ChatBusinessService {
         ChatConfig config = chatConfigService.lambdaQuery()
                 .eq(ChatConfig::getKey, req.getConfigKey())
                 .one();
-        Assert.notNull(config, "聊天配置不存在");
+        Assert.notNull(config, I18nUtil.notFound("field.chatConfig"));
 
         ChatSessionTypeEnum sessionType = ChatSessionTypeEnum.parseFromCodeValue(config.getSessionType());
-        Assert.notNull(sessionType, "聊天配置类型无效");
+        Assert.notNull(sessionType, I18nUtil.invalid("field.chatConfigType"));
 
         // 2. 单聊场景：尝试复用现有会话
         if (sessionType == ChatSessionTypeEnum.SINGLE) {
@@ -315,10 +316,10 @@ public class ChatBusinessService {
 
         // 2. 查询会话类型
         ChatSession session = chatSessionService.getById(req.getSessionId());
-        Assert.notNull(session, "会话不存在");
+        Assert.notNull(session, I18nUtil.notFound("field.session"));
 
         ChatSessionTypeEnum sessionType = ChatSessionTypeEnum.parseFromCodeValue(session.getType());
-        Assert.notNull(sessionType, "会话类型无效");
+        Assert.notNull(sessionType, I18nUtil.invalid("field.sessionType"));
 
         // 3. 查询当前用户的成员记录
         LambdaQueryWrapper<ChatSessionMember> queryWrapper = new LambdaQueryWrapper<>();
@@ -326,7 +327,7 @@ public class ChatBusinessService {
                 .eq(ChatSessionMember::getUserId, userId);
 
         ChatSessionMember currentMember = chatSessionMemberMapper.selectOne(queryWrapper);
-        Assert.notNull(currentMember, "成员记录不存在");
+        Assert.notNull(currentMember, I18nUtil.notFound("field.memberRecord"));
 
         // 4. 根据会话类型处理
         if (sessionType == ChatSessionTypeEnum.SINGLE) {

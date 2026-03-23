@@ -16,7 +16,7 @@ import lombok.Data;
 @Schema(description = "聊天 - 拉取消息请求")
 public class PullMessageReq {
 
-    @NotBlank(message = "会话 ID 不能为空")
+    @NotBlank(message = "{validation.required:field.chat.sessionId}")
     @Schema(description = "会话 ID", example = "1234567890")
     private String sessionId;
 
@@ -26,8 +26,8 @@ public class PullMessageReq {
     @Schema(description = "第一条消息 ID（拉取历史消息时使用，拉取 id < firstMessageId 的消息）", example = "50")
     private String firstMessageId;
 
-    @Min(value = 1, message = "拉取数量最小为 1")
-    @Max(value = 100, message = "拉取数量最大为 100")
+    @Min(value = 1, message = "{validation.minValue:field.chat.pullCount}")
+    @Max(value = 100, message = "{validation.maxValue:field.chat.pullCount}")
     @Schema(description = "拉取数量", example = "20")
     private Integer limit = 20;
 

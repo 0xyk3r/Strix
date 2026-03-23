@@ -123,7 +123,7 @@ public class JobService extends ServiceImpl<JobMapper, Job> {
         Assert.isTrue(jobs.size() == jobIds.length, "部分任务不存在");
 
         int rows = getBaseMapper().deleteByIds(idList);
-        Assert.isTrue(rows == jobIds.length, "删除任务失败");
+        Assert.isTrue(rows == jobIds.length, I18nUtil.get("assert.job.deleteFailed"));
 
         for (Job job : jobs) {
             Assert.isTrue(scheduler.deleteJob(ScheduleUtil.getJobKey(job.getId(), job.getGroup())), "删除调度任务失败");
@@ -155,7 +155,7 @@ public class JobService extends ServiceImpl<JobMapper, Job> {
     @Transactional(rollbackFor = Exception.class)
     public boolean run(String id) throws SchedulerException {
         Job job = getBaseMapper().selectById(id);
-        Assert.notNull(job, "任务不存在");
+        Assert.notNull(job, I18nUtil.notFound("field.job"));
         // 组装参数
         JobDataMap dataMap = new JobDataMap();
         dataMap.put(StrixJobConst.TASK_PROPERTIES, job);

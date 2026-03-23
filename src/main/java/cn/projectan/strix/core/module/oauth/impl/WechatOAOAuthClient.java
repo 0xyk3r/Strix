@@ -7,6 +7,7 @@ import cn.projectan.strix.model.dict.system.OAuthPushStatus;
 import cn.projectan.strix.model.other.system.module.oauth.BaseOAuthUserInfo;
 import cn.projectan.strix.model.other.system.module.oauth.wechat.oa.WechatOAOAuthConfig;
 import cn.projectan.strix.service.system.OauthPushService;
+import cn.projectan.strix.util.common.I18nUtil;
 import cn.projectan.strix.util.http.OkHttpUtil;
 import cn.projectan.strix.util.module.oauth.WechatOAOAuthUtil;
 import jakarta.annotation.Nonnull;
@@ -47,7 +48,7 @@ public class WechatOAOAuthClient extends AbstractWechatOAuthClient<WechatOAOAuth
     public WechatOAOAuthClient(WechatOAOAuthConfig config, ScheduledExecutorService scheduler,
                                ObjectMapper objectMapper, OauthPushService oauthPushService) {
         super(config, scheduler);
-        Assert.notNull(config, "Strix OAuth: 初始化微信公众号 OAuth 服务实例失败. (配置信息为空)");
+        Assert.notNull(config, I18nUtil.get("assert.oauth.initFailed", I18nUtil.get("field.oauth.wechatOA")));
         this.objectMapper = objectMapper;
         this.oauthPushService = oauthPushService;
         // 初始化 AccessToken 和 JsApiTicket 刷新任务
@@ -71,11 +72,11 @@ public class WechatOAOAuthClient extends AbstractWechatOAuthClient<WechatOAOAuth
         String requestUrl = String.format(AUTH_URL_TEMPLATE, config.getAppId(), config.getAppSecret(), code);
         try {
             String responseStr = OkHttpUtil.get(requestUrl);
-            Assert.hasText(responseStr, "Strix OAuth: 获取微信公众号 OAuth 授权凭证失败.");
+            Assert.hasText(responseStr, I18nUtil.get("assert.oauth.wechatOATokenFailed"));
 
             Map<String, Object> data = objectMapper.readValue(responseStr, new TypeReference<>() {
             });
-            Assert.notNull(data, "Strix OAuth: 获取微信公众号 OAuth 授权凭证失败.");
+            Assert.notNull(data, I18nUtil.get("assert.oauth.wechatOATokenFailed"));
 
             // 检查是否有错误码
             Integer errorCode = MapUtil.getInt(data, "errcode");
@@ -97,7 +98,7 @@ public class WechatOAOAuthClient extends AbstractWechatOAuthClient<WechatOAOAuth
             return oAuthUserInfo;
         } catch (Exception e) {
             log.error("Strix OAuth: 获取微信公众号 OAuth 授权凭证失败", e);
-            throw new StrixOAuthException("Strix OAuth: 获取微信公众号 OAuth 授权凭证失败", e);
+            throw new StrixOAuthException(I18nUtil.get("assert.oauth.wechatOATokenFailed"), e);
         }
     }
 

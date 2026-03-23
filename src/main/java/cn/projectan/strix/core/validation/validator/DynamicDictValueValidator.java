@@ -3,6 +3,7 @@ package cn.projectan.strix.core.validation.validator;
 import cn.projectan.strix.core.validation.annotation.DynamicDictValue;
 import cn.projectan.strix.model.response.common.CommonDictResp;
 import cn.projectan.strix.service.system.DictService;
+import cn.projectan.strix.util.common.I18nUtil;
 import cn.projectan.strix.util.common.SpringUtil;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
@@ -28,7 +29,7 @@ public class DynamicDictValueValidator implements ConstraintValidator<DynamicDic
         DictService dictService = SpringUtil.getBean(DictService.class);
         CommonDictResp dictResp = dictService.getDictResp(constraintAnnotation.dictName());
         if (dictResp == null) {
-            throw new RuntimeException("StrixDictValueValidator: 字典不存在");
+            throw new RuntimeException("StrixDictValueValidator: " + I18nUtil.get("assert.dict.notFound"));
         }
         dictResp.getDictDataList().forEach(dictData -> validValues.add(dictData.getValue()));
     }

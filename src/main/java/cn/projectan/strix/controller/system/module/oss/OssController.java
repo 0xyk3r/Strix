@@ -21,6 +21,7 @@ import cn.projectan.strix.service.system.OssBucketService;
 import cn.projectan.strix.service.system.OssConfigService;
 import cn.projectan.strix.service.system.OssFileGroupService;
 import cn.projectan.strix.service.system.OssFileService;
+import cn.projectan.strix.util.common.I18nUtil;
 import cn.projectan.strix.util.common.UniqueChecker;
 import cn.projectan.strix.util.common.UpdateBuilder;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -78,7 +79,7 @@ public class OssController extends BaseSystemController {
     @Operation(summary = "OSS 配置详情")
     public RetResult<OssConfigResp> getInfo(@Parameter(description = "OSS 配置 ID") @PathVariable String id) {
         OssConfig ossConfig = ossConfigService.getById(id);
-        Assert.notNull(ossConfig, "配置不存在");
+        Assert.notNull(ossConfig, I18nUtil.notFound("field.config"));
 
         List<OssBucket> buckets = ossBucketService.listByConfigKey(ossConfig.getKey());
         List<OssBucketListResp.OssBucketItem> bucketItems = new OssBucketListResp(buckets, (long) buckets.size()).getBuckets();
@@ -143,7 +144,7 @@ public class OssController extends BaseSystemController {
     @Operation(summary = "编辑 OSS 配置")
     public RetResult<Object> update(@Parameter(description = "OSS 配置 ID") @PathVariable String id, @RequestBody @Validated(UpdateGroup.class) OssConfigUpdateReq req) {
         OssConfig ossConfig = ossConfigService.getById(id);
-        Assert.notNull(ossConfig, "原记录不存在");
+        Assert.notNull(ossConfig, I18nUtil.notFound("field.originalData"));
         String originKey = ossConfig.getKey();
 
         LambdaUpdateWrapper<OssConfig> updateWrapper = UpdateBuilder.build(ossConfig, req);
@@ -166,7 +167,7 @@ public class OssController extends BaseSystemController {
     @Operation(summary = "删除 OSS 配置")
     public RetResult<Object> remove(@Parameter(description = "OSS 配置 ID") @PathVariable String id) {
         OssConfig ossConfig = ossConfigService.getById(id);
-        Assert.notNull(ossConfig, "原记录不存在");
+        Assert.notNull(ossConfig, I18nUtil.notFound("field.originalData"));
         String key = ossConfig.getKey();
 
         ossConfigService.removeById(id);

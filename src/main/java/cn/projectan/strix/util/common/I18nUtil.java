@@ -70,18 +70,65 @@ public class I18nUtil {
     // ======================== 静态代理方法 (供非注入场景使用) ========================
 
     public static String get(String code) {
+        if (instance == null) {
+            return code;
+        }
         return instance.getMessage(code);
     }
 
     public static String get(String code, Object... args) {
+        if (instance == null) {
+            return code;
+        }
         return instance.getMessage(code, args, code, instance.resolver.getLocale());
     }
 
+    /**
+     * 便捷方法："{0}不存在" 模板
+     */
+    public static String notFound(String fieldKey) {
+        return get("assert.notFound", (Object) get(fieldKey));
+    }
+
+    /**
+     * 便捷方法："{0}不能为空" 模板
+     */
+    public static String notEmpty(String fieldKey) {
+        return get("assert.notEmpty", (Object) get(fieldKey));
+    }
+
+    /**
+     * 便捷方法："{0}无效" 模板
+     */
+    public static String invalid(String fieldKey) {
+        return get("assert.invalid", (Object) get(fieldKey));
+    }
+
+    /**
+     * 便捷方法："{0}失败" 模板
+     */
+    public static String failed(String fieldKey) {
+        return get("assert.failed", (Object) get(fieldKey));
+    }
+
+    /**
+     * 便捷方法："{0}初始化失败" 模板
+     */
+    public static String initFailed(String fieldKey) {
+        return get("assert.initFailed", (Object) get(fieldKey));
+    }
+
     public static String get(String code, String lang) {
+        if (instance == null) {
+            return code;
+        }
         return instance.getMessage(code, lang);
     }
 
     public static String get(String code, Object[] args, String defaultMessage, Locale locale) {
+        if (instance == null) {
+            return code;
+        }
         return instance.getMessage(code, args, defaultMessage, locale);
     }
 

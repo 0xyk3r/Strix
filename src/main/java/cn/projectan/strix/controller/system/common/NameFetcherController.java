@@ -4,6 +4,7 @@ import cn.projectan.strix.controller.system.base.BaseSystemController;
 import cn.projectan.strix.core.ret.RetBuilder;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.model.response.common.CommonNameFetcherResp;
+import cn.projectan.strix.util.common.I18nUtil;
 import cn.projectan.strix.util.common.NameFetcherUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -38,8 +39,8 @@ public class NameFetcherController extends BaseSystemController {
             @Parameter(name = "dataId", description = "数据 ID", required = true)
     })
     public RetResult<CommonNameFetcherResp> nameFetcher(String dataType, String dataId) {
-        Assert.hasText(dataType, "参数错误");
-        Assert.hasText(dataId, "参数错误");
+        Assert.hasText(dataType, I18nUtil.get("error.param.invalid"));
+        Assert.hasText(dataId, I18nUtil.get("error.param.invalid"));
         String name = nameFetcherUtil.get(dataType, dataId);
         return RetBuilder.success(
                 new CommonNameFetcherResp(name)

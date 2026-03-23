@@ -3,6 +3,7 @@ package cn.projectan.strix.core.validation.validator;
 import cn.projectan.strix.core.validation.annotation.ConstantDictValue;
 import cn.projectan.strix.model.annotation.Dict;
 import cn.projectan.strix.model.annotation.DictData;
+import cn.projectan.strix.util.common.I18nUtil;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +28,7 @@ public class ConstantDictValueValidator implements ConstraintValidator<ConstantD
     public void initialize(ConstantDictValue constraintAnnotation) {
         Class<?> clazz = constraintAnnotation.dict();
         if (!clazz.isAnnotationPresent(Dict.class)) {
-            throw new RuntimeException("ConstantDictValueValidator: 字典类必须使用 @Dict 注解");
+            throw new RuntimeException("ConstantDictValueValidator: " + I18nUtil.get("error.dict.missingAnnotation"));
         }
 
         try {
@@ -39,7 +40,7 @@ public class ConstantDictValueValidator implements ConstraintValidator<ConstantD
                 validValues.add(field.get(null).toString());
             }
         } catch (Exception e) {
-            log.error("ConstantDictValueValidator: 初始化字典值失败", e);
+            log.error("ConstantDictValueValidator: failed to initialize dict values", e);
         }
     }
 

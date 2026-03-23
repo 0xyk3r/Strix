@@ -18,6 +18,7 @@ import cn.projectan.strix.model.response.system.menu.SystemMenuResp;
 import cn.projectan.strix.service.system.SystemManagerService;
 import cn.projectan.strix.service.system.SystemMenuService;
 import cn.projectan.strix.service.system.SystemPermissionService;
+import cn.projectan.strix.util.common.I18nUtil;
 import cn.projectan.strix.util.common.UniqueChecker;
 import cn.projectan.strix.util.common.UpdateBuilder;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -77,7 +78,7 @@ public class SystemMenuController extends BaseSystemController {
     @StrixLog(operationGroup = "系统菜单", operationName = "查询菜单信息")
     public RetResult<SystemMenuResp> getSystemMenu(@Parameter(description = "菜单 ID") @PathVariable String menuId) {
         SystemMenu sm = systemMenuService.getById(menuId);
-        Assert.notNull(sm, "系统菜单信息不存在");
+        Assert.notNull(sm, I18nUtil.notFound("field.systemMenu"));
 
         return RetBuilder.success(new SystemMenuResp(sm.getId(), sm.getKey(), sm.getName(), sm.getUrl(), sm.getIcon(), sm.getParentId(), sm.getSortValue()));
     }
@@ -94,7 +95,7 @@ public class SystemMenuController extends BaseSystemController {
         Assert.isTrue("icon".equals(req.getField()), "参数错误");
 
         SystemMenu systemMenu = systemMenuService.getById(menuId);
-        Assert.notNull(systemMenu, "系统菜单信息不存在");
+        Assert.notNull(systemMenu, I18nUtil.notFound("field.systemMenu"));
 
         Assert.isTrue(systemMenuService.updateIcon(menuId, req.getValue()), "修改失败");
         // 更新缓存
@@ -111,7 +112,7 @@ public class SystemMenuController extends BaseSystemController {
     @PreAuthorize("@ss.hasPermission('system:menu:add')")
     @StrixLog(operationGroup = "系统菜单", operationName = "新增菜单", operationType = SystemLogOperType.ADD)
     public RetResult<Object> update(@RequestBody @Validated(InsertGroup.class) SystemMenuUpdateReq req) {
-        Assert.notNull(req, "参数错误");
+        Assert.notNull(req, I18nUtil.get("error.param.invalid"));
 
         SystemMenu systemMenu = new SystemMenu(
                 req.getKey(),
@@ -139,9 +140,9 @@ public class SystemMenuController extends BaseSystemController {
     @PreAuthorize("@ss.hasPermission('system:menu:update')")
     @StrixLog(operationGroup = "系统菜单", operationName = "修改菜单", operationType = SystemLogOperType.UPDATE)
     public RetResult<Object> update(@Parameter(description = "菜单 ID") @PathVariable String menuId, @RequestBody @Validated(UpdateGroup.class) SystemMenuUpdateReq req) {
-        Assert.notNull(req, "参数错误");
+        Assert.notNull(req, I18nUtil.get("error.param.invalid"));
         SystemMenu systemMenu = systemMenuService.getById(menuId);
-        Assert.notNull(systemMenu, "系统菜单信息不存在");
+        Assert.notNull(systemMenu, I18nUtil.notFound("field.systemMenu"));
 
         LambdaUpdateWrapper<SystemMenu> updateWrapper = UpdateBuilder.build(systemMenu, req);
         UniqueChecker.check(systemMenu);

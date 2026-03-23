@@ -100,7 +100,7 @@ public class SystemManagerController extends BaseSystemController {
     @StrixLog(operationGroup = "系统人员", operationName = "查询人员信息")
     public RetResult<SystemManagerResp> getSystemManager(@Parameter(description = "管理员 ID") @PathVariable String managerId) {
         SystemManager systemManager = systemManagerService.getById(managerId);
-        Assert.notNull(systemManager, "系统人员信息不存在");
+        Assert.notNull(systemManager, I18nUtil.notFound("field.systemManager"));
         checkLoginManagerRegionPermission(systemManager.getRegionId());
 
         List<String> systemManagerRoleIds = systemManagerService.getRoleIdListByManagerId(managerId);
@@ -118,7 +118,7 @@ public class SystemManagerController extends BaseSystemController {
     public RetResult<Object> modifyField(@Parameter(description = "管理员 ID") @PathVariable String managerId, @RequestBody @Validated SingleFieldModifyReq req) {
         Assert.hasText(req.getField(), "参数错误");
         SystemManager systemManager = systemManagerService.getById(managerId);
-        Assert.notNull(systemManager, "系统人员信息不存在");
+        Assert.notNull(systemManager, I18nUtil.notFound("field.systemManager"));
         Assert.isTrue(systemManager.getBuiltin() == CommonFlag.NO, "内置用户不允许修改");
         checkLoginManagerRegionPermission(systemManager.getRegionId());
 
@@ -180,7 +180,7 @@ public class SystemManagerController extends BaseSystemController {
     @PreAuthorize("@ss.hasPermission('system:manager:add')")
     @StrixLog(operationGroup = "系统人员", operationName = "新增人员", operationType = SystemLogOperType.ADD)
     public RetResult<Object> update(@RequestBody @Validated(InsertGroup.class) SystemManagerUpdateReq req) {
-        Assert.notNull(req, "参数错误");
+        Assert.notNull(req, I18nUtil.get("error.param.invalid"));
         checkLoginManagerRegionPermission(req.getRegionId());
 
         SystemManager systemManager = new SystemManager(
@@ -208,9 +208,9 @@ public class SystemManagerController extends BaseSystemController {
     @PreAuthorize("@ss.hasPermission('system:manager:update')")
     @StrixLog(operationGroup = "系统人员", operationName = "修改人员", operationType = SystemLogOperType.UPDATE)
     public RetResult<Object> update(@Parameter(description = "管理员 ID") @PathVariable String managerId, @RequestBody @Validated(UpdateGroup.class) SystemManagerUpdateReq req) {
-        Assert.notNull(req, "参数错误");
+        Assert.notNull(req, I18nUtil.get("error.param.invalid"));
         SystemManager systemManager = systemManagerService.getById(managerId);
-        Assert.notNull(systemManager, "系统人员信息不存在");
+        Assert.notNull(systemManager, I18nUtil.notFound("field.systemManager"));
         Assert.isTrue(systemManager.getBuiltin() == CommonFlag.NO, "内置用户不允许修改");
         checkLoginManagerRegionPermission(systemManager.getRegionId());
 
@@ -237,7 +237,7 @@ public class SystemManagerController extends BaseSystemController {
     @StrixLog(operationGroup = "系统人员", operationName = "删除人员", operationType = SystemLogOperType.DELETE)
     public RetResult<Object> remove(@Parameter(description = "管理员 ID") @PathVariable String managerId) {
         SystemManager systemManager = systemManagerService.getById(managerId);
-        Assert.notNull(systemManager, "系统人员信息不存在");
+        Assert.notNull(systemManager, I18nUtil.notFound("field.systemManager"));
         Assert.isTrue(systemManager.getBuiltin() == CommonFlag.NO, "内置用户不允许修改");
         checkLoginManagerRegionPermission(systemManager.getRegionId());
 

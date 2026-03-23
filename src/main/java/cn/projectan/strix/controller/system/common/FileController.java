@@ -51,7 +51,7 @@ public class FileController extends BaseSystemController {
     @Parameter(name = "fileId", description = "文件 ID", required = true)
     public StreamingResponseBody download(@PathVariable String fileId, HttpServletResponse response) {
         OssFile ossFile = ossFileService.getById(fileId);
-        Assert.notNull(ossFile, "下载文件失败, 文件不存在.");
+        Assert.notNull(ossFile, I18nUtil.get("assert.oss.download.fileNotFound"));
 
         Optional<MediaType> mediaType = MediaTypeFactory.getMediaType(ossFile.getPath());
         mediaType.ifPresentOrElse(
@@ -71,8 +71,8 @@ public class FileController extends BaseSystemController {
     @Parameter(name = "groupId", description = "文件组 ID", required = true)
     public RetResult<CommonFileIdResp> upload(@PathVariable String groupId,
                                               @RequestPart MultipartFile file) {
-        Assert.hasText(groupId, "参数错误");
-        Assert.notNull(file, "未选择文件");
+        Assert.hasText(groupId, I18nUtil.get("error.param.invalid"));
+        Assert.notNull(file, I18nUtil.get("assert.file.notSelected"));
 
         try {
             File tempFile = File.createTempFile("temp", file.getOriginalFilename());

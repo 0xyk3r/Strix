@@ -6,6 +6,7 @@ import cn.projectan.strix.model.db.system.WorkflowConfig;
 import cn.projectan.strix.model.request.system.workflow.WorkflowListReq;
 import cn.projectan.strix.model.response.common.CommonSelectDataResp;
 import cn.projectan.strix.service.base.NameFetcherService;
+import cn.projectan.strix.util.common.I18nUtil;
 import cn.projectan.strix.util.common.SpringUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -68,7 +69,7 @@ public class WorkflowService extends ServiceImpl<WorkflowMapper, Workflow> imple
         WorkflowService workflowService = SpringUtil.getAopProxy(this);
 
         Workflow workflow = workflowService.getById(workflowId);
-        Assert.notNull(workflow, "工作流不存在");
+        Assert.notNull(workflow, I18nUtil.notFound("field.workflow"));
 
         WorkflowConfig workflowConfig = new WorkflowConfig();
         workflowConfig.setWorkflowId(workflow.getId());

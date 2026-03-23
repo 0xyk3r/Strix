@@ -73,9 +73,9 @@ public class OssFileService extends ServiceImpl<OssFileMapper, OssFile> {
     public String getUrl(String fileId, String defaultUrl) {
         try {
             OssFile ossFile = getById(fileId);
-            Assert.notNull(ossFile, "下载文件失败, 文件不存在.");
+            Assert.notNull(ossFile, I18nUtil.get("assert.oss.download.fileNotFound"));
             OssFileGroup ossFileGroup = ossFileGroupService.getGroupByKey(ossFile.getGroupKey());
-            Assert.notNull(ossFileGroup, "下载文件失败, 文件组不存在.");
+            Assert.notNull(ossFileGroup, I18nUtil.get("assert.oss.download.groupNotFound"));
 
             return getUrl(ossFile, ossFileGroup, defaultUrl);
         } catch (Exception e) {
@@ -96,11 +96,11 @@ public class OssFileService extends ServiceImpl<OssFileMapper, OssFile> {
     public String getUrl(String fileId, Short downloaderType, String downloaderId, String defaultUrl) {
         try {
             OssFile ossFile = getById(fileId);
-            Assert.notNull(ossFile, "下载文件失败, 文件不存在.");
+            Assert.notNull(ossFile, I18nUtil.get("assert.oss.download.fileNotFound"));
             OssFileGroup ossFileGroup = ossFileGroupService.getGroupByKey(ossFile.getGroupKey());
-            Assert.notNull(ossFileGroup, "下载文件失败, 文件组不存在.");
+            Assert.notNull(ossFileGroup, I18nUtil.get("assert.oss.download.groupNotFound"));
 
-            Assert.isTrue(checkPermission(ossFile, ossFileGroup, downloaderType, downloaderId), "下载文件失败, 文件不存在.");
+            Assert.isTrue(checkPermission(ossFile, ossFileGroup, downloaderType, downloaderId), I18nUtil.get("assert.oss.download.fileNotFound"));
 
             return getUrl(ossFile, ossFileGroup, defaultUrl);
         } catch (Exception e) {
@@ -159,7 +159,7 @@ public class OssFileService extends ServiceImpl<OssFileMapper, OssFile> {
      */
     public OssFile upload(String groupKey, File file, String originalName) {
         OssFileGroup ossFileGroup = ossFileGroupService.getGroupByKey(groupKey);
-        Assert.notNull(ossFileGroup, "上传文件失败. 文件组不存在");
+        Assert.notNull(ossFileGroup, I18nUtil.get("assert.oss.upload.groupNotFound"));
         StrixOssClient client = getOssClient(ossFileGroup.getConfigKey());
 
         String ext = FileUtil.getExtension(originalName);
@@ -190,7 +190,7 @@ public class OssFileService extends ServiceImpl<OssFileMapper, OssFile> {
      */
     public OssFile upload(String groupKey, MultipartFile file) {
         OssFileGroup ossFileGroup = ossFileGroupService.getGroupByKey(groupKey);
-        Assert.notNull(ossFileGroup, "上传文件失败. 文件组不存在");
+        Assert.notNull(ossFileGroup, I18nUtil.get("assert.oss.upload.groupNotFound"));
         StrixOssClient client = getOssClient(ossFileGroup.getConfigKey());
 
         String ext = FileUtil.getExtension(file.getOriginalFilename());
@@ -219,7 +219,7 @@ public class OssFileService extends ServiceImpl<OssFileMapper, OssFile> {
      */
     public OssFile upload(String groupKey, InputStream inputStream, long contentLength, String originalName) {
         OssFileGroup ossFileGroup = ossFileGroupService.getGroupByKey(groupKey);
-        Assert.notNull(ossFileGroup, "上传文件失败. 文件组不存在");
+        Assert.notNull(ossFileGroup, I18nUtil.get("assert.oss.upload.groupNotFound"));
         StrixOssClient client = getOssClient(ossFileGroup.getConfigKey());
 
         String ext = FileUtil.getExtension(originalName);
@@ -247,7 +247,7 @@ public class OssFileService extends ServiceImpl<OssFileMapper, OssFile> {
      */
     public OssFile upload(String groupKey, byte[] data, String originalName) {
         OssFileGroup ossFileGroup = ossFileGroupService.getGroupByKey(groupKey);
-        Assert.notNull(ossFileGroup, "上传文件失败. 文件组不存在");
+        Assert.notNull(ossFileGroup, I18nUtil.get("assert.oss.upload.groupNotFound"));
         StrixOssClient client = getOssClient(ossFileGroup.getConfigKey());
 
         String ext = FileUtil.getExtension(originalName);
@@ -278,9 +278,9 @@ public class OssFileService extends ServiceImpl<OssFileMapper, OssFile> {
      */
     public File download(String fileId, String saveFile) {
         OssFile ossFile = getById(fileId);
-        Assert.notNull(ossFile, "下载文件失败, 文件不存在.");
+        Assert.notNull(ossFile, I18nUtil.get("assert.oss.download.fileNotFound"));
         OssFileGroup ossFileGroup = ossFileGroupService.getGroupByKey(ossFile.getGroupKey());
-        Assert.notNull(ossFileGroup, "下载文件失败, 文件组不存在.");
+        Assert.notNull(ossFileGroup, I18nUtil.get("assert.oss.download.groupNotFound"));
 
         return download(ossFile, ossFileGroup, saveFile);
     }
@@ -311,11 +311,11 @@ public class OssFileService extends ServiceImpl<OssFileMapper, OssFile> {
      */
     public File download(String fileId, String saveFile, Short downloaderType, String downloaderId) {
         OssFile ossFile = getById(fileId);
-        Assert.notNull(ossFile, "下载文件失败, 文件不存在.");
+        Assert.notNull(ossFile, I18nUtil.get("assert.oss.download.fileNotFound"));
         OssFileGroup ossFileGroup = ossFileGroupService.getGroupByKey(ossFile.getGroupKey());
-        Assert.notNull(ossFileGroup, "下载文件失败, 文件组不存在.");
+        Assert.notNull(ossFileGroup, I18nUtil.get("assert.oss.download.groupNotFound"));
 
-        Assert.isTrue(checkPermission(ossFile, ossFileGroup, downloaderType, downloaderId), "下载文件失败, 文件不存在.");
+        Assert.isTrue(checkPermission(ossFile, ossFileGroup, downloaderType, downloaderId), I18nUtil.get("assert.oss.download.fileNotFound"));
 
         return download(ossFile, ossFileGroup, saveFile);
     }
@@ -328,7 +328,7 @@ public class OssFileService extends ServiceImpl<OssFileMapper, OssFile> {
      * @return 文件输入流
      */
     public InputStream downloadAsStream(String fileId) {
-        FileAndGroup fileAndGroup = getFileAndGroup(fileId, "下载文件失败");
+        FileAndGroup fileAndGroup = getFileAndGroup(fileId, I18nUtil.get("assert.file.downloadFailed"));
         StrixOssClient client = getOssClient(fileAndGroup.ossFileGroup().getConfigKey());
         return client.getPrivate().downloadAsStream(fileAndGroup.ossFileGroup().getBucketName(), fileAndGroup.ossFile().getPath());
     }
@@ -343,8 +343,8 @@ public class OssFileService extends ServiceImpl<OssFileMapper, OssFile> {
      * @return 文件输入流
      */
     public InputStream downloadAsStream(String fileId, Short downloaderType, String downloaderId) {
-        FileAndGroup fileAndGroup = getFileAndGroup(fileId, "下载文件失败");
-        Assert.isTrue(checkPermission(fileAndGroup.ossFile(), fileAndGroup.ossFileGroup(), downloaderType, downloaderId), "下载文件失败, 文件不存在.");
+        FileAndGroup fileAndGroup = getFileAndGroup(fileId, I18nUtil.get("assert.file.downloadFailed"));
+        Assert.isTrue(checkPermission(fileAndGroup.ossFile(), fileAndGroup.ossFileGroup(), downloaderType, downloaderId), I18nUtil.get("assert.oss.download.fileNotFound"));
 
         StrixOssClient client = getOssClient(fileAndGroup.ossFileGroup().getConfigKey());
         return client.getPrivate().downloadAsStream(fileAndGroup.ossFileGroup().getBucketName(), fileAndGroup.ossFile().getPath());
@@ -357,7 +357,7 @@ public class OssFileService extends ServiceImpl<OssFileMapper, OssFile> {
      * @param outputStream 输出流
      */
     public void downloadToStream(String fileId, OutputStream outputStream) {
-        FileAndGroup fileAndGroup = getFileAndGroup(fileId, "下载文件失败");
+        FileAndGroup fileAndGroup = getFileAndGroup(fileId, I18nUtil.get("assert.file.downloadFailed"));
         StrixOssClient client = getOssClient(fileAndGroup.ossFileGroup().getConfigKey());
         client.getPrivate().downloadToStream(fileAndGroup.ossFileGroup().getBucketName(), fileAndGroup.ossFile().getPath(), outputStream);
     }
@@ -371,8 +371,8 @@ public class OssFileService extends ServiceImpl<OssFileMapper, OssFile> {
      * @param downloaderId   下载者ID
      */
     public void downloadToStream(String fileId, OutputStream outputStream, Short downloaderType, String downloaderId) {
-        FileAndGroup fileAndGroup = getFileAndGroup(fileId, "下载文件失败");
-        Assert.isTrue(checkPermission(fileAndGroup.ossFile(), fileAndGroup.ossFileGroup(), downloaderType, downloaderId), "下载文件失败, 文件不存在.");
+        FileAndGroup fileAndGroup = getFileAndGroup(fileId, I18nUtil.get("assert.file.downloadFailed"));
+        Assert.isTrue(checkPermission(fileAndGroup.ossFile(), fileAndGroup.ossFileGroup(), downloaderType, downloaderId), I18nUtil.get("assert.oss.download.fileNotFound"));
 
         StrixOssClient client = getOssClient(fileAndGroup.ossFileGroup().getConfigKey());
         client.getPrivate().downloadToStream(fileAndGroup.ossFileGroup().getBucketName(), fileAndGroup.ossFile().getPath(), outputStream);
@@ -386,7 +386,7 @@ public class OssFileService extends ServiceImpl<OssFileMapper, OssFile> {
      * @return StreamingResponseBody
      */
     public StreamingResponseBody getStreamingDownload(String fileId) {
-        FileAndGroup fileAndGroup = getFileAndGroup(fileId, "下载文件失败");
+        FileAndGroup fileAndGroup = getFileAndGroup(fileId, I18nUtil.get("assert.file.downloadFailed"));
         StrixOssClient client = getOssClient(fileAndGroup.ossFileGroup().getConfigKey());
 
         HttpServletResponse response = ServletUtil.getResponse();
@@ -404,8 +404,8 @@ public class OssFileService extends ServiceImpl<OssFileMapper, OssFile> {
      * @return StreamingResponseBody
      */
     public StreamingResponseBody getStreamingDownload(String fileId, Short downloaderType, String downloaderId) {
-        FileAndGroup fileAndGroup = getFileAndGroup(fileId, "下载文件失败");
-        Assert.isTrue(checkPermission(fileAndGroup.ossFile(), fileAndGroup.ossFileGroup(), downloaderType, downloaderId), "下载文件失败, 文件不存在.");
+        FileAndGroup fileAndGroup = getFileAndGroup(fileId, I18nUtil.get("assert.file.downloadFailed"));
+        Assert.isTrue(checkPermission(fileAndGroup.ossFile(), fileAndGroup.ossFileGroup(), downloaderType, downloaderId), I18nUtil.get("assert.oss.download.fileNotFound"));
 
         StrixOssClient client = getOssClient(fileAndGroup.ossFileGroup().getConfigKey());
 
@@ -432,12 +432,12 @@ public class OssFileService extends ServiceImpl<OssFileMapper, OssFile> {
      */
     public void delete(String fileId, Short downloaderType, String downloaderId) {
         OssFile ossFile = getById(fileId);
-        Assert.notNull(ossFile, "删除文件失败, 文件不存在.");
+        Assert.notNull(ossFile, I18nUtil.get("assert.oss.delete.fileNotFound"));
         OssFileGroup ossFileGroup = ossFileGroupService.getGroupByKey(ossFile.getGroupKey());
-        Assert.notNull(ossFileGroup, "删除文件失败, 文件组不存在.");
+        Assert.notNull(ossFileGroup, I18nUtil.get("assert.oss.delete.groupNotFound"));
 
         if (downloaderType != null && downloaderId != null) {
-            Assert.isTrue(checkPermission(ossFile, ossFileGroup, downloaderType, downloaderId), "删除文件失败, 文件不存在.");
+            Assert.isTrue(checkPermission(ossFile, ossFileGroup, downloaderType, downloaderId), I18nUtil.get("assert.oss.delete.fileNotFound"));
         }
 
         StrixOssClient client = getOssClient(ossFileGroup.getConfigKey());
@@ -478,7 +478,7 @@ public class OssFileService extends ServiceImpl<OssFileMapper, OssFile> {
                 () -> new StrixException(I18nUtil.get("error.oss.moduleDisabled"))
         );
         StrixOssClient client = store.getInstance(configKey);
-        Assert.notNull(client, "Strix OSS 服务实例不存在: " + configKey);
+        Assert.notNull(client, I18nUtil.get("assert.oss.instanceNotFound", configKey));
         return client;
     }
 
@@ -492,7 +492,7 @@ public class OssFileService extends ServiceImpl<OssFileMapper, OssFile> {
      */
     private void validateExtension(OssFileGroup ossFileGroup, String ext) {
         List<String> allowExtSet = Arrays.asList(ossFileGroup.getAllowExtension().split(","));
-        Assert.isTrue(allowExtSet.contains(ext), "上传文件失败, 不支持的文件格式.");
+        Assert.isTrue(allowExtSet.contains(ext), I18nUtil.get("assert.oss.upload.unsupportedFormat"));
     }
 
     /**
@@ -500,7 +500,7 @@ public class OssFileService extends ServiceImpl<OssFileMapper, OssFile> {
      */
     private void validateFileMagic(InputStream inputStream, String ext) {
         boolean valid = FileMagicValidator.validate(inputStream, ext);
-        Assert.isTrue(valid, "上传文件失败, 文件内容与扩展名不匹配.");
+        Assert.isTrue(valid, I18nUtil.get("assert.oss.upload.contentMismatch"));
     }
 
     /**
@@ -538,7 +538,7 @@ public class OssFileService extends ServiceImpl<OssFileMapper, OssFile> {
                 .setPath(filePath)
                 .setSize(size)
                 .setExt(ext);
-        Assert.isTrue(save(ossFile), "上传文件失败, 保存文件信息失败.");
+        Assert.isTrue(save(ossFile), I18nUtil.get("assert.oss.upload.saveFailed"));
         return ossFile;
     }
 
@@ -551,9 +551,9 @@ public class OssFileService extends ServiceImpl<OssFileMapper, OssFile> {
      */
     private FileAndGroup getFileAndGroup(String fileId, String errorPrefix) {
         OssFile ossFile = getById(fileId);
-        Assert.notNull(ossFile, errorPrefix + ", 文件不存在.");
+        Assert.notNull(ossFile, errorPrefix + ", " + I18nUtil.get("assert.oss.fileNotExist"));
         OssFileGroup ossFileGroup = ossFileGroupService.getGroupByKey(ossFile.getGroupKey());
-        Assert.notNull(ossFileGroup, errorPrefix + ", 文件组不存在.");
+        Assert.notNull(ossFileGroup, errorPrefix + ", " + I18nUtil.get("assert.oss.fileGroupNotExist"));
         return new FileAndGroup(ossFile, ossFileGroup);
     }
 

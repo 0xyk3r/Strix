@@ -8,6 +8,7 @@ import cn.projectan.strix.model.db.system.SystemUserRelation;
 import cn.projectan.strix.model.dict.system.SystemUserStatus;
 import cn.projectan.strix.model.enums.common.NumCategory;
 import cn.projectan.strix.model.request.system.user.SystemUserListReq;
+import cn.projectan.strix.util.common.I18nUtil;
 import cn.projectan.strix.util.common.RedisUtil;
 import cn.projectan.strix.util.math.NumUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -147,7 +148,7 @@ public class SystemUserService extends ServiceImpl<SystemUserMapper, SystemUser>
      */
     public LoginSystemUser getLoginInfo(String userId) {
         SystemUser systemUser = getById(userId);
-        Assert.notNull(systemUser, "用户不存在: " + userId);
+        Assert.notNull(systemUser, I18nUtil.notFound("field.systemUser") + ": " + userId);
         return new LoginSystemUser(systemUser);
     }
 

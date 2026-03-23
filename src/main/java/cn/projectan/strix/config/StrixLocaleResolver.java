@@ -30,8 +30,15 @@ public class StrixLocaleResolver implements LocaleResolver {
 
     private final StrixProperties strixProperties;
 
+    /**
+     * 获取当前 Locale（非 Web 上下文安全）
+     */
     public Locale getLocale() {
-        return resolveLocale(ServletUtil.getRequest());
+        try {
+            return resolveLocale(ServletUtil.getRequest());
+        } catch (Exception e) {
+            return I18nUtil.convertLocale(strixProperties.getDefaultLocale());
+        }
     }
 
     @Nonnull

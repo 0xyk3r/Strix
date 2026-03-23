@@ -19,6 +19,7 @@ import cn.projectan.strix.model.response.system.workflow.WorkflowResp;
 import cn.projectan.strix.service.system.WorkflowConfigService;
 import cn.projectan.strix.service.system.WorkflowInstanceService;
 import cn.projectan.strix.service.system.WorkflowService;
+import cn.projectan.strix.util.common.I18nUtil;
 import cn.projectan.strix.util.common.UniqueChecker;
 import cn.projectan.strix.util.common.UpdateBuilder;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -78,7 +79,7 @@ public class SystemWorkflowConfigController extends BaseSystemController {
     @StrixLog(operationGroup = "工作流引擎", operationName = "查询工作流引擎信息")
     public RetResult<WorkflowResp> info(@Parameter(description = "工作流配置 ID") @PathVariable String id) {
         Workflow workflow = workflowService.getById(id);
-        Assert.notNull(workflow, "工作流信息不存在");
+        Assert.notNull(workflow, I18nUtil.notFound("field.workflow"));
 
         return RetBuilder.success(new WorkflowResp(workflow));
     }
@@ -110,7 +111,7 @@ public class SystemWorkflowConfigController extends BaseSystemController {
     @StrixLog(operationGroup = "工作流引擎", operationName = "修改工作流引擎", operationType = SystemLogOperType.UPDATE)
     public RetResult<Object> update(@Parameter(description = "工作流配置 ID") @PathVariable String id, @RequestBody @Validated(UpdateGroup.class) WorkflowUpdateReq req) {
         Workflow workflow = workflowService.getById(id);
-        Assert.notNull(workflow, "原记录不存在");
+        Assert.notNull(workflow, I18nUtil.notFound("field.originalData"));
 
         LambdaUpdateWrapper<Workflow> updateWrapper = UpdateBuilder.build(workflow, req);
         UniqueChecker.check(workflow);
@@ -155,7 +156,7 @@ public class SystemWorkflowConfigController extends BaseSystemController {
     @StrixLog(operationGroup = "工作流引擎", operationName = "获取工作流配置")
     public RetResult<Object> getConfig(@Parameter(description = "工作流配置 ID") @PathVariable String configId) {
         WorkflowConfig workflowConfig = workflowConfigService.getById(configId);
-        Assert.notNull(workflowConfig, "配置信息不存在");
+        Assert.notNull(workflowConfig, I18nUtil.notFound("field.workflowConfig"));
 
         return RetBuilder.success(workflowConfig);
     }

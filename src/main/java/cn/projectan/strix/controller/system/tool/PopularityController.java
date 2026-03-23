@@ -17,6 +17,7 @@ import cn.projectan.strix.model.response.system.tool.popularity.PopularityConfig
 import cn.projectan.strix.model.response.system.tool.popularity.PopularityDataListResp;
 import cn.projectan.strix.service.system.PopularityConfigService;
 import cn.projectan.strix.service.system.PopularityDataService;
+import cn.projectan.strix.util.common.I18nUtil;
 import cn.projectan.strix.util.common.UniqueChecker;
 import cn.projectan.strix.util.common.UpdateBuilder;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -70,7 +71,7 @@ public class PopularityController extends BaseSystemController {
     @Operation(summary = "热度配置详情")
     public RetResult<PopularityConfigResp> info(@Parameter(description = "热度配置 ID") @PathVariable String id) {
         PopularityConfig data = popularityConfigService.getById(id);
-        Assert.notNull(data, "数据不存在");
+        Assert.notNull(data, I18nUtil.notFound("field.data"));
         return RetBuilder.success(new PopularityConfigResp(data));
     }
 
@@ -82,7 +83,7 @@ public class PopularityController extends BaseSystemController {
     @StrixLog(operationGroup = "系统工具-热度工具", operationName = "新增配置", operationType = SystemLogOperType.ADD)
     @Operation(summary = "新增热度配置")
     public RetResult<Object> update(@RequestBody @Validated(InsertGroup.class) PopularityConfigUpdateReq req) {
-        Assert.notNull(req, "参数错误");
+        Assert.notNull(req, I18nUtil.get("error.param.invalid"));
 
         PopularityConfig popularityConfig = new PopularityConfig(
                 req.getName(),
@@ -106,7 +107,7 @@ public class PopularityController extends BaseSystemController {
     @Operation(summary = "编辑热度配置")
     public RetResult<Object> update(@Parameter(description = "热度配置 ID") @PathVariable String id, @RequestBody @Validated(UpdateGroup.class) PopularityConfigUpdateReq req) {
         PopularityConfig data = popularityConfigService.getById(id);
-        Assert.notNull(data, "数据不存在");
+        Assert.notNull(data, I18nUtil.notFound("field.data"));
 
         LambdaUpdateWrapper<PopularityConfig> updateWrapper = UpdateBuilder.build(data, req);
         UniqueChecker.check(data);
@@ -124,7 +125,7 @@ public class PopularityController extends BaseSystemController {
     @Operation(summary = "删除热度配置")
     public RetResult<Object> remove(@Parameter(description = "热度配置 ID") @PathVariable String id) {
         PopularityConfig data = popularityConfigService.getById(id);
-        Assert.notNull(data, "数据不存在");
+        Assert.notNull(data, I18nUtil.notFound("field.data"));
 
         popularityConfigService.removeById(id);
         // 删除对应数据
@@ -144,7 +145,7 @@ public class PopularityController extends BaseSystemController {
     @Operation(summary = "热度数据列表")
     public RetResult<PopularityDataListResp> dataList(@Parameter(description = "热度配置 ID") @PathVariable String id, BasePageReq<PopularityData> req) {
         PopularityConfig config = popularityConfigService.getById(id);
-        Assert.notNull(config, "数据不存在");
+        Assert.notNull(config, I18nUtil.notFound("field.data"));
 
         Page<PopularityData> list = popularityDataService.listPage(config.getConfigKey(), req.getPage());
         return RetBuilder.success(new PopularityDataListResp(list));
@@ -159,7 +160,7 @@ public class PopularityController extends BaseSystemController {
     @Operation(summary = "更新热度数据")
     public RetResult<Object> updateData(@Parameter(description = "热度配置 ID") @PathVariable String id, @Parameter(description = "热度数据 ID") @PathVariable String dataId, @RequestBody @Validated(UpdateGroup.class) PopularityDataUpdateReq req) {
         PopularityConfig config = popularityConfigService.getById(id);
-        Assert.notNull(config, "数据不存在");
+        Assert.notNull(config, I18nUtil.notFound("field.data"));
 
         popularityDataService.updateOriginalValue(config.getConfigKey(), dataId, req.getOriginalValue());
         return RetBuilder.success();
@@ -174,7 +175,7 @@ public class PopularityController extends BaseSystemController {
     @Operation(summary = "删除热度数据")
     public RetResult<Object> removeData(@Parameter(description = "热度配置 ID") @PathVariable String id, @Parameter(description = "热度数据 ID") @PathVariable String dataId) {
         PopularityConfig config = popularityConfigService.getById(id);
-        Assert.notNull(config, "数据不存在");
+        Assert.notNull(config, I18nUtil.notFound("field.data"));
 
         popularityDataService.deleteByConfigKeyAndId(config.getConfigKey(), dataId);
         return RetBuilder.success();

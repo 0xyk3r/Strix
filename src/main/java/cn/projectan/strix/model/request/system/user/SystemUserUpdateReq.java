@@ -19,20 +19,20 @@ import lombok.Data;
 public class SystemUserUpdateReq {
 
     @Schema(description = "用户昵称")
-    @NotEmpty(groups = {InsertGroup.class, UpdateGroup.class}, message = "用户昵称不可为空")
-    @Size(groups = {InsertGroup.class, UpdateGroup.class}, min = 2, max = 16, message = "用户昵称长度不符合要求")
+    @NotEmpty(groups = {InsertGroup.class, UpdateGroup.class}, message = "{validation.required:field.user.nickname}")
+    @Size(groups = {InsertGroup.class, UpdateGroup.class}, min = 2, max = 16, message = "{validation.length:field.user.nickname}")
     @UpdateField
     private String nickname;
 
     @Schema(description = "用户状态")
-    @NotNull(groups = {InsertGroup.class, UpdateGroup.class}, message = "用户状态未选择")
-    @DynamicDictValue(groups = {InsertGroup.class, UpdateGroup.class}, dictName = "SystemUserStatus", message = "用户状态不合法")
+    @NotNull(groups = {InsertGroup.class, UpdateGroup.class}, message = "{validation.selected:field.user.status}")
+    @DynamicDictValue(groups = {InsertGroup.class, UpdateGroup.class}, dictName = "SystemUserStatus", message = "{validation.invalid:field.user.status}")
     @UpdateField
     private Short status;
 
     @Schema(description = "用户手机号码")
-    @NotEmpty(groups = {InsertGroup.class, UpdateGroup.class}, message = "用户手机号码不可为空")
-    @Size(groups = {InsertGroup.class, UpdateGroup.class}, min = 11, max = 11, message = "用户手机号码长度不符合要求")
+    @NotEmpty(groups = {InsertGroup.class, UpdateGroup.class}, message = "{validation.required:field.user.phone}")
+    @Size(groups = {InsertGroup.class, UpdateGroup.class}, min = 11, max = 11, message = "{validation.length:field.user.phone}")
     @UpdateField
     private String phoneNumber;
 

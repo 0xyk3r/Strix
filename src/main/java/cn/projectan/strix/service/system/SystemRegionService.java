@@ -5,6 +5,7 @@ import cn.projectan.strix.mapper.system.SystemRegionMapper;
 import cn.projectan.strix.model.db.system.SystemRegion;
 import cn.projectan.strix.model.request.system.region.SystemRegionListReq;
 import cn.projectan.strix.service.base.NameFetcherService;
+import cn.projectan.strix.util.common.I18nUtil;
 import cn.projectan.strix.util.common.SpringUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -60,7 +61,7 @@ public class SystemRegionService extends ServiceImpl<SystemRegionMapper, SystemR
     public Map<String, String> getFullInfo(String id) {
         SystemRegionService proxy = SpringUtil.getAopProxy(this);
         SystemRegion region = getBaseMapper().selectById(id);
-        Assert.notNull(region, "地区信息不存在");
+        Assert.notNull(region, I18nUtil.notFound("field.region"));
 
         // 从 fullPath 解析所有祖先 ID，批量查询（利用缓存）
         String fullPath = region.getFullPath();
@@ -90,7 +91,7 @@ public class SystemRegionService extends ServiceImpl<SystemRegionMapper, SystemR
     @Cacheable(value = "strix:system:region:getChildrenIdList", key = "#id")
     public List<String> getChildrenIdList(String id) {
         SystemRegion systemRegion = getBaseMapper().selectById(id);
-        Assert.notNull(systemRegion, "地区信息不存在");
+        Assert.notNull(systemRegion, I18nUtil.notFound("field.region"));
 
         return lambdaQuery()
                 .select(SystemRegion::getId)
@@ -174,7 +175,7 @@ public class SystemRegionService extends ServiceImpl<SystemRegionMapper, SystemR
             newParentRegion.setFullName("");
             newParentRegion.setLevel((short) 0);
         } else {
-            Assert.notNull(newParentRegion, "父级系统地区信息不存在");
+            Assert.notNull(newParentRegion, I18nUtil.notFound("field.parentRegion"));
         }
 
         // 获取被修改的节点的子节点信息（包括自身）- 使用旧的 fullPath 来查询

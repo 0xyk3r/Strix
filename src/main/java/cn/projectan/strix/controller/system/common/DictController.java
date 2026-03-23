@@ -6,6 +6,7 @@ import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.model.response.common.CommonDictResp;
 import cn.projectan.strix.model.response.common.CommonDictVersionResp;
 import cn.projectan.strix.service.system.DictService;
+import cn.projectan.strix.util.common.I18nUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -49,7 +50,7 @@ public class DictController extends BaseSystemController {
     @Parameter(name = "dictKey", description = "字典 Key", required = true)
     public RetResult<CommonDictResp> getDictData(@PathVariable String dictKey) {
         CommonDictResp commonDictResp = dictService.getDictResp(dictKey);
-        Assert.notNull(commonDictResp, "字典未找到");
+        Assert.notNull(commonDictResp, I18nUtil.notFound("field.dict"));
 
         return RetBuilder.success(commonDictResp);
     }

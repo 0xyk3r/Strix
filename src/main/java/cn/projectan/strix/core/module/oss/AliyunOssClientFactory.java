@@ -2,6 +2,7 @@ package cn.projectan.strix.core.module.oss;
 
 import cn.projectan.strix.model.db.system.OssConfig;
 import cn.projectan.strix.model.dict.system.OssPlatform;
+import cn.projectan.strix.util.common.I18nUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.Profiles;
@@ -76,10 +77,10 @@ public class AliyunOssClientFactory implements OssClientFactory {
                     .build();
         }
 
-        Assert.notNull(publicClient, "S3 公网客户端初始化失败");
-        Assert.notNull(publicPresigner, "S3 公网预签名器初始化失败");
-        Assert.notNull(privateClient, "S3 内网客户端初始化失败");
-        Assert.notNull(privatePresigner, "S3 内网预签名器初始化失败");
+        Assert.notNull(publicClient, I18nUtil.initFailed("field.s3PublicClient"));
+        Assert.notNull(publicPresigner, I18nUtil.initFailed("field.s3PublicPresigner"));
+        Assert.notNull(privateClient, I18nUtil.initFailed("field.s3PrivateClient"));
+        Assert.notNull(privatePresigner, I18nUtil.initFailed("field.s3PrivatePresigner"));
 
         return new AliyunOssClient(publicClient, publicPresigner, privateClient, privatePresigner);
     }

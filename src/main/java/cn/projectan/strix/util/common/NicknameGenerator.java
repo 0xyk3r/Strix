@@ -43,7 +43,7 @@ public class NicknameGenerator {
             adjectives = loadWordList(ADJECTIVES_PATH);
             nouns = loadWordList(NOUNS_PATH);
             if (adjectives.length == 0 || nouns.length == 0) {
-                throw new IllegalStateException("词库加载失败，请检查资源文件是否存在");
+                throw new IllegalStateException(I18nUtil.get("error.nickname.dictionaryLoadFailed"));
             }
         }
     }
@@ -180,7 +180,7 @@ public class NicknameGenerator {
                 }
             }
         } catch (IOException e) {
-            throw new IllegalStateException("加载词库失败: " + resourcePath, e);
+            throw new IllegalStateException(I18nUtil.get("error.nickname.loadFailed", resourcePath), e);
         }
         return words.toArray(new String[0]);
     }

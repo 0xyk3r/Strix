@@ -13,11 +13,11 @@ import lombok.Data;
 @Data
 public class SystemRoleUpdateMenuReq {
 
-    @NotNull(message = "菜单ID列表不能为空", groups = UpdateGroup.class)
+    @NotNull(message = "{validation.required:field.role.menuIds}", groups = UpdateGroup.class)
     @Schema(description = "菜单ID列表")
     private String menuIds;
 
-    @NotNull(message = "权限ID列表不能为空", groups = UpdateGroup.class)
+    @NotNull(message = "{validation.required:field.role.permissionIds}", groups = UpdateGroup.class)
     @Schema(description = "权限ID列表")
     private String permissionIds;
 

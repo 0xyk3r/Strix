@@ -20,8 +20,8 @@ public class SystemPermissionUpdateReq {
      * 权限名称
      */
     @Schema(description = "权限名称")
-    @NotEmpty(groups = {InsertGroup.class, UpdateGroup.class}, message = "权限名称不可为空")
-    @Size(groups = {InsertGroup.class, UpdateGroup.class}, min = 2, max = 12, message = "权限名称长度不符合要求")
+    @NotEmpty(groups = {InsertGroup.class, UpdateGroup.class}, message = "{validation.required:field.permission.name}")
+    @Size(groups = {InsertGroup.class, UpdateGroup.class}, min = 2, max = 12, message = "{validation.length:field.permission.name}")
     @UpdateField
     private String name;
 
@@ -29,8 +29,8 @@ public class SystemPermissionUpdateReq {
      * 权限标识
      */
     @Schema(description = "权限标识")
-    @NotEmpty(groups = {InsertGroup.class, UpdateGroup.class}, message = "权限标识不可为空")
-    @Size(groups = {InsertGroup.class, UpdateGroup.class}, min = 2, max = 64, message = "权限标识长度不符合要求")
+    @NotEmpty(groups = {InsertGroup.class, UpdateGroup.class}, message = "{validation.required:field.permission.key}")
+    @Size(groups = {InsertGroup.class, UpdateGroup.class}, min = 2, max = 64, message = "{validation.length:field.permission.key}")
     @UpdateField
     private String key;
 
@@ -45,7 +45,7 @@ public class SystemPermissionUpdateReq {
      * 权限介绍
      */
     @Schema(description = "权限介绍")
-    @Size(groups = {InsertGroup.class, UpdateGroup.class}, max = 128, message = "权限介绍长度不符合要求")
+    @Size(groups = {InsertGroup.class, UpdateGroup.class}, max = 128, message = "{validation.length:field.permission.desc}")
     @UpdateField(allowEmpty = true)
     private String description;
 

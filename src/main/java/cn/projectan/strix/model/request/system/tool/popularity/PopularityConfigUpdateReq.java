@@ -18,32 +18,32 @@ import java.math.BigDecimal;
 public class PopularityConfigUpdateReq {
 
     @Schema(description = "配置名称")
-    @NotEmpty(groups = {InsertGroup.class, UpdateGroup.class}, message = " 配置名称不可为空")
-    @Size(groups = {InsertGroup.class, UpdateGroup.class}, min = 1, max = 32, message = "配置名称长度不符合要求")
+    @NotEmpty(groups = {InsertGroup.class, UpdateGroup.class}, message = "{validation.required:field.popularity.configName}")
+    @Size(groups = {InsertGroup.class, UpdateGroup.class}, min = 1, max = 32, message = "{validation.length:field.popularity.configName}")
     @UpdateField
     private String name;
 
     @Schema(description = "配置Key")
-    @NotEmpty(groups = {InsertGroup.class, UpdateGroup.class}, message = " 配置Key不可为空")
-    @Size(groups = {InsertGroup.class, UpdateGroup.class}, min = 1, max = 32, message = "配置Key长度不符合要求")
+    @NotEmpty(groups = {InsertGroup.class, UpdateGroup.class}, message = "{validation.required:field.popularity.configKey}")
+    @Size(groups = {InsertGroup.class, UpdateGroup.class}, min = 1, max = 32, message = "{validation.length:field.popularity.configKey}")
     @UpdateField
     private String configKey;
 
     @Schema(description = "初始值")
-    @NotNull(groups = {InsertGroup.class, UpdateGroup.class}, message = " 初始值不可为空")
-    @Min(groups = {InsertGroup.class, UpdateGroup.class}, value = 0, message = "初始值超出范围")
+    @NotNull(groups = {InsertGroup.class, UpdateGroup.class}, message = "{validation.required:field.popularity.initValue}")
+    @Min(groups = {InsertGroup.class, UpdateGroup.class}, value = 0, message = "{validation.outOfRange:field.popularity.initValue}")
     @UpdateField
     private Long initialValue;
 
     @Schema(description = "附加值")
-    @NotNull(groups = {InsertGroup.class, UpdateGroup.class}, message = " 附加值不可为空")
-    @Min(groups = {InsertGroup.class, UpdateGroup.class}, value = 0, message = "附加值超出范围")
+    @NotNull(groups = {InsertGroup.class, UpdateGroup.class}, message = "{validation.required:field.popularity.addValue}")
+    @Min(groups = {InsertGroup.class, UpdateGroup.class}, value = 0, message = "{validation.outOfRange:field.popularity.addValue}")
     @UpdateField
     private Long extraValue;
 
     @Schema(description = "倍率")
-    @NotNull(groups = {InsertGroup.class, UpdateGroup.class}, message = " 倍率不可为空")
-    @DecimalMin(groups = {InsertGroup.class, UpdateGroup.class}, value = "0.01", message = "倍率超出范围")
+    @NotNull(groups = {InsertGroup.class, UpdateGroup.class}, message = "{validation.required:field.popularity.multiplier}")
+    @DecimalMin(groups = {InsertGroup.class, UpdateGroup.class}, value = "0.01", message = "{validation.outOfRange:field.popularity.multiplier}")
     @UpdateField
     private BigDecimal magValue;
 

@@ -14,6 +14,7 @@ import cn.projectan.strix.model.request.system.module.oss.OssBucketUpdateReq;
 import cn.projectan.strix.model.response.system.module.oss.OssBucketListResp;
 import cn.projectan.strix.service.system.OssBucketService;
 import cn.projectan.strix.task.system.StrixOssTask;
+import cn.projectan.strix.util.common.I18nUtil;
 import cn.projectan.strix.util.common.UniqueChecker;
 import cn.projectan.strix.util.common.UpdateBuilder;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -90,7 +91,7 @@ public class OssBucketController extends BaseSystemController {
     @Operation(summary = "编辑 Bucket")
     public RetResult<Object> update(@Parameter(description = "Bucket ID") @PathVariable String id, @RequestBody @Validated(UpdateGroup.class) OssBucketUpdateReq req) {
         OssBucket ossBucket = ossBucketService.getById(id);
-        Assert.notNull(ossBucket, "原记录不存在");
+        Assert.notNull(ossBucket, I18nUtil.notFound("field.originalData"));
 
         LambdaUpdateWrapper<OssBucket> updateWrapper = UpdateBuilder.build(ossBucket, req);
         UniqueChecker.check(ossBucket);

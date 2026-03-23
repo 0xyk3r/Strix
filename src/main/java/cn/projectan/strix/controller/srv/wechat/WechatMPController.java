@@ -16,6 +16,7 @@ import cn.projectan.strix.service.system.OauthConfigService;
 import cn.projectan.strix.service.system.OauthUserService;
 import cn.projectan.strix.service.system.SystemUserService;
 import cn.projectan.strix.service.system.TokenSessionService;
+import cn.projectan.strix.util.common.I18nUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -59,7 +60,7 @@ public class WechatMPController extends BaseWechatController {
     public RetResult<SystemUserLoginResp> auth(@Parameter(description = "小程序配置 Key") @PathVariable String configKey, @Validated @RequestBody WechatMPAuthReq req) {
         WechatMPOAuthClient instance = (WechatMPOAuthClient) oauthConfigService.getInstance(configKey, OAuthPlatform.WECHAT_MP);
         BaseOAuthUserInfo userInfo = instance.auth(req.getCode());
-        Assert.notNull(userInfo, "获取用户信息失败");
+        Assert.notNull(userInfo, I18nUtil.failed("field.userInfo"));
 
         SystemUser systemUser = oauthUserService.loginOrCreateSystemUser(userInfo, OAuthPlatform.WECHAT_MP);
         LoginSystemUser loginInfo = systemUserService.getLoginInfo(systemUser.getId());

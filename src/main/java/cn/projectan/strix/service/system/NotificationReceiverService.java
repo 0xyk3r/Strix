@@ -7,6 +7,7 @@ import cn.projectan.strix.model.db.system.NotificationReceiver;
 import cn.projectan.strix.model.dict.common.CommonFlag;
 import cn.projectan.strix.model.request.system.notification.ListNotificationReq;
 import cn.projectan.strix.model.response.system.notification.NotificationListResp;
+import cn.projectan.strix.util.common.I18nUtil;
 import cn.projectan.strix.util.system.SecurityUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -45,7 +46,7 @@ public class NotificationReceiverService extends ServiceImpl<NotificationReceive
      */
     public NotificationListResp getMyNotifications(ListNotificationReq req) {
         String receiverId = SecurityUtil.getOperatorId();
-        Assert.hasText(receiverId, "接收人 ID 不能为空");
+        Assert.hasText(receiverId, I18nUtil.notEmpty("field.receiverId"));
 
         Page<NotificationReceiver> page = lambdaQuery()
                 .eq(NotificationReceiver::getReceiverId, receiverId)
@@ -81,8 +82,8 @@ public class NotificationReceiverService extends ServiceImpl<NotificationReceive
     @Transactional(rollbackFor = Exception.class)
     public void markAsRead(String notificationId) {
         String receiverId = SecurityUtil.getOperatorId();
-        Assert.hasText(notificationId, "通知 ID 不能为空");
-        Assert.hasText(receiverId, "接收人 ID 不能为空");
+        Assert.hasText(notificationId, I18nUtil.notEmpty("field.notificationId"));
+        Assert.hasText(receiverId, I18nUtil.notEmpty("field.receiverId"));
 
         // 更新为已读
         lambdaUpdate()
@@ -101,7 +102,7 @@ public class NotificationReceiverService extends ServiceImpl<NotificationReceive
     @Transactional(rollbackFor = Exception.class)
     public void markAllAsRead() {
         String receiverId = SecurityUtil.getOperatorId();
-        Assert.hasText(receiverId, "接收人 ID 不能为空");
+        Assert.hasText(receiverId, I18nUtil.notEmpty("field.receiverId"));
 
         // 更新为已读
         lambdaUpdate()
@@ -120,7 +121,7 @@ public class NotificationReceiverService extends ServiceImpl<NotificationReceive
      */
     public Long getUnreadCount() {
         String receiverId = SecurityUtil.getOperatorId();
-        Assert.hasText(receiverId, "接收人 ID 不能为空");
+        Assert.hasText(receiverId, I18nUtil.notEmpty("field.receiverId"));
 
         return lambdaQuery()
                 .eq(NotificationReceiver::getReceiverId, receiverId)

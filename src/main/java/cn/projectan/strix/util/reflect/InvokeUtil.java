@@ -2,6 +2,7 @@ package cn.projectan.strix.util.reflect;
 
 import cn.hutool.core.util.StrUtil;
 import cn.projectan.strix.model.annotation.StrixJob;
+import cn.projectan.strix.util.common.I18nUtil;
 import cn.projectan.strix.util.common.SpringUtil;
 import io.netty.util.internal.StringUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -99,7 +100,7 @@ public class InvokeUtil {
                 method.invoke(bean);
             }
         } catch (Exception e) {
-            throw new RuntimeException("执行目标：" + bean.getClass().getName() + "." + methodName + "失败", e);
+            throw new RuntimeException(I18nUtil.get("error.invoke.executionFailed", bean.getClass().getName() + "." + methodName), e);
         }
     }
 
@@ -120,7 +121,7 @@ public class InvokeUtil {
                 return method.invoke(bean);
             }
         } catch (Exception e) {
-            throw new RuntimeException("执行目标：" + bean.getClass().getName() + "." + methodName + "失败", e);
+            throw new RuntimeException(I18nUtil.get("error.invoke.executionFailed", bean.getClass().getName() + "." + methodName), e);
         }
     }
 

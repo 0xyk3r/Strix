@@ -19,12 +19,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class BasePageReq<T> {
 
-    @Min(value = 1, message = "分页大小不能小于1")
-    @Max(value = 200, message = "分页大小不能大于200")
+    @Min(value = 1, message = "{validation.minValue:field.pageSize}")
+    @Max(value = 200, message = "{validation.maxValue:field.pageSize}")
     @Schema(description = "分页大小", example = "10")
     private Integer pageSize = 10;
 
-    @Min(value = 1, message = "分页页码不能小于1")
+    @Min(value = 1, message = "{validation.minValue:field.pageNumber}")
     @Schema(description = "分页页码", example = "1")
     private Integer pageIndex = 1;
 

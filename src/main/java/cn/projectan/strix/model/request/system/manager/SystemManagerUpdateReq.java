@@ -23,8 +23,8 @@ public class SystemManagerUpdateReq {
      * 显示昵称
      */
     @Schema(description = "显示昵称", example = "张三")
-    @NotEmpty(groups = {InsertGroup.class, UpdateGroup.class}, message = "管理人员昵称不可为空")
-    @Size(groups = {InsertGroup.class, UpdateGroup.class}, min = 2, max = 20, message = "管理人员昵称长度不符合要求")
+    @NotEmpty(groups = {InsertGroup.class, UpdateGroup.class}, message = "{validation.required:field.manager.nickname}")
+    @Size(groups = {InsertGroup.class, UpdateGroup.class}, min = 2, max = 20, message = "{validation.length:field.manager.nickname}")
     @UpdateField
     private String nickname;
 
@@ -32,8 +32,8 @@ public class SystemManagerUpdateReq {
      * 登录账号
      */
     @Schema(description = "登录账号", example = "admin")
-    @NotEmpty(groups = {InsertGroup.class, UpdateGroup.class}, message = "管理人员登录账号不可为空")
-    @Size(groups = {InsertGroup.class, UpdateGroup.class}, min = 4, max = 20, message = "管理人员登录账号长度不符合要求")
+    @NotEmpty(groups = {InsertGroup.class, UpdateGroup.class}, message = "{validation.required:field.manager.loginName}")
+    @Size(groups = {InsertGroup.class, UpdateGroup.class}, min = 4, max = 20, message = "{validation.length:field.manager.loginName}")
     @UpdateField
     private String loginName;
 
@@ -41,8 +41,8 @@ public class SystemManagerUpdateReq {
      * 登录密码
      */
     @Schema(description = "登录密码", example = "Abc12345")
-    @NotEmpty(groups = {InsertGroup.class}, message = "管理人员登录密码不可为空")
-    @Size(groups = {InsertGroup.class, UpdateGroup.class}, min = 8, max = 32, message = "管理人员登录密码长度不符合要求（8-32位）")
+    @NotEmpty(groups = {InsertGroup.class}, message = "{validation.required:field.manager.password}")
+    @Size(groups = {InsertGroup.class, UpdateGroup.class}, min = 8, max = 32, message = "{validation.length:field.manager.password}")
     @PasswordComplexity(groups = {InsertGroup.class, UpdateGroup.class})
     @UpdateField
     private String loginPassword;
@@ -53,8 +53,8 @@ public class SystemManagerUpdateReq {
      * @see cn.projectan.strix.model.dict.system.SystemManagerStatus
      */
     @Schema(description = "管理员状态", example = "1")
-    @NotNull(groups = {InsertGroup.class}, message = "管理人员状态未选择")
-    @DynamicDictValue(groups = {InsertGroup.class, UpdateGroup.class}, dictName = "SystemManagerStatus", message = "管理人员状态不合法")
+    @NotNull(groups = {InsertGroup.class}, message = "{validation.selected:field.manager.status}")
+    @DynamicDictValue(groups = {InsertGroup.class, UpdateGroup.class}, dictName = "SystemManagerStatus", message = "{validation.invalid:field.manager.status}")
     @UpdateField
     private Short status;
 
@@ -64,8 +64,8 @@ public class SystemManagerUpdateReq {
      * @see cn.projectan.strix.model.dict.system.SystemManagerType
      */
     @Schema(description = "管理员类型", example = "1")
-    @NotNull(groups = {InsertGroup.class}, message = "管理人员类型未选择")
-    @DynamicDictValue(groups = {InsertGroup.class, UpdateGroup.class}, dictName = "SystemManagerType", message = "管理人员类型不合法")
+    @NotNull(groups = {InsertGroup.class}, message = "{validation.selected:field.manager.type}")
+    @DynamicDictValue(groups = {InsertGroup.class, UpdateGroup.class}, dictName = "SystemManagerType", message = "{validation.invalid:field.manager.type}")
     @UpdateField
     private Short type;
 

@@ -14,11 +14,11 @@ import lombok.Data;
 @Schema(description = "聊天 - 标记已读请求")
 public class MarkReadReq {
 
-    @NotBlank(message = "会话 ID 不能为空")
+    @NotBlank(message = "{validation.required:field.chat.sessionId}")
     @Schema(description = "会话 ID", example = "1234567890")
     private String sessionId;
 
-    @NotBlank(message = "最后已读消息 ID 不能为空")
+    @NotBlank(message = "{validation.required:field.chat.lastReadMsgId}")
     @Schema(description = "最后已读消息 ID", example = "100")
     private String lastReadId;
 

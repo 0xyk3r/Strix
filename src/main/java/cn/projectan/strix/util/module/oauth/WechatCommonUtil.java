@@ -3,6 +3,7 @@ package cn.projectan.strix.util.module.oauth;
 import cn.projectan.strix.core.exception.StrixOAuthException;
 import cn.projectan.strix.model.other.system.module.oauth.wechat.mp.req.WechatGetAccessTokenReq;
 import cn.projectan.strix.model.other.system.module.oauth.wechat.mp.resp.WechatGetAccessTokenResp;
+import cn.projectan.strix.util.common.I18nUtil;
 import cn.projectan.strix.util.common.ObjectMapperUtil;
 import cn.projectan.strix.util.http.OkHttpUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -32,17 +33,17 @@ public class WechatCommonUtil {
             WechatGetAccessTokenReq req = new WechatGetAccessTokenReq("client_credential", appId, appSecret, false);
 
             String response = OkHttpUtil.postJson(GET_ACCESS_TOKEN_URL, ObjectMapperUtil.writeValue(req));
-            Assert.hasText(response, "Strix OAuth: 获取微信 AccessToken 时远程服务器返回数据为空.");
+            Assert.hasText(response, I18nUtil.get("assert.oauth.wechatTokenEmpty"));
 
             WechatGetAccessTokenResp resp = ObjectMapperUtil.readValue(response, WechatGetAccessTokenResp.class);
-            Assert.notNull(resp, "Strix OAuth: 获取微信 AccessToken 时远程服务器返回数据异常.");
-            Assert.hasText(resp.getAccessToken(), "Strix OAuth: 获取微信 AccessToken 时远程服务器返回数据异常.");
+            Assert.notNull(resp, I18nUtil.get("assert.oauth.wechatTokenError"));
+            Assert.hasText(resp.getAccessToken(), I18nUtil.get("assert.oauth.wechatTokenError"));
 
             log.debug("Strix OAuth: 获取微信 AccessToken 成功.");
             return resp.getAccessToken();
         } catch (Exception e) {
             log.error("Strix OAuth: 获取微信 AccessToken 失败", e);
-            throw new StrixOAuthException("Strix OAuth: 获取微信 AccessToken 失败", e);
+            throw new StrixOAuthException(I18nUtil.get("assert.oauth.wechatTokenFailed"), e);
         }
     }
 

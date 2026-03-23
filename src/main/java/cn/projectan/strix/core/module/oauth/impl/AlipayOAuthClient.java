@@ -4,6 +4,7 @@ import cn.projectan.strix.core.exception.StrixOAuthException;
 import cn.projectan.strix.core.module.oauth.StrixOAuthClient;
 import cn.projectan.strix.model.other.system.module.oauth.AlipayOAuthConfig;
 import cn.projectan.strix.model.other.system.module.oauth.BaseOAuthUserInfo;
+import cn.projectan.strix.util.common.I18nUtil;
 import com.alipay.api.CertAlipayRequest;
 import com.alipay.api.DefaultAlipayClient;
 import com.alipay.api.request.AlipaySystemOauthTokenRequest;
@@ -31,7 +32,7 @@ public class AlipayOAuthClient extends StrixOAuthClient<AlipayOAuthConfig> {
 
     public AlipayOAuthClient(AlipayOAuthConfig config) {
         super(config);
-        Assert.notNull(config, "Strix OAuth: 初始化支付宝 OAuth 服务实例失败. (配置信息为空)");
+        Assert.notNull(config, I18nUtil.get("assert.oauth.initFailed", I18nUtil.get("field.oauth.alipay")));
         try {
             CertAlipayRequest certAlipayRequest = new CertAlipayRequest();
             certAlipayRequest.setServerUrl(config.getServerUrl());
@@ -45,7 +46,7 @@ public class AlipayOAuthClient extends StrixOAuthClient<AlipayOAuthConfig> {
             certAlipayRequest.setRootCertPath(config.getAlipayRootCertPath());
             client = new DefaultAlipayClient(certAlipayRequest);
         } catch (Exception e) {
-            throw new StrixOAuthException("Strix OAuth: 初始化支付宝 OAuth 服务实例失败. (配置信息错误)", e);
+            throw new StrixOAuthException(I18nUtil.get("assert.oauth.alipayInitConfigError"), e);
         }
     }
 
@@ -77,7 +78,7 @@ public class AlipayOAuthClient extends StrixOAuthClient<AlipayOAuthConfig> {
             return oAuthUserInfo;
         } catch (Exception e) {
             log.error("Strix OAuth: 获取支付宝 OAuth Token 失败. (code: {})", code, e);
-            throw new StrixOAuthException("Strix OAuth: 获取支付宝 OAuth Token 失败.", e);
+            throw new StrixOAuthException(I18nUtil.get("assert.oauth.alipayTokenFailed"), e);
         }
     }
 
@@ -104,7 +105,7 @@ public class AlipayOAuthClient extends StrixOAuthClient<AlipayOAuthConfig> {
             return userInfo;
         } catch (Exception e) {
             log.error("Strix OAuth: 获取支付宝 OAuth 用户信息失败. (accessToken: {})", accessToken, e);
-            throw new StrixOAuthException("Strix OAuth: 获取支付宝 OAuth 用户信息失败.", e);
+            throw new StrixOAuthException(I18nUtil.get("assert.oauth.alipayUserInfoFailed"), e);
         }
     }
 

@@ -15,6 +15,7 @@ import cn.projectan.strix.model.request.srv.chat.PullMessageReq;
 import cn.projectan.strix.model.request.srv.chat.SendMessageReq;
 import cn.projectan.strix.model.response.srv.chat.ChatMessageResp;
 import cn.projectan.strix.model.response.srv.chat.SendMessageResultResp;
+import cn.projectan.strix.util.common.I18nUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -121,7 +122,7 @@ public class ChatMessageBusinessService {
         Assert.isTrue(isSessionMember(req.getSessionId(), userId), "您不是该会话的成员");
 
         ChatMessageTypeEnum msgType = ChatMessageTypeEnum.parseFromCodeValue(req.getMsgType());
-        Assert.notNull(msgType, "消息类型无效");
+        Assert.notNull(msgType, I18nUtil.invalid("field.messageType"));
 
         // 幂等检查
         String idempotentKey = ChatRedisKeys.CHAT_MESSAGE_IDEMPOTENT_PREFIX + req.getClientMsgId();

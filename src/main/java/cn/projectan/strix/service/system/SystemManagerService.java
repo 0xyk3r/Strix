@@ -8,6 +8,7 @@ import cn.projectan.strix.model.dict.system.SystemRoleRegionPermissionType;
 import cn.projectan.strix.model.enums.common.NumCategory;
 import cn.projectan.strix.model.request.system.manager.SystemManagerListReq;
 import cn.projectan.strix.service.base.NameFetcherService;
+import cn.projectan.strix.util.common.I18nUtil;
 import cn.projectan.strix.util.common.SpringUtil;
 import cn.projectan.strix.util.math.NumUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -173,7 +174,7 @@ public class SystemManagerService extends ServiceImpl<SystemManagerMapper, Syste
      */
     public LoginSystemManager getLoginInfo(String managerId) {
         SystemManager systemManager = getById(managerId);
-        Assert.notNull(systemManager, "管理账号不存在: " + managerId);
+        Assert.notNull(systemManager, I18nUtil.notFound("field.systemManager") + ": " + managerId);
         SystemRegion systemRegion = null;
         if (StringUtils.hasText(systemManager.getRegionId())) {
             systemRegion = systemRegionService.getById(systemManager.getRegionId());

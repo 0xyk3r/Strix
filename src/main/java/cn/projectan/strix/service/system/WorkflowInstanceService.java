@@ -9,6 +9,7 @@ import cn.projectan.strix.model.db.system.WorkflowInstance;
 import cn.projectan.strix.model.dict.system.WorkflowInstanceStatus;
 import cn.projectan.strix.model.dict.system.WorkflowNodeType;
 import cn.projectan.strix.model.other.system.workflow.WorkflowNode;
+import cn.projectan.strix.util.common.I18nUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -86,12 +87,12 @@ public class WorkflowInstanceService extends ServiceImpl<WorkflowInstanceMapper,
     @Transactional(rollbackFor = Exception.class)
     public void createInstance(String workflowId, String workflowName) {
         WorkflowConfig config = workflowConfigService.getLatestConfig(workflowId);
-        Assert.notNull(config, "工作流配置不存在");
+        Assert.notNull(config, I18nUtil.notFound("field.workflowConfig"));
 
         List<WorkflowNode> nodes = workflowConfigCache.getConfig(workflowId);
-        Assert.notEmpty(nodes, "工作流配置为空");
+        Assert.notEmpty(nodes, I18nUtil.notEmpty("field.workflowNodes"));
         WorkflowNode rootNode = WorkflowTool.findRootNode(nodes);
-        Assert.notNull(rootNode, "工作流配置根节点不存在");
+        Assert.notNull(rootNode, I18nUtil.notFound("field.workflowRootNode"));
 
         WorkflowInstance instance = new WorkflowInstance()
                 .setName(workflowName)
@@ -114,7 +115,7 @@ public class WorkflowInstanceService extends ServiceImpl<WorkflowInstanceMapper,
     @Transactional(rollbackFor = Exception.class)
     public void toNode(WorkflowInstance instance, String nodeId, boolean isBack) {
         List<WorkflowNode> nodes = workflowConfigCache.getConfigById(instance.getWorkflowConfigId());
-        Assert.notEmpty(nodes, "工作流配置为空");
+        Assert.notEmpty(nodes, I18nUtil.notEmpty("field.workflowNodes"));
 
         WorkflowNode targetNode = WorkflowTool.findNodeById(nodes, nodeId);
         if (targetNode != null) {
@@ -135,7 +136,7 @@ public class WorkflowInstanceService extends ServiceImpl<WorkflowInstanceMapper,
     @Transactional(rollbackFor = Exception.class)
     public void toNext(WorkflowInstance instance) {
         List<WorkflowNode> nodes = workflowConfigCache.getConfigById(instance.getWorkflowConfigId());
-        Assert.notEmpty(nodes, "工作流配置为空");
+        Assert.notEmpty(nodes, I18nUtil.notEmpty("field.workflowNodes"));
 
         WorkflowNode currentNode = WorkflowTool.findNodeById(nodes, instance.getCurrentNodeId());
         WorkflowNode nextNode = WorkflowTool.findNextNode(nodes, instance.getCurrentNodeId());
@@ -181,7 +182,7 @@ public class WorkflowInstanceService extends ServiceImpl<WorkflowInstanceMapper,
             case WorkflowNodeType.ROOT, WorkflowNodeType.CC -> toNext(instance);
             case WorkflowNodeType.CONDITIONS -> {
                 List<WorkflowNode> nodes = workflowConfigCache.getConfigById(instance.getWorkflowConfigId());
-                Assert.notEmpty(nodes, "工作流配置为空");
+                Assert.notEmpty(nodes, I18nUtil.notEmpty("field.workflowNodes"));
                 WorkflowNode targetNode = WorkflowTool.findNodeById(nodes, instance.getCurrentNodeId());
                 WorkflowHandler handler = new WorkflowHandler(targetNode);
                 String conditionsBranchNodeId = handler.getConditionsBranchNodeId();

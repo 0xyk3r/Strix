@@ -2,6 +2,7 @@ package cn.projectan.strix.core.module.oauth.impl;
 
 import cn.projectan.strix.model.other.system.module.oauth.BaseOAuthUserInfo;
 import cn.projectan.strix.model.other.system.module.oauth.wechat.mp.WechatMPOAuthConfig;
+import cn.projectan.strix.util.common.I18nUtil;
 import cn.projectan.strix.util.module.oauth.WechatMPOAuthUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
@@ -19,7 +20,7 @@ public class WechatMPOAuthClient extends AbstractWechatOAuthClient<WechatMPOAuth
 
     public WechatMPOAuthClient(WechatMPOAuthConfig config, ScheduledExecutorService scheduler) {
         super(config, scheduler);
-        Assert.notNull(config, "Strix OAuth: 初始化微信小程序 OAuth 服务实例失败. (配置信息为空)");
+        Assert.notNull(config, I18nUtil.get("assert.oauth.initFailed", I18nUtil.get("field.oauth.wechatMP")));
         // 初始化 AccessToken 刷新任务
         initAccessTokenRefreshTask(config.getAppId(), config.getAppSecret());
     }

@@ -9,6 +9,7 @@ import cn.projectan.strix.model.db.system.SystemUser;
 import cn.projectan.strix.model.response.system.login.SystemUserLoginResp;
 import cn.projectan.strix.service.system.SystemUserService;
 import cn.projectan.strix.service.system.TokenSessionService;
+import cn.projectan.strix.util.common.I18nUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -43,7 +44,7 @@ public class DebugController extends BaseSrvController {
     @Operation(summary = "登录任意用户", description = "调试用，登录任意用户，返回该用户的登录信息和 token")
     public RetResult<SystemUserLoginResp> loginAnyUser(@Parameter(description = "用户 ID") @PathVariable String userId) {
         SystemUser systemUser = systemUserService.getById(userId);
-        Assert.notNull(systemUser, "用户不存在: " + userId);
+        Assert.notNull(systemUser, I18nUtil.notFound("field.systemUser") + ": " + userId);
         LoginSystemUser loginInfo = systemUserService.getLoginInfo(systemUser.getId());
 
         long tokenTTL = systemConfigCache.getLong("SYSTEM_USER_LOGIN_EFFECTIVE_TIME", 1440L);

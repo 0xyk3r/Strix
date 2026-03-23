@@ -63,7 +63,7 @@ public class RedisUtil {
      * @return 失效时间，返回0代表永久有效，-2代表键不存在
      */
     public long getExpire(String key, TimeUnit timeUnit) {
-        Assert.hasText(key, "key 不能为空");
+        Assert.hasText(key, I18nUtil.notEmpty("field.redisKey"));
         Long expire = redisTemplate.getExpire(key, timeUnit);
         return expire != null ? expire : -2;
     }
@@ -88,8 +88,8 @@ public class RedisUtil {
      * @return 是否设置成功
      */
     public boolean setExpire(String key, long time, TimeUnit timeUnit) {
-        Assert.hasText(key, "key 不能为空");
-        Assert.isTrue(time > 0, "缓存失效时间必须大于0");
+        Assert.hasText(key, I18nUtil.notEmpty("field.redisKey"));
+        Assert.isTrue(time > 0, I18nUtil.get("assert.redis.cacheExpirePositive"));
         Boolean result = redisTemplate.expire(key, time, timeUnit);
         return Boolean.TRUE.equals(result);
     }
@@ -101,7 +101,7 @@ public class RedisUtil {
      * @return 是否存在
      */
     public boolean hasKey(String key) {
-        Assert.hasText(key, "key 不能为空");
+        Assert.hasText(key, I18nUtil.notEmpty("field.redisKey"));
         Boolean result = redisTemplate.hasKey(key);
         return Boolean.TRUE.equals(result);
     }
@@ -114,8 +114,8 @@ public class RedisUtil {
      * @return 是否是指定类型
      */
     public boolean isType(String key, DataType type) {
-        Assert.hasText(key, "key 不能为空");
-        Assert.notNull(type, "type 不能为空");
+        Assert.hasText(key, I18nUtil.notEmpty("field.redisKey"));
+        Assert.notNull(type, I18nUtil.notEmpty("field.redisType"));
         return redisTemplate.type(key) == type;
     }
 
@@ -143,7 +143,7 @@ public class RedisUtil {
      * @return 匹配的 Keys 集合
      */
     public Set<String> keys(String pattern) {
-        Assert.hasText(pattern, "pattern 不能为空");
+        Assert.hasText(pattern, I18nUtil.notEmpty("field.redisPattern"));
         return redisTemplate.keys(pattern);
     }
 
@@ -154,7 +154,7 @@ public class RedisUtil {
      * @param pattern 匹配模式（需要包含通配符 *）
      */
     public void delLike(String pattern) {
-        Assert.hasText(pattern, "pattern 不能为空");
+        Assert.hasText(pattern, I18nUtil.notEmpty("field.redisPattern"));
         try (Cursor<String> cursor = redisTemplate.scan(
                 ScanOptions.scanOptions()
                         .match(pattern)
@@ -176,7 +176,7 @@ public class RedisUtil {
      * @return 值
      */
     public Object get(String key) {
-        Assert.hasText(key, "key 不能为空");
+        Assert.hasText(key, I18nUtil.notEmpty("field.redisKey"));
         return redisTemplate.opsForValue().get(key);
     }
 
@@ -206,7 +206,7 @@ public class RedisUtil {
      * @param value 值
      */
     public void set(String key, Object value) {
-        Assert.hasText(key, "key 不能为空");
+        Assert.hasText(key, I18nUtil.notEmpty("field.redisKey"));
         Assert.hasText(value.toString(), "value 不能为空");
         redisTemplate.opsForValue().set(key, value);
     }
@@ -231,7 +231,7 @@ public class RedisUtil {
      * @param timeUnit 时间单位
      */
     public void set(String key, Object value, long time, TimeUnit timeUnit) {
-        Assert.hasText(key, "key 不能为空");
+        Assert.hasText(key, I18nUtil.notEmpty("field.redisKey"));
         Assert.hasText(value.toString(), "value 不能为空");
         if (time > 0) {
             redisTemplate.opsForValue().set(key, value, time, timeUnit);
@@ -295,7 +295,7 @@ public class RedisUtil {
      * @return 递增后的值
      */
     public long incr(String key, long delta) {
-        Assert.isTrue(delta > 0, "递增因子必须大于0");
+        Assert.isTrue(delta > 0, I18nUtil.get("assert.redis.incrementPositive"));
         try {
             Long result = redisTemplate.opsForValue().increment(key, delta);
             return result != null ? result : 0;
@@ -329,7 +329,7 @@ public class RedisUtil {
      * @return 递减后的值
      */
     public long decr(String key, long delta) {
-        Assert.isTrue(delta > 0, "递减因子必须大于0");
+        Assert.isTrue(delta > 0, I18nUtil.get("assert.redis.decrementPositive"));
         try {
             Long result = redisTemplate.opsForValue().decrement(key, delta);
             return result != null ? result : 0;
@@ -820,7 +820,7 @@ public class RedisUtil {
      * @return 匹配的 Keys 集合
      */
     public Set<String> scan(String pattern, long count) {
-        Assert.hasText(pattern, "pattern 不能为空");
+        Assert.hasText(pattern, I18nUtil.notEmpty("field.redisPattern"));
         Set<String> keys = new HashSet<>();
         try (Cursor<String> cursor = redisTemplate.scan(
                 ScanOptions.scanOptions()

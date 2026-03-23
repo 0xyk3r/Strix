@@ -66,7 +66,7 @@ public class PayOrderService extends ServiceImpl<PayOrderMapper, PayOrder> {
      */
     public Map<String, String> createOrder(String configId, String title, BasePayParam param, String attach, Long amount, Integer expireMin, String handlerId, Short payType) {
         StrixPayClient payClient = strixPayStore.getInstance(configId);
-        Assert.notNull(payClient, "收款配置异常, 创建订单失败");
+        Assert.notNull(payClient, I18nUtil.get("assert.pay.configError"));
         Assert.isTrue(PayType.valid(payType), "支付类型不合法");
 
         PayOrder payOrder = new PayOrder();
@@ -89,8 +89,8 @@ public class PayOrderService extends ServiceImpl<PayOrderMapper, PayOrder> {
         payOrder.setTotalAmount(amount);
         payOrder.setTotalPayAmount(0L);
         payOrder.setTotalRefundAmount(0L);
-        Assert.isTrue(amount > 0, "支付金额必须大于0");
-        Assert.isTrue(expireMin > 0, "过期时间必须大于0");
+        Assert.isTrue(amount > 0, I18nUtil.get("assert.mustBePositive", I18nUtil.get("field.payAmount")));
+        Assert.isTrue(expireMin > 0, I18nUtil.get("assert.mustBePositive", I18nUtil.get("field.expireTime")));
         Assert.isTrue(save(payOrder), "创建订单失败");
         log.info("支付订单创建成功: orderId={}, configId={}, amount={}, payType={}", payOrder.getId(), configId, amount, payType);
 
@@ -102,7 +102,7 @@ public class PayOrderService extends ServiceImpl<PayOrderMapper, PayOrder> {
             case PayType.WEB -> responseMap = payClient.createWebPay(payOrder);
             case PayType.APP -> throw new StrixException(I18nUtil.get("error.pay.appNotSupported"));
         }
-        Assert.notNull(responseMap, "支付订单生成失败");
+        Assert.notNull(responseMap, I18nUtil.get("assert.pay.orderGenerateFailed"));
 
         return responseMap;
     }
@@ -120,7 +120,7 @@ public class PayOrderService extends ServiceImpl<PayOrderMapper, PayOrder> {
             // 编程式事务：仅包裹DB操作，锁获取在事务外
             new TransactionTemplate(transactionManager).executeWithoutResult(status -> {
                 PayOrder payOrder = getById(payResult.getOrderId());
-                Assert.notNull(payOrder, "支付订单不存在");
+                Assert.notNull(payOrder, I18nUtil.notFound("field.payOrder"));
                 // 防止重复通知
                 // 这里允许未支付和过期状态的订单处理支付成功通知
                 StrixAssert.in(payOrder.getStatus(), "当前订单状态异常, 可能重复通知", PayOrderStatus.UNPAID, PayOrderStatus.EXPIRED);
@@ -150,7 +150,7 @@ public class PayOrderService extends ServiceImpl<PayOrderMapper, PayOrder> {
      */
     @Transactional(rollbackFor = Exception.class)
     public void handleExpired(String orderId) {
-        Assert.hasText(orderId, "订单号为空");
+        Assert.hasText(orderId, I18nUtil.notEmpty("field.orderId"));
         synchronizedUtil.exec("PayOrder" + orderId, () -> {
             // 只处理未支付的订单 防止处理到已支付的订单
             lambdaUpdate()

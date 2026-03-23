@@ -21,6 +21,7 @@ import cn.projectan.strix.model.response.system.role.SystemRoleListResp;
 import cn.projectan.strix.model.response.system.role.SystemRoleResp;
 import cn.projectan.strix.service.system.*;
 import cn.projectan.strix.util.algo.KeyDiffUtil;
+import cn.projectan.strix.util.common.I18nUtil;
 import cn.projectan.strix.util.common.UniqueChecker;
 import cn.projectan.strix.util.common.UpdateBuilder;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -81,7 +82,7 @@ public class SystemRoleController extends BaseSystemController {
     @StrixLog(operationGroup = "系统角色", operationName = "查询角色信息")
     public RetResult<SystemRoleResp> getSystemRole(@Parameter(description = "角色 ID") @PathVariable String roleId) {
         SystemRole systemRole = systemRoleService.getById(roleId);
-        Assert.notNull(systemRole, "系统角色信息不存在");
+        Assert.notNull(systemRole, I18nUtil.notFound("field.systemRole"));
 
         return RetBuilder.success(buildRoleResp(systemRole, roleId));
     }
@@ -94,7 +95,7 @@ public class SystemRoleController extends BaseSystemController {
     @PreAuthorize("@ss.hasPermission('system:role:add')")
     @StrixLog(operationGroup = "系统角色", operationName = "新增角色", operationType = SystemLogOperType.ADD)
     public RetResult<Object> update(@RequestBody @Validated(InsertGroup.class) SystemRoleUpdateReq req) {
-        Assert.notNull(req, "参数错误");
+        Assert.notNull(req, I18nUtil.get("error.param.invalid"));
 
         SystemRole systemRole = new SystemRole(
                 req.getName(),
@@ -117,10 +118,10 @@ public class SystemRoleController extends BaseSystemController {
     @PreAuthorize("@ss.hasPermission('system:role:update')")
     @StrixLog(operationGroup = "系统角色", operationName = "修改角色", operationType = SystemLogOperType.UPDATE)
     public RetResult<Object> update(@Parameter(description = "角色 ID") @PathVariable String roleId, @RequestBody @Validated(UpdateGroup.class) SystemRoleUpdateReq req) {
-        Assert.notNull(req, "参数错误");
+        Assert.notNull(req, I18nUtil.get("error.param.invalid"));
         SystemRole systemRole = systemRoleService.getById(roleId);
-        Assert.notNull(systemRole, "系统角色信息不存在");
-        Assert.isTrue(systemRole.getBuiltin() == CommonFlag.NO, "系统内置角色不支持修改");
+        Assert.notNull(systemRole, I18nUtil.notFound("field.systemRole"));
+        Assert.isTrue(systemRole.getBuiltin() == CommonFlag.NO, I18nUtil.get("assert.role.builtinNoModify"));
 
         LambdaUpdateWrapper<SystemRole> updateWrapper = UpdateBuilder.build(systemRole, req);
         UniqueChecker.check(systemRole);
@@ -141,8 +142,8 @@ public class SystemRoleController extends BaseSystemController {
     @StrixLog(operationGroup = "系统角色", operationName = "修改角色菜单权限", operationType = SystemLogOperType.UPDATE)
     public RetResult<Object> updateMenu(@Parameter(description = "角色 ID") @PathVariable String roleId, @RequestBody @Validated(UpdateGroup.class) SystemRoleUpdateMenuReq req) {
         SystemRole systemRole = systemRoleService.getById(roleId);
-        Assert.notNull(systemRole, "系统角色信息不存在");
-        Assert.isTrue(systemRole.getBuiltin() == CommonFlag.NO, "系统内置角色不支持修改");
+        Assert.notNull(systemRole, I18nUtil.notFound("field.systemRole"));
+        Assert.isTrue(systemRole.getBuiltin() == CommonFlag.NO, I18nUtil.get("assert.role.builtinNoModify"));
 
         // 修改角色的菜单权限
         List<String> systemRoleMenuIds = systemRoleMenuService.listMenuIdsByRoleId(roleId);
@@ -199,8 +200,8 @@ public class SystemRoleController extends BaseSystemController {
     @StrixLog(operationGroup = "系统角色", operationName = "删除角色", operationType = SystemLogOperType.DELETE)
     public RetResult<Object> remove(@Parameter(description = "角色 ID") @PathVariable String roleId) {
         SystemRole systemRole = systemRoleService.getById(roleId);
-        Assert.notNull(systemRole, "系统角色信息不存在");
-        Assert.isTrue(systemRole.getBuiltin() == CommonFlag.NO, "系统内置角色不支持删除");
+        Assert.notNull(systemRole, I18nUtil.notFound("field.systemRole"));
+        Assert.isTrue(systemRole.getBuiltin() == CommonFlag.NO, I18nUtil.get("assert.role.builtinNoDelete"));
 
         systemRoleService.deleteRoleWithRelations(systemRole);
 
@@ -219,10 +220,10 @@ public class SystemRoleController extends BaseSystemController {
     @StrixLog(operationGroup = "系统角色", operationName = "移除角色的菜单权限", operationType = SystemLogOperType.UPDATE)
     public RetResult<SystemRoleResp> removeRoleMenu(@Parameter(description = "角色 ID") @PathVariable String roleId, @Parameter(description = "菜单 ID") @PathVariable String menuId) {
         SystemRole systemRole = systemRoleService.getById(roleId);
-        Assert.notNull(systemRole, "系统角色信息不存在");
-        Assert.isTrue(systemRole.getBuiltin() == CommonFlag.NO, "系统内置角色不支持修改");
+        Assert.notNull(systemRole, I18nUtil.notFound("field.systemRole"));
+        Assert.isTrue(systemRole.getBuiltin() == CommonFlag.NO, I18nUtil.get("assert.role.builtinNoModify"));
 
-        // 查询该菜单和其子菜单的id 注意此处使用了ram缓存
+        // 查询该菜单和其子菜单的id注意此处使用了ram缓存
         List<String> menuAndChildrenMenu = systemMenuCache.getIdListByParentMenu(menuId);
 
         systemRoleMenuService.deleteByRoleIdAndMenuIds(roleId, menuAndChildrenMenu);
@@ -248,8 +249,8 @@ public class SystemRoleController extends BaseSystemController {
     @StrixLog(operationGroup = "系统角色", operationName = "移除角色的系统权限", operationType = SystemLogOperType.UPDATE)
     public RetResult<SystemRoleResp> removeRolePermission(@Parameter(description = "角色 ID") @PathVariable String roleId, @Parameter(description = "权限 ID") @PathVariable String permissionId) {
         SystemRole systemRole = systemRoleService.getById(roleId);
-        Assert.notNull(systemRole, "系统角色信息不存在");
-        Assert.isTrue(systemRole.getBuiltin() == CommonFlag.NO, "系统内置角色不支持修改");
+        Assert.notNull(systemRole, I18nUtil.notFound("field.systemRole"));
+        Assert.isTrue(systemRole.getBuiltin() == CommonFlag.NO, I18nUtil.get("assert.role.builtinNoModify"));
 
         systemRolePermissionService.deleteByRoleIdAndPermissionId(roleId, permissionId);
 

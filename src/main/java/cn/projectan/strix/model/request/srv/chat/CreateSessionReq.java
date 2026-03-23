@@ -17,7 +17,7 @@ import java.util.List;
 @Schema(description = "聊天 - 创建/获取会话请求")
 public class CreateSessionReq {
 
-    @NotBlank(message = "配置 Key 不能为空")
+    @NotBlank(message = "{validation.required:field.chat.configKey}")
     @Schema(description = "配置 Key", example = "CUSTOMER_SERVICE")
     private String configKey;
 
@@ -33,7 +33,7 @@ public class CreateSessionReq {
     @Schema(description = "群聊名称（群聊时使用）", example = "项目讨论组")
     private String groupName;
 
-    @Size(min = 1, message = "成员列表不能为空")
+    @Size(min = 1, message = "{validation.required:field.chat.memberList}")
     @Schema(description = "成员用户 ID 列表（群聊时使用）", example = "[\"user_1\", \"user_2\", \"user_3\"]")
     private List<String> memberUserIds;
 

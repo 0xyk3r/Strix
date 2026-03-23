@@ -19,6 +19,7 @@ import cn.projectan.strix.model.response.system.region.SystemRegionListResp;
 import cn.projectan.strix.model.response.system.region.SystemRegionResp;
 import cn.projectan.strix.service.system.SystemManagerService;
 import cn.projectan.strix.service.system.SystemRegionService;
+import cn.projectan.strix.util.common.I18nUtil;
 import cn.projectan.strix.util.common.UniqueChecker;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.v3.oas.annotations.Operation;
@@ -83,7 +84,7 @@ public class SystemRegionController extends BaseSystemController {
     @StrixLog(operationGroup = "系统地区", operationName = "查询地区信息")
     public RetResult<SystemRegionResp> getSystemRegion(@Parameter(description = "地区 ID") @PathVariable String id) {
         SystemRegion systemRegion = systemRegionService.getById(id);
-        Assert.notNull(systemRegion, "系统地区信息不存在");
+        Assert.notNull(systemRegion, I18nUtil.notFound("field.systemRegion"));
         checkLoginManagerRegionPermission(id);
 
         return RetBuilder.success(new SystemRegionResp(systemRegion.getId(), systemRegion.getName(), systemRegion.getLevel(), systemRegion.getParentId(), systemRegion.getFullPath(), systemRegion.getFullName(), systemRegion.getRemarks()));
@@ -99,7 +100,7 @@ public class SystemRegionController extends BaseSystemController {
         List<String> loginManagerRegionPermissions = loginManagerRegionPermissions();
 
         SystemRegion systemRegion = systemRegionService.getById(id);
-        Assert.notNull(systemRegion, "系统地区信息不存在");
+        Assert.notNull(systemRegion, I18nUtil.notFound("field.systemRegion"));
         checkLoginManagerRegionPermission(id);
 
         List<SystemRegion> childrenList = systemRegionService.listByParentId(systemRegion.getId(), loginManagerRegionPermissions);
@@ -115,7 +116,7 @@ public class SystemRegionController extends BaseSystemController {
     @PreAuthorize("@ss.hasPermission('system:region:add')")
     @StrixLog(operationGroup = "系统地区", operationName = "新增地区", operationType = SystemLogOperType.ADD)
     public RetResult<Object> update(@RequestBody @Validated(InsertGroup.class) SystemRegionUpdateReq req) {
-        Assert.notNull(req, "参数错误");
+        Assert.notNull(req, I18nUtil.get("error.param.invalid"));
         resolveParentId(req);
         checkLoginManagerRegionPermission(req.getParentId());
 
@@ -147,9 +148,9 @@ public class SystemRegionController extends BaseSystemController {
     @PreAuthorize("@ss.hasPermission('system:region:update')")
     @StrixLog(operationGroup = "系统地区", operationName = "修改地区", operationType = SystemLogOperType.UPDATE)
     public RetResult<Object> update(@Parameter(description = "地区 ID") @PathVariable String id, @RequestBody @Validated(UpdateGroup.class) SystemRegionUpdateReq req) {
-        Assert.notNull(req, "参数错误");
+        Assert.notNull(req, I18nUtil.get("error.param.invalid"));
         SystemRegion systemRegion = systemRegionService.getById(id);
-        Assert.notNull(systemRegion, "系统地区信息不存在");
+        Assert.notNull(systemRegion, I18nUtil.notFound("field.systemRegion"));
         checkLoginManagerRegionPermission(id);
 
         resolveParentId(req);
@@ -221,7 +222,7 @@ public class SystemRegionController extends BaseSystemController {
         checkLoginManagerRegionPermission(id);
 
         SystemRegion systemRegion = systemRegionService.getById(id);
-        Assert.notNull(systemRegion, "系统地区信息不存在");
+        Assert.notNull(systemRegion, I18nUtil.notFound("field.systemRegion"));
 
         List<String> removeIdList = systemRegionService.listIdsByFullPath(systemRegion.getFullPath());
 

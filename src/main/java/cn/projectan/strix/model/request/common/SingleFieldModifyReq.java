@@ -15,12 +15,12 @@ import lombok.Data;
 @Data
 public class SingleFieldModifyReq {
 
-    @NotBlank(message = "字段名称不能为空")
-    @Size(max = 50, message = "字段名称长度不能超过50")
+    @NotBlank(message = "{validation.required:field.fieldName}")
+    @Size(max = 50, message = "{validation.length:field.fieldName}")
     @Schema(description = "字段名称", example = "status")
     private String field;
 
-    @Size(max = 500, message = "字段值长度不能超过500")
+    @Size(max = 500, message = "{validation.length:field.fieldValue}")
     @Schema(description = "字段值", example = "1")
     private String value;
 

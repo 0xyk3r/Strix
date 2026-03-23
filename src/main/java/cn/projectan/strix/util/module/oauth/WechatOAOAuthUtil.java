@@ -2,6 +2,7 @@ package cn.projectan.strix.util.module.oauth;
 
 import cn.hutool.core.map.MapUtil;
 import cn.projectan.strix.core.exception.StrixOAuthException;
+import cn.projectan.strix.util.common.I18nUtil;
 import cn.projectan.strix.util.http.OkHttpUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
@@ -40,18 +41,18 @@ public class WechatOAOAuthUtil {
         String url = String.format(JS_API_TICKET_URL, accessToken);
         try {
             String responseStr = OkHttpUtil.get(url);
-            Assert.hasText(responseStr, "Strix OAuth: 获取微信 JsApiTicket 时远程服务器返回数据为空.");
+            Assert.hasText(responseStr, I18nUtil.get("assert.oauth.wechatJsApiTicketEmpty"));
 
             Map<String, Object> responseMap = OBJECT_MAPPER.readValue(responseStr, new TypeReference<>() {
             });
             String ticket = MapUtil.getStr(responseMap, "ticket");
-            Assert.hasText(ticket, "Strix OAuth: 获取微信 JsApiTicket 时远程服务器返回数据异常.");
+            Assert.hasText(ticket, I18nUtil.get("assert.oauth.wechatJsApiTicketError"));
 
             log.debug("Strix OAuth: 获取微信 JsApiTicket 成功.");
             return ticket;
         } catch (Exception e) {
             log.error("Strix OAuth: 获取微信 JsApiTicket 失败", e);
-            throw new StrixOAuthException("Strix OAuth: 获取微信 JsApiTicket 失败", e);
+            throw new StrixOAuthException(I18nUtil.get("assert.oauth.wechatJsApiTicketFailed"), e);
         }
     }
 
@@ -136,7 +137,7 @@ public class WechatOAOAuthUtil {
             return hexStr.toString();
         } catch (Exception e) {
             log.error("Strix OAuth: 生成JsAPI签名失败, data: {}", data, e);
-            throw new StrixOAuthException("Strix OAuth: 生成JsAPI签名失败", e);
+            throw new StrixOAuthException(I18nUtil.get("assert.oauth.wechatJsApiSignFailed"), e);
         }
     }
 

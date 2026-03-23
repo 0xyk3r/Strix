@@ -5,6 +5,7 @@ import cn.projectan.strix.model.other.system.module.oauth.wechat.mp.WechatMPOAut
 import cn.projectan.strix.model.other.system.module.oauth.wechat.mp.req.WechatMPGetPhoneNumberReq;
 import cn.projectan.strix.model.other.system.module.oauth.wechat.mp.resp.WechatMPAuthResp;
 import cn.projectan.strix.model.other.system.module.oauth.wechat.mp.resp.WechatMPGetPhoneNumberResp;
+import cn.projectan.strix.util.common.I18nUtil;
 import cn.projectan.strix.util.common.ObjectMapperUtil;
 import cn.projectan.strix.util.http.OkHttpUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +35,7 @@ public class WechatMPOAuthUtil {
 
         String response = OkHttpUtil.get(WECHAT_MP_AUTH_URL, params);
         WechatMPAuthResp resp = ObjectMapperUtil.readValue(response, WechatMPAuthResp.class);
-        Assert.notNull(resp, "微信小程序授权登录失败");
+        Assert.notNull(resp, I18nUtil.get("assert.oauth.wechatMPAuthFailed"));
 
         return new BaseOAuthUserInfo(
                 config.getId(),
@@ -61,7 +62,7 @@ public class WechatMPOAuthUtil {
                 .map(WechatMPGetPhoneNumberResp::getPhoneInfo)
                 .map(WechatMPGetPhoneNumberResp.PhoneInfo::getPhoneNumber)
                 .orElse(null);
-        Assert.hasText(phoneNumber, "Strix OAuth: 获取微信小程序用户手机号失败.");
+        Assert.hasText(phoneNumber, I18nUtil.get("assert.oauth.wechatMPPhoneFailed"));
         return phoneNumber;
     }
 

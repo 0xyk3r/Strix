@@ -14,6 +14,7 @@ import cn.projectan.strix.model.request.system.module.job.JobUpdateReq;
 import cn.projectan.strix.model.response.system.module.job.JobListResp;
 import cn.projectan.strix.model.response.system.module.job.JobResp;
 import cn.projectan.strix.service.system.JobService;
+import cn.projectan.strix.util.common.I18nUtil;
 import cn.projectan.strix.util.common.UniqueChecker;
 import cn.projectan.strix.util.common.UpdateBuilder;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -65,7 +66,7 @@ public class JobController extends BaseSystemController {
     @Operation(summary = "任务详情")
     public RetResult<JobResp> getInfo(@Parameter(description = "任务 ID") @PathVariable String id) {
         Job job = jobService.getById(id);
-        Assert.notNull(job, "定时任务不存在");
+        Assert.notNull(job, I18nUtil.notFound("field.scheduledJob"));
 
         return RetBuilder.success(
                 new JobResp(
@@ -119,7 +120,7 @@ public class JobController extends BaseSystemController {
     @Operation(summary = "编辑任务")
     public RetResult<Void> update(@Parameter(description = "任务 ID") @PathVariable String id, @RequestBody @Validated(UpdateGroup.class) JobUpdateReq req) {
         Job job = jobService.getById(id);
-        Assert.notNull(job, "原记录不存在");
+        Assert.notNull(job, I18nUtil.notFound("field.originalData"));
 
         UpdateBuilder.build(job, req);
         UniqueChecker.check(job);
@@ -142,7 +143,7 @@ public class JobController extends BaseSystemController {
     @Operation(summary = "删除任务")
     public RetResult<Void> remove(@Parameter(description = "任务 ID") @PathVariable String id) {
         Job job = jobService.getById(id);
-        Assert.notNull(job, "原记录不存在");
+        Assert.notNull(job, I18nUtil.notFound("field.originalData"));
 
         try {
             jobService.deleteJob(job);

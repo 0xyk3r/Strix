@@ -15,6 +15,7 @@ import cn.projectan.strix.model.response.common.CommonSelectDataResp;
 import cn.projectan.strix.model.response.system.module.oss.OssFileGroupListResp;
 import cn.projectan.strix.model.response.system.module.oss.OssFileGroupResp;
 import cn.projectan.strix.service.system.OssFileGroupService;
+import cn.projectan.strix.util.common.I18nUtil;
 import cn.projectan.strix.util.common.UniqueChecker;
 import cn.projectan.strix.util.common.UpdateBuilder;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -68,7 +69,7 @@ public class OssFileGroupController extends BaseSystemController {
     @Operation(summary = "文件分组详情")
     public RetResult<OssFileGroupResp> getOssFileGroupInfo(@Parameter(description = "文件分组 ID") @PathVariable String id) {
         OssFileGroup ossFileGroup = ossFileGroupService.getById(id);
-        Assert.notNull(ossFileGroup, "记录不存在");
+        Assert.notNull(ossFileGroup, I18nUtil.notFound("field.record"));
 
         return RetBuilder.success(new OssFileGroupResp(
                 ossFileGroup.getId(),
@@ -123,7 +124,7 @@ public class OssFileGroupController extends BaseSystemController {
     @Operation(summary = "编辑文件分组")
     public RetResult<Object> update(@Parameter(description = "文件分组 ID") @PathVariable String id, @RequestBody @Validated(UpdateGroup.class) OssFileGroupUpdateReq req) {
         OssFileGroup ossFileGroup = ossFileGroupService.getById(id);
-        Assert.notNull(ossFileGroup, "原记录不存在");
+        Assert.notNull(ossFileGroup, I18nUtil.notFound("field.originalData"));
 
         LambdaUpdateWrapper<OssFileGroup> updateWrapper = UpdateBuilder.build(ossFileGroup, req);
         UniqueChecker.check(ossFileGroup);

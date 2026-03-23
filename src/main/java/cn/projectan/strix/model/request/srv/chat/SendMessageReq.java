@@ -14,15 +14,15 @@ import lombok.Data;
 @Schema(description = "聊天 - 发送消息请求")
 public class SendMessageReq {
 
-    @NotBlank(message = "会话 ID 不能为空")
+    @NotBlank(message = "{validation.required:field.chat.sessionId}")
     @Schema(description = "会话 ID", example = "1234567890")
     private String sessionId;
 
-    @NotBlank(message = "消息类型不能为空")
+    @NotBlank(message = "{validation.required:field.chat.messageType}")
     @Schema(description = "消息类型（TEXT/IMAGE/CARD）", example = "TEXT")
     private String msgType;
 
-    @NotBlank(message = "客户端消息 ID 不能为空")
+    @NotBlank(message = "{validation.required:field.chat.clientMsgId}")
     @Schema(description = "客户端消息 ID（用于幂等）", example = "client_msg_12345")
     private String clientMsgId;
 

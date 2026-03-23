@@ -11,6 +11,7 @@ import cn.projectan.strix.model.request.system.dict.DictUpdateReq;
 import cn.projectan.strix.model.response.common.CommonDictResp;
 import cn.projectan.strix.model.response.common.CommonDictVersionResp;
 import cn.projectan.strix.model.response.system.dict.DictDataListResp;
+import cn.projectan.strix.util.common.I18nUtil;
 import cn.projectan.strix.util.common.UniqueChecker;
 import cn.projectan.strix.util.common.UpdateBuilder;
 import cn.projectan.strix.util.math.NumUtil;
@@ -230,7 +231,7 @@ public class DictService extends ServiceImpl<DictMapper, Dict> {
                 .eq(Dict::getKey, dictKey)
                 .setSql("version = version + 1")
                 .update();
-        Assert.isTrue(updated, "字典不存在");
+        Assert.isTrue(updated, I18nUtil.notFound("field.dict"));
     }
 
 

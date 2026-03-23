@@ -51,7 +51,7 @@ public final class FileUtil {
         }
 
         String originalFilename = multipartFile.getOriginalFilename();
-        Assert.hasText(originalFilename, "文件名不能为空");
+        Assert.hasText(originalFilename, I18nUtil.notEmpty("field.fileName"));
 
         String ext = StringUtils.getFilenameExtension(originalFilename);
         String prefix = StringUtils.stripFilenameExtension(originalFilename);

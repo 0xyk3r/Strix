@@ -23,30 +23,30 @@ import lombok.NoArgsConstructor;
 public class DictUpdateReq {
 
     @Schema(description = "字典 Key", example = "DictStatus")
-    @NotEmpty(groups = {InsertGroup.class, UpdateGroup.class}, message = "字典 Key 不可为空")
-    @Size(groups = {InsertGroup.class, UpdateGroup.class}, min = 2, max = 64, message = "字典 Key 长度不符合要求")
+    @NotEmpty(groups = {InsertGroup.class, UpdateGroup.class}, message = "{validation.required:field.dict.key}")
+    @Size(groups = {InsertGroup.class, UpdateGroup.class}, min = 2, max = 64, message = "{validation.length:field.dict.key}")
     @UpdateField
     private String key;
 
     @Schema(description = "字典名称", example = "字典状态")
-    @NotEmpty(groups = {InsertGroup.class, UpdateGroup.class}, message = "字典名称不可为空")
-    @Size(groups = {InsertGroup.class, UpdateGroup.class}, min = 2, max = 32, message = "字典名称长度不符合要求")
+    @NotEmpty(groups = {InsertGroup.class, UpdateGroup.class}, message = "{validation.required:field.dict.name}")
+    @Size(groups = {InsertGroup.class, UpdateGroup.class}, min = 2, max = 32, message = "{validation.length:field.dict.name}")
     @UpdateField
     private String name;
 
     @Schema(description = "字典数据类型", example = "1")
-    @NotNull(groups = {InsertGroup.class, UpdateGroup.class}, message = "字典数据类型不可为空")
+    @NotNull(groups = {InsertGroup.class, UpdateGroup.class}, message = "{validation.required:field.dict.dataType}")
     @UpdateField
     private Short dataType;
 
     @Schema(description = "字典状态", example = "1")
-    @NotNull(groups = {InsertGroup.class, UpdateGroup.class}, message = "字典状态不可为空")
-    @DynamicDictValue(groups = {InsertGroup.class, UpdateGroup.class}, dictName = "DictStatus", message = "字典状态不合法")
+    @NotNull(groups = {InsertGroup.class, UpdateGroup.class}, message = "{validation.required:field.dict.status}")
+    @DynamicDictValue(groups = {InsertGroup.class, UpdateGroup.class}, dictName = "DictStatus", message = "{validation.invalid:field.dict.status}")
     @UpdateField
     private Short status;
 
     @Schema(description = "备注", example = "这是一条备注")
-    @Size(groups = {InsertGroup.class, UpdateGroup.class}, max = 255, message = "字典备注长度不符合要求")
+    @Size(groups = {InsertGroup.class, UpdateGroup.class}, max = 255, message = "{validation.length:field.dict.remark}")
     @UpdateField(allowEmpty = true)
     private String remark;
 

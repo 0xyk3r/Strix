@@ -16,7 +16,7 @@ import lombok.Data;
 public class WorkflowConfigUpdateReq {
 
     @Schema(description = "工作流配置内容")
-    @NotEmpty(groups = {InsertGroup.class, UpdateGroup.class}, message = "工作流配置不可为空")
+    @NotEmpty(groups = {InsertGroup.class, UpdateGroup.class}, message = "{validation.required:field.workflow.config}")
     @UpdateField
     private String content;
 

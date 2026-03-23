@@ -4,6 +4,7 @@ import cn.projectan.strix.mapper.system.NotificationMapper;
 import cn.projectan.strix.model.db.system.Notification;
 import cn.projectan.strix.model.db.system.NotificationReceiver;
 import cn.projectan.strix.model.dict.common.CommonFlag;
+import cn.projectan.strix.util.common.I18nUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -50,7 +51,7 @@ public class NotificationService extends ServiceImpl<NotificationMapper, Notific
     public String sendNotification(String bizType, String bizId, String title, String content,
                                    String jumpType, String jumpTarget, String jumpParams,
                                    String senderId, List<String> receiverIds) {
-        Assert.hasText(title, "通知标题不能为空");
+        Assert.hasText(title, I18nUtil.notEmpty("field.notification.title"));
         if (CollectionUtils.isEmpty(receiverIds)) {
             log.warn("发送通知失败，接收人列表为空，业务类型: {}, 业务ID: {}", bizType, bizId);
             return null;
@@ -136,7 +137,7 @@ public class NotificationService extends ServiceImpl<NotificationMapper, Notific
     @Transactional(rollbackFor = Exception.class)
     public void terminateNotification(String notificationId, String terminatedBy, String reason) {
         Notification notification = getById(notificationId);
-        Assert.notNull(notification, "通知不存在");
+        Assert.notNull(notification, I18nUtil.notFound("field.notification"));
 
         // 更新通知状态
         notification.setStatus(CommonFlag.NO)

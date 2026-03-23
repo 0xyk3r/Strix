@@ -18,16 +18,16 @@ public class OssBucketUpdateReq {
      * 存储配置 key
      */
     @Schema(description = "存储配置 Key", example = "aliyun-oss")
-    @NotEmpty(groups = {InsertGroup.class}, message = "存储配置 key 不可为空")
-    @Size(groups = {InsertGroup.class}, min = 2, max = 32, message = "存储配置 key 长度不符合要求")
+    @NotEmpty(groups = {InsertGroup.class}, message = "{validation.required:field.ossBucket.configKey}")
+    @Size(groups = {InsertGroup.class}, min = 2, max = 32, message = "{validation.length:field.ossBucket.configKey}")
     private String configKey;
 
     /**
      * Bucket 名称
      */
     @Schema(description = "Bucket 名称", example = "my-bucket")
-    @NotEmpty(groups = {InsertGroup.class}, message = "Bucket 名称不可为空")
-    @Size(groups = {InsertGroup.class}, min = 1, max = 64, message = "Bucket 名称长度不符合要求")
+    @NotEmpty(groups = {InsertGroup.class}, message = "{validation.required:field.ossBucket.name}")
+    @Size(groups = {InsertGroup.class}, min = 1, max = 64, message = "{validation.length:field.ossBucket.name}")
     private String name;
 
 }

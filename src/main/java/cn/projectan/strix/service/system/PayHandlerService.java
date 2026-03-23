@@ -3,6 +3,7 @@ package cn.projectan.strix.service.system;
 import cn.projectan.strix.core.module.pay.PayCallbackHandler;
 import cn.projectan.strix.mapper.system.PayHandlerMapper;
 import cn.projectan.strix.model.db.system.PayHandler;
+import cn.projectan.strix.util.common.I18nUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -60,9 +61,9 @@ public class PayHandlerService extends ServiceImpl<PayHandlerMapper, PayHandler>
 
     private PayCallbackHandler resolveHandler(String id) {
         PayHandler payHandler = this.getById(id);
-        Assert.notNull(payHandler, "支付处理器不存在");
+        Assert.notNull(payHandler, I18nUtil.notFound("field.payHandler"));
         String beanName = payHandler.getHandler();
-        Assert.hasText(beanName, "支付回调处理器未配置");
+        Assert.hasText(beanName, I18nUtil.notFound("field.payCallbackHandler"));
         Object bean = applicationContext.getBean(beanName);
         Assert.isInstanceOf(PayCallbackHandler.class, bean,
                 "Bean '" + beanName + "' 未实现 PayCallbackHandler 接口");
