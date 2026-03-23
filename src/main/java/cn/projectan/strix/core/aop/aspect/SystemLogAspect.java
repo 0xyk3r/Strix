@@ -9,6 +9,7 @@ import cn.projectan.strix.core.exception.StrixNoAuthException;
 import cn.projectan.strix.core.ret.RetCode;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.model.annotation.StrixLog;
+import cn.projectan.strix.model.constant.system.AopOrderConstants;
 import cn.projectan.strix.model.db.system.SystemLog;
 import cn.projectan.strix.model.db.system.SystemManager;
 import cn.projectan.strix.model.other.system.ua.UserAgent;
@@ -28,6 +29,7 @@ import org.aspectj.lang.annotation.Before;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.core.NamedThreadLocal;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -52,6 +54,7 @@ import java.util.Map;
 @Slf4j
 @Aspect
 @Component
+@Order(AopOrderConstants.SYSTEM_LOG)
 @EnableConfigurationProperties(StrixLogProperties.class)
 @ConditionalOnProperty(prefix = "strix.log", name = "enable", havingValue = "true")
 public class SystemLogAspect {
@@ -127,9 +130,17 @@ public class SystemLogAspect {
             systemLog.setAppVersion(versionConfig.getVersion());
 
             // 基于 Request 的信息
-            HttpServletRequest request = ServletUtil.getRequest();
-            systemLog.setOperationMethod(request.getMethod());
-            systemLog.setOperationUrl(request.getRequestURI());
+            HttpServletRequest request;
+            try {
+                request = ServletUtil.getRequest();
+            } catch (Exception ex) {
+                log.debug("Non-web context detected, skipping request-related log fields");
+                request = null;
+            }
+            if (request != null) {
+                systemLog.setOperationMethod(request.getMethod());
+                systemLog.setOperationUrl(request.getRequestURI());
+            }
 
             // 注解上的信息
             systemLog.setOperationType(strixLog.operationType());
@@ -137,7 +148,7 @@ public class SystemLogAspect {
             systemLog.setOperationName(strixLog.operationName());
 
             // 请求参数（使用安全的序列化器，自动过滤敏感信息）
-            if (strixLog.saveRequestParam()) {
+            if (request != null && strixLog.saveRequestParam()) {
                 try {
                     if (RequestMethod.GET.name().equals(request.getMethod())) {
                         systemLog.setOperationParam(
@@ -158,8 +169,10 @@ public class SystemLogAspect {
             handleResponse(systemLog, strixLog, e, retResult);
 
             // 客户端信息
-            systemLog.setClientIp(IpUtils.getIpAddr(request));
-            handleUserAgent(systemLog, request);
+            if (request != null) {
+                systemLog.setClientIp(IpUtils.getIpAddr(request));
+                handleUserAgent(systemLog, request);
+            }
 
             // 当前登录用户信息
             try {
@@ -177,7 +190,7 @@ public class SystemLogAspect {
             // 异步保存到数据库（使用批量插入）
             asyncSystemLogService.saveAsync(systemLog);
         } catch (Exception exp) {
-            log.warn("SystemLogAspect 异常信息: {}", exp.getMessage(), exp);
+            log.warn("SystemLogAspect error: {}", exp.getMessage(), exp);
         } finally {
             TIME_THREADLOCAL.remove();
         }

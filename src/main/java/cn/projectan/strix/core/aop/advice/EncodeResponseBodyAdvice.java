@@ -54,23 +54,27 @@ public class EncodeResponseBodyAdvice implements ResponseBodyAdvice<Object> {
         try {
             if (strixProperties.isShowResponse() && methodParameter.getMethod() != null) {
                 String fullMethodName = methodParameter.getContainingClass().getName() + "." + methodParameter.getMethod().getName();
+                String bodyStr = objectMapper.writeValueAsString(body);
+                String displayBody = bodyStr.length() > 10_240
+                        ? bodyStr.substring(0, 10_240) + "... [truncated, total " + bodyStr.length() + " chars]"
+                        : objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(body);
                 log.info("""
                                 
                                 ============================================================
-                                响应函数: {}
-                                响应数据:
+                                Response method: {}
+                                Response data:
                                 {}
                                 ============================================================""",
-                        fullMethodName, objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(body));
+                        fullMethodName, displayBody);
             }
             return apiSecurity.encrypt(body);
         } catch (Exception e) {
-            log.error("响应数据加密失败", e);
+            log.error("Response encryption failed", e);
             try {
                 RetResult<Object> errorResponse = RetBuilder.error(RetCode.SERVER_ERROR, I18nUtil.get("error.response.encodeFailed"));
                 return apiSecurity.encrypt(errorResponse);
             } catch (Exception encryptException) {
-                log.error("加密错误响应也失败，返回未加密错误", encryptException);
+                log.error("Failed to encrypt error response, returning unencrypted error", encryptException);
                 return RetBuilder.error(RetCode.SERVER_ERROR, "Internal server error");
             }
         }

@@ -61,7 +61,7 @@ public class DecodeRequestBodyAdvice implements RequestBodyAdvice {
         } catch (Exception e) {
             Method method = methodParameter.getMethod();
             String methodName = (method != null) ? method.getDeclaringClass().getName() + "." + method.getName() : "unknown";
-            log.error("对方法: 【{}】请求数据进行解密时异常", methodName, e);
+            log.error("Decryption failed for method: [{}]", methodName, e);
             throw new StrixException(I18nUtil.get("error.request.decryptFailed"));
         }
     }
@@ -96,8 +96,8 @@ public class DecodeRequestBodyAdvice implements RequestBodyAdvice {
                 log.info("""
                                 
                                 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-                                请求函数: {}
-                                请求数据:
+                                Request method: {}
+                                Request data:
                                 {}
                                 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++""",
                         fullMethodName, decryptBodyStr);

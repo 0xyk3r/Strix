@@ -1,6 +1,7 @@
 package cn.projectan.strix.model.properties.system;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Positive;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.validation.annotation.Validated;
@@ -39,6 +40,11 @@ public class StrixProperties {
     private Encrypt encrypt = new Encrypt();
 
     /**
+     * 安全配置
+     */
+    private Security security = new Security();
+
+    /**
      * OSS 配置
      */
     private Oss oss = new Oss();
@@ -54,6 +60,15 @@ public class StrixProperties {
              */
             private String key = "Strix@FieldCrypt";
         }
+    }
+
+    @Data
+    public static class Security {
+        /**
+         * API 签名时间戳有效窗口（毫秒）
+         */
+        @Positive
+        private long timestampWindow = 60_000L;
     }
 
     @Data

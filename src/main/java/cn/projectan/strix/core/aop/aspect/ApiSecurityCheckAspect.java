@@ -3,7 +3,9 @@ package cn.projectan.strix.core.aop.aspect;
 import cn.projectan.strix.core.ret.RetBuilder;
 import cn.projectan.strix.core.ret.RetCode;
 import cn.projectan.strix.model.annotation.IgnoreEncryption;
+import cn.projectan.strix.model.constant.system.AopOrderConstants;
 import cn.projectan.strix.model.constant.system.StrixPasswordConst;
+import cn.projectan.strix.model.properties.system.StrixProperties;
 import cn.projectan.strix.util.common.I18nUtil;
 import cn.projectan.strix.util.http.ServletUtil;
 import cn.projectan.strix.util.system.ApiSignUtil;
@@ -15,16 +17,17 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
-import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.servlet.HandlerMapping;
 
+import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * API 安全校验切面
@@ -37,12 +40,14 @@ import java.util.TreeMap;
  */
 @Slf4j
 @Aspect
-@Order(Ordered.HIGHEST_PRECEDENCE)
+@Order(AopOrderConstants.SECURITY_CHECK)
 @Component
 @RequiredArgsConstructor
 public class ApiSecurityCheckAspect {
 
     private final ApiSignUtil apiSignUtil;
+    private final StrixProperties strixProperties;
+    private final Map<Method, Boolean> ignoreEncryptionCache = new ConcurrentHashMap<>();
 
     @SuppressWarnings("EmptyMethod")
     @Pointcut("execution(public * cn.projectan..controller..*(..))")
@@ -59,8 +64,7 @@ public class ApiSecurityCheckAspect {
         MethodSignature signature = (MethodSignature) pjp.getSignature();
 
         // 非加密接口直接放行
-        if (signature.getMethod().isAnnotationPresent(IgnoreEncryption.class) ||
-                signature.getMethod().getDeclaringClass().isAnnotationPresent(IgnoreEncryption.class)) {
+        if (isIgnoreEncryption(signature)) {
             return pjp.proceed();
         }
 
@@ -94,7 +98,7 @@ public class ApiSecurityCheckAspect {
         } catch (NumberFormatException e) {
             return RetBuilder.error(RetCode.BAD_REQUEST, I18nUtil.get("error.badRequest.invalidTimestamp"));
         }
-        if (System.currentTimeMillis() - ts > 1000 * 60) {
+        if (System.currentTimeMillis() - ts > strixProperties.getSecurity().getTimestampWindow()) {
             return RetBuilder.error(RetCode.BAD_REQUEST, I18nUtil.get("error.badRequest.invalidTimestamp"));
         }
 
@@ -117,6 +121,12 @@ public class ApiSecurityCheckAspect {
         }
 
         return pjp.proceed();
+    }
+
+    private boolean isIgnoreEncryption(MethodSignature signature) {
+        return ignoreEncryptionCache.computeIfAbsent(signature.getMethod(), method ->
+                method.isAnnotationPresent(IgnoreEncryption.class) ||
+                        method.getDeclaringClass().isAnnotationPresent(IgnoreEncryption.class));
     }
 
 }
