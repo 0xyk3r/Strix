@@ -336,6 +336,9 @@ public class SystemManagerService extends ServiceImpl<SystemManagerMapper, Syste
      * @param regionIds 地区ID列表
      */
     public void clearRegionId(List<String> regionIds) {
+        if (CollectionUtils.isEmpty(regionIds)) {
+            return;
+        }
         lambdaUpdate()
                 .in(SystemManager::getRegionId, regionIds)
                 .set(SystemManager::getRegionId, null)

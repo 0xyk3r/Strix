@@ -311,18 +311,55 @@ public class SystemRegionService extends ServiceImpl<SystemRegionMapper, SystemR
 
     /**
      * 更新地区的完整信息（fullName, fullPath, level）
+     * 适用于新增地区后初始化完整路径信息
      *
      * @param regionId 地区ID
      * @return 是否更新成功
      */
     public boolean updateFullInfo(String regionId) {
-        Map<String, String> fullInfo = getFullInfo(regionId);
-        return lambdaUpdate()
-                .eq(SystemRegion::getId, regionId)
-                .set(SystemRegion::getFullName, fullInfo.get("name"))
-                .set(SystemRegion::getFullPath, fullInfo.get("path"))
-                .set(SystemRegion::getLevel, fullInfo.get("level"))
-                .update();
+        SystemRegion region = getBaseMapper().selectById(regionId);
+        Assert.notNull(region, I18nUtil.notFound("field.region"));
+
+        // 如果 fullPath 为 null，说明是新增的地区，需要基于父节点构建完整路径
+        if (region.getFullPath() == null) {
+            String parentId = region.getParentId();
+            String newFullPath;
+            String newFullName;
+            short newLevel;
+
+            if (!StringUtils.hasText(parentId) || ROOT_PARENT_ID.equals(parentId)) {
+                // 顶级地区
+                newFullPath = PATH_SEPARATOR + regionId + PATH_SEPARATOR;
+                newFullName = region.getName();
+                newLevel = 1;
+            } else {
+                // 非顶级地区，需要查询父节点信息
+                SystemRegion parentRegion = getBaseMapper().selectById(parentId);
+                Assert.notNull(parentRegion, I18nUtil.notFound("field.parentRegion"));
+
+                newFullPath = parentRegion.getFullPath() + regionId + PATH_SEPARATOR;
+                newFullName = StringUtils.hasText(parentRegion.getFullName())
+                        ? parentRegion.getFullName() + NAME_SEPARATOR + region.getName()
+                        : region.getName();
+                newLevel = (short) (parentRegion.getLevel() + 1);
+            }
+
+            return lambdaUpdate()
+                    .eq(SystemRegion::getId, regionId)
+                    .set(SystemRegion::getFullName, newFullName)
+                    .set(SystemRegion::getFullPath, newFullPath)
+                    .set(SystemRegion::getLevel, newLevel)
+                    .update();
+        } else {
+            // fullPath 不为 null，使用原有逻辑
+            Map<String, String> fullInfo = getFullInfo(regionId);
+            return lambdaUpdate()
+                    .eq(SystemRegion::getId, regionId)
+                    .set(SystemRegion::getFullName, fullInfo.get("name"))
+                    .set(SystemRegion::getFullPath, fullInfo.get("path"))
+                    .set(SystemRegion::getLevel, fullInfo.get("level"))
+                    .update();
+        }
     }
 
     /**
