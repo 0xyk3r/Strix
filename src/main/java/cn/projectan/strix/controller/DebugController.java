@@ -6,8 +6,6 @@ import cn.projectan.strix.model.annotation.Anonymous;
 import cn.projectan.strix.model.annotation.IgnoreEncryption;
 import cn.projectan.strix.model.response.common.CommonOperatorInfoResp;
 import cn.projectan.strix.service.common.OperatorService;
-import cn.projectan.strix.service.system.WorkflowInstanceService;
-import cn.projectan.strix.service.system.WorkflowTaskService;
 import cn.projectan.strix.util.common.I18nUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -37,23 +35,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "调试")
 public class DebugController extends BaseController {
 
-    private final WorkflowInstanceService workflowInstanceService;
-    private final WorkflowTaskService workflowTaskService;
     private final OperatorService operatorService;
-
-    @Operation(summary = "创建调试数据")
-    @GetMapping("wf/create/{workflowId}")
-    public RetResult<Object> create(@Parameter(description = "工作流 ID") @PathVariable String workflowId) {
-        workflowInstanceService.createInstance(workflowId, "DEBUG发起的流程");
-        return RetBuilder.success();
-    }
-
-    @Operation(summary = "审批调试")
-    @GetMapping("wf/completeTask/{taskId}/{operationType}")
-    public RetResult<Object> approval(@Parameter(description = "任务 ID") @PathVariable String taskId, @Parameter(description = "操作类型") @PathVariable Short operationType) {
-        workflowTaskService.completeTask(taskId, "anjiongyi", operationType, "test comment");
-        return RetBuilder.success();
-    }
 
     @Operation(summary = "查询操作人信息")
     @GetMapping("operator/{operatorType}/{operatorId}")

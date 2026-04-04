@@ -13,9 +13,4 @@ public interface DelayedTaskConst {
      */
     String PAY_ORDER_EXPIRE = "PAY_ORDER_EXPIRE";
 
-    /**
-     * 工作流任务过期
-     */
-    String WORKFLOW_TASK_EXPIRE = "WORKFLOW_TASK_EXPIRE";
-
 }

@@ -62,7 +62,7 @@ Strix 是一个基于 **Java 21 / Spring Boot 4** 的业务中台框架（Busine
   * `ss/` - Spring Security 集成
   * `encrypt/` - 字段级加密体系
   * `datamask/` - 数据脱敏
-  * `module/` - 可插拔模块（OAuth、OSS、Pay、SMS、Workflow 等）
+  * `module/` - 可插拔模块（OAuth、OSS、Pay、SMS 等）
   * `validation/` - 自定义校验器
   * `aop/` - 切面与拦截器
 * **util/** - 工具类，按功能分类（algo / async / encrypt / http 等）

@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Strix 是一个基于 **Java 21 / Spring Boot 4.0.2** 的业务中台框架，提供可插拔模块（SMS、OSS、OAuth、Pay、Job、Captcha、Workflow、DelayedTask）。版本
+Strix 是一个基于 **Java 21 / Spring Boot 4.0.2** 的业务中台框架，提供可插拔模块（SMS、OSS、OAuth、Pay、Job、Captcha、DelayedTask）。版本
 3.0.0，包名 `cn.projectan.strix`。
 
 ## Build & Test Commands
@@ -33,7 +33,7 @@ Strix 是一个基于 **Java 21 / Spring Boot 4.0.2** 的业务中台框架，�
 - **core/** — 框架核心：
   - `ret/` — 统一响应（`RetResult<T>` + `RetCode` + `RetBuilder`），所有 API 必须返回 `RetResult<T>`
   - `ss/` — Spring Security 集成（无状态 Token 认证，支持 SystemManager/SystemUser 两类用户）
-  - `module/` — 可插拔模块（oauth/oss/pay/sms/workflow），通过 `strix.module.*` 配置启用
+  - `module/` — 可插拔模块（oauth/oss/pay/sms），通过 `strix.module.*` 配置启用
   - `encrypt/` — 字段级加密（`@EncryptField`）
   - `datamask/` — 数据脱敏
   - `ratelimit/` — 接口限流（默认 600次/60秒）
