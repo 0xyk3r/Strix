@@ -47,26 +47,23 @@ Strix 是一个基于 **Java 21 / Spring Boot 4.0.2** 的业务中台框架，�
 
 ## Key Patterns
 
-- **统一响应**：所有接口使用 `RetBuilder` 构建 `RetResult<T>` 返回，状态码定义在 `RetCode`
-- **安全**：无状态 Token 认证，CSRF 关闭，CORS 开启，安全响应头已配置
-- **数据层约定**：逻辑删除（`deleted_status`）、审计字段（createdBy/updatedBy/createdTime/updatedTime）、乐观锁、ASSIGN_ID 主键策略
+- **统一响应**：所有接口使用 `RetBuilder` 构建 `RetResult<T>` 返回。**所有 API 返回 HTTP 200**，错误码在 `RetResult.code` 中
+- **Controller**：`@PreAuthorize("@ss.hasPermission('module:resource:action')")` 做权限校验，`@Anonymous` 标记免认证接口，
+  `@StrixLog(operationGroup, operationName, operationType)` 做审计日志
+- **Service**：`extends ServiceImpl<Mapper, Entity>`，使用 `lambdaQuery()` / `lambdaUpdate()` 链式查询，尽可能减少自定义
+  XML 使用
+- **BaseController**：空类，所有 Controller 必须直接或间接继承（GraalVM 原生编译要求）
+- **DTO**：列表请求继承 `BasePageReq<Entity>`，创建/更新共用同一 DTO + `@Validated(InsertGroup/UpdateGroup.class)` 分组校验
+- **更新**：`UpdateBuilder.build(entity, req)` 从 `@UpdateField` 字段构建 `LambdaUpdateWrapper`
+- **唯一校验**：`UniqueChecker.check(entity)` 在 save/update 前调用
+- **缓存**：`@Cacheable` / `@CacheEvict` / `@Caching` 注解，Redis 缓存
+- **i18n**：消息模板格式 `{validation.required:field.user.nickname}`，通过 `I18nUtil.get("key")` 解析
+- **数据层**：逻辑删除（`deleted_status`）、审计字段自动填充、ASSIGN_ID 主键
 - **模块化**：`strix.module.*` 配置项控制模块启停
 
 ## Configuration
 
-- `application.yml` — 基础配置（默认 dev profile）
+- `application.yml` — 基础配置（默认 dev profile），虚拟线程已启用
 - `application-{dev,prod,test}.yml` — 环境配置（端口 9889）
-- 核心配置前缀：`strix.*`（module/captcha/delayed-task/package-scan/default-locale）
+- 核心配置前缀：`strix.*`（module/captcha/delayed-task/rate-limit/cors）
 - 国际化：默认 `zh_CN`，资源文件在 `resources/i18n/`
-
-## Key Dependencies
-
-- Spring Boot 4.0.2, MyBatis Plus 3.5.16, Redisson 4.1.0
-- Knife4j 4.5.0 + SpringDoc OpenAPI 3.0.1（API 文档）
-- Hutool 5.8.43（工具库）, BouncyCastle 1.83（加密）
-- Alipay SDK / IJPay（支付）, Aliyun SMS SDK, AWS S3 SDK
-- Quartz（任务调度）, OkHttp 5.3.2, Lombok
-
-## Entry Point
-
-`StrixApplication.java` — 启用 @EnableAsync、@EnableCaching、@EnableScheduling、@EnableAspectJAutoProxy。

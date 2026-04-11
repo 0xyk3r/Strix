@@ -1,4 +1,4 @@
-# Copilot Instructions — Strix Backend
+# Strix Backend
 
 ## Build & Test
 
@@ -7,93 +7,162 @@
 ./gradlew build -x test      # Build without tests
 ./gradlew bootJar            # Executable JAR → Strix.jar
 ./gradlew test               # All tests
-./gradlew test --tests "cn.projectan.strix.SomeTestClass"           # Single test class
-./gradlew test --tests "cn.projectan.strix.SomeTestClass.someMethod" # Single test method
+./gradlew test --tests "cn.projectan.strix.SomeTestClass"  # Single test class
 ./gradlew nativeCompile      # GraalVM native image
-./gradlew bootBuildImage     # Docker native image
 ```
 
-Testing stack: JUnit 5 + Spring Boot Test + Spring Security Test.
+Testing: JUnit 5 + Spring Boot Test. Use `@SpringBootTest` for integration tests.
 
 ## Architecture
 
-Java 21 / Spring Boot 4.0.2 / Gradle — business middleware framework (v3.0.0).
-Package namespace: `cn.projectan.strix`. Default port: **9889**. Default locale: **zh_CN**.
+Java 21 / Spring Boot 4.0.2 / Gradle. Package: `cn.projectan.strix`. Port: **9889**. Locale: **zh_CN**.
+Virtual threads enabled. CSRF disabled, CORS enabled, stateless token auth (no server sessions).
 
-### Layered Structure
+**Layers:** Controller → Service → Mapper → MySQL 8+ (MyBatis Plus 3.5.16)
 
-**Controller → Service → Mapper → Database (MySQL 8+ / MyBatis Plus 3.5.16)**
+- `controller/` — By domain: `system/` (admin), `srv/` (client), `pay/` (callbacks). **All controllers must
+  inherit `BaseController`** (empty class — required for GraalVM native builds).
+- `service/` — All services `extends ServiceImpl<Mapper, Entity>`.
+- `mapper/` — All extend `BaseMapper<Entity>`. XML files are empty — use MyBatis Plus lambda API only.
+- `model/` — `db/` (entities), `request/` (DTOs), `response/` (DTOs), `dict/`, `constant/`, `enums/`, `annotation/`.
+- `core/` — Framework: `ret/` (response), `ss/` (security), `module/` (pluggable modules), `encrypt/`, `ratelimit/`,
+  `aop/`, `validation/`, `cache/`, etc.
 
-- `controller/` — REST endpoints. Organized by domain: `system/` (admin), `srv/` (client-facing), `pay/` (payment
-  callbacks). **All controllers must inherit `BaseController`** (directly or via `BaseSystemController` /
-  `BaseSrvController`).
-- `service/` — Business logic layer.
-- `mapper/` — MyBatis DAO interfaces. XML mappings in `resources/mapper/system/`.
-- `model/` — Subdivided into: `db/` (entities), `request/` (request DTOs), `response/` (response DTOs), `dict/`,
-  `constant/`, `annotation/`, `enums/`, `properties/`, `event/`.
-- `core/` — Framework internals (see below).
-- `util/` — Utility classes organized by concern (crypto, http, file, ip, text, etc.).
-- `config/` — Spring configuration classes (Security, Redis, MybatisPlus, CORS, Jackson, OpenAPI, etc.).
-- `aot/` — GraalVM AOT features (lambda registration, BouncyCastle).
+## Controller Pattern
 
-### Core Framework (`core/`)
+```java
 
-| Package        | Purpose                                                                                                                                                                    |
-|----------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `ret/`         | Unified response: `RetResult<T>` + `RetCode` + `RetBuilder`. **All APIs must return `RetResult<T>`.**                                                                      |
-| `ss/`          | Spring Security — stateless token auth for two user types: `SystemManager` and `SystemUser`. Each has its own token filter, authentication token, and login details class. |
-| `module/`      | Pluggable modules via factory pattern — `OAuthClientFactory`, `OssClientFactory`, `PayClientFactory`, `SmsClientFactory`. Enabled via `strix.module.*` config.             |
-| `encrypt/`     | Field-level auto encryption/decryption via `@EncryptField` annotation (MyBatis interceptor).                                                                               |
-| `datamask/`    | Data masking via `@DataMask` annotation (Jackson serializer).                                                                                                              |
-| `ratelimit/`   | API rate limiting via `@RateLimit` annotation (default: 600 req / 60s).                                                                                                    |
-| `xss/`         | XSS protection filter and deserializer.                                                                                                                                    |
-| `captcha/`     | Block puzzle CAPTCHA with SM4 encryption and Redis caching.                                                                                                                |
-| `aop/`         | `@StrixLog` audit logging aspect, API security check aspect, global exception handler, request/response encoding advice.                                                   |
-| `validation/`  | Custom validators: `@PasswordComplexity`, `@ConstantDictValue`, `@DynamicDictValue`. Validation groups: `InsertGroup`, `UpdateGroup`.                                      |
-| `cache/`       | System-level caches (Region, Permission, Menu, Config).                                                                                                                    |
-| `delayedtask/` | Redis-based delayed task processing.                                                                                                                                       |
-| `security/`    | API security signature verification (`ApiSecurity`).                                                                                                                       |
+@Operation(summary = "用户列表")
+@GetMapping("")
+@PreAuthorize("@ss.hasPermission('system:user')")
+@StrixLog(operationGroup = "系统用户", operationName = "查询用户列表")
+public RetResult<SystemUserListResp> getSystemUserList(SystemUserListReq req) {
+    Page<SystemUser> page = systemUserService.listPage(req);
+    return RetBuilder.success(new SystemUserListResp(page.getRecords(), page.getTotal()));
+}
 
-### Custom Annotations
+@PostMapping("update")
+@PreAuthorize("@ss.hasPermission('system:user:add')")
+@StrixLog(operationGroup = "系统用户", operationName = "新增用户", operationType = SystemLogOperType.ADD)
+public RetResult<Object> update(@RequestBody @Validated(InsertGroup.class) SystemUserUpdateReq req) {
+    // ...
+    return RetBuilder.success();
+}
+```
 
-| Annotation                           | Purpose                                  |
-|--------------------------------------|------------------------------------------|
-| `@EncryptField`                      | Auto encrypt/decrypt string fields in DB |
-| `@StrixLog`                          | Audit logging with operation metadata    |
-| `@RateLimit`                         | API rate limiting                        |
-| `@StrixJob`                          | Quartz job scheduling marker             |
-| `@UniqueField` / `@UniqueDetections` | Unique constraint validation             |
-| `@Anonymous`                         | Allow unauthenticated access             |
-| `@IgnoreEncryption`                  | Exclude from encryption processing       |
-| `@Dict` / `@DictData`                | Dictionary data binding                  |
-| `@UpdateField`                       | Field-level update tracking              |
+- Use `@Anonymous` on endpoints that skip authentication (login, captcha, webhooks)
+- Permission format: `module:resource:action` (e.g. `system:user:update`)
+- `@StrixLog` params: `operationGroup` (module label), `operationName` (action label), `operationType` (
+  ADD/UPDATE/DELETE/LOGIN)
+- **All API responses use HTTP 200** — error codes go in `RetResult.code`, not HTTP status
 
-## Key Conventions
+## Service Pattern
 
-- **Entity base class**: All DB entities extend `BaseModel<T>` which provides: `id` (ASSIGN_ID strategy),
-  `deletedStatus` (logical delete), `createdTime`, `createdBy`, `createdByType`, `updatedTime`, `updatedBy`,
-  `updatedByType`.
-- **Lombok + chain accessors**: All entities use `@Accessors(chain = true)`.
-- **Response pattern**: Always use `RetBuilder` to build responses. Status codes are in `RetCode` (200, 400, 401, 403,
-  404, 405, 429, 500).
-- **Module enablement**: Modules (OAuth, OSS, Pay, SMS) are conditionally loaded via `strix.module.*` configuration
-  properties.
-- **Configuration prefix**: All Strix-specific config uses `strix.*` prefix.
-- **Profiles**: `dev`, `prod`, `test` via `application-{profile}.yml`.
-- **Internationalization**: Resources in `resources/i18n/strix/`, uses Hutool message interpolation.
-- **Security**: CSRF disabled, CORS enabled, stateless token authentication — no server-side sessions.
-- **Virtual threads**: Enabled in Spring Boot configuration.
+```java
 
-## Key Dependencies
+@Service
+@RequiredArgsConstructor
+public class SystemUserService extends ServiceImpl<SystemUserMapper, SystemUser> {
 
-- MyBatis Plus 3.5.16, Redisson 4.1.0, Quartz (job scheduling)
-- Knife4j 4.5.0 + SpringDoc OpenAPI 3.0.1 (API docs)
-- Hutool 5.8.43 (utility), BouncyCastle 1.83 (SM3/SM4 cryptography)
-- Alipay SDK + IJPay, Aliyun SMS SDK, AWS S3 SDK v2
-- OkHttp 5.3.2, P6Spy 3.9.1 (dev SQL logging), Lombok
+    public Page<SystemUser> listPage(SystemUserListReq req) {
+        return lambdaQuery()
+                .like(StringUtils.hasText(req.getKeyword()), SystemUser::getNickname, req.getKeyword())
+                .eq(NumUtil.checkCategory(req.getStatus(), NumCategory.NON_NEGATIVE),
+                        SystemUser::getStatus, req.getStatus())
+                .orderByAsc(SystemUser::getCreatedTime)
+                .page(req.getPage());
+    }
 
-## Entry Point
+    @Transactional(rollbackFor = Exception.class)
+    @Caching(evict = {@CacheEvict(value = "strix:...", key = "...")})
+    public void deleteWithRelations(SystemUser user) {
+        removeById(user);
+        // cascade cleanup...
+    }
+}
+```
 
-`StrixApplication.java` — annotations: `@EnableAsync`, `@EnableCaching`, `@EnableScheduling`,
-`@EnableAspectJAutoProxy(exposeProxy = true)`,
-`@SpringBootApplication(proxyBeanMethods = false, scanBasePackages = "cn.projectan")`.
+- Use `lambdaQuery()` for SELECT, `lambdaUpdate()` for UPDATE
+- Use `@Transactional(rollbackFor = Exception.class)` for multi-step mutations
+- Use `@Cacheable` / `@CacheEvict` / `@Caching` for Redis caching
+- Inject dependencies via `@RequiredArgsConstructor` (final fields)
+
+## Request/Response DTOs
+
+```java
+// List request — extend BasePageReq<Entity> for pagination
+@Data
+public class SystemUserListReq extends BasePageReq<SystemUser> {
+    @Size(max = 64)
+    private String keyword;
+    private Short status;
+}
+
+// Create/Update request — same DTO, different validation groups
+@Data
+public class SystemUserUpdateReq {
+    @NotEmpty(groups = {InsertGroup.class, UpdateGroup.class},
+            message = "{validation.required:field.user.nickname}")
+    @Size(groups = {InsertGroup.class, UpdateGroup.class}, min = 2, max = 16)
+    @UpdateField
+    private String nickname;
+
+    @DynamicDictValue(groups = {InsertGroup.class, UpdateGroup.class}, dictName = "SystemUserStatus")
+    @UpdateField
+    private Short status;
+}
+
+// Response — constructor from entity
+@Data
+public class SystemUserResp {
+    private String id;
+    private String nickname;
+
+    public SystemUserResp(SystemUser user) {
+        this.id = user.getId();
+        this.nickname = user.getNickname();
+    }
+}
+```
+
+- Use `@Validated(InsertGroup.class)` for creation, `@Validated(UpdateGroup.class)` for updates
+- Use `UpdateBuilder.build(entity, req)` to create `LambdaUpdateWrapper` from `@UpdateField` fields
+- Use `UniqueChecker.check(entity)` before save/update for unique constraint validation
+- i18n message format: `{validation.required:field.user.nickname}` — resolve via `I18nUtil.get("key")`
+
+## Entity Conventions
+
+All DB entities extend `BaseModel<T>` providing:
+
+- `id` — String, `@TableId(type = IdType.ASSIGN_ID)` (snowflake)
+- `deletedStatus` — `@TableLogic` soft delete (0=normal, 1=deleted)
+- `createdTime`, `createdBy`, `createdByType` — auto-filled on INSERT
+- `updatedTime`, `updatedBy`, `updatedByType` — auto-filled on INSERT/UPDATE
+- All setters return `T` for fluent chaining
+
+Use `@EncryptField` on sensitive String fields for automatic DB encryption/decryption.
+Use `@DataMask` on response fields for data masking during serialization.
+
+## Custom Annotations
+
+| Annotation                                  | Purpose                                  |
+|---------------------------------------------|------------------------------------------|
+| `@Anonymous`                                | Skip authentication                      |
+| `@PreAuthorize("@ss.hasPermission('...')")` | Permission check (SpEL bean `@ss`)       |
+| `@StrixLog`                                 | Audit logging                            |
+| `@RateLimit`                                | API rate limiting (default: 600/60s)     |
+| `@EncryptField`                             | Auto encrypt/decrypt DB fields           |
+| `@DataMask`                                 | Response data masking                    |
+| `@UpdateField`                              | Mark updateable fields in request DTOs   |
+| `@UniqueField` / `@UniqueDetections`        | Unique constraint validation             |
+| `@DynamicDictValue`                         | Validate field against dictionary values |
+| `@StrixJob`                                 | Quartz job scheduling                    |
+
+## Configuration
+
+- Profiles: `dev`, `prod`, `test` via `application-{profile}.yml`
+- Custom config prefix: `strix.*` (module toggles, captcha, rate-limit, delayed-task)
+- Modules: `strix.module.sms/oss/oauth/pay/job/push: true/false`
+- i18n: `resources/i18n/strix/`, default locale `zh_CN`
+- Jackson: GMT+8, null exclusion, camelCase
+- MyBatis Plus: snake_case → camelCase, soft delete on `deleted_status`
