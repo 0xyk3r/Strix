@@ -8,7 +8,10 @@ import cn.projectan.strix.core.validation.group.InsertGroup;
 import cn.projectan.strix.core.validation.group.UpdateGroup;
 import cn.projectan.strix.model.annotation.StrixLog;
 import cn.projectan.strix.model.db.system.Job;
+import cn.projectan.strix.model.dict.system.JobStatus;
 import cn.projectan.strix.model.dict.system.SystemLogOperType;
+import cn.projectan.strix.model.request.common.BatchModifyReq;
+import cn.projectan.strix.model.request.common.BatchRemoveReq;
 import cn.projectan.strix.model.request.system.module.job.JobListReq;
 import cn.projectan.strix.model.request.system.module.job.JobUpdateReq;
 import cn.projectan.strix.model.response.system.module.job.JobListResp;
@@ -28,6 +31,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * 系统定时任务
@@ -149,6 +154,60 @@ public class JobController extends BaseSystemController {
             jobService.deleteJob(job);
         } catch (Exception e) {
             throw new StrixException(e.getMessage());
+        }
+
+        return RetBuilder.success();
+    }
+
+    /**
+     * 批量删除定时任务
+     */
+    @PostMapping("batch/remove")
+    @PreAuthorize("@ss.hasPermission('system:module:job:remove')")
+    @StrixLog(operationGroup = "系统定时任务", operationName = "批量删除定时任务", operationType = SystemLogOperType.DELETE)
+    @Operation(summary = "批量删除任务")
+    public RetResult<Object> batchRemove(@RequestBody @Validated BatchRemoveReq req) {
+        List<Job> jobs = jobService.listByIds(req.getIds());
+        Assert.notEmpty(jobs, I18nUtil.notFound("field.scheduledJob"));
+
+        for (Job job : jobs) {
+            try {
+                jobService.deleteJob(job);
+            } catch (Exception e) {
+                throw new StrixException(e.getMessage());
+            }
+        }
+
+        return RetBuilder.success();
+    }
+
+    /**
+     * 批量修改定时任务字段
+     */
+    @PostMapping("batch/modify")
+    @PreAuthorize("@ss.hasPermission('system:module:job:update')")
+    @StrixLog(operationGroup = "系统定时任务", operationName = "批量修改定时任务字段", operationType = SystemLogOperType.UPDATE)
+    @Operation(summary = "批量修改任务字段")
+    public RetResult<Object> batchModify(@RequestBody @Validated BatchModifyReq req) {
+        Assert.hasText(req.getField(), "参数错误");
+
+        switch (req.getField()) {
+            case "status" -> {
+                short status = Short.parseShort(req.getValue());
+                Assert.isTrue(JobStatus.valid(status), "参数错误");
+                List<Job> jobs = jobService.listByIds(req.getIds());
+                for (Job job : jobs) {
+                    job.setStatus(status);
+                    try {
+                        jobService.updateJob(job);
+                    } catch (Exception e) {
+                        throw new StrixException(e.getMessage());
+                    }
+                }
+            }
+            default -> {
+                return RetBuilder.error(I18nUtil.get("error.param.invalid"));
+            }
         }
 
         return RetBuilder.success();

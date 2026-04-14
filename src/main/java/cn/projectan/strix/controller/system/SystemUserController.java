@@ -9,6 +9,8 @@ import cn.projectan.strix.model.annotation.StrixLog;
 import cn.projectan.strix.model.db.system.SystemUser;
 import cn.projectan.strix.model.dict.system.SystemLogOperType;
 import cn.projectan.strix.model.dict.system.SystemUserStatus;
+import cn.projectan.strix.model.request.common.BatchModifyReq;
+import cn.projectan.strix.model.request.common.BatchRemoveReq;
 import cn.projectan.strix.model.request.common.SingleFieldModifyReq;
 import cn.projectan.strix.model.request.system.user.SystemUserListReq;
 import cn.projectan.strix.model.request.system.user.SystemUserUpdateReq;
@@ -29,6 +31,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * 系统用户
@@ -162,6 +166,50 @@ public class SystemUserController extends BaseSystemController {
         Assert.notNull(systemUser, I18nUtil.notFound("field.systemUser"));
 
         systemUserService.deleteUserWithRelations(systemUser);
+
+        return RetBuilder.success();
+    }
+
+    /**
+     * 批量删除用户
+     */
+    @Operation(summary = "批量删除用户")
+    @PostMapping("batch/remove")
+    @PreAuthorize("@ss.hasPermission('system:user:remove')")
+    @StrixLog(operationGroup = "系统用户", operationName = "批量删除用户", operationType = SystemLogOperType.DELETE)
+    public RetResult<Object> batchRemove(@RequestBody @Validated BatchRemoveReq req) {
+        List<SystemUser> users = systemUserService.listByIds(req.getIds());
+        Assert.notEmpty(users, I18nUtil.notFound("field.systemUser"));
+
+        for (SystemUser user : users) {
+            systemUserService.deleteUserWithRelations(user);
+        }
+
+        return RetBuilder.success();
+    }
+
+    /**
+     * 批量修改用户字段
+     */
+    @Operation(summary = "批量修改用户字段")
+    @PostMapping("batch/modify")
+    @PreAuthorize("@ss.hasPermission('system:user:update')")
+    @StrixLog(operationGroup = "系统用户", operationName = "批量修改用户字段", operationType = SystemLogOperType.UPDATE)
+    public RetResult<Object> batchModify(@RequestBody @Validated BatchModifyReq req) {
+        Assert.hasText(req.getField(), "参数错误");
+
+        switch (req.getField()) {
+            case "status" -> {
+                Assert.isTrue(SystemUserStatus.valid(Short.parseShort(req.getValue())), "参数错误");
+                systemUserService.lambdaUpdate()
+                        .in(SystemUser::getId, req.getIds())
+                        .set(SystemUser::getStatus, req.getValue())
+                        .update();
+            }
+            default -> {
+                return RetBuilder.error(I18nUtil.get("error.param.invalid"));
+            }
+        }
 
         return RetBuilder.success();
     }

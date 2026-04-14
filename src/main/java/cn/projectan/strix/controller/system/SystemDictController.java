@@ -9,7 +9,10 @@ import cn.projectan.strix.model.annotation.StrixLog;
 import cn.projectan.strix.model.db.system.Dict;
 import cn.projectan.strix.model.db.system.DictData;
 import cn.projectan.strix.model.dict.common.CommonFlag;
+import cn.projectan.strix.model.dict.common.CommonSwitch;
 import cn.projectan.strix.model.dict.system.SystemLogOperType;
+import cn.projectan.strix.model.request.common.BatchModifyReq;
+import cn.projectan.strix.model.request.common.BatchRemoveReq;
 import cn.projectan.strix.model.request.system.dict.DictDataListReq;
 import cn.projectan.strix.model.request.system.dict.DictDataUpdateReq;
 import cn.projectan.strix.model.request.system.dict.DictListReq;
@@ -152,6 +155,56 @@ public class SystemDictController extends BaseSystemController {
     }
 
     /**
+     * 批量删除字典
+     */
+    @Operation(summary = "批量删除字典")
+    @PostMapping("batch/remove")
+    @PreAuthorize("@ss.hasPermission('system:dict:remove')")
+    @StrixLog(operationGroup = "系统字典", operationName = "批量删除字典", operationType = SystemLogOperType.DELETE)
+    public RetResult<Object> batchRemove(@RequestBody @Validated BatchRemoveReq req) {
+        List<Dict> dicts = dictService.listByIds(req.getIds());
+        Assert.notEmpty(dicts, I18nUtil.notFound("field.dictItem"));
+
+        List<Dict> removable = dicts.stream()
+                .filter(d -> d.getProvided() == CommonFlag.NO)
+                .toList();
+        Assert.notEmpty(removable, "内置字典不允许删除");
+
+        for (Dict d : removable) {
+            dictService.deleteDict(d);
+        }
+
+        return RetBuilder.success();
+    }
+
+    /**
+     * 批量修改字典字段
+     */
+    @Operation(summary = "批量修改字典字段")
+    @PostMapping("batch/modify")
+    @PreAuthorize("@ss.hasPermission('system:dict:update')")
+    @StrixLog(operationGroup = "系统字典", operationName = "批量修改字典字段", operationType = SystemLogOperType.UPDATE)
+    public RetResult<Object> batchModify(@RequestBody @Validated BatchModifyReq req) {
+        Assert.hasText(req.getField(), "参数错误");
+
+        switch (req.getField()) {
+            case "status" -> {
+                Assert.isTrue(CommonSwitch.valid(Short.parseShort(req.getValue())), "参数错误");
+                dictService.lambdaUpdate()
+                        .in(Dict::getId, req.getIds())
+                        .eq(Dict::getProvided, CommonFlag.NO)
+                        .set(Dict::getStatus, req.getValue())
+                        .update();
+            }
+            default -> {
+                return RetBuilder.error(I18nUtil.get("error.param.invalid"));
+            }
+        }
+
+        return RetBuilder.success();
+    }
+
+    /**
      * 查询字典数据列表
      */
     @Operation(summary = "字典数据列表")
@@ -243,6 +296,50 @@ public class SystemDictController extends BaseSystemController {
         DictData dictData = dictDataService.getById(id);
         if (dictData != null) {
             dictService.deleteDictData(dictData);
+        }
+
+        return RetBuilder.success();
+    }
+
+    /**
+     * 批量删除字典数据
+     */
+    @Operation(summary = "批量删除字典数据")
+    @PostMapping("data/{key}/batch/remove")
+    @PreAuthorize("@ss.hasPermission('system:dict:data:remove')")
+    @StrixLog(operationGroup = "系统字典", operationName = "批量删除字典数据", operationType = SystemLogOperType.DELETE)
+    public RetResult<Object> batchRemoveDictData(@PathVariable String key, @RequestBody @Validated BatchRemoveReq req) {
+        List<DictData> dataList = dictDataService.listByIds(req.getIds());
+        Assert.notEmpty(dataList, I18nUtil.notFound("field.dictData"));
+
+        for (DictData dictData : dataList) {
+            dictService.deleteDictData(dictData);
+        }
+
+        return RetBuilder.success();
+    }
+
+    /**
+     * 批量修改字典数据字段
+     */
+    @Operation(summary = "批量修改字典数据字段")
+    @PostMapping("data/{key}/batch/modify")
+    @PreAuthorize("@ss.hasPermission('system:dict:data:update')")
+    @StrixLog(operationGroup = "系统字典", operationName = "批量修改字典数据字段", operationType = SystemLogOperType.UPDATE)
+    public RetResult<Object> batchModifyDictData(@PathVariable String key, @RequestBody @Validated BatchModifyReq req) {
+        Assert.hasText(req.getField(), "参数错误");
+
+        switch (req.getField()) {
+            case "status" -> {
+                Assert.isTrue(CommonSwitch.valid(Short.parseShort(req.getValue())), "参数错误");
+                dictDataService.lambdaUpdate()
+                        .in(DictData::getId, req.getIds())
+                        .set(DictData::getStatus, req.getValue())
+                        .update();
+            }
+            default -> {
+                return RetBuilder.error(I18nUtil.get("error.param.invalid"));
+            }
         }
 
         return RetBuilder.success();

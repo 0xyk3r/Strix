@@ -11,6 +11,7 @@ import cn.projectan.strix.model.annotation.StrixLog;
 import cn.projectan.strix.model.db.system.*;
 import cn.projectan.strix.model.dict.common.CommonFlag;
 import cn.projectan.strix.model.dict.system.SystemLogOperType;
+import cn.projectan.strix.model.request.common.BatchRemoveReq;
 import cn.projectan.strix.model.request.system.role.SystemRoleUpdateMenuReq;
 import cn.projectan.strix.model.request.system.role.SystemRoleUpdateReq;
 import cn.projectan.strix.model.response.common.CommonSelectDataResp;
@@ -204,6 +205,29 @@ public class SystemRoleController extends BaseSystemController {
         Assert.isTrue(systemRole.getBuiltin() == CommonFlag.NO, I18nUtil.get("assert.role.builtinNoDelete"));
 
         systemRoleService.deleteRoleWithRelations(systemRole);
+
+        return RetBuilder.success();
+    }
+
+    /**
+     * 批量删除角色
+     */
+    @Operation(summary = "批量删除角色")
+    @PostMapping("batch/remove")
+    @PreAuthorize("@ss.hasPermission('system:role:remove')")
+    @StrixLog(operationGroup = "系统角色", operationName = "批量删除角色", operationType = SystemLogOperType.DELETE)
+    public RetResult<Object> batchRemove(@RequestBody @Validated BatchRemoveReq req) {
+        List<SystemRole> roles = systemRoleService.listByIds(req.getIds());
+        Assert.notEmpty(roles, I18nUtil.notFound("field.systemRole"));
+
+        List<SystemRole> removable = roles.stream()
+                .filter(r -> r.getBuiltin() == CommonFlag.NO)
+                .toList();
+        Assert.notEmpty(removable, I18nUtil.get("assert.role.builtinNoDelete"));
+
+        for (SystemRole role : removable) {
+            systemRoleService.deleteRoleWithRelations(role);
+        }
 
         return RetBuilder.success();
     }
