@@ -1,6 +1,7 @@
 package cn.projectan.strix.controller.system;
 
 import cn.projectan.strix.controller.system.base.BaseSystemController;
+import cn.projectan.strix.core.exception.StrixUniqueCheckerException;
 import cn.projectan.strix.core.ret.RetBuilder;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.core.validation.group.InsertGroup;
@@ -12,11 +13,15 @@ import cn.projectan.strix.model.dict.common.CommonFlag;
 import cn.projectan.strix.model.dict.system.SystemLogOperType;
 import cn.projectan.strix.model.dict.system.SystemManagerStatus;
 import cn.projectan.strix.model.dict.system.SystemManagerType;
+import cn.projectan.strix.model.enums.common.DuplicateStrategy;
+import cn.projectan.strix.model.request.common.BatchImportReq;
 import cn.projectan.strix.model.request.common.BatchModifyReq;
 import cn.projectan.strix.model.request.common.BatchRemoveReq;
 import cn.projectan.strix.model.request.common.SingleFieldModifyReq;
 import cn.projectan.strix.model.request.system.manager.SystemManagerListReq;
 import cn.projectan.strix.model.request.system.manager.SystemManagerUpdateReq;
+import cn.projectan.strix.model.response.common.BatchImportResp;
+import cn.projectan.strix.model.response.common.BatchImportResp.ImportError;
 import cn.projectan.strix.model.response.common.CommonTransferDataResp;
 import cn.projectan.strix.model.response.system.manager.SystemManagerListResp;
 import cn.projectan.strix.model.response.system.manager.SystemManagerResp;
@@ -25,6 +30,7 @@ import cn.projectan.strix.service.system.SystemManagerService;
 import cn.projectan.strix.service.system.TokenSessionService;
 import cn.projectan.strix.util.algo.KeyDiffUtil;
 import cn.projectan.strix.util.common.I18nUtil;
+import cn.projectan.strix.util.common.ObjectMapperUtil;
 import cn.projectan.strix.util.common.UniqueChecker;
 import cn.projectan.strix.util.common.UpdateBuilder;
 import cn.projectan.strix.util.crypto.StrixSM3Util;
@@ -33,6 +39,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -42,9 +50,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
@@ -64,6 +70,7 @@ public class SystemManagerController extends BaseSystemController {
     private final SystemManagerService systemManagerService;
     private final SystemManagerRoleService systemManagerRoleService;
     private final TokenSessionService tokenSessionService;
+    private final Validator validator;
 
     /**
      * 查询人员列表
@@ -313,6 +320,91 @@ public class SystemManagerController extends BaseSystemController {
         }
 
         return RetBuilder.success();
+    }
+
+    /**
+     * 批量导入人员
+     */
+    @Operation(summary = "批量导入管理员")
+    @PostMapping("batch/create")
+    @PreAuthorize("@ss.hasPermission('system:manager:add')")
+    @StrixLog(operationGroup = "系统人员", operationName = "批量导入人员", operationType = SystemLogOperType.ADD)
+    public RetResult<BatchImportResp> batchCreate(@RequestBody @Validated BatchImportReq req) {
+        DuplicateStrategy strategy = DuplicateStrategy.fromString(req.getDuplicateStrategy());
+        List<ImportError> errors = new ArrayList<>();
+        int successCount = 0;
+        int skippedCount = 0;
+
+        for (int i = 0; i < req.getItems().size(); i++) {
+            Map<String, Object> itemMap = req.getItems().get(i);
+            try {
+                SystemManagerUpdateReq itemReq = ObjectMapperUtil.get().convertValue(itemMap, SystemManagerUpdateReq.class);
+
+                Set<ConstraintViolation<SystemManagerUpdateReq>> violations = validator.validate(itemReq, InsertGroup.class);
+                if (!violations.isEmpty()) {
+                    for (ConstraintViolation<SystemManagerUpdateReq> v : violations) {
+                        errors.add(new ImportError(i, v.getPropertyPath().toString(), v.getMessage()));
+                    }
+                    continue;
+                }
+
+                SystemManager existing = systemManagerService.lambdaQuery()
+                        .eq(SystemManager::getLoginName, itemReq.getLoginName())
+                        .one();
+
+                if (existing != null) {
+                    if (strategy == DuplicateStrategy.SKIP) {
+                        skippedCount++;
+                        errors.add(new ImportError(i, "loginName", "登录账号已存在，已跳过"));
+                        continue;
+                    }
+                    if (existing.getBuiltin() == CommonFlag.YES) {
+                        errors.add(new ImportError(i, "loginName", "内置用户不允许覆盖"));
+                        continue;
+                    }
+                    existing.setNickname(itemReq.getNickname());
+                    existing.setStatus(itemReq.getStatus());
+                    existing.setType(itemReq.getType());
+                    existing.setRegionId(itemReq.getRegionId());
+                    if (StringUtils.hasText(itemReq.getLoginPassword())) {
+                        existing.setLoginPassword(StrixSM3Util.hashPassword(itemReq.getLoginPassword()));
+                    }
+                    try {
+                        UniqueChecker.check(existing);
+                    } catch (StrixUniqueCheckerException e) {
+                        errors.add(new ImportError(i, "unique", e.getMessage()));
+                        continue;
+                    }
+                    systemManagerService.updateById(existing);
+                    successCount++;
+                    continue;
+                }
+
+                SystemManager systemManager = new SystemManager(
+                        itemReq.getNickname(),
+                        itemReq.getLoginName(),
+                        StrixSM3Util.hashPassword(itemReq.getLoginPassword()),
+                        itemReq.getStatus(),
+                        itemReq.getType(),
+                        itemReq.getRegionId(),
+                        CommonFlag.NO
+                );
+                try {
+                    UniqueChecker.check(systemManager);
+                } catch (StrixUniqueCheckerException e) {
+                    errors.add(new ImportError(i, "unique", e.getMessage()));
+                    continue;
+                }
+                systemManagerService.save(systemManager);
+                successCount++;
+
+            } catch (Exception e) {
+                errors.add(new ImportError(i, "general", e.getMessage()));
+            }
+        }
+
+        int failedCount = req.getItems().size() - successCount - skippedCount;
+        return RetBuilder.success(new BatchImportResp(req.getItems().size(), successCount, failedCount, skippedCount, errors));
     }
 
     /**

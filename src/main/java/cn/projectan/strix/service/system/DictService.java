@@ -206,6 +206,23 @@ public class DictService extends ServiceImpl<DictMapper, Dict> {
     }
 
     /**
+     * 按 ID 更新字典数据（用于批量导入覆盖更新）
+     *
+     * @param dictData 字典数据
+     */
+    @Caching(
+            evict = {
+                    @CacheEvict(value = "strix:dict:dictResp", key = "#dictData.key"),
+                    @CacheEvict(value = "strix:dict:versionMap", allEntries = true)
+            }
+    )
+    @Transactional(rollbackFor = Exception.class)
+    public void updateDictDataById(DictData dictData) {
+        incrementDictVersion(dictData.getKey());
+        Assert.isTrue(dictDataService.updateById(dictData), "保存失败");
+    }
+
+    /**
      * 删除字典数据
      *
      * @param dictData 字典数据

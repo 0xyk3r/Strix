@@ -1,6 +1,7 @@
 package cn.projectan.strix.controller.system;
 
 import cn.projectan.strix.controller.system.base.BaseSystemController;
+import cn.projectan.strix.core.exception.StrixUniqueCheckerException;
 import cn.projectan.strix.core.ret.RetBuilder;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.core.validation.group.InsertGroup;
@@ -11,12 +12,16 @@ import cn.projectan.strix.model.db.system.DictData;
 import cn.projectan.strix.model.dict.common.CommonFlag;
 import cn.projectan.strix.model.dict.common.CommonSwitch;
 import cn.projectan.strix.model.dict.system.SystemLogOperType;
+import cn.projectan.strix.model.enums.common.DuplicateStrategy;
+import cn.projectan.strix.model.request.common.BatchImportReq;
 import cn.projectan.strix.model.request.common.BatchModifyReq;
 import cn.projectan.strix.model.request.common.BatchRemoveReq;
 import cn.projectan.strix.model.request.system.dict.DictDataListReq;
 import cn.projectan.strix.model.request.system.dict.DictDataUpdateReq;
 import cn.projectan.strix.model.request.system.dict.DictListReq;
 import cn.projectan.strix.model.request.system.dict.DictUpdateReq;
+import cn.projectan.strix.model.response.common.BatchImportResp;
+import cn.projectan.strix.model.response.common.BatchImportResp.ImportError;
 import cn.projectan.strix.model.response.system.dict.DictDataListResp;
 import cn.projectan.strix.model.response.system.dict.DictDataResp;
 import cn.projectan.strix.model.response.system.dict.DictListResp;
@@ -24,10 +29,14 @@ import cn.projectan.strix.model.response.system.dict.DictResp;
 import cn.projectan.strix.service.system.DictDataService;
 import cn.projectan.strix.service.system.DictService;
 import cn.projectan.strix.util.common.I18nUtil;
+import cn.projectan.strix.util.common.ObjectMapperUtil;
+import cn.projectan.strix.util.common.UniqueChecker;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -35,7 +44,10 @@ import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * 系统字典
@@ -52,6 +64,7 @@ public class SystemDictController extends BaseSystemController {
 
     private final DictService dictService;
     private final DictDataService dictDataService;
+    private final Validator validator;
 
     /**
      * 查询字典列表
@@ -343,6 +356,88 @@ public class SystemDictController extends BaseSystemController {
         }
 
         return RetBuilder.success();
+    }
+
+    /**
+     * 批量导入字典数据
+     */
+    @Operation(summary = "批量导入字典数据")
+    @PostMapping("data/{key}/batch/create")
+    @PreAuthorize("@ss.hasPermission('system:dict:data:add')")
+    @StrixLog(operationGroup = "系统字典", operationName = "批量导入字典数据", operationType = SystemLogOperType.ADD)
+    public RetResult<BatchImportResp> dataBatchCreate(
+            @Parameter(description = "字典 Key") @PathVariable String key,
+            @RequestBody @Validated BatchImportReq req) {
+        DuplicateStrategy strategy = DuplicateStrategy.fromString(req.getDuplicateStrategy());
+        List<ImportError> errors = new ArrayList<>();
+        int successCount = 0;
+        int skippedCount = 0;
+
+        for (int i = 0; i < req.getItems().size(); i++) {
+            Map<String, Object> itemMap = req.getItems().get(i);
+            itemMap.put("key", key);
+            try {
+                DictDataUpdateReq itemReq = ObjectMapperUtil.get().convertValue(itemMap, DictDataUpdateReq.class);
+
+                Set<ConstraintViolation<DictDataUpdateReq>> violations = validator.validate(itemReq, InsertGroup.class);
+                if (!violations.isEmpty()) {
+                    for (ConstraintViolation<DictDataUpdateReq> v : violations) {
+                        errors.add(new ImportError(i, v.getPropertyPath().toString(), v.getMessage()));
+                    }
+                    continue;
+                }
+
+                DictData existing = dictDataService.lambdaQuery()
+                        .eq(DictData::getKey, key)
+                        .eq(DictData::getValue, itemReq.getValue())
+                        .one();
+
+                if (existing != null) {
+                    if (strategy == DuplicateStrategy.SKIP) {
+                        skippedCount++;
+                        errors.add(new ImportError(i, "value", "字典值已存在，已跳过"));
+                        continue;
+                    }
+                    existing.setLabel(itemReq.getLabel());
+                    existing.setSort(itemReq.getSort());
+                    existing.setStyle(itemReq.getStyle());
+                    existing.setStatus(itemReq.getStatus());
+                    existing.setRemark(itemReq.getRemark());
+                    try {
+                        UniqueChecker.check(existing);
+                    } catch (StrixUniqueCheckerException e) {
+                        errors.add(new ImportError(i, "unique", e.getMessage()));
+                        continue;
+                    }
+                    dictService.updateDictDataById(existing);
+                    successCount++;
+                    continue;
+                }
+
+                DictData dictData = new DictData(
+                        key,
+                        itemReq.getValue(),
+                        itemReq.getLabel(),
+                        itemReq.getSort(),
+                        itemReq.getStyle(),
+                        itemReq.getStatus(),
+                        itemReq.getRemark()
+                );
+                try {
+                    dictService.saveDictData(dictData);
+                } catch (StrixUniqueCheckerException e) {
+                    errors.add(new ImportError(i, "unique", e.getMessage()));
+                    continue;
+                }
+                successCount++;
+
+            } catch (Exception e) {
+                errors.add(new ImportError(i, "general", e.getMessage()));
+            }
+        }
+
+        int failedCount = req.getItems().size() - successCount - skippedCount;
+        return RetBuilder.success(new BatchImportResp(req.getItems().size(), successCount, failedCount, skippedCount, errors));
     }
 
 }

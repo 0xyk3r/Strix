@@ -1,6 +1,7 @@
 package cn.projectan.strix.controller.system;
 
 import cn.projectan.strix.controller.system.base.BaseSystemController;
+import cn.projectan.strix.core.exception.StrixUniqueCheckerException;
 import cn.projectan.strix.core.ret.RetBuilder;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.core.validation.group.InsertGroup;
@@ -9,15 +10,20 @@ import cn.projectan.strix.model.annotation.StrixLog;
 import cn.projectan.strix.model.db.system.SystemUser;
 import cn.projectan.strix.model.dict.system.SystemLogOperType;
 import cn.projectan.strix.model.dict.system.SystemUserStatus;
+import cn.projectan.strix.model.enums.common.DuplicateStrategy;
+import cn.projectan.strix.model.request.common.BatchImportReq;
 import cn.projectan.strix.model.request.common.BatchModifyReq;
 import cn.projectan.strix.model.request.common.BatchRemoveReq;
 import cn.projectan.strix.model.request.common.SingleFieldModifyReq;
 import cn.projectan.strix.model.request.system.user.SystemUserListReq;
 import cn.projectan.strix.model.request.system.user.SystemUserUpdateReq;
+import cn.projectan.strix.model.response.common.BatchImportResp;
+import cn.projectan.strix.model.response.common.BatchImportResp.ImportError;
 import cn.projectan.strix.model.response.system.user.SystemUserListResp;
 import cn.projectan.strix.model.response.system.user.SystemUserResp;
 import cn.projectan.strix.service.system.SystemUserService;
 import cn.projectan.strix.util.common.I18nUtil;
+import cn.projectan.strix.util.common.ObjectMapperUtil;
 import cn.projectan.strix.util.common.UniqueChecker;
 import cn.projectan.strix.util.common.UpdateBuilder;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -25,6 +31,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -32,7 +40,10 @@ import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * 系统用户
@@ -48,6 +59,7 @@ import java.util.List;
 public class SystemUserController extends BaseSystemController {
 
     private final SystemUserService systemUserService;
+    private final Validator validator;
 
     /**
      * 查询用户列表
@@ -212,6 +224,81 @@ public class SystemUserController extends BaseSystemController {
         }
 
         return RetBuilder.success();
+    }
+
+    /**
+     * 批量导入用户
+     */
+    @Operation(summary = "批量导入用户")
+    @PostMapping("batch/create")
+    @PreAuthorize("@ss.hasPermission('system:user:add')")
+    @StrixLog(operationGroup = "系统用户", operationName = "批量导入用户", operationType = SystemLogOperType.ADD)
+    public RetResult<BatchImportResp> batchCreate(@RequestBody @Validated BatchImportReq req) {
+        DuplicateStrategy strategy = DuplicateStrategy.fromString(req.getDuplicateStrategy());
+        List<ImportError> errors = new ArrayList<>();
+        int successCount = 0;
+        int skippedCount = 0;
+
+        for (int i = 0; i < req.getItems().size(); i++) {
+            Map<String, Object> itemMap = req.getItems().get(i);
+            try {
+                SystemUserUpdateReq itemReq = ObjectMapperUtil.get().convertValue(itemMap, SystemUserUpdateReq.class);
+
+                Set<ConstraintViolation<SystemUserUpdateReq>> violations = validator.validate(itemReq, InsertGroup.class);
+                if (!violations.isEmpty()) {
+                    for (ConstraintViolation<SystemUserUpdateReq> v : violations) {
+                        errors.add(new ImportError(i, v.getPropertyPath().toString(), v.getMessage()));
+                    }
+                    continue;
+                }
+
+                SystemUser existing = systemUserService.lambdaQuery()
+                        .eq(SystemUser::getPhoneNumber, itemReq.getPhoneNumber())
+                        .one();
+
+                if (existing != null) {
+                    if (strategy == DuplicateStrategy.SKIP) {
+                        skippedCount++;
+                        errors.add(new ImportError(i, "phoneNumber", "手机号码已存在，已跳过"));
+                        continue;
+                    }
+                    existing.setNickname(itemReq.getNickname());
+                    existing.setStatus(itemReq.getStatus());
+                    existing.setPhoneNumber(itemReq.getPhoneNumber());
+                    try {
+                        UniqueChecker.check(existing);
+                    } catch (StrixUniqueCheckerException e) {
+                        errors.add(new ImportError(i, "unique", e.getMessage()));
+                        continue;
+                    }
+                    systemUserService.updateById(existing);
+                    successCount++;
+                    continue;
+                }
+
+                SystemUser systemUser = new SystemUser(
+                        itemReq.getNickname(),
+                        itemReq.getStatus(),
+                        itemReq.getPhoneNumber(),
+                        null,
+                        null
+                );
+                try {
+                    UniqueChecker.check(systemUser);
+                } catch (StrixUniqueCheckerException e) {
+                    errors.add(new ImportError(i, "unique", e.getMessage()));
+                    continue;
+                }
+                systemUserService.save(systemUser);
+                successCount++;
+
+            } catch (Exception e) {
+                errors.add(new ImportError(i, "general", e.getMessage()));
+            }
+        }
+
+        int failedCount = req.getItems().size() - successCount - skippedCount;
+        return RetBuilder.success(new BatchImportResp(req.getItems().size(), successCount, failedCount, skippedCount, errors));
     }
 
 }
