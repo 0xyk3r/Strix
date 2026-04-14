@@ -5,6 +5,9 @@ import cn.projectan.strix.model.request.base.BasePageReq;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import java.time.LocalDateTime;
 
 /**
  * @author ProjectAn
@@ -38,5 +41,33 @@ public class SystemLogListReq extends BasePageReq<SystemLog> {
      */
     @Schema(description = "响应状态码")
     private Integer responseCode;
+
+    /**
+     * 操作开始时间
+     */
+    @Schema(description = "操作开始时间")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime startTime;
+
+    /**
+     * 操作结束时间
+     */
+    @Schema(description = "操作结束时间")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime endTime;
+
+    /**
+     * 操作用户名
+     */
+    @Schema(description = "操作用户名")
+    @Size(max = 64)
+    private String clientUsername;
+
+    /**
+     * 客户端IP
+     */
+    @Schema(description = "客户端IP")
+    @Size(max = 64)
+    private String clientIp;
 
 }
