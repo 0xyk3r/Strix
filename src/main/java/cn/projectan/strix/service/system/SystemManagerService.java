@@ -23,9 +23,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -328,6 +326,18 @@ public class SystemManagerService extends ServiceImpl<SystemManagerMapper, Syste
         }
         SystemManagerService proxy = SpringUtil.getAopProxy(this);
         managerIds.forEach(proxy::refreshLoginInfoByManager);
+    }
+
+    /**
+     * 刷新所有在线管理员的 LoginInfo
+     * (用于菜单/权限全局变更时)
+     */
+    public void refreshLoginInfoForAllOnlineManagers() {
+        Set<String> onlineManagerIds = tokenSessionService.getOnlineManagerIds();
+        if (!onlineManagerIds.isEmpty()) {
+            log.info("刷新所有在线管理员 LoginInfo, 在线人数: {}", onlineManagerIds.size());
+            refreshLoginInfoForManagers(new ArrayList<>(onlineManagerIds));
+        }
     }
 
     /**
