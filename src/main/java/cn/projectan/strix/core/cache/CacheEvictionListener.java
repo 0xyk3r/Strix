@@ -1,6 +1,7 @@
 package cn.projectan.strix.core.cache;
 
 import cn.projectan.strix.core.sse.SseSessionManager;
+import cn.projectan.strix.model.event.DictChangedEvent;
 import cn.projectan.strix.model.event.cache.*;
 import cn.projectan.strix.service.system.SystemManagerService;
 import lombok.RequiredArgsConstructor;
@@ -135,6 +136,20 @@ public class CacheEvictionListener {
             }
         }
         broadcastIfLocal(event);
+    }
+
+    /**
+     * 字典数据变更 → SSE 广播 dict:refresh, 前端立即拉取最新数据
+     * <p>
+     * 字典缓存已通过 DictService 的 @CacheEvict 清除, 此处仅负责 SSE 广播.
+     */
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT, fallbackExecution = true)
+    public void onDictChanged(DictChangedEvent event) {
+        log.info("处理字典变更事件, dictKey={}, reason={}", event.getDictKey(), event.getReason());
+        sseSessionManager.broadcast("dict:refresh", Map.of(
+                "dictKey", event.getDictKey(),
+                "reason", event.getReason()
+        ));
     }
 
     /**

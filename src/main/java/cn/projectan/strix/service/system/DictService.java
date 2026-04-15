@@ -2,6 +2,7 @@ package cn.projectan.strix.service.system;
 
 import cn.projectan.strix.mapper.system.DictMapper;
 import cn.projectan.strix.model.db.system.Dict;
+import cn.projectan.strix.model.event.DictChangedEvent;
 import cn.projectan.strix.model.db.system.DictData;
 import cn.projectan.strix.model.dict.common.CommonSwitch;
 import cn.projectan.strix.model.enums.common.NumCategory;
@@ -23,6 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -45,6 +47,7 @@ import java.util.List;
 public class DictService extends ServiceImpl<DictMapper, Dict> {
 
     private final DictDataService dictDataService;
+    private final ApplicationEventPublisher eventPublisher;
 
     /**
      * 分页查询字典列表
@@ -120,6 +123,7 @@ public class DictService extends ServiceImpl<DictMapper, Dict> {
     public void saveDict(Dict dict) {
         UniqueChecker.check(dict);
         Assert.isTrue(save(dict), "保存失败");
+        eventPublisher.publishEvent(new DictChangedEvent(this, dict.getKey(), "dict_saved"));
     }
 
     /**
@@ -148,6 +152,8 @@ public class DictService extends ServiceImpl<DictMapper, Dict> {
         UniqueChecker.check(dict);
         updateWrapper.set(Dict::getVersion, dict.getVersion() + 1);
         Assert.isTrue(update(updateWrapper), "保存失败");
+        String effectiveKey = StringUtils.hasText(req.getKey()) ? req.getKey() : dict.getKey();
+        eventPublisher.publishEvent(new DictChangedEvent(this, effectiveKey, "dict_updated"));
     }
 
     /**
@@ -165,6 +171,7 @@ public class DictService extends ServiceImpl<DictMapper, Dict> {
         Assert.isTrue(dictDataService.lambdaUpdate()
                 .eq(DictData::getKey, dict.getKey())
                 .remove(), "删除失败");
+        eventPublisher.publishEvent(new DictChangedEvent(this, dict.getKey(), "dict_deleted"));
     }
 
     /**
@@ -183,6 +190,7 @@ public class DictService extends ServiceImpl<DictMapper, Dict> {
         UniqueChecker.check(dictData);
         incrementDictVersion(dictData.getKey());
         Assert.isTrue(dictDataService.save(dictData), "保存失败");
+        eventPublisher.publishEvent(new DictChangedEvent(this, dictData.getKey(), "data_added"));
     }
 
     /**
@@ -203,6 +211,7 @@ public class DictService extends ServiceImpl<DictMapper, Dict> {
         UniqueChecker.check(dictData);
         incrementDictVersion(dictData.getKey());
         Assert.isTrue(dictDataService.update(updateWrapper), "保存失败");
+        eventPublisher.publishEvent(new DictChangedEvent(this, dictData.getKey(), "data_updated"));
     }
 
     /**
@@ -220,6 +229,7 @@ public class DictService extends ServiceImpl<DictMapper, Dict> {
     public void updateDictDataById(DictData dictData) {
         incrementDictVersion(dictData.getKey());
         Assert.isTrue(dictDataService.updateById(dictData), "保存失败");
+        eventPublisher.publishEvent(new DictChangedEvent(this, dictData.getKey(), "data_updated"));
     }
 
     /**
@@ -241,6 +251,7 @@ public class DictService extends ServiceImpl<DictMapper, Dict> {
                 .eq(DictData::getKey, dictData.getKey())
                 .eq(DictData::getValue, dictData.getValue())
                 .remove();
+        eventPublisher.publishEvent(new DictChangedEvent(this, dictData.getKey(), "data_deleted"));
     }
 
     private void incrementDictVersion(String dictKey) {
