@@ -92,8 +92,12 @@ public class NotificationService extends ServiceImpl<NotificationMapper, Notific
 
         log.info("通知发送成功，通知ID: {}, 业务类型: {}, 接收人数量: {}", notification.getId(), bizType, receiverIds.size());
 
-        // SSE 推送: 仅推送给已连接的管理员
-        pushNewNotificationEvent(notification, receiverIds);
+        // SSE 推送: 仅推送给已连接的管理员 (不影响事务)
+        try {
+            pushNewNotificationEvent(notification, receiverIds);
+        } catch (Exception e) {
+            log.warn("SSE 推送新通知事件失败, 不影响通知发送: notificationId={}", notification.getId(), e);
+        }
 
         return notification.getId();
     }
@@ -162,8 +166,12 @@ public class NotificationService extends ServiceImpl<NotificationMapper, Notific
 
         log.info("通知已终止，通知ID: {}, 终止人: {}, 终止原因: {}", notificationId, terminatedBy, reason);
 
-        // SSE 推送: 通知被终止后, 推送更新后的未读数量给相关接收人
-        pushCountUpdateForNotification(notificationId);
+        // SSE 推送: 通知被终止后, 推送更新后的未读数量给相关接收人 (不影响事务)
+        try {
+            pushCountUpdateForNotification(notificationId);
+        } catch (Exception e) {
+            log.warn("SSE 推送终止通知事件失败, 不影响终止操作: notificationId={}", notificationId, e);
+        }
     }
 
     // ======================== Admin Query Methods ========================

@@ -95,8 +95,12 @@ public class NotificationReceiverService extends ServiceImpl<NotificationReceive
                 .set(NotificationReceiver::getReadAt, LocalDateTime.now())
                 .update();
 
-        // SSE 推送更新后的未读数量
-        pushUnreadCountUpdate(receiverId);
+        // SSE 推送更新后的未读数量 (不影响事务)
+        try {
+            pushUnreadCountUpdate(receiverId);
+        } catch (Exception e) {
+            log.warn("SSE 推送未读数量更新失败, 不影响标记已读操作", e);
+        }
     }
 
     /**
@@ -115,9 +119,13 @@ public class NotificationReceiverService extends ServiceImpl<NotificationReceive
                 .set(NotificationReceiver::getReadAt, LocalDateTime.now())
                 .update();
 
-        // SSE 推送: 全部已读后未读数为 0
-        if (sseSessionManager.isConnected(receiverId)) {
-            sseSessionManager.sendToManager(receiverId, "notification:count", Map.of("unreadCount", 0));
+        // SSE 推送: 全部已读后未读数为 0 (不影响事务)
+        try {
+            if (sseSessionManager.isConnected(receiverId)) {
+                sseSessionManager.sendToManager(receiverId, "notification:count", Map.of("unreadCount", 0));
+            }
+        } catch (Exception e) {
+            log.warn("SSE 推送全部已读事件失败, 不影响标记已读操作", e);
         }
     }
 

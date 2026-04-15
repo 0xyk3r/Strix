@@ -98,7 +98,8 @@ public class SseSessionManager {
                 emitter.send(SseEmitter.event()
                         .name(eventName)
                         .data(data));
-            } catch (IOException e) {
+            } catch (Exception e) {
+                log.debug("SSE 发送失败, 移除 emitter: managerId={}, event={}", managerId, eventName);
                 removeEmitter(managerId, emitter);
             }
         }
@@ -146,7 +147,7 @@ public class SseSessionManager {
             for (SseEmitter emitter : entry.getValue()) {
                 try {
                     emitter.send(SseEmitter.event().comment("heartbeat"));
-                } catch (IOException e) {
+                } catch (Exception e) {
                     removeEmitter(entry.getKey(), emitter);
                 }
             }
