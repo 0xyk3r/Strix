@@ -244,6 +244,56 @@ public class TokenSessionService {
         return null;
     }
 
+    /**
+     * 踢出用户的指定会话
+     */
+    public void kickUserSession(String userId, String token) {
+        redisUtil.del(LoginRedisKeys.USER_TOKEN_PREFIX + token);
+        redisUtil.hDel(LoginRedisKeys.USER_REGISTRY_PREFIX + userId, token);
+    }
+
+    /**
+     * 获取用户所有会话的元数据
+     *
+     * @return Map<token, SessionMeta>
+     */
+    public Map<String, SessionMeta> getUserSessions(String userId) {
+        return getSessions(LoginRedisKeys.USER_REGISTRY_PREFIX + userId);
+    }
+
+    /**
+     * 获取所有在线用户 ID (通过 SCAN registry 前缀)
+     */
+    public Set<String> getOnlineUserIds() {
+        Set<String> keys = redisUtil.scan(LoginRedisKeys.USER_REGISTRY_PREFIX + "*");
+        Set<String> userIds = new HashSet<>();
+        for (String key : keys) {
+            String userId = key.substring(LoginRedisKeys.USER_REGISTRY_PREFIX.length());
+            userIds.add(userId);
+        }
+        return userIds;
+    }
+
+    /**
+     * 更新用户会话的最后活跃时间
+     */
+    public void updateUserLastActiveTime(String userId, String token) {
+        String registryKey = LoginRedisKeys.USER_REGISTRY_PREFIX + userId;
+        Object metaObj = redisUtil.hGet(registryKey, token);
+        if (metaObj == null) {
+            return;
+        }
+        try {
+            SessionMeta meta = deserializeMeta(metaObj);
+            if (meta != null) {
+                meta.setLastActiveTime(LocalDateTime.now());
+                redisUtil.hSet(registryKey, token, serializeMeta(meta));
+            }
+        } catch (Exception e) {
+            log.warn("更新用户会话最后活跃时间失败: userId={}, token={}", userId, token, e);
+        }
+    }
+
     // ======================== Internal Shared Operations ========================
 
     private String createSession(String tokenPrefix, String registryKey,
