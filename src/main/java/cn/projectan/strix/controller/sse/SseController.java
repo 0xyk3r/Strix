@@ -23,29 +23,34 @@ import java.io.IOException;
 import java.util.Map;
 
 /**
- * SSE 通知推送端点
+ * SSE 通用推送端点
  * <p>
  * EventSource API 不支持自定义 Header, 因此通过 query param 传递 token,
  * 使用 @Anonymous 跳过 Spring Security 过滤器, 在方法内部手动验证 token.
+ * <p>
+ * 支持的事件类型:
+ * - notification:new — 新通知
+ * - notification:count — 未读通知数量变更
+ * - auth:refresh — 权限/菜单变更, 前端应刷新 loginInfo
  *
  * @author ProjectAn
  * @since 2026-03-26
  */
 @Slf4j
 @RestController
-@RequestMapping("sse/notification")
+@RequestMapping("sse")
 @RequiredArgsConstructor
 @IgnoreEncryption
-@Tag(name = "SSE - 通知推送")
-public class SseNotificationController extends BaseController {
+@Tag(name = "SSE - 实时推送")
+public class SseController extends BaseController {
 
     private final SseSessionManager sseSessionManager;
     private final RedisUtil redisUtil;
     private final NotificationReceiverService notificationReceiverService;
 
     @Anonymous
-    @GetMapping(produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    @Operation(summary = "建立 SSE 通知连接")
+    @GetMapping(value = "stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @Operation(summary = "建立 SSE 连接")
     public SseEmitter connect(@RequestParam String token) {
         // 内部验证 token
         Object loginInfo = redisUtil.get(LoginRedisKeys.MANAGER_TOKEN_PREFIX + token);
@@ -72,7 +77,7 @@ public class SseNotificationController extends BaseController {
             log.warn("发送初始未读数量失败: managerId={}", managerId, e);
         }
 
-        log.info("SSE 通知连接已建立: managerId={}", managerId);
+        log.info("SSE 连接已建立: managerId={}", managerId);
         return emitter;
     }
 }
