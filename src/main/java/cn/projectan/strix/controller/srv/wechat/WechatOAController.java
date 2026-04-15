@@ -14,6 +14,7 @@ import cn.projectan.strix.model.db.system.SystemUser;
 import cn.projectan.strix.model.dict.system.OAuthPlatform;
 import cn.projectan.strix.model.other.system.module.oauth.BaseOAuthUserInfo;
 import cn.projectan.strix.model.other.system.module.oauth.wechat.oa.WechatOAOAuthConfig;
+import cn.projectan.strix.model.response.system.monitor.session.SessionMeta;
 import cn.projectan.strix.service.system.OauthConfigService;
 import cn.projectan.strix.service.system.OauthUserService;
 import cn.projectan.strix.service.system.SystemUserService;
@@ -37,6 +38,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -116,7 +118,8 @@ public class WechatOAController extends BaseWechatController {
             long tokenTTL = systemConfigCache.getLong("SYSTEM_USER_LOGIN_EFFECTIVE_TIME", 1440L);
 
             tokenSessionService.invalidateUserSession(systemUser.getId());
-            String token = tokenSessionService.createUserSession(systemUser.getId(), loginInfo, tokenTTL);
+            String token = tokenSessionService.createUserSession(systemUser.getId(), loginInfo, tokenTTL,
+                    new SessionMeta(LocalDateTime.now(), "", "", "", LocalDateTime.now()));
 
             response.sendRedirect(config.getWebIndexUrl() + "?token=" + token + "&cfid=" + configKey + "&tp=" + model + "&params=" + params);
         } catch (Exception e) {

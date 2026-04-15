@@ -12,6 +12,7 @@ import cn.projectan.strix.model.dict.system.OAuthPlatform;
 import cn.projectan.strix.model.other.system.module.oauth.BaseOAuthUserInfo;
 import cn.projectan.strix.model.request.api.wechat.WechatMPAuthReq;
 import cn.projectan.strix.model.response.system.login.SystemUserLoginResp;
+import cn.projectan.strix.model.response.system.monitor.session.SessionMeta;
 import cn.projectan.strix.service.system.OauthConfigService;
 import cn.projectan.strix.service.system.OauthUserService;
 import cn.projectan.strix.service.system.SystemUserService;
@@ -79,7 +80,8 @@ public class WechatMPController extends BaseWechatController {
         }
 
         // 创建新 token
-        String token = tokenSessionService.createUserSession(systemUser.getId(), loginInfo, tokenTTL);
+        String token = tokenSessionService.createUserSession(systemUser.getId(), loginInfo, tokenTTL,
+                new SessionMeta(LocalDateTime.now(), "", "", "", LocalDateTime.now()));
 
         return RetBuilder.success(
                 new SystemUserLoginResp(

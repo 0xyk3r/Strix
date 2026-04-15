@@ -10,6 +10,8 @@ import cn.projectan.strix.model.constant.system.StrixRedisKeyConst;
 import cn.projectan.strix.model.db.system.SystemManager;
 import cn.projectan.strix.model.dict.system.SystemManagerStatus;
 import cn.projectan.strix.model.other.system.captcha.CaptchaData;
+import cn.projectan.strix.model.response.system.monitor.session.SessionMeta;
+import jakarta.servlet.http.HttpServletRequest;
 import cn.projectan.strix.model.request.system.login.SystemLoginReq;
 import cn.projectan.strix.model.response.system.login.SystemManagerLoginResp;
 import cn.projectan.strix.util.common.I18nUtil;
@@ -88,7 +90,20 @@ public class SystemLoginService {
         LoginSystemManager loginSystemManager = systemManagerService.getLoginInfo(systemManager.getId());
 
         long tokenTTL = systemConfigCache.getLong("SYSTEM_MANAGER_LOGIN_EFFECTIVE_TIME", 1440L);
-        String token = tokenSessionService.createManagerSession(systemManager.getId(), loginSystemManager, tokenTTL);
+        SessionMeta sessionMeta = new SessionMeta(
+                LocalDateTime.now(),
+                clientIp,
+                parseDeviceName(ServletUtil.getRequest()),
+                ServletUtil.getRequest().getHeader("User-Agent"),
+                LocalDateTime.now()
+        );
+        String token = tokenSessionService.createManagerSession(systemManager.getId(), loginSystemManager, tokenTTL, sessionMeta);
+
+        // 多端登录场景下, 检查最大会话数限制
+        if (supportMultipleLogin) {
+            int maxSessions = systemConfigCache.getLong("SYSTEM_MANAGER_MAX_SESSIONS", 0L).intValue();
+            tokenSessionService.enforceMaxSessions(systemManager.getId(), maxSessions);
+        }
 
         return RetBuilder.success(buildLoginResp(systemManager, loginSystemManager, token, tokenTTL));
     }
@@ -138,6 +153,23 @@ public class SystemLoginService {
         if (count == 1) {
             redisUtil.setExpire(failureKey, loginLockMinutes, TimeUnit.MINUTES);
         }
+    }
+
+    /**
+     * 从 User-Agent 解析设备名称
+     */
+    private String parseDeviceName(HttpServletRequest request) {
+        try {
+            String userAgentHeader = request.getHeader("User-Agent");
+            if (userAgentHeader != null && !userAgentHeader.isBlank()) {
+                cn.hutool.http.useragent.UserAgent ua = cn.hutool.http.useragent.UserAgentUtil.parse(userAgentHeader);
+                if (ua != null && ua.getOs() != null) {
+                    return ua.getOs().getName();
+                }
+            }
+        } catch (Exception ignored) {
+        }
+        return "Unknown";
     }
 
 }
