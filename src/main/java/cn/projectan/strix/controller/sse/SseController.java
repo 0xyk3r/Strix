@@ -6,7 +6,9 @@ import cn.projectan.strix.core.sse.SseSessionManager;
 import cn.projectan.strix.model.annotation.Anonymous;
 import cn.projectan.strix.model.annotation.IgnoreEncryption;
 import cn.projectan.strix.model.constant.system.LoginRedisKeys;
+import cn.projectan.strix.model.db.system.SystemAnnouncement;
 import cn.projectan.strix.service.system.NotificationReceiverService;
+import cn.projectan.strix.service.system.SystemAnnouncementService;
 import cn.projectan.strix.util.common.RedisUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -47,6 +50,7 @@ public class SseController extends BaseController {
     private final SseSessionManager sseSessionManager;
     private final RedisUtil redisUtil;
     private final NotificationReceiverService notificationReceiverService;
+    private final SystemAnnouncementService systemAnnouncementService;
 
     @Anonymous
     @GetMapping(value = "stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
@@ -75,6 +79,26 @@ public class SseController extends BaseController {
                     .data(Map.of("unreadCount", unreadCount)));
         } catch (IOException e) {
             log.warn("发送初始未读数量失败: managerId={}", managerId, e);
+        }
+
+        // 发送所有活跃公告
+        try {
+            List<SystemAnnouncement> activeAnnouncements = systemAnnouncementService.getActiveAnnouncements();
+            for (SystemAnnouncement a : activeAnnouncements) {
+                emitter.send(SseEmitter.event()
+                        .name("system:announce")
+                        .data(Map.of(
+                                "id", a.getId(),
+                                "title", a.getTitle(),
+                                "content", a.getContent() != null ? a.getContent() : "",
+                                "level", a.getLevel(),
+                                "displayType", a.getDisplayType(),
+                                "startTime", a.getStartTime() != null ? a.getStartTime().toString() : "",
+                                "endTime", a.getEndTime() != null ? a.getEndTime().toString() : ""
+                        )));
+            }
+        } catch (IOException e) {
+            log.warn("发送活跃公告失败: managerId={}", managerId, e);
         }
 
         log.info("SSE 连接已建立: managerId={}", managerId);
