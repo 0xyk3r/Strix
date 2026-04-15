@@ -1,5 +1,6 @@
 package cn.projectan.strix.service.system;
 
+import cn.projectan.strix.core.sse.SseSessionManager;
 import cn.projectan.strix.mapper.system.NotificationMapper;
 import cn.projectan.strix.mapper.system.NotificationReceiverMapper;
 import cn.projectan.strix.model.db.system.Notification;
@@ -21,12 +22,11 @@ import org.springframework.util.CollectionUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * <p>
- * Strix 通知接收人 服务类
- * </p>
+ * Strix 通知接收人服务
  *
  * @author ProjectAn
  * @since 2026-01-27
@@ -37,6 +37,7 @@ import java.util.stream.Collectors;
 public class NotificationReceiverService extends ServiceImpl<NotificationReceiverMapper, NotificationReceiver> {
 
     private final NotificationMapper notificationMapper;
+    private final SseSessionManager sseSessionManager;
 
     /**
      * 获取我的通知列表
@@ -85,7 +86,6 @@ public class NotificationReceiverService extends ServiceImpl<NotificationReceive
         Assert.hasText(notificationId, I18nUtil.notEmpty("field.notificationId"));
         Assert.hasText(receiverId, I18nUtil.notEmpty("field.receiverId"));
 
-        // 更新为已读
         lambdaUpdate()
                 .eq(NotificationReceiver::getNotificationId, notificationId)
                 .eq(NotificationReceiver::getReceiverId, receiverId)
@@ -94,6 +94,9 @@ public class NotificationReceiverService extends ServiceImpl<NotificationReceive
                 .set(NotificationReceiver::getReadStatus, CommonFlag.YES)
                 .set(NotificationReceiver::getReadAt, LocalDateTime.now())
                 .update();
+
+        // SSE 推送更新后的未读数量
+        pushUnreadCountUpdate(receiverId);
     }
 
     /**
@@ -104,7 +107,6 @@ public class NotificationReceiverService extends ServiceImpl<NotificationReceive
         String receiverId = SecurityUtil.getOperatorId();
         Assert.hasText(receiverId, I18nUtil.notEmpty("field.receiverId"));
 
-        // 更新为已读
         lambdaUpdate()
                 .eq(NotificationReceiver::getReceiverId, receiverId)
                 .eq(NotificationReceiver::getReadStatus, CommonFlag.NO)
@@ -112,10 +114,15 @@ public class NotificationReceiverService extends ServiceImpl<NotificationReceive
                 .set(NotificationReceiver::getReadStatus, CommonFlag.YES)
                 .set(NotificationReceiver::getReadAt, LocalDateTime.now())
                 .update();
+
+        // SSE 推送: 全部已读后未读数为 0
+        if (sseSessionManager.isConnected(receiverId)) {
+            sseSessionManager.sendToManager(receiverId, "notification:count", Map.of("unreadCount", 0));
+        }
     }
 
     /**
-     * 获取未读通知数量
+     * 获取当前用户的未读通知数量
      *
      * @return 未读数量
      */
@@ -130,4 +137,27 @@ public class NotificationReceiverService extends ServiceImpl<NotificationReceive
                 .count();
     }
 
+    /**
+     * 获取指定接收人的未读通知数量
+     * (用于 SSE 推送, 不依赖 SecurityContext)
+     *
+     * @param receiverId 接收人 ID
+     * @return 未读数量
+     */
+    public long getUnreadCountByReceiverId(String receiverId) {
+        return lambdaQuery()
+                .eq(NotificationReceiver::getReceiverId, receiverId)
+                .eq(NotificationReceiver::getReadStatus, CommonFlag.NO)
+                .eq(NotificationReceiver::getValidStatus, CommonFlag.YES)
+                .count();
+    }
+
+    // ======================== SSE Push Helpers ========================
+
+    private void pushUnreadCountUpdate(String receiverId) {
+        if (sseSessionManager.isConnected(receiverId)) {
+            long unreadCount = getUnreadCountByReceiverId(receiverId);
+            sseSessionManager.sendToManager(receiverId, "notification:count", Map.of("unreadCount", unreadCount));
+        }
+    }
 }
