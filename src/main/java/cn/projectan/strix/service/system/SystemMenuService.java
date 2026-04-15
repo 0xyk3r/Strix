@@ -1,16 +1,15 @@
 package cn.projectan.strix.service.system;
 
-import cn.projectan.strix.core.cache.system.SystemMenuCache;
-import cn.projectan.strix.core.cache.system.SystemPermissionCache;
 import cn.projectan.strix.mapper.system.SystemMenuMapper;
 import cn.projectan.strix.model.db.system.SystemMenu;
 import cn.projectan.strix.model.db.system.SystemPermission;
 import cn.projectan.strix.model.db.system.SystemRoleMenu;
+import cn.projectan.strix.model.event.cache.MenuChangedEvent;
 import cn.projectan.strix.model.response.common.CommonTreeDataResp;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Lazy;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,10 +30,7 @@ public class SystemMenuService extends ServiceImpl<SystemMenuMapper, SystemMenu>
 
     private final SystemRoleMenuService systemRoleMenuService;
     private final SystemPermissionService systemPermissionService;
-    @Lazy
-    private final SystemMenuCache systemMenuCache;
-    @Lazy
-    private final SystemPermissionCache systemPermissionCache;
+    private final ApplicationEventPublisher eventPublisher;
 
     /**
      * 根据菜单 key 列表查询菜单（按排序值升序）
@@ -102,9 +98,8 @@ public class SystemMenuService extends ServiceImpl<SystemMenuMapper, SystemMenu>
                 .in(SystemPermission::getMenuId, menuIdsToDelete)
                 .remove();
 
-        // 更新缓存
-        systemMenuCache.updateRamAndRedis();
-        systemPermissionCache.updateRamAndRedis();
+        // 发布菜单变更事件 (监听器会处理缓存清除和 LoginInfo 刷新)
+        eventPublisher.publishEvent(new MenuChangedEvent(this));
     }
 
     /**
@@ -114,6 +109,13 @@ public class SystemMenuService extends ServiceImpl<SystemMenuMapper, SystemMenu>
      * @param parentIds 父节点 ID 列表
      * @return 子节点 ID 列表
      */
+    /**
+     * 获取指定菜单及其所有子菜单的 ID 列表
+     */
+    public List<String> getMenuAndChildrenIds(String menuId) {
+        return new ArrayList<>(findMenuChildrenIdList(list(), List.of(menuId)));
+    }
+
     private Set<String> findMenuChildrenIdList(List<SystemMenu> menus, Collection<String> parentIds) {
         if (parentIds == null || parentIds.isEmpty() || menus.isEmpty()) {
             return Collections.emptySet();

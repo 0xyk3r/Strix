@@ -28,6 +28,9 @@ public class CacheInvalidationBroadcaster {
 
     private final StringRedisTemplate stringRedisTemplate;
 
+    @org.springframework.beans.factory.annotation.Value("${strix.instance-id:default}")
+    private String instanceId;
+
     /**
      * 广播缓存失效事件到 Redis Pub/Sub
      *
@@ -37,12 +40,12 @@ public class CacheInvalidationBroadcaster {
         try {
             CacheInvalidationMessage message = new CacheInvalidationMessage();
             message.setEventType(event.getEventType());
-            message.setInstanceId(event.getInstanceId());
+            message.setInstanceId(event.getInstanceId() != null ? event.getInstanceId() : instanceId);
             message.setPayload(buildPayload(event));
 
             String json = ObjectMapperUtil.writeValue(message);
             stringRedisTemplate.convertAndSend(CHANNEL, json);
-            log.debug("缓存失效广播已发送: type={}, instanceId={}", event.getEventType(), event.getInstanceId());
+            log.debug("缓存失效广播已发送: type={}, instanceId={}", event.getEventType(), message.getInstanceId());
         } catch (Exception e) {
             log.error("缓存失效广播失败: type={}", event.getEventType(), e);
         }

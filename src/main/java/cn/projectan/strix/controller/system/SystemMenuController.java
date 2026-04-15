@@ -1,7 +1,6 @@
 package cn.projectan.strix.controller.system;
 
 import cn.projectan.strix.controller.system.base.BaseSystemController;
-import cn.projectan.strix.core.cache.system.SystemMenuCache;
 import cn.projectan.strix.core.ret.RetBuilder;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.core.validation.group.InsertGroup;
@@ -10,12 +9,12 @@ import cn.projectan.strix.model.annotation.StrixLog;
 import cn.projectan.strix.model.db.system.SystemMenu;
 import cn.projectan.strix.model.db.system.SystemPermission;
 import cn.projectan.strix.model.dict.system.SystemLogOperType;
+import cn.projectan.strix.model.event.cache.MenuChangedEvent;
 import cn.projectan.strix.model.request.common.SingleFieldModifyReq;
 import cn.projectan.strix.model.request.system.menu.SystemMenuUpdateReq;
 import cn.projectan.strix.model.response.common.CommonTreeDataResp;
 import cn.projectan.strix.model.response.system.menu.SystemMenuListResp;
 import cn.projectan.strix.model.response.system.menu.SystemMenuResp;
-import cn.projectan.strix.service.system.SystemManagerService;
 import cn.projectan.strix.service.system.SystemMenuService;
 import cn.projectan.strix.service.system.SystemPermissionService;
 import cn.projectan.strix.util.common.I18nUtil;
@@ -27,15 +26,13 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * 系统菜单
@@ -52,8 +49,7 @@ public class SystemMenuController extends BaseSystemController {
 
     private final SystemMenuService systemMenuService;
     private final SystemPermissionService systemPermissionService;
-    private final SystemManagerService systemManagerService;
-    private final SystemMenuCache systemMenuCache;
+    private final ApplicationEventPublisher eventPublisher;
 
     /**
      * 查询菜单列表
@@ -98,8 +94,7 @@ public class SystemMenuController extends BaseSystemController {
         Assert.notNull(systemMenu, I18nUtil.notFound("field.systemMenu"));
 
         Assert.isTrue(systemMenuService.updateIcon(menuId, req.getValue()), "修改失败");
-        // 更新缓存
-        systemMenuCache.updateRamAndRedis();
+        eventPublisher.publishEvent(new MenuChangedEvent(this));
 
         return RetBuilder.success();
     }
@@ -126,8 +121,7 @@ public class SystemMenuController extends BaseSystemController {
         UniqueChecker.check(systemMenu);
 
         Assert.isTrue(systemMenuService.save(systemMenu), "保存失败");
-        // 更新缓存
-        systemMenuCache.updateRamAndRedis();
+        eventPublisher.publishEvent(new MenuChangedEvent(this));
 
         return RetBuilder.success();
     }
@@ -147,10 +141,7 @@ public class SystemMenuController extends BaseSystemController {
         LambdaUpdateWrapper<SystemMenu> updateWrapper = UpdateBuilder.build(systemMenu, req);
         UniqueChecker.check(systemMenu);
         Assert.isTrue(systemMenuService.update(updateWrapper), "保存失败");
-        // 更新缓存
-        systemMenuCache.updateRamAndRedis();
-        // 刷新 redis 中的登录用户信息
-        systemManagerService.refreshLoginInfoByMenu(menuId);
+        eventPublisher.publishEvent(new MenuChangedEvent(this));
 
         return RetBuilder.success();
     }
@@ -174,25 +165,6 @@ public class SystemMenuController extends BaseSystemController {
     @GetMapping("tree")
     public RetResult<CommonTreeDataResp> getSystemMenuTree() {
         return RetBuilder.success(systemMenuService.getTreeData());
-    }
-
-    private Set<String> findSystemMenuChildrenIdList(List<SystemMenu> menus, String parentId) {
-        List<String> menuIds = new ArrayList<>();
-        menuIds.add(parentId);
-
-        SystemMenu parentSystemMenu = menus.stream().filter(m -> m.getId().equals(parentId)).findFirst().orElse(null);
-        if (parentSystemMenu == null) {
-            return null;
-        }
-
-        List<String> subMenuIds = menus.stream().filter(m -> m.getParentId().equals(parentId)).map(SystemMenu::getId).toList();
-        for (String subMenuId : subMenuIds) {
-            Set<String> systemMenuChildrenIdList = findSystemMenuChildrenIdList(menus, subMenuId);
-            if (systemMenuChildrenIdList != null) {
-                menuIds.addAll(systemMenuChildrenIdList);
-            }
-        }
-        return new HashSet<>(menuIds);
     }
 
 }

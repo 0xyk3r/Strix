@@ -1,7 +1,6 @@
 package cn.projectan.strix.controller.system;
 
 import cn.projectan.strix.controller.system.base.BaseSystemController;
-import cn.projectan.strix.core.cache.system.SystemPermissionCache;
 import cn.projectan.strix.core.ret.RetBuilder;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.core.validation.group.InsertGroup;
@@ -9,11 +8,11 @@ import cn.projectan.strix.core.validation.group.UpdateGroup;
 import cn.projectan.strix.model.annotation.StrixLog;
 import cn.projectan.strix.model.db.system.SystemPermission;
 import cn.projectan.strix.model.dict.system.SystemLogOperType;
+import cn.projectan.strix.model.event.cache.PermissionChangedEvent;
 import cn.projectan.strix.model.request.system.permission.SystemPermissionUpdateReq;
 import cn.projectan.strix.model.response.common.CommonTransferDataResp;
 import cn.projectan.strix.model.response.system.permission.SystemPermissionListResp;
 import cn.projectan.strix.model.response.system.permission.SystemPermissionResp;
-import cn.projectan.strix.service.system.SystemManagerService;
 import cn.projectan.strix.service.system.SystemPermissionService;
 import cn.projectan.strix.util.common.I18nUtil;
 import cn.projectan.strix.util.common.UniqueChecker;
@@ -24,6 +23,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
@@ -45,8 +45,7 @@ import java.util.List;
 public class SystemPermissionController extends BaseSystemController {
 
     private final SystemPermissionService systemPermissionService;
-    private final SystemManagerService systemManagerService;
-    private final SystemPermissionCache systemPermissionCache;
+    private final ApplicationEventPublisher eventPublisher;
 
     /**
      * 查询权限列表
@@ -94,7 +93,7 @@ public class SystemPermissionController extends BaseSystemController {
 
         UniqueChecker.check(systemPermission);
         Assert.isTrue(systemPermissionService.save(systemPermission), "保存失败");
-        systemPermissionCache.updateRamAndRedis();
+        eventPublisher.publishEvent(new PermissionChangedEvent(this));
 
         return RetBuilder.success();
     }
@@ -114,10 +113,7 @@ public class SystemPermissionController extends BaseSystemController {
         LambdaUpdateWrapper<SystemPermission> updateWrapper = UpdateBuilder.build(systemPermission, req);
         UniqueChecker.check(systemPermission);
         Assert.isTrue(systemPermissionService.update(updateWrapper), "保存失败");
-        // 更新缓存
-        systemPermissionCache.updateRamAndRedis();
-        // 刷新 redis 中的登录用户信息
-        systemManagerService.refreshLoginInfoByPermission(permissionId);
+        eventPublisher.publishEvent(new PermissionChangedEvent(this));
 
         return RetBuilder.success();
     }

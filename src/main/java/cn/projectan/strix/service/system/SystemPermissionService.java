@@ -1,14 +1,13 @@
 package cn.projectan.strix.service.system;
 
-import cn.projectan.strix.core.cache.system.SystemMenuCache;
-import cn.projectan.strix.core.cache.system.SystemPermissionCache;
 import cn.projectan.strix.mapper.system.SystemPermissionMapper;
 import cn.projectan.strix.model.db.system.SystemPermission;
 import cn.projectan.strix.model.db.system.SystemRolePermission;
+import cn.projectan.strix.model.event.cache.PermissionChangedEvent;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Lazy;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -31,10 +30,7 @@ import java.util.List;
 public class SystemPermissionService extends ServiceImpl<SystemPermissionMapper, SystemPermission> {
 
     private final SystemRolePermissionService systemRolePermissionService;
-    @Lazy
-    private final SystemMenuCache systemMenuCache;
-    @Lazy
-    private final SystemPermissionCache systemPermissionCache;
+    private final ApplicationEventPublisher eventPublisher;
 
     /**
      * 查询全部权限（按创建时间升序）
@@ -80,9 +76,8 @@ public class SystemPermissionService extends ServiceImpl<SystemPermissionMapper,
                 .in(SystemRolePermission::getSystemPermissionId, permissionIdList)
                 .remove();
 
-        // 更新缓存
-        systemMenuCache.updateRamAndRedis();
-        systemPermissionCache.updateRamAndRedis();
+        // 发布权限变更事件
+        eventPublisher.publishEvent(new PermissionChangedEvent(this));
     }
 
 }

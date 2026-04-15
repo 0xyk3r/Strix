@@ -15,6 +15,11 @@ public final class RolePermissionChangedEvent extends CacheInvalidationEvent {
 
     private final String roleId;
 
+    public RolePermissionChangedEvent(Object source, String roleId) {
+        super(source);
+        this.roleId = roleId;
+    }
+
     public RolePermissionChangedEvent(Object source, String instanceId, String roleId) {
         super(source, instanceId);
         this.roleId = roleId;

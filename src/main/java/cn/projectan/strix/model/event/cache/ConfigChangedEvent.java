@@ -15,6 +15,11 @@ public final class ConfigChangedEvent extends CacheInvalidationEvent {
 
     private final String configKey;
 
+    public ConfigChangedEvent(Object source, String configKey) {
+        super(source);
+        this.configKey = configKey;
+    }
+
     public ConfigChangedEvent(Object source, String instanceId, String configKey) {
         super(source, instanceId);
         this.configKey = configKey;

@@ -33,6 +33,10 @@ public abstract sealed class CacheInvalidationEvent extends ApplicationEvent
         this(source, instanceId, false);
     }
 
+    protected CacheInvalidationEvent(Object source) {
+        this(source, null, false);
+    }
+
     /** 返回事件类型名称, 用于 Pub/Sub 序列化 */
     public abstract String getEventType();
 }

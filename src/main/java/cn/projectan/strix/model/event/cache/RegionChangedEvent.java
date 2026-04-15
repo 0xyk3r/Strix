@@ -17,6 +17,11 @@ public final class RegionChangedEvent extends CacheInvalidationEvent {
 
     private final List<String> regionIds;
 
+    public RegionChangedEvent(Object source, List<String> regionIds) {
+        super(source);
+        this.regionIds = regionIds;
+    }
+
     public RegionChangedEvent(Object source, String instanceId, List<String> regionIds) {
         super(source, instanceId);
         this.regionIds = regionIds;

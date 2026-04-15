@@ -14,6 +14,10 @@ public final class PermissionChangedEvent extends CacheInvalidationEvent {
         super(source, instanceId);
     }
 
+    public PermissionChangedEvent(Object source) {
+        super(source);
+    }
+
     public PermissionChangedEvent(Object source, String instanceId, boolean remote) {
         super(source, instanceId, remote);
     }

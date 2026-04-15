@@ -2,12 +2,14 @@ package cn.projectan.strix.service.system;
 
 import cn.projectan.strix.mapper.system.SystemRoleMapper;
 import cn.projectan.strix.model.db.system.*;
+import cn.projectan.strix.model.event.cache.RoleChangedEvent;
 import cn.projectan.strix.model.response.common.CommonSelectDataResp;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,6 +37,7 @@ public class SystemRoleService extends ServiceImpl<SystemRoleMapper, SystemRole>
     private final SystemPermissionService systemPermissionService;
     private final SystemRolePermissionService systemRolePermissionService;
     private final SystemManagerRoleService systemManagerRoleService;
+    private final ApplicationEventPublisher eventPublisher;
 
     /**
      * 查询全部角色（按创建时间升序）
@@ -162,6 +165,8 @@ public class SystemRoleService extends ServiceImpl<SystemRoleMapper, SystemRole>
         systemRolePermissionService.lambdaUpdate()
                 .eq(SystemRolePermission::getSystemRoleId, roleId)
                 .remove();
+
+        eventPublisher.publishEvent(new RoleChangedEvent(this, roleId));
     }
 
 }

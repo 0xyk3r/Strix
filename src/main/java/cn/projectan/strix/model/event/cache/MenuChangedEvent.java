@@ -14,6 +14,10 @@ public final class MenuChangedEvent extends CacheInvalidationEvent {
         super(source, instanceId);
     }
 
+    public MenuChangedEvent(Object source) {
+        super(source);
+    }
+
     public MenuChangedEvent(Object source, String instanceId, boolean remote) {
         super(source, instanceId, remote);
     }

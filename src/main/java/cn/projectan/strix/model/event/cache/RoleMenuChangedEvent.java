@@ -15,6 +15,11 @@ public final class RoleMenuChangedEvent extends CacheInvalidationEvent {
 
     private final String roleId;
 
+    public RoleMenuChangedEvent(Object source, String roleId) {
+        super(source);
+        this.roleId = roleId;
+    }
+
     public RoleMenuChangedEvent(Object source, String instanceId, String roleId) {
         super(source, instanceId);
         this.roleId = roleId;

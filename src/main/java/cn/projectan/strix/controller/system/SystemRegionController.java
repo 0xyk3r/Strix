@@ -1,7 +1,6 @@
 package cn.projectan.strix.controller.system;
 
 import cn.projectan.strix.controller.system.base.BaseSystemController;
-import cn.projectan.strix.core.cache.system.SystemRegionCache;
 import cn.projectan.strix.core.listener.StrixCommonListener;
 import cn.projectan.strix.core.ret.RetBuilder;
 import cn.projectan.strix.core.ret.RetResult;
@@ -17,6 +16,7 @@ import cn.projectan.strix.model.response.common.CommonTreeDataResp;
 import cn.projectan.strix.model.response.system.region.SystemRegionChildrenListResp;
 import cn.projectan.strix.model.response.system.region.SystemRegionListResp;
 import cn.projectan.strix.model.response.system.region.SystemRegionResp;
+import cn.projectan.strix.model.event.cache.RegionChangedEvent;
 import cn.projectan.strix.service.system.SystemManagerService;
 import cn.projectan.strix.service.system.SystemRegionService;
 import cn.projectan.strix.util.common.I18nUtil;
@@ -28,6 +28,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -51,7 +52,7 @@ public class SystemRegionController extends BaseSystemController {
 
     private final SystemRegionService systemRegionService;
     private final SystemManagerService systemManagerService;
-    private final SystemRegionCache systemRegionCache;
+    private final ApplicationEventPublisher eventPublisher;
     private final ObjectProvider<StrixCommonListener> strixCommonListenerProvider;
 
     /**
@@ -134,8 +135,7 @@ public class SystemRegionController extends BaseSystemController {
 
         Assert.isTrue(systemRegionService.updateFullInfo(systemRegion.getId()), "处理信息失败");
 
-        systemRegionCache.refreshRedisCacheById(systemRegion.getId());
-        systemRegionCache.refreshRedisCacheById(systemRegion.getParentId());
+        eventPublisher.publishEvent(new RegionChangedEvent(this, List.of(systemRegion.getId(), systemRegion.getParentId())));
 
         return RetBuilder.success();
     }
@@ -231,12 +231,12 @@ public class SystemRegionController extends BaseSystemController {
         // 删除管理人员的地区权限关系
         systemManagerService.clearRegionId(removeIdList);
 
-        systemRegionCache.refreshRedisCacheById(systemRegion.getParentId());
+        List<String> regionIds = new java.util.ArrayList<>(removeIdList);
+        regionIds.add(systemRegion.getParentId());
+        eventPublisher.publishEvent(new RegionChangedEvent(this, regionIds));
 
         // 循环处理后续工作
         for (String removeId : removeIdList) {
-            systemRegionCache.refreshRedisCacheById(removeId);
-
             strixCommonListenerProvider.ifAvailable(listener -> listener.deleteSystemRegionNotify(removeId));
         }
 

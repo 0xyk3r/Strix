@@ -15,6 +15,11 @@ public final class ManagerPermissionChangedEvent extends CacheInvalidationEvent 
 
     private final String managerId;
 
+    public ManagerPermissionChangedEvent(Object source, String managerId) {
+        super(source);
+        this.managerId = managerId;
+    }
+
     public ManagerPermissionChangedEvent(Object source, String instanceId, String managerId) {
         super(source, instanceId);
         this.managerId = managerId;
