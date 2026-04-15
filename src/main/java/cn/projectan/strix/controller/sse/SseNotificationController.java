@@ -4,6 +4,7 @@ import cn.projectan.strix.controller.BaseController;
 import cn.projectan.strix.core.ss.details.LoginSystemManager;
 import cn.projectan.strix.core.sse.SseSessionManager;
 import cn.projectan.strix.model.annotation.Anonymous;
+import cn.projectan.strix.model.annotation.IgnoreEncryption;
 import cn.projectan.strix.model.constant.system.LoginRedisKeys;
 import cn.projectan.strix.service.system.NotificationReceiverService;
 import cn.projectan.strix.util.common.RedisUtil;
@@ -34,6 +35,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("sse/notification")
 @RequiredArgsConstructor
+@IgnoreEncryption
 @Tag(name = "SSE - 通知推送")
 public class SseNotificationController extends BaseController {
 
