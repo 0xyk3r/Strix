@@ -3,6 +3,7 @@ package cn.projectan.strix.core.ss.filter;
 import cn.projectan.strix.core.ss.details.LoginSystemUser;
 import cn.projectan.strix.core.ss.token.SystemUserAuthenticationToken;
 import cn.projectan.strix.model.constant.system.LoginRedisKeys;
+import cn.projectan.strix.service.system.TokenSessionService;
 import cn.projectan.strix.util.common.RedisUtil;
 import cn.projectan.strix.util.http.TokenUtil;
 import jakarta.annotation.Nonnull;
@@ -31,6 +32,7 @@ import java.util.Collections;
 public class SystemUserAuthenticationTokenFilter extends OncePerRequestFilter {
 
     private final RedisUtil redisUtil;
+    private final TokenSessionService tokenSessionService;
     private final RequestAttributeSecurityContextRepository requestAttributeSecurityContextRepository;
 
     @Override
@@ -57,7 +59,23 @@ public class SystemUserAuthenticationTokenFilter extends OncePerRequestFilter {
         context.setAuthentication(authentication);
         requestAttributeSecurityContextRepository.saveContext(context, request, response);
 
+        // 更新最后活跃时间
+        updateLastActiveTime(loginSystemUser, token);
+
         filterChain.doFilter(request, response);
     }
 
+    private void updateLastActiveTime(LoginSystemUser loginSystemUser, String token) {
+        try {
+            if (loginSystemUser.getSystemUser() == null) {
+                return;
+            }
+            String userId = loginSystemUser.getSystemUser().getId();
+            if (userId == null) {
+                return;
+            }
+            tokenSessionService.updateUserLastActiveTime(userId, token);
+        } catch (Exception ignored) {
+        }
+    }
 }
