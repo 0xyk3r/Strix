@@ -4,6 +4,7 @@ import cn.projectan.strix.mapper.system.SystemLogMapper;
 import cn.projectan.strix.model.db.system.SystemLog;
 import cn.projectan.strix.model.enums.common.NumCategory;
 import cn.projectan.strix.model.request.system.monitor.log.SystemLogListReq;
+import cn.projectan.strix.model.response.system.monitor.dashboard.*;
 import cn.projectan.strix.model.response.system.monitor.log.SystemLogStatsResp;
 import cn.projectan.strix.util.math.NumUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -16,7 +17,12 @@ import org.springframework.util.StringUtils;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -123,6 +129,183 @@ public class SystemLogService extends ServiceImpl<SystemLogMapper, SystemLog> {
                     .remove();
         }
         return count;
+    }
+
+    /**
+     * 获取日趋势数据
+     *
+     * @param days 天数 (最大90)
+     * @return 日趋势列表
+     */
+    public List<DashboardTrendItem> getDashboardTrends(int days) {
+        int safeDays = Math.min(Math.max(days, 1), 90);
+        LocalDateTime start = LocalDateTime.of(LocalDate.now().minusDays(safeDays - 1), LocalTime.MIN);
+
+        List<SystemLog> logs = lambdaQuery()
+                .ge(SystemLog::getOperationTime, start)
+                .select(SystemLog::getOperationTime, SystemLog::getResponseCode,
+                        SystemLog::getOperationSpend, SystemLog::getClientUser)
+                .list();
+
+        Map<LocalDate, List<SystemLog>> grouped = logs.stream()
+                .filter(l -> l != null && l.getOperationTime() != null)
+                .collect(Collectors.groupingBy(l -> l.getOperationTime().toLocalDate()));
+
+        List<DashboardTrendItem> result = new ArrayList<>();
+        for (int i = 0; i < safeDays; i++) {
+            LocalDate date = LocalDate.now().minusDays(safeDays - 1 - i);
+            List<SystemLog> dayLogs = grouped.getOrDefault(date, List.of());
+
+            long total = dayLogs.size();
+            long errors = dayLogs.stream()
+                    .filter(l -> l.getResponseCode() != null && l.getResponseCode() != 200)
+                    .count();
+            long activeUsers = dayLogs.stream()
+                    .map(SystemLog::getClientUser)
+                    .filter(StringUtils::hasText)
+                    .distinct()
+                    .count();
+            long avgResp = Math.round(dayLogs.stream()
+                    .filter(l -> l.getOperationSpend() != null)
+                    .mapToLong(SystemLog::getOperationSpend)
+                    .average()
+                    .orElse(0));
+
+            result.add(new DashboardTrendItem(
+                    date.format(DateTimeFormatter.ISO_LOCAL_DATE),
+                    total, errors, activeUsers, avgResp));
+        }
+        return result;
+    }
+
+    /**
+     * 获取今日小时分布
+     *
+     * @return 24小时操作分布
+     */
+    public List<DashboardHourlyItem> getHourlyDistribution() {
+        LocalDateTime todayStart = LocalDateTime.of(LocalDate.now(), LocalTime.MIN);
+        LocalDateTime todayEnd = LocalDateTime.of(LocalDate.now(), LocalTime.MAX);
+
+        List<SystemLog> logs = lambdaQuery()
+                .ge(SystemLog::getOperationTime, todayStart)
+                .le(SystemLog::getOperationTime, todayEnd)
+                .select(SystemLog::getOperationTime)
+                .list();
+
+        Map<Integer, Long> hourCounts = logs.stream()
+                .filter(l -> l != null && l.getOperationTime() != null)
+                .collect(Collectors.groupingBy(
+                        l -> l.getOperationTime().getHour(),
+                        Collectors.counting()));
+
+        List<DashboardHourlyItem> result = new ArrayList<>();
+        for (int h = 0; h < 24; h++) {
+            result.add(new DashboardHourlyItem(h, hourCounts.getOrDefault(h, 0L)));
+        }
+        return result;
+    }
+
+    /**
+     * 获取用户活跃排名
+     *
+     * @param days  天数
+     * @param limit 排名数量 (最大20)
+     * @return 用户排名列表
+     */
+    public List<DashboardRankItem> getUserRanks(int days, int limit) {
+        int safeDays = Math.min(Math.max(days, 1), 90);
+        int safeLimit = Math.min(Math.max(limit, 1), 20);
+        LocalDateTime start = LocalDateTime.of(LocalDate.now().minusDays(safeDays - 1), LocalTime.MIN);
+
+        List<SystemLog> logs = lambdaQuery()
+                .ge(SystemLog::getOperationTime, start)
+                .isNotNull(SystemLog::getClientUsername)
+                .select(SystemLog::getClientUsername)
+                .list();
+
+        return logs.stream()
+                .filter(Objects::nonNull)
+                .filter(l -> StringUtils.hasText(l.getClientUsername()))
+                .collect(Collectors.groupingBy(SystemLog::getClientUsername, Collectors.counting()))
+                .entrySet().stream()
+                .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
+                .limit(safeLimit)
+                .map(e -> new DashboardRankItem(e.getKey(), e.getValue()))
+                .toList();
+    }
+
+    /**
+     * 获取模块操作排名
+     *
+     * @param days  天数
+     * @param limit 排名数量 (最大20)
+     * @return 模块排名列表
+     */
+    public List<DashboardRankItem> getModuleRanks(int days, int limit) {
+        int safeDays = Math.min(Math.max(days, 1), 90);
+        int safeLimit = Math.min(Math.max(limit, 1), 20);
+        LocalDateTime start = LocalDateTime.of(LocalDate.now().minusDays(safeDays - 1), LocalTime.MIN);
+
+        List<SystemLog> logs = lambdaQuery()
+                .ge(SystemLog::getOperationTime, start)
+                .isNotNull(SystemLog::getOperationGroup)
+                .select(SystemLog::getOperationGroup)
+                .list();
+
+        return logs.stream()
+                .filter(Objects::nonNull)
+                .filter(l -> StringUtils.hasText(l.getOperationGroup()))
+                .collect(Collectors.groupingBy(SystemLog::getOperationGroup, Collectors.counting()))
+                .entrySet().stream()
+                .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
+                .limit(safeLimit)
+                .map(e -> new DashboardRankItem(e.getKey(), e.getValue()))
+                .toList();
+    }
+
+    /**
+     * 获取最近操作
+     *
+     * @param limit 数量 (最大50)
+     * @return 最近操作列表
+     */
+    public List<DashboardRecentItem> getRecentActivities(int limit) {
+        int safeLimit = Math.min(Math.max(limit, 1), 50);
+
+        return lambdaQuery()
+                .orderByDesc(SystemLog::getOperationTime)
+                .select(SystemLog::getClientUsername, SystemLog::getOperationName,
+                        SystemLog::getOperationGroup, SystemLog::getOperationTime,
+                        SystemLog::getResponseCode, SystemLog::getOperationSpend)
+                .last("LIMIT " + safeLimit)
+                .list()
+                .stream()
+                .filter(Objects::nonNull)
+                .map(l -> new DashboardRecentItem(
+                        l.getClientUsername(), l.getOperationName(),
+                        l.getOperationGroup(), l.getOperationTime(),
+                        l.getResponseCode(), l.getOperationSpend()))
+                .toList();
+    }
+
+    /**
+     * 获取仪表板概览（聚合所有数据）
+     *
+     * @param days        趋势天数
+     * @param rankLimit   排名数量
+     * @param recentLimit 最近操作数量
+     * @return 概览数据
+     */
+    public DashboardOverviewResp getOverview(int days, int rankLimit, int recentLimit) {
+        return new DashboardOverviewResp(
+                getTodayStats(),
+                getDashboardTrends(days),
+                getHourlyDistribution(),
+                getUserRanks(days, rankLimit),
+                getModuleRanks(days, rankLimit),
+                getRecentActivities(recentLimit)
+        );
     }
 
 }
