@@ -2,18 +2,19 @@ package cn.projectan.strix.core.cache.system;
 
 import cn.projectan.strix.model.db.system.SystemConfig;
 import cn.projectan.strix.service.system.SystemConfigService;
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
 /**
  * 系统设置缓存
+ * <p>
+ * 使用 Spring @Cacheable 替代 ConcurrentHashMap, 缓存 TTL 由 RedisConfig 统一管理 (1h).
+ * 缓存失效通过 ConfigChangedEvent → CacheEvictionService 触发.
  *
  * @author ProjectAn
  * @since 2021/5/13 14:18
@@ -25,36 +26,21 @@ public class SystemConfigCache {
 
     private final SystemConfigService systemConfigService;
 
-    private final Map<String, String> instance = new ConcurrentHashMap<>();
-
-    @PostConstruct
-    private void init() {
-        List<SystemConfig> systemConfigList = systemConfigService.list();
-        systemConfigList.forEach(ss -> instance.put(ss.getKey(), ss.getValue()));
-        log.info("Strix Cache: 系统配置项加载完成, 加载了 {} 个配置项.", systemConfigList.size());
-    }
-
     /**
-     * 更新缓存
+     * 获取配置值 (Redis 缓存, TTL 1h)
      *
-     * @param key key
+     * @param key 配置键
+     * @return 配置值, 不存在返回 null
      */
-    public void update(String key) {
-        SystemConfig systemConfig = systemConfigService.getByKey(key);
-        if (systemConfig != null) {
-            instance.put(key, systemConfig.getValue());
-        } else {
-            instance.remove(key);
-        }
-    }
-
+    @Cacheable(value = "strix:config", key = "#key", unless = "#result == null")
     public String get(String key) {
-        return instance.get(key);
+        SystemConfig config = systemConfigService.getByKey(key);
+        return config != null ? config.getValue() : null;
     }
 
     public String get(String key, String defaultValue) {
-        return instance.getOrDefault(key, defaultValue);
-
+        String value = get(key);
+        return value != null ? value : defaultValue;
     }
 
     private <T> T get(String key, Function<String, T> parser, T defaultValue) {
@@ -85,4 +71,11 @@ public class SystemConfigCache {
         return get(key, Long::parseLong, defaultValue);
     }
 
+    /**
+     * 清除指定配置项缓存 (由 CacheEvictionService 调用)
+     */
+    @CacheEvict(value = "strix:config", key = "#key")
+    public void evict(String key) {
+        log.debug("配置缓存已清除: key={}", key);
+    }
 }

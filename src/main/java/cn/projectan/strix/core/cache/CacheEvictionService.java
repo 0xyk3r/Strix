@@ -59,14 +59,14 @@ public class CacheEvictionService {
 
     // ======================== Config Cache ========================
 
-    @CacheEvict(value = "strix:system:config", key = "#configKey")
+    @CacheEvict(value = "strix:config", key = "#configKey")
     public void evictConfigCache(String configKey) {
-        log.debug("缓存清除: strix:system:config, key={}", configKey);
+        log.debug("缓存清除: strix:config, key={}", configKey);
     }
 
-    @CacheEvict(value = "strix:system:config", allEntries = true)
+    @CacheEvict(value = "strix:config", allEntries = true)
     public void evictAllConfigCache() {
-        log.debug("缓存清除: strix:system:config (all)");
+        log.debug("缓存清除: strix:config (all)");
     }
 
     // ======================== Region Cache ========================

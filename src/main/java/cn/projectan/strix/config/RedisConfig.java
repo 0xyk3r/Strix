@@ -89,7 +89,7 @@ public class RedisConfig {
         redisCacheConfigurationMap.put("menu_by_mid", getRedisCacheConfigurationWithTtl(60 * 60 * 24));
         redisCacheConfigurationMap.put("permission_by_mid", getRedisCacheConfigurationWithTtl(60 * 60 * 24));
         // 系统配置: 1 小时 (中频变更)
-        redisCacheConfigurationMap.put("strix:system:config", getRedisCacheConfigurationWithTtl(60 * 60));
+        redisCacheConfigurationMap.put("strix:config", getRedisCacheConfigurationWithTtl(60 * 60));
         // 地区: 7 天 (低频变更)
         redisCacheConfigurationMap.put("strix:region_by_id", getRedisCacheConfigurationWithTtl(60 * 60 * 24 * 7));
         redisCacheConfigurationMap.put("strix:region_children", getRedisCacheConfigurationWithTtl(60 * 60 * 24 * 7));
