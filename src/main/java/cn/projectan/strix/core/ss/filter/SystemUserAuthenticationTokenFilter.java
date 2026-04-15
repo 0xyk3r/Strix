@@ -43,7 +43,7 @@ public class SystemUserAuthenticationTokenFilter extends OncePerRequestFilter {
         }
 
         // 从redis中获取用户信息
-        Object loginInfo = redisUtil.get(LoginRedisKeys.LOGIN_USER_TOKEN_TO_USER_INFO_PREFIX + token);
+        Object loginInfo = redisUtil.get(LoginRedisKeys.USER_TOKEN_PREFIX + token);
         if (!(loginInfo instanceof LoginSystemUser loginSystemUser)) {
             filterChain.doFilter(request, response);
             return;

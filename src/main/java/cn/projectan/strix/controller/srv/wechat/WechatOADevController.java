@@ -6,6 +6,7 @@ import cn.projectan.strix.core.ss.details.LoginSystemUser;
 import cn.projectan.strix.model.annotation.Anonymous;
 import cn.projectan.strix.model.annotation.IgnoreEncryption;
 import cn.projectan.strix.model.db.system.SystemUser;
+import cn.projectan.strix.model.response.system.monitor.session.SessionMeta;
 import cn.projectan.strix.service.system.SystemUserService;
 import cn.projectan.strix.service.system.TokenSessionService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 
 /**
  * 微信公众号本地开发调试控制器
@@ -53,7 +55,8 @@ public class WechatOADevController extends BaseWechatController {
         long tokenTTL = systemConfigCache.getLong("SYSTEM_USER_LOGIN_EFFECTIVE_TIME", 1440L);
 
         tokenSessionService.invalidateUserSession(systemUser.getId());
-        String token = tokenSessionService.createUserSession(systemUser.getId(), loginInfo, tokenTTL);
+        String token = tokenSessionService.createUserSession(systemUser.getId(), loginInfo, tokenTTL,
+                new SessionMeta(LocalDateTime.now(), "", "dev", "", LocalDateTime.now()));
 
         response.sendRedirect("http://localhost:8080/?token=" + token + "&cfid=" + configKey);
     }

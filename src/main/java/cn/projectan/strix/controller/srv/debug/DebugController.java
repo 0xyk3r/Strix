@@ -7,6 +7,7 @@ import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.core.ss.details.LoginSystemUser;
 import cn.projectan.strix.model.db.system.SystemUser;
 import cn.projectan.strix.model.response.system.login.SystemUserLoginResp;
+import cn.projectan.strix.model.response.system.monitor.session.SessionMeta;
 import cn.projectan.strix.service.system.SystemUserService;
 import cn.projectan.strix.service.system.TokenSessionService;
 import cn.projectan.strix.util.common.I18nUtil;
@@ -61,7 +62,8 @@ public class DebugController extends BaseSrvController {
         }
 
         // 创建新 token
-        String token = tokenSessionService.createUserSession(systemUser.getId(), loginInfo, tokenTTL);
+        String token = tokenSessionService.createUserSession(systemUser.getId(), loginInfo, tokenTTL,
+                new SessionMeta(LocalDateTime.now(), "", "", "", LocalDateTime.now()));
 
         return RetBuilder.success(
                 new SystemUserLoginResp(

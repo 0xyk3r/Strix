@@ -43,7 +43,7 @@ public class ChatWebSocketHandshakeInterceptor implements HandshakeInterceptor {
         }
 
         // 从 Redis 验证 token
-        String redisKey = LoginRedisKeys.LOGIN_USER_TOKEN_TO_USER_INFO_PREFIX + token;
+        String redisKey = LoginRedisKeys.USER_TOKEN_PREFIX + token;
         LoginSystemUser user = (LoginSystemUser) redisTemplate.opsForValue().get(redisKey);
 
         if (user == null || user.getSystemUser() == null) {
