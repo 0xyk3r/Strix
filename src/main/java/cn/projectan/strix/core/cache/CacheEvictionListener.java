@@ -1,5 +1,6 @@
 package cn.projectan.strix.core.cache;
 
+import cn.projectan.strix.core.sse.SseSessionManager;
 import cn.projectan.strix.model.event.cache.*;
 import cn.projectan.strix.service.system.SystemManagerService;
 import lombok.RequiredArgsConstructor;
@@ -8,11 +9,15 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
+import java.util.Map;
+
 /**
  * 缓存失效事件监听器
  * <p>
  * 监听所有 CacheInvalidationEvent 子类, 调用 CacheEvictionService 清除缓存,
  * 并级联刷新 LoginInfo. 同时通过 CacheInvalidationBroadcaster 广播到其他实例.
+ * <p>
+ * 权限相关变更完成后, 通过 SSE 广播 auth:refresh 事件通知前端刷新权限.
  * <p>
  * 使用 @TransactionalEventListener(AFTER_COMMIT) 确保数据已提交后再清除缓存.
  * fallbackExecution=true 确保非事务上下文 (如直接 save/update) 也能触发.
@@ -28,6 +33,7 @@ public class CacheEvictionListener {
     private final CacheEvictionService cacheEvictionService;
     private final SystemManagerService systemManagerService;
     private final CacheInvalidationBroadcaster broadcaster;
+    private final SseSessionManager sseSessionManager;
 
     /**
      * 菜单变更 → 清除所有角色菜单缓存 + 所有管理员菜单缓存 + 刷新所有在线管理员 LoginInfo
@@ -38,6 +44,7 @@ public class CacheEvictionListener {
         cacheEvictionService.evictAllRoleMenuCache();
         cacheEvictionService.evictAllManagerMenuCache();
         systemManagerService.refreshLoginInfoForAllOnlineManagers();
+        broadcastAuthRefresh("menu_changed");
         broadcastIfLocal(event);
     }
 
@@ -50,6 +57,7 @@ public class CacheEvictionListener {
         cacheEvictionService.evictAllRolePermissionCache();
         cacheEvictionService.evictAllManagerPermissionCache();
         systemManagerService.refreshLoginInfoForAllOnlineManagers();
+        broadcastAuthRefresh("permission_changed");
         broadcastIfLocal(event);
     }
 
@@ -61,6 +69,7 @@ public class CacheEvictionListener {
         log.info("处理角色变更事件, roleId={}, remote={}", event.getRoleId(), event.isRemote());
         cacheEvictionService.evictRoleSelectCache();
         systemManagerService.refreshLoginInfoByRole(event.getRoleId());
+        broadcastAuthRefresh("role_changed");
         broadcastIfLocal(event);
     }
 
@@ -73,6 +82,7 @@ public class CacheEvictionListener {
         cacheEvictionService.evictRoleMenuCache(event.getRoleId());
         cacheEvictionService.evictAllManagerMenuCache();
         systemManagerService.refreshLoginInfoByRole(event.getRoleId());
+        broadcastAuthRefresh("role_menu_changed");
         broadcastIfLocal(event);
     }
 
@@ -85,6 +95,7 @@ public class CacheEvictionListener {
         cacheEvictionService.evictRolePermissionCache(event.getRoleId());
         cacheEvictionService.evictAllManagerPermissionCache();
         systemManagerService.refreshLoginInfoByRole(event.getRoleId());
+        broadcastAuthRefresh("role_permission_changed");
         broadcastIfLocal(event);
     }
 
@@ -96,6 +107,7 @@ public class CacheEvictionListener {
     public void onManagerPermissionChanged(ManagerPermissionChangedEvent event) {
         log.info("处理管理员权限变更事件, managerId={}, remote={}", event.getManagerId(), event.isRemote());
         systemManagerService.refreshLoginInfoByManager(event.getManagerId());
+        broadcastAuthRefresh("manager_permission_changed");
         broadcastIfLocal(event);
     }
 
@@ -123,6 +135,14 @@ public class CacheEvictionListener {
             }
         }
         broadcastIfLocal(event);
+    }
+
+    /**
+     * 通过 SSE 广播 auth:refresh 事件, 通知所有已连接的前端刷新权限
+     */
+    private void broadcastAuthRefresh(String reason) {
+        sseSessionManager.broadcast("auth:refresh", Map.of("reason", reason));
+        log.debug("SSE 广播 auth:refresh, reason={}", reason);
     }
 
     private void broadcastIfLocal(CacheInvalidationEvent event) {

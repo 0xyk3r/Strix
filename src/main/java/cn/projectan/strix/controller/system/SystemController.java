@@ -23,6 +23,7 @@ import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -75,6 +76,30 @@ public class SystemController extends BaseSystemController {
         Assert.notEmpty(systemMenus, I18nUtil.get("assert.menu.noAvailablePermission"));
 
         return RetBuilder.success(new SystemMenuResp(systemMenus));
+    }
+
+    /**
+     * 获取当前登录管理员信息 (含最新权限)
+     * <p>
+     * 安全过滤器每次请求都从 Redis 读取 LoginSystemManager, 因此在后台刷新 LoginInfo 后,
+     * 本接口返回的 permissionKeys 始终是最新的.
+     */
+    @Operation(summary = "获取当前管理员信息")
+    @GetMapping("current-info")
+    public RetResult<SystemManagerLoginResp.LoginManagerInfo> currentInfo() {
+        LoginSystemManager lsm = SecurityUtil.getSystemManagerLoginInfo();
+        Assert.notNull(lsm, I18nUtil.get("assert.auth.notLogin"));
+
+        var sm = lsm.getSystemManager();
+        List<String> permissionKeys = new ArrayList<>();
+        permissionKeys.addAll(lsm.getMenusKeys());
+        permissionKeys.addAll(lsm.getPermissionKeys());
+
+        return RetBuilder.success(
+                new SystemManagerLoginResp.LoginManagerInfo(
+                        sm.getId(), sm.getNickname(), sm.getType(), sm.getRegionId(), permissionKeys
+                )
+        );
     }
 
 }
