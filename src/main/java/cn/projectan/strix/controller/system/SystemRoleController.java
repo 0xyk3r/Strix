@@ -1,8 +1,6 @@
 package cn.projectan.strix.controller.system;
 
 import cn.projectan.strix.controller.system.base.BaseSystemController;
-import cn.projectan.strix.core.cache.system.SystemMenuCache;
-import cn.projectan.strix.core.cache.system.SystemPermissionCache;
 import cn.projectan.strix.core.ret.RetBuilder;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.core.validation.group.InsertGroup;
@@ -11,6 +9,9 @@ import cn.projectan.strix.model.annotation.StrixLog;
 import cn.projectan.strix.model.db.system.*;
 import cn.projectan.strix.model.dict.common.CommonFlag;
 import cn.projectan.strix.model.dict.system.SystemLogOperType;
+import cn.projectan.strix.model.event.cache.RoleChangedEvent;
+import cn.projectan.strix.model.event.cache.RoleMenuChangedEvent;
+import cn.projectan.strix.model.event.cache.RolePermissionChangedEvent;
 import cn.projectan.strix.model.request.common.BatchRemoveReq;
 import cn.projectan.strix.model.request.system.role.SystemRoleUpdateMenuReq;
 import cn.projectan.strix.model.request.system.role.SystemRoleUpdateReq;
@@ -31,6 +32,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
@@ -57,9 +59,8 @@ public class SystemRoleController extends BaseSystemController {
     private final SystemRoleMenuService systemRoleMenuService;
     private final SystemManagerRoleService systemManagerRoleService;
     private final SystemRolePermissionService systemRolePermissionService;
-    private final SystemManagerService systemManagerService;
-    private final SystemMenuCache systemMenuCache;
-    private final SystemPermissionCache systemPermissionCache;
+    private final SystemMenuService systemMenuService;
+    private final ApplicationEventPublisher eventPublisher;
 
     /**
      * 查询角色列表
@@ -128,8 +129,7 @@ public class SystemRoleController extends BaseSystemController {
         UniqueChecker.check(systemRole);
         Assert.isTrue(systemRoleService.update(updateWrapper), "保存失败");
 
-        // 刷新 redis 中的登录用户信息
-        systemManagerService.refreshLoginInfoByRole(roleId);
+        eventPublisher.publishEvent(new RoleChangedEvent(this, roleId));
 
         return RetBuilder.success();
     }
@@ -161,8 +161,7 @@ public class SystemRoleController extends BaseSystemController {
                     Assert.isTrue(systemRoleMenuService.saveBatch(systemRoleMenuList), "增加该角色的菜单权限失败");
                 },
                 () -> {
-                    // 刷新 redis 缓存
-                    systemMenuCache.updateRedisBySystemRoleId(roleId);
+                    eventPublisher.publishEvent(new RoleMenuChangedEvent(this, roleId));
                 }
         );
         // 修改角色的系统权限
@@ -180,13 +179,9 @@ public class SystemRoleController extends BaseSystemController {
                     Assert.isTrue(systemRolePermissionService.saveBatch(systemRolePermissionList), "增加该角色的菜单权限失败");
                 },
                 () -> {
-                    // 刷新 redis 缓存
-                    systemPermissionCache.updateRedisBySystemRoleId(roleId);
+                    eventPublisher.publishEvent(new RolePermissionChangedEvent(this, roleId));
                 }
         );
-
-        // 刷新 redis 中的登录用户信息
-        systemManagerService.refreshLoginInfoByRole(roleId);
 
         // 获取最新的权限信息
         return RetBuilder.success(buildRoleResp(systemRole, roleId));
@@ -247,15 +242,12 @@ public class SystemRoleController extends BaseSystemController {
         Assert.notNull(systemRole, I18nUtil.notFound("field.systemRole"));
         Assert.isTrue(systemRole.getBuiltin() == CommonFlag.NO, I18nUtil.get("assert.role.builtinNoModify"));
 
-        // 查询该菜单和其子菜单的id注意此处使用了ram缓存
-        List<String> menuAndChildrenMenu = systemMenuCache.getIdListByParentMenu(menuId);
+        // 查询该菜单和其子菜单的ID
+        List<String> menuAndChildrenMenu = systemMenuService.getMenuAndChildrenIds(menuId);
 
         systemRoleMenuService.deleteByRoleIdAndMenuIds(roleId, menuAndChildrenMenu);
 
-        // 刷新redis缓存
-        systemMenuCache.updateRedisBySystemRoleId(roleId);
-        // 刷新 redis 中的登录用户信息
-        systemManagerService.refreshLoginInfoByRole(roleId);
+        eventPublisher.publishEvent(new RoleMenuChangedEvent(this, roleId));
 
         // 返回移除后的最新关系信息
         return RetBuilder.success(buildRoleResp(systemRole, roleId));
@@ -278,10 +270,7 @@ public class SystemRoleController extends BaseSystemController {
 
         systemRolePermissionService.deleteByRoleIdAndPermissionId(roleId, permissionId);
 
-        // 刷新redis缓存
-        systemPermissionCache.updateRedisBySystemRoleId(roleId);
-        // 刷新 redis 中的登录用户信息
-        systemManagerService.refreshLoginInfoByRole(roleId);
+        eventPublisher.publishEvent(new RolePermissionChangedEvent(this, roleId));
 
         // 返回移除后的最新关系信息
         return RetBuilder.success(buildRoleResp(systemRole, roleId));

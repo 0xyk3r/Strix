@@ -14,6 +14,7 @@ import cn.projectan.strix.model.dict.system.SystemLogOperType;
 import cn.projectan.strix.model.dict.system.SystemManagerStatus;
 import cn.projectan.strix.model.dict.system.SystemManagerType;
 import cn.projectan.strix.model.enums.common.DuplicateStrategy;
+import cn.projectan.strix.model.event.cache.ManagerPermissionChangedEvent;
 import cn.projectan.strix.model.request.common.BatchImportReq;
 import cn.projectan.strix.model.request.common.BatchModifyReq;
 import cn.projectan.strix.model.request.common.BatchRemoveReq;
@@ -43,6 +44,7 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
@@ -71,6 +73,7 @@ public class SystemManagerController extends BaseSystemController {
     private final SystemManagerRoleService systemManagerRoleService;
     private final TokenSessionService tokenSessionService;
     private final Validator validator;
+    private final ApplicationEventPublisher eventPublisher;
 
     /**
      * 查询人员列表
@@ -162,8 +165,8 @@ public class SystemManagerController extends BaseSystemController {
                             Assert.isTrue(systemManagerRoleService.saveBatch(systemManagerRoleList), "增加该角色的菜单权限失败");
                         },
                         () -> {
-                            // 刷新redis缓存和会话
-                            systemManagerService.refreshLoginInfoByManager(managerId);
+                            // 发布管理员权限变更事件
+                            eventPublisher.publishEvent(new ManagerPermissionChangedEvent(this, managerId));
                             needReturnNewData.set(true);
                         }
                 );
@@ -232,7 +235,7 @@ public class SystemManagerController extends BaseSystemController {
         UniqueChecker.check(systemManager);
         Assert.isTrue(systemManagerService.update(updateWrapper), "保存失败");
 
-        systemManagerService.refreshLoginInfoByManager(managerId);
+        eventPublisher.publishEvent(new ManagerPermissionChangedEvent(this, managerId));
 
         return RetBuilder.success();
     }

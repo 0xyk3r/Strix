@@ -1,5 +1,7 @@
 package cn.projectan.strix.config;
 
+import cn.projectan.strix.core.cache.CacheInvalidationBroadcaster;
+import cn.projectan.strix.core.cache.CacheInvalidationSubscriber;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
@@ -12,6 +14,8 @@ import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.listener.ChannelTopic;
+import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.serializer.JacksonJsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
@@ -59,12 +63,12 @@ public class RedisConfig {
     /**
      * 配置使用 @Cacheable 注解的序列化方式
      * <p>默认是 JDK 序列化, 加上此配置则为 JSON 序列化
-     * <p>默认缓存时长为30天
+     * <p>默认缓存时长为1天
      */
     @Bean
     public CacheManager cacheManager(RedisConnectionFactory factory) {
         return RedisCacheManager.builder(factory)
-                .cacheDefaults(getRedisCacheConfigurationWithTtl(60 * 60 * 24 * 30))
+                .cacheDefaults(getRedisCacheConfigurationWithTtl(60 * 60 * 24))
                 .withInitialCacheConfigurations(getRedisCacheConfigurationMap())
                 .build();
     }
@@ -75,10 +79,20 @@ public class RedisConfig {
      */
     private Map<String, RedisCacheConfiguration> getRedisCacheConfigurationMap() {
         Map<String, RedisCacheConfiguration> redisCacheConfigurationMap = new HashMap<>();
-//        redisCacheConfigurationMap.put("strix:system:manager:permission_by_mid:*", this.getRedisCacheConfigurationWithTtl(60 * 60 * 24));
-//        redisCacheConfigurationMap.put("strix:system:manager:menu_by_mid:*", this.getRedisCacheConfigurationWithTtl(60 * 60 * 24));
-//        redisCacheConfigurationMap.put("strix:system:role:menu_by_rid:*", this.getRedisCacheConfigurationWithTtl(60 * 60 * 24));
-//        redisCacheConfigurationMap.put("strix:system:role:permission_by_rid:*", this.getRedisCacheConfigurationWithTtl(60 * 60 * 24));
+        // 字典: 7 天 (低频变更)
+        redisCacheConfigurationMap.put("dict_data", getRedisCacheConfigurationWithTtl(60 * 60 * 24 * 7));
+        redisCacheConfigurationMap.put("dict_version", getRedisCacheConfigurationWithTtl(60 * 60 * 24 * 7));
+        // 认证/菜单/权限/角色: 1 天 (默认)
+        redisCacheConfigurationMap.put("select_data", getRedisCacheConfigurationWithTtl(60 * 60 * 24));
+        redisCacheConfigurationMap.put("menu_by_rid", getRedisCacheConfigurationWithTtl(60 * 60 * 24));
+        redisCacheConfigurationMap.put("permission_by_rid", getRedisCacheConfigurationWithTtl(60 * 60 * 24));
+        redisCacheConfigurationMap.put("menu_by_mid", getRedisCacheConfigurationWithTtl(60 * 60 * 24));
+        redisCacheConfigurationMap.put("permission_by_mid", getRedisCacheConfigurationWithTtl(60 * 60 * 24));
+        // 系统配置: 1 小时 (中频变更)
+        redisCacheConfigurationMap.put("strix:config", getRedisCacheConfigurationWithTtl(60 * 60));
+        // 地区: 7 天 (低频变更)
+        redisCacheConfigurationMap.put("strix:region_by_id", getRedisCacheConfigurationWithTtl(60 * 60 * 24 * 7));
+        redisCacheConfigurationMap.put("strix:region_children", getRedisCacheConfigurationWithTtl(60 * 60 * 24 * 7));
 
         return redisCacheConfigurationMap;
     }
@@ -125,6 +139,20 @@ public class RedisConfig {
                 .build();
 
         return new JacksonJsonRedisSerializer<>(objectMapper, Object.class);
+    }
+
+    /**
+     * Redis Pub/Sub 消息监听容器
+     * 用于缓存失效广播的订阅
+     */
+    @Bean
+    public RedisMessageListenerContainer redisMessageListenerContainer(
+            RedisConnectionFactory redisConnectionFactory,
+            CacheInvalidationSubscriber subscriber) {
+        RedisMessageListenerContainer container = new RedisMessageListenerContainer();
+        container.setConnectionFactory(redisConnectionFactory);
+        container.addMessageListener(subscriber, new ChannelTopic(CacheInvalidationBroadcaster.CHANNEL));
+        return container;
     }
 
 }

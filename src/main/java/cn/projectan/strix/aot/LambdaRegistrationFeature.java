@@ -3,7 +3,6 @@ package cn.projectan.strix.aot;
 
 import cn.hutool.core.util.ClassUtil;
 import cn.projectan.strix.StrixApplication;
-import cn.projectan.strix.core.cache.system.SystemMenuCache;
 import cn.projectan.strix.initializer.system.StrixDictSyncInitializer;
 import cn.projectan.strix.initializer.system.StrixSecurityRuleInitializer;
 import cn.projectan.strix.service.system.PopularityService;
@@ -44,7 +43,6 @@ public class LambdaRegistrationFeature implements Feature {
         // 在此补充其他使用了 Lambda 表达式的类
         RuntimeSerialization.registerLambdaCapturingClass(StrixDictSyncInitializer.class);
         RuntimeSerialization.registerLambdaCapturingClass(StrixSecurityRuleInitializer.class);
-        RuntimeSerialization.registerLambdaCapturingClass(SystemMenuCache.class);
         RuntimeSerialization.registerLambdaCapturingClass(PopularityService.class);
         RuntimeSerialization.registerLambdaCapturingClass(StrixOAuthPushTask.class);
     }

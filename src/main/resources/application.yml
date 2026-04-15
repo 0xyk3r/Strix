@@ -59,6 +59,7 @@ mybatis-plus:
     call-setters-on-nulls: true
 # strix
 strix:
+  instance-id: ${random.uuid}
   # strix 模块开关
   module:
     sms: true

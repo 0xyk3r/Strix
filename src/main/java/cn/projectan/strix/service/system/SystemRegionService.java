@@ -1,8 +1,8 @@
 package cn.projectan.strix.service.system;
 
-import cn.projectan.strix.core.cache.system.SystemRegionCache;
 import cn.projectan.strix.mapper.system.SystemRegionMapper;
 import cn.projectan.strix.model.db.system.SystemRegion;
+import cn.projectan.strix.model.event.cache.RegionChangedEvent;
 import cn.projectan.strix.model.request.system.region.SystemRegionListReq;
 import cn.projectan.strix.service.base.NameFetcherService;
 import cn.projectan.strix.util.common.I18nUtil;
@@ -12,6 +12,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -39,7 +40,7 @@ public class SystemRegionService extends ServiceImpl<SystemRegionMapper, SystemR
     public static final String PATH_SEPARATOR = ",";
     public static final String NAME_SEPARATOR = "-";
 
-    private final SystemRegionCache systemRegionCache;
+    private final ApplicationEventPublisher eventPublisher;
 
     /**
      * 获取系统地区 （带缓存）
@@ -153,7 +154,7 @@ public class SystemRegionService extends ServiceImpl<SystemRegionMapper, SystemR
         Assert.isTrue(updateBatchById(relevantRegions), "保存系统地区相关信息失败");
 
         // 刷新缓存
-        refreshRelevantRegionCache(systemRegion, relevantRegions);
+        publishRegionChangedEvent(systemRegion, relevantRegions);
     }
 
     /**
@@ -222,7 +223,7 @@ public class SystemRegionService extends ServiceImpl<SystemRegionMapper, SystemR
         if (!ROOT_PARENT_ID.equals(newParentId)) {
             cacheIds.add(newParentId);
         }
-        cacheIds.forEach(systemRegionCache::refreshRedisCacheById);
+        cacheIds.forEach(id -> eventPublisher.publishEvent(new RegionChangedEvent(this, List.of(id))));
     }
 
     /**
@@ -231,19 +232,19 @@ public class SystemRegionService extends ServiceImpl<SystemRegionMapper, SystemR
      * @param systemRegion    当前地区
      * @param relevantRegions 相关地区列表
      */
-    private void refreshRelevantRegionCache(SystemRegion systemRegion, List<SystemRegion> relevantRegions) {
+    private void publishRegionChangedEvent(SystemRegion systemRegion, List<SystemRegion> relevantRegions) {
         Set<String> cacheIds = new HashSet<>();
-        // 当前节点路径上的所有节点
         if (StringUtils.hasText(systemRegion.getFullPath())) {
             cacheIds.addAll(Arrays.asList(systemRegion.getFullPath().split(PATH_SEPARATOR)));
         }
-        // 所有相关节点
         relevantRegions.forEach(r -> cacheIds.add(r.getId()));
-        // 父节点
         if (StringUtils.hasText(systemRegion.getParentId()) && !ROOT_PARENT_ID.equals(systemRegion.getParentId())) {
             cacheIds.add(systemRegion.getParentId());
         }
-        cacheIds.stream().filter(StringUtils::hasText).forEach(systemRegionCache::refreshRedisCacheById);
+        List<String> validIds = cacheIds.stream().filter(StringUtils::hasText).toList();
+        if (!validIds.isEmpty()) {
+            eventPublisher.publishEvent(new RegionChangedEvent(this, validIds));
+        }
     }
 
     /**
@@ -254,10 +255,12 @@ public class SystemRegionService extends ServiceImpl<SystemRegionMapper, SystemR
     @Transactional(rollbackFor = Exception.class)
     public void updateBasicInfo(SystemRegion systemRegion) {
         Assert.isTrue(updateById(systemRegion), "保存系统地区失败");
-        systemRegionCache.refreshRedisCacheById(systemRegion.getId());
+        List<String> regionIds = new ArrayList<>();
+        regionIds.add(systemRegion.getId());
         if (StringUtils.hasText(systemRegion.getParentId()) && !ROOT_PARENT_ID.equals(systemRegion.getParentId())) {
-            systemRegionCache.refreshRedisCacheById(systemRegion.getParentId());
+            regionIds.add(systemRegion.getParentId());
         }
+        eventPublisher.publishEvent(new RegionChangedEvent(this, regionIds));
     }
 
     /**
