@@ -4,6 +4,7 @@ import cn.hutool.core.util.IdUtil;
 import cn.projectan.strix.core.ss.details.LoginSystemManager;
 import cn.projectan.strix.core.ss.details.LoginSystemUser;
 import cn.projectan.strix.model.constant.system.LoginRedisKeys;
+import cn.projectan.strix.core.sse.SseSessionManager;
 import cn.projectan.strix.model.response.system.monitor.session.SessionMeta;
 import cn.projectan.strix.util.common.RedisUtil;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +35,7 @@ public class TokenSessionService {
 
     private final RedisUtil redisUtil;
     private final ObjectMapper objectMapper;
+    private final SseSessionManager sseSessionManager;
 
     // ======================== Manager Session ========================
 
@@ -59,6 +61,11 @@ public class TokenSessionService {
      * 使管理员所有会话失效 (踢出所有设备)
      */
     public void invalidateManagerSession(String managerId) {
+        // 先推送 SSE 事件（token 尚未删除，SSE 连接仍存活）
+        sseSessionManager.sendToManager(managerId, "session:kicked", Map.of(
+                "reason", "kicked_by_admin",
+                "message", "您的会话已被管理员强制下线"
+        ));
         invalidateAllSessions(
                 LoginRedisKeys.MANAGER_TOKEN_PREFIX,
                 LoginRedisKeys.MANAGER_REGISTRY_PREFIX + managerId
@@ -84,6 +91,12 @@ public class TokenSessionService {
      * 踢出管理员的指定会话
      */
     public void kickManagerSession(String managerId, String token) {
+        // 先推送 SSE 事件（token 尚未删除，SSE 连接仍存活）
+        sseSessionManager.sendToManager(managerId, "session:kicked", Map.of(
+                "reason", "kicked_by_admin",
+                "message", "您的会话已被管理员强制下线"
+        ));
+        // 再删除 Redis key
         redisUtil.del(LoginRedisKeys.MANAGER_TOKEN_PREFIX + token);
         redisUtil.hDel(LoginRedisKeys.MANAGER_REGISTRY_PREFIX + managerId, token);
     }
