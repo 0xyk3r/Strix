@@ -2,6 +2,7 @@ package cn.projectan.strix.service.system;
 
 import cn.projectan.strix.mapper.system.DictDataMapper;
 import cn.projectan.strix.model.db.system.DictData;
+import cn.projectan.strix.model.dict.common.CommonSwitch;
 import cn.projectan.strix.model.enums.common.NumCategory;
 import cn.projectan.strix.model.request.system.dict.DictDataListReq;
 import cn.projectan.strix.util.math.NumUtil;
@@ -12,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -54,6 +56,20 @@ public class DictDataService extends ServiceImpl<DictDataMapper, DictData> {
                 .eq(NumUtil.checkCategory(req.getStatus(), NumCategory.NON_NEGATIVE), DictData::getStatus, req.getStatus())
                 .orderByAsc(DictData::getSort)
                 .page(req.getPage());
+    }
+
+    /**
+     * 获取有效的字典数据（过滤有效期）
+     */
+    public List<DictData> listValidByKey(String key) {
+        LocalDateTime now = LocalDateTime.now();
+        return lambdaQuery()
+                .eq(DictData::getKey, key)
+                .eq(DictData::getStatus, CommonSwitch.ENABLE)
+                .and(q -> q.isNull(DictData::getValidFrom).or().le(DictData::getValidFrom, now))
+                .and(q -> q.isNull(DictData::getValidTo).or().ge(DictData::getValidTo, now))
+                .orderByAsc(DictData::getSort)
+                .list();
     }
 
 }
