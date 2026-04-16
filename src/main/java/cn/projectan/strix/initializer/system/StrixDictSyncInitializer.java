@@ -9,6 +9,7 @@ import cn.projectan.strix.model.dict.common.CommonSwitch;
 import cn.projectan.strix.model.dict.system.DictDataType;
 import cn.projectan.strix.service.system.DictDataService;
 import cn.projectan.strix.service.system.DictService;
+import cn.projectan.strix.service.system.DictUsageStatService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;
@@ -39,6 +40,7 @@ public class StrixDictSyncInitializer implements ApplicationRunner {
 
     private final DictService dictService;
     private final DictDataService dictDataService;
+    private final DictUsageStatService dictUsageStatService;
     private final CacheManager cacheManager;
 
     private static final String DICT_BASE_PACKAGE = "cn.projectan.strix.model.dict";
@@ -74,6 +76,13 @@ public class StrixDictSyncInitializer implements ApplicationRunner {
 
             long endTime = System.currentTimeMillis();
             log.info("Strix Dict: 同步完成, 处理了 {} 个字典, 耗时 {} ms", dictClassSet.size(), (endTime - startTime));
+
+            // 同步字典使用统计
+            try {
+                dictUsageStatService.scanAndSync();
+            } catch (Exception e) {
+                log.warn("Strix Dict: 使用统计扫描失败，不影响主流程", e);
+            }
         } catch (Exception e) {
             log.error("Strix Dict: 同步过程发生错误", e);
         }
