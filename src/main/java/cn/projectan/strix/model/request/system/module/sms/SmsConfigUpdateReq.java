@@ -9,12 +9,14 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import cn.projectan.strix.model.annotation.FormSchema;
 
 /**
  * @author ProjectAn
  * @since 2023/5/22 11:59
  */
 @Schema(description = "短信配置更新请求")
+@FormSchema
 @Data
 public class SmsConfigUpdateReq {
 

@@ -8,12 +8,14 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import cn.projectan.strix.model.annotation.FormSchema;
 
 /**
  * @author ProjectAn
  * @since 2023/7/30 17:19
  */
 @Schema(description = "定时任务更新请求")
+@FormSchema
 @Data
 public class JobUpdateReq {
 

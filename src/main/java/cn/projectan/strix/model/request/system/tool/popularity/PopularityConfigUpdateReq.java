@@ -8,12 +8,14 @@ import jakarta.validation.constraints.*;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import cn.projectan.strix.model.annotation.FormSchema;
 
 /**
  * @author ProjectAn
  * @since 2023/10/5 21:48
  */
 @Schema(description = "热度配置更新请求")
+@FormSchema
 @Data
 public class PopularityConfigUpdateReq {
 

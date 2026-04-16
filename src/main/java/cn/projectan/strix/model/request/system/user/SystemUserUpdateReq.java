@@ -9,12 +9,14 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import cn.projectan.strix.model.annotation.FormSchema;
 
 /**
  * @author ProjectAn
  * @since 2021/8/27 14:36
  */
 @Schema(description = "用户更新请求")
+@FormSchema
 @Data
 public class SystemUserUpdateReq {
 

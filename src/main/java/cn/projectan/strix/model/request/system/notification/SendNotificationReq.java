@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 import java.util.List;
+import cn.projectan.strix.model.annotation.FormSchema;
 
 /**
  * 发送通知请求
@@ -14,6 +15,7 @@ import java.util.List;
  * @since 2026-03-26
  */
 @Schema(description = "发送通知请求")
+@FormSchema
 @Data
 public class SendNotificationReq {
 

@@ -7,12 +7,14 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import cn.projectan.strix.model.annotation.FormSchema;
 
 /**
  * @author ProjectAn
  * @since 2021/7/20 15:44
  */
 @Schema(description = "权限更新请求")
+@FormSchema
 @Data
 public class SystemPermissionUpdateReq {
 

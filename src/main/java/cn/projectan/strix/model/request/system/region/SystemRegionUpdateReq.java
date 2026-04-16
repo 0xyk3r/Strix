@@ -7,12 +7,14 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import cn.projectan.strix.model.annotation.FormSchema;
 
 /**
  * @author ProjectAn
  * @since 2021/9/29 18:50
  */
 @Schema(description = "地区更新请求")
+@FormSchema
 @Data
 public class SystemRegionUpdateReq {
 

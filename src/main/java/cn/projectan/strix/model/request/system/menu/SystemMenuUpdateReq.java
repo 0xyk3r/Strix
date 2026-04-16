@@ -6,12 +6,14 @@ import cn.projectan.strix.model.annotation.UpdateField;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 import lombok.Data;
+import cn.projectan.strix.model.annotation.FormSchema;
 
 /**
  * @author ProjectAn
  * @since 2021/6/20 19:02
  */
 @Schema(description = "菜单更新请求")
+@FormSchema
 @Data
 public class SystemMenuUpdateReq {
 

@@ -7,12 +7,14 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import cn.projectan.strix.model.annotation.FormSchema;
 
 /**
  * @author ProjectAn
  * @since 2023/10/6 11:25
  */
 @Schema(description = "热度数据更新请求")
+@FormSchema
 @Data
 public class PopularityDataUpdateReq {
 

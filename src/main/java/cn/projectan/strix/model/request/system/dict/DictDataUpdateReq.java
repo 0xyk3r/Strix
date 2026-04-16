@@ -9,12 +9,14 @@ import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import cn.projectan.strix.model.annotation.FormSchema;
 
 /**
  * @author ProjectAn
  * @since 2023/5/30 10:45
  */
 @Schema(description = "字典数据更新请求")
+@FormSchema
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

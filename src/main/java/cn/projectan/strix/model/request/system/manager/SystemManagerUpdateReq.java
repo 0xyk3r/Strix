@@ -10,12 +10,14 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import cn.projectan.strix.model.annotation.FormSchema;
 
 /**
  * @author ProjectAn
  * @since 2021/6/16 17:35
  */
 @Schema(description = "管理员更新请求")
+@FormSchema
 @Data
 public class SystemManagerUpdateReq {
 

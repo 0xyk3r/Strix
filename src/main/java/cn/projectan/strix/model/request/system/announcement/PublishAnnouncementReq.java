@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import cn.projectan.strix.model.annotation.FormSchema;
 
 /**
  * 发布公告请求
@@ -14,6 +15,7 @@ import java.time.LocalDateTime;
  * @since 2026-04-18
  */
 @Schema(description = "发布公告请求")
+@FormSchema
 @Data
 public class PublishAnnouncementReq {
 

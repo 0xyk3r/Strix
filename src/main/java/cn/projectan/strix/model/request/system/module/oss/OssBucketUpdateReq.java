@@ -5,12 +5,14 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import cn.projectan.strix.model.annotation.FormSchema;
 
 /**
  * @author ProjectAn
  * @since 2023/5/27 22:45
  */
 @Schema(description = "OSS Bucket 更新请求")
+@FormSchema
 @Data
 public class OssBucketUpdateReq {
 

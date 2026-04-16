@@ -7,12 +7,14 @@ import cn.projectan.strix.model.annotation.UpdateField;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 import lombok.Data;
+import cn.projectan.strix.model.annotation.FormSchema;
 
 /**
  * @author ProjectAn
  * @since 2023/5/27 22:16
  */
 @Schema(description = "文件分组更新请求")
+@FormSchema
 @Data
 public class OssFileGroupUpdateReq {
 
