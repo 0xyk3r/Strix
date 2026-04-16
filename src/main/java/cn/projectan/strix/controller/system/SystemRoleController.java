@@ -141,7 +141,7 @@ public class SystemRoleController extends BaseSystemController {
     @PostMapping("update/{roleId}/menu")
     @PreAuthorize("@ss.hasPermission('system:role:update')")
     @StrixLog(operationGroup = "系统角色", operationName = "修改角色菜单权限", operationType = SystemLogOperType.UPDATE)
-    public RetResult<Object> updateMenu(@Parameter(description = "角色 ID") @PathVariable String roleId, @RequestBody @Validated(UpdateGroup.class) SystemRoleUpdateMenuReq req) {
+    public RetResult<SystemRoleResp> updateMenu(@Parameter(description = "角色 ID") @PathVariable String roleId, @RequestBody @Validated(UpdateGroup.class) SystemRoleUpdateMenuReq req) {
         SystemRole systemRole = systemRoleService.getById(roleId);
         Assert.notNull(systemRole, I18nUtil.notFound("field.systemRole"));
         Assert.isTrue(systemRole.getBuiltin() == CommonFlag.NO, I18nUtil.get("assert.role.builtinNoModify"));

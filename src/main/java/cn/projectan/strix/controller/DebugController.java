@@ -39,7 +39,7 @@ public class DebugController extends BaseController {
 
     @Operation(summary = "查询操作人信息")
     @GetMapping("operator/{operatorType}/{operatorId}")
-    public RetResult<Object> queryOperatorInfo(@Parameter(description = "操作人类型") @PathVariable Short operatorType, @Parameter(description = "操作人 ID") @PathVariable String operatorId) {
+    public RetResult<CommonOperatorInfoResp> queryOperatorInfo(@Parameter(description = "操作人类型") @PathVariable Short operatorType, @Parameter(description = "操作人 ID") @PathVariable String operatorId) {
         CommonOperatorInfoResp operatorInfoResp = operatorService.queryOperatorInfo(operatorType, operatorId);
         Assert.notNull(operatorInfoResp, I18nUtil.notFound("field.systemManager"));
         return RetBuilder.success(operatorInfoResp);
