@@ -147,7 +147,12 @@ public class StrixDictSyncInitializer implements ApplicationRunner {
         String name = StringUtils.hasText(annotationDict.value()) ? annotationDict.value() : clazz.getSimpleName();
 
         // 构建字典对象
-        Dict dict = new Dict(key, name, null, CommonSwitch.ENABLE, null, 0, CommonFlag.YES)
+        Dict dict = new Dict()
+                .setKey(key)
+                .setName(name)
+                .setStatus(CommonSwitch.ENABLE)
+                .setVersion(0)
+                .setProvided(CommonFlag.YES)
                 .setCreatedByType(OperatorType.SYSTEM)
                 .setUpdatedByType(OperatorType.SYSTEM);
 
@@ -186,7 +191,13 @@ public class StrixDictSyncInitializer implements ApplicationRunner {
             short sort = (short) (annotationDictData.sort() >= 0 ? annotationDictData.sort() : dictDataList.size());
             String style = annotationDictData.style();
 
-            DictData dictData = new DictData(key, value, label, sort, style, CommonSwitch.ENABLE, null)
+            DictData dictData = new DictData()
+                    .setKey(key)
+                    .setValue(value)
+                    .setLabel(label)
+                    .setSort(sort)
+                    .setStyle(style)
+                    .setStatus(CommonSwitch.ENABLE)
                     .setCreatedByType(OperatorType.SYSTEM)
                     .setUpdatedByType(OperatorType.SYSTEM);
             dictDataList.add(dictData);

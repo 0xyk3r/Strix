@@ -4,13 +4,13 @@ import cn.projectan.strix.model.annotation.UniqueField;
 import cn.projectan.strix.model.db.base.BaseModel;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
 import java.io.Serial;
+import java.time.LocalDateTime;
 
 /**
  * <p>
@@ -24,7 +24,6 @@ import java.io.Serial;
 @Setter
 @Accessors(chain = true)
 @NoArgsConstructor
-@AllArgsConstructor
 @TableName("sys_dict_data")
 public class DictData extends BaseModel<DictData> {
 
@@ -71,5 +70,27 @@ public class DictData extends BaseModel<DictData> {
      * 字典备注
      */
     private String remark;
+
+    /**
+     * 父级字典数据值（级联筛选用）
+     */
+    private String parentValue;
+
+    /**
+     * 是否默认值: 0=否, 1=是
+     *
+     * @see cn.projectan.strix.model.dict.common.CommonFlag
+     */
+    private Short isDefault;
+
+    /**
+     * 生效开始时间
+     */
+    private LocalDateTime validFrom;
+
+    /**
+     * 生效结束时间
+     */
+    private LocalDateTime validTo;
 
 }

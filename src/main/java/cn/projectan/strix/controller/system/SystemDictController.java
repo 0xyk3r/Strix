@@ -118,15 +118,14 @@ public class SystemDictController extends BaseSystemController {
     @PreAuthorize("@ss.hasPermission('system:dict:add')")
     @StrixLog(operationGroup = "系统字典", operationName = "新增字典", operationType = SystemLogOperType.ADD)
     public RetResult<Void> update(@RequestBody @Validated(InsertGroup.class) DictUpdateReq req) {
-        Dict dict = new Dict(
-                req.getKey(),
-                req.getName(),
-                req.getDataType(),
-                req.getStatus(),
-                req.getRemark(),
-                0,
-                CommonFlag.NO
-        );
+        Dict dict = new Dict()
+                .setKey(req.getKey())
+                .setName(req.getName())
+                .setDataType(req.getDataType())
+                .setStatus(req.getStatus())
+                .setRemark(req.getRemark())
+                .setVersion(0)
+                .setProvided(CommonFlag.NO);
 
         dictService.saveDict(dict);
 
@@ -265,15 +264,14 @@ public class SystemDictController extends BaseSystemController {
     @PreAuthorize("@ss.hasPermission('system:dict:data:add')")
     @StrixLog(operationGroup = "系统字典", operationName = "新增字典数据", operationType = SystemLogOperType.ADD)
     public RetResult<Void> updateDictData(@RequestBody @Validated(InsertGroup.class) DictDataUpdateReq req) {
-        DictData dictData = new DictData(
-                req.getKey(),
-                req.getValue(),
-                req.getLabel(),
-                req.getSort(),
-                req.getStyle(),
-                req.getStatus(),
-                req.getRemark()
-        );
+        DictData dictData = new DictData()
+                .setKey(req.getKey())
+                .setValue(req.getValue())
+                .setLabel(req.getLabel())
+                .setSort(req.getSort())
+                .setStyle(req.getStyle())
+                .setStatus(req.getStatus())
+                .setRemark(req.getRemark());
 
         dictService.saveDictData(dictData);
 
@@ -414,15 +412,14 @@ public class SystemDictController extends BaseSystemController {
                     continue;
                 }
 
-                DictData dictData = new DictData(
-                        key,
-                        itemReq.getValue(),
-                        itemReq.getLabel(),
-                        itemReq.getSort(),
-                        itemReq.getStyle(),
-                        itemReq.getStatus(),
-                        itemReq.getRemark()
-                );
+                DictData dictData = new DictData()
+                        .setKey(key)
+                        .setValue(itemReq.getValue())
+                        .setLabel(itemReq.getLabel())
+                        .setSort(itemReq.getSort())
+                        .setStyle(itemReq.getStyle())
+                        .setStatus(itemReq.getStatus())
+                        .setRemark(itemReq.getRemark());
                 try {
                     dictService.saveDictData(dictData);
                 } catch (StrixUniqueCheckerException e) {

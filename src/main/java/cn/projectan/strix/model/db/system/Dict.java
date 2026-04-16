@@ -4,7 +4,6 @@ import cn.projectan.strix.model.annotation.UniqueField;
 import cn.projectan.strix.model.db.base.BaseModel;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -24,7 +23,6 @@ import java.io.Serial;
 @Setter
 @Accessors(chain = true)
 @NoArgsConstructor
-@AllArgsConstructor
 @TableName("sys_dict")
 public class Dict extends BaseModel<Dict> {
 
@@ -75,5 +73,15 @@ public class Dict extends BaseModel<Dict> {
      * @see cn.projectan.strix.model.dict.common.CommonFlag
      */
     private Short provided;
+
+    /**
+     * 分组 ID
+     */
+    private String groupId;
+
+    /**
+     * 父级字典 key（级联关系）
+     */
+    private String parentDictKey;
 
 }

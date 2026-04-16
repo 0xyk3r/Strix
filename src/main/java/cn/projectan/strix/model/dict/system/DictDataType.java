@@ -45,8 +45,19 @@ public class DictDataType implements BaseDict {
     public static final
     short SHORT = 8;
 
+    @DictData(label = "日期", sort = 9, style = DictDataStyle.INFO)
+    public static final short DATE = 9;
+
+    @DictData(label = "JSON", sort = 10, style = DictDataStyle.WARNING)
+    public static final short JSON = 10;
+
+    @DictData(label = "枚举集合", sort = 11, style = DictDataStyle.PRIMARY)
+    public static final short ENUM_SET = 11;
+
     public static boolean valid(short value) {
-        return value == STRING || value == INTEGER || value == LONG || value == FLOAT || value == DOUBLE || value == BOOLEAN || value == BYTE || value == SHORT;
+        return value == STRING || value == INTEGER || value == LONG || value == FLOAT
+                || value == DOUBLE || value == BOOLEAN || value == BYTE || value == SHORT
+                || value == DATE || value == JSON || value == ENUM_SET;
     }
 
 }
