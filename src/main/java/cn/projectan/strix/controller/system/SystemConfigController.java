@@ -3,12 +3,17 @@ package cn.projectan.strix.controller.system;
 import cn.projectan.strix.controller.system.base.BaseSystemController;
 import cn.projectan.strix.core.ret.RetBuilder;
 import cn.projectan.strix.core.ret.RetResult;
+import cn.projectan.strix.core.validation.group.InsertGroup;
+import cn.projectan.strix.core.validation.group.UpdateGroup;
 import cn.projectan.strix.model.annotation.StrixLog;
 import cn.projectan.strix.model.db.system.SystemConfig;
 import cn.projectan.strix.model.dict.system.SystemLogOperType;
 import cn.projectan.strix.model.event.cache.ConfigChangedEvent;
+import cn.projectan.strix.model.request.system.config.SystemConfigUpdateReq;
 import cn.projectan.strix.service.system.SystemConfigService;
 import cn.projectan.strix.util.common.I18nUtil;
+import cn.projectan.strix.util.common.UpdateBuilder;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -18,6 +23,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -58,7 +64,7 @@ public class SystemConfigController extends BaseSystemController {
     @PreAuthorize("@ss.hasPermission('system:config')")
     public RetResult<SystemConfig> detail(@Parameter(description = "配置 ID") @PathVariable String id) {
         SystemConfig config = systemConfigService.getById(id);
-        Assert.notNull(config, I18nUtil.notFound("field.systemConfig"));
+        Assert.notNull(config, I18nUtil.notFound("field.config"));
         return RetBuilder.success(config);
     }
 
@@ -66,13 +72,17 @@ public class SystemConfigController extends BaseSystemController {
     @PostMapping("add")
     @PreAuthorize("@ss.hasPermission('system:config:add')")
     @StrixLog(operationGroup = "系统配置", operationName = "新增配置", operationType = SystemLogOperType.ADD)
-    public RetResult<Object> add(@RequestBody SystemConfig config) {
-        Assert.hasText(config.getKey(), "配置项标识不能为空");
-        Assert.hasText(config.getName(), "配置项名称不能为空");
-
+    public RetResult<Object> add(@RequestBody @Validated(InsertGroup.class) SystemConfigUpdateReq req) {
         // 检查 key 唯一性
-        SystemConfig existing = systemConfigService.getByKey(config.getKey());
-        Assert.isNull(existing, "配置项标识已存在: " + config.getKey());
+        SystemConfig existing = systemConfigService.getByKey(req.getKey());
+        Assert.isNull(existing, "配置项标识已存在: " + req.getKey());
+
+        SystemConfig config = new SystemConfig()
+                .setKey(req.getKey())
+                .setName(req.getName())
+                .setType(req.getType())
+                .setValue(req.getValue())
+                .setRemark(req.getRemark());
 
         Assert.isTrue(systemConfigService.save(config), "保存配置失败");
         eventPublisher.publishEvent(new ConfigChangedEvent(this, config.getKey()));
@@ -85,18 +95,14 @@ public class SystemConfigController extends BaseSystemController {
     @StrixLog(operationGroup = "系统配置", operationName = "修改配置", operationType = SystemLogOperType.UPDATE)
     public RetResult<Object> update(
             @Parameter(description = "配置 ID") @PathVariable String id,
-            @RequestBody SystemConfig config) {
+            @RequestBody @Validated(UpdateGroup.class) SystemConfigUpdateReq req) {
         SystemConfig existing = systemConfigService.getById(id);
-        Assert.notNull(existing, I18nUtil.notFound("field.systemConfig"));
+        Assert.notNull(existing, I18nUtil.notFound("field.config"));
 
         String oldKey = existing.getKey();
 
-        existing.setName(config.getName())
-                .setType(config.getType())
-                .setValue(config.getValue())
-                .setRemark(config.getRemark());
-
-        Assert.isTrue(systemConfigService.updateById(existing), "保存配置失败");
+        LambdaUpdateWrapper<SystemConfig> updateWrapper = UpdateBuilder.build(existing, req);
+        Assert.isTrue(systemConfigService.update(updateWrapper), "保存配置失败");
 
         // 清除旧 key 和新 key 的缓存
         eventPublisher.publishEvent(new ConfigChangedEvent(this, oldKey));
@@ -113,11 +119,10 @@ public class SystemConfigController extends BaseSystemController {
     @StrixLog(operationGroup = "系统配置", operationName = "删除配置", operationType = SystemLogOperType.DELETE)
     public RetResult<Object> remove(@Parameter(description = "配置 ID") @PathVariable String id) {
         SystemConfig existing = systemConfigService.getById(id);
-        Assert.notNull(existing, I18nUtil.notFound("field.systemConfig"));
+        Assert.notNull(existing, I18nUtil.notFound("field.config"));
 
         Assert.isTrue(systemConfigService.removeById(id), "删除配置失败");
         eventPublisher.publishEvent(new ConfigChangedEvent(this, existing.getKey()));
-
         return RetBuilder.success();
     }
 }

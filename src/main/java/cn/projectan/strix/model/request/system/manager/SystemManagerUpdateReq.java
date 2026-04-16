@@ -55,7 +55,7 @@ public class SystemManagerUpdateReq {
      * @see cn.projectan.strix.model.dict.system.SystemManagerStatus
      */
     @Schema(description = "管理员状态", example = "1")
-    @NotNull(groups = {InsertGroup.class}, message = "{validation.selected:field.manager.status}")
+    @NotNull(groups = {InsertGroup.class, UpdateGroup.class}, message = "{validation.selected:field.manager.status}")
     @DynamicDictValue(groups = {InsertGroup.class, UpdateGroup.class}, dictName = "SystemManagerStatus", message = "{validation.invalid:field.manager.status}")
     @UpdateField
     private Short status;
@@ -66,7 +66,7 @@ public class SystemManagerUpdateReq {
      * @see cn.projectan.strix.model.dict.system.SystemManagerType
      */
     @Schema(description = "管理员类型", example = "1")
-    @NotNull(groups = {InsertGroup.class}, message = "{validation.selected:field.manager.type}")
+    @NotNull(groups = {InsertGroup.class, UpdateGroup.class}, message = "{validation.selected:field.manager.type}")
     @DynamicDictValue(groups = {InsertGroup.class, UpdateGroup.class}, dictName = "SystemManagerType", message = "{validation.invalid:field.manager.type}")
     @UpdateField
     private Short type;
