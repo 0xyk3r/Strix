@@ -27,7 +27,9 @@ public class DictListResp extends BasePageResp {
 
     public DictListResp(List<Dict> data, long total) {
         items = data.stream().map(d ->
-                new DictItem(d.getId(), d.getKey(), d.getName(), d.getDataType(), d.getStatus(), d.getRemark(), d.getVersion(), d.getProvided(), d.getCreatedTime())
+                new DictItem(d.getId(), d.getKey(), d.getName(), d.getDataType(),
+                        d.getStatus(), d.getRemark(), d.getVersion(), d.getProvided(),
+                        d.getCreatedTime(), d.getGroupId(), null, d.getParentDictKey())
         ).collect(Collectors.toList());
         this.setTotal(total);
     }
@@ -64,6 +66,15 @@ public class DictListResp extends BasePageResp {
 
         @Schema(description = "创建时间")
         private LocalDateTime createdTime;
+
+        @Schema(description = "分组 ID")
+        private String groupId;
+
+        @Schema(description = "分组名称")
+        private String groupName;
+
+        @Schema(description = "父级字典 Key")
+        private String parentDictKey;
 
     }
 

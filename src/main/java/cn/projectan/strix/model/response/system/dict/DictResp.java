@@ -41,6 +41,12 @@ public class DictResp {
     @Schema(description = "是否系统内置")
     private Short provided;
 
+    @Schema(description = "分组 ID")
+    private String groupId;
+
+    @Schema(description = "父级字典 Key")
+    private String parentDictKey;
+
     @Schema(description = "字典数据列表")
     private List<DictDataListResp.DictDataItem> dictDataList;
 

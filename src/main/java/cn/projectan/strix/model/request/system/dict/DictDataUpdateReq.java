@@ -11,6 +11,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import cn.projectan.strix.model.annotation.FormSchema;
 
+import java.time.LocalDateTime;
+
 /**
  * @author ProjectAn
  * @since 2023/5/30 10:45
@@ -62,5 +64,22 @@ public class DictDataUpdateReq {
     @Size(groups = {InsertGroup.class, UpdateGroup.class}, max = 255, message = "{validation.length:field.dictData.remark}")
     @UpdateField(allowEmpty = true)
     private String remark;
+
+    @Schema(description = "父级字典数据值")
+    @Size(groups = {InsertGroup.class, UpdateGroup.class}, max = 64)
+    @UpdateField(allowEmpty = true)
+    private String parentValue;
+
+    @Schema(description = "是否默认值: 0=否, 1=是")
+    @UpdateField
+    private Short isDefault;
+
+    @Schema(description = "生效开始时间")
+    @UpdateField(allowEmpty = true)
+    private LocalDateTime validFrom;
+
+    @Schema(description = "生效结束时间")
+    @UpdateField(allowEmpty = true)
+    private LocalDateTime validTo;
 
 }

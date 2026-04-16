@@ -105,6 +105,8 @@ public class SystemDictController extends BaseSystemController {
                         dict.getRemark(),
                         dict.getVersion(),
                         dict.getProvided(),
+                        dict.getGroupId(),
+                        dict.getParentDictKey(),
                         dictDataItems
                 )
         );

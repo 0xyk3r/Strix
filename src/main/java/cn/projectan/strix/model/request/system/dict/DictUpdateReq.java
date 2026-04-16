@@ -52,4 +52,14 @@ public class DictUpdateReq {
     @UpdateField(allowEmpty = true)
     private String remark;
 
+    @Schema(description = "分组 ID")
+    @Size(groups = {InsertGroup.class, UpdateGroup.class}, max = 19)
+    @UpdateField(allowEmpty = true)
+    private String groupId;
+
+    @Schema(description = "父级字典 Key（级联关系）")
+    @Size(groups = {InsertGroup.class, UpdateGroup.class}, max = 64)
+    @UpdateField(allowEmpty = true)
+    private String parentDictKey;
+
 }

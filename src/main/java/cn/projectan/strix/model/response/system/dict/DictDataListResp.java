@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,7 +27,9 @@ public class DictDataListResp extends BasePageResp {
 
     public DictDataListResp(List<DictData> data, long total) {
         items = data.stream().map(d ->
-                new DictDataItem(d.getId(), d.getKey(), d.getValue(), d.getLabel(), d.getSort(), d.getStyle(), d.getStatus(), d.getRemark())
+                new DictDataItem(d.getId(), d.getKey(), d.getValue(), d.getLabel(),
+                        d.getSort(), d.getStyle(), d.getStatus(), d.getRemark(),
+                        d.getParentValue(), d.getIsDefault(), d.getValidFrom(), d.getValidTo())
         ).collect(Collectors.toList());
         this.setTotal(total);
     }
@@ -60,6 +63,18 @@ public class DictDataListResp extends BasePageResp {
 
         @Schema(description = "字典数据备注")
         private String remark;
+
+        @Schema(description = "父级字典数据值")
+        private String parentValue;
+
+        @Schema(description = "是否默认值")
+        private Short isDefault;
+
+        @Schema(description = "生效开始时间")
+        private LocalDateTime validFrom;
+
+        @Schema(description = "生效结束时间")
+        private LocalDateTime validTo;
 
     }
 
