@@ -45,3 +45,4 @@ out/
 /others/
 *.bak
 jrebel-classpath-*.jar
+src/main/java/cn/projectan/strix/model/dict/generated/

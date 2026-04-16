@@ -199,6 +199,155 @@ tasks.withType(JavaCompile).configureEach {
 //    options.compilerArgs << "-Xlint:unchecked"
 }
 
+// ======================== Dict Constant Generation ========================
+
+tasks.register('generateDictConstants') {
+    group = 'strix'
+    description = '从数据库读取非内置字典，生成 Java 常量类'
+
+    doLast {
+        def dbUrl = 'jdbc:mysql://192.168.31.99:3306/strix?useSSL=true&serverTimezone=Asia/Shanghai'
+        def dbUser = 'root'
+        def dbPass = 'AnAn@8899#'
+        def outputDir = file("src/main/java/cn/projectan/strix/model/dict/generated")
+
+        // 加载 MySQL 驱动
+        def mysqlJar = configurations.runtimeClasspath.find { it.name.contains('mysql-connector') }
+        if (mysqlJar == null) {
+            throw new GradleException("未找到 MySQL 驱动")
+        }
+        def loader = new URLClassLoader([mysqlJar.toURI().toURL()] as URL[], this.class.classLoader)
+        def driverClass = loader.loadClass('com.mysql.cj.jdbc.Driver')
+        def driver = driverClass.getDeclaredConstructor().newInstance()
+        def props = new Properties()
+        props.setProperty('user', dbUser)
+        props.setProperty('password', dbPass)
+        def conn = driver.connect(dbUrl, props)
+
+        try {
+            // 查询非内置字典 (provided=0)
+            def dictStmt = conn.prepareStatement(
+                    "SELECT `key`, name, data_type FROM sys_dict WHERE provided = 0 AND deleted_status = 0 ORDER BY `key`"
+            )
+            def dictRs = dictStmt.executeQuery()
+            def dicts = []
+            while (dictRs.next()) {
+                dicts << [
+                        key     : dictRs.getString('key'),
+                        name    : dictRs.getString('name'),
+                        dataType: dictRs.getShort('data_type')
+                ]
+            }
+            dictRs.close()
+            dictStmt.close()
+
+            if (dicts.isEmpty()) {
+                println "未找到非内置字典，跳过生成"
+                return
+            }
+
+            // 查询所有非内置字典的数据
+            def dictKeys = dicts.collect { "'${it.key.replace("'", "''")}'" }.join(',')
+            def dataStmt = conn.prepareStatement(
+                    "SELECT `key`, value, label, sort, style FROM sys_dict_data WHERE `key` IN (${dictKeys}) AND deleted_status = 0 ORDER BY `key`, sort"
+            )
+            def dataRs = dataStmt.executeQuery()
+            def dataMap = [:].withDefault { [] }
+            while (dataRs.next()) {
+                dataMap[dataRs.getString('key')] << [
+                        value: dataRs.getString('value'),
+                        label: dataRs.getString('label'),
+                        sort : dataRs.getShort('sort'),
+                        style: dataRs.getString('style') ?: 'default'
+                ]
+            }
+            dataRs.close()
+            dataStmt.close()
+
+            // 生成 Java 文件
+            if (outputDir.exists()) {
+                outputDir.deleteDir()
+            }
+            outputDir.mkdirs()
+
+            def dataTypeMap = [
+                    1: 'String', 2: 'int', 3: 'long',
+                    4: 'float', 5: 'double', 6: 'boolean',
+                    7: 'byte', 8: 'short', 9: 'String',
+                    10: 'String', 11: 'String'
+            ]
+
+            def generated = 0
+            dicts.each { dict ->
+                def items = dataMap[dict.key]
+                if (items.isEmpty()) return
+
+                def className = dict.key
+                def javaType = dataTypeMap[(int) dict.dataType] ?: 'String'
+                def isString = javaType == 'String'
+
+                def sb = new StringBuilder()
+                sb.append("package cn.projectan.strix.model.dict.generated;\n\n")
+                sb.append("import cn.projectan.strix.model.annotation.Dict;\n")
+                sb.append("import cn.projectan.strix.model.annotation.DictData;\n")
+                sb.append("import cn.projectan.strix.model.dict.base.BaseDict;\n")
+                sb.append("import cn.projectan.strix.model.dict.system.DictDataStyle;\n\n")
+                sb.append("/**\n * ${dict.name}\n * <p>自动生成，请勿手动修改</p>\n */\n")
+                sb.append("@Dict(key = \"${dict.key}\", value = \"${dict.name}\")\n")
+                sb.append("public class ${className} implements BaseDict {\n\n")
+
+                items.each { item ->
+                    def fieldName = toFieldName(item.value)
+                    def styleRef = toStyleRef(item.style)
+                    def valueExpr = isString ? "\"${item.value.replace('"', '\\"')}\"" : item.value
+
+                    sb.append("    @DictData(label = \"${item.label.replace('"', '\\"')}\", sort = ${item.sort}, style = ${styleRef})\n")
+                    sb.append("    public static final\n")
+                    sb.append("    ${javaType} ${fieldName} = ${valueExpr};\n\n")
+                }
+
+                sb.append("}\n")
+
+                new File(outputDir, "${className}.java").text = sb.toString()
+                generated++
+            }
+
+            println "生成完成: ${generated} 个字典常量类 → ${outputDir.absolutePath}"
+        } finally {
+            conn.close()
+        }
+    }
+}
+
+static String toFieldName(String value) {
+    // 尝试转为 UPPER_SNAKE_CASE
+    def result = value
+            .replaceAll('([a-z])([A-Z])', '$1_$2')
+            .replaceAll('[^a-zA-Z0-9_]', '_')
+            .toUpperCase()
+    // Java 标识符不能以数字开头
+    if (result ==~ /^\d.*/) {
+        result = "V_${result}"
+    }
+    if (result.isEmpty()) {
+        result = "UNKNOWN"
+    }
+    return result
+}
+
+static String toStyleRef(String style) {
+    if (style == null || style.isEmpty()) return 'DictDataStyle.DEFAULT'
+    switch (style.toLowerCase()) {
+        case 'default': return 'DictDataStyle.DEFAULT'
+        case 'primary': return 'DictDataStyle.PRIMARY'
+        case 'success': return 'DictDataStyle.SUCCESS'
+        case 'warning': return 'DictDataStyle.WARNING'
+        case 'error': return 'DictDataStyle.ERROR'
+        case 'info': return 'DictDataStyle.INFO'
+        default: return "\"${style}\""
+    }
+}
+
 tasks.withType(Javadoc).configureEach {
     options.encoding = 'UTF-8'
 }
