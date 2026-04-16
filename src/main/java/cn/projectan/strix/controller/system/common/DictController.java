@@ -13,10 +13,10 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.stream.Collectors;
 
 /**
  * 字典数据
@@ -48,9 +48,16 @@ public class DictController extends BaseSystemController {
     @GetMapping("{dictKey}")
     @Operation(summary = "获取字典数据")
     @Parameter(name = "dictKey", description = "字典 Key", required = true)
-    public RetResult<CommonDictResp> getDictData(@PathVariable String dictKey) {
+    public RetResult<CommonDictResp> getDictData(@PathVariable String dictKey,
+                                                  @RequestParam(required = false) String parentValue) {
         CommonDictResp commonDictResp = dictService.getDictResp(dictKey);
         Assert.notNull(commonDictResp, I18nUtil.notFound("field.dict"));
+
+        if (StringUtils.hasText(parentValue) && commonDictResp.getDictDataList() != null) {
+            commonDictResp.setDictDataList(commonDictResp.getDictDataList().stream()
+                    .filter(item -> parentValue.equals(item.getParentValue()))
+                    .collect(Collectors.toList()));
+        }
 
         return RetBuilder.success(commonDictResp);
     }

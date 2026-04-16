@@ -8,26 +8,40 @@ import cn.projectan.strix.core.validation.group.InsertGroup;
 import cn.projectan.strix.core.validation.group.UpdateGroup;
 import cn.projectan.strix.model.annotation.StrixLog;
 import cn.projectan.strix.model.db.system.Dict;
+import cn.projectan.strix.model.db.system.DictChangeLog;
 import cn.projectan.strix.model.db.system.DictData;
+import cn.projectan.strix.model.db.system.DictGroup;
 import cn.projectan.strix.model.dict.common.CommonFlag;
 import cn.projectan.strix.model.dict.common.CommonSwitch;
 import cn.projectan.strix.model.dict.system.SystemLogOperType;
 import cn.projectan.strix.model.enums.common.DuplicateStrategy;
+import cn.projectan.strix.model.request.base.BasePageReq;
 import cn.projectan.strix.model.request.common.BatchImportReq;
 import cn.projectan.strix.model.request.common.BatchModifyReq;
 import cn.projectan.strix.model.request.common.BatchRemoveReq;
+import cn.projectan.strix.model.request.system.dict.DictCloneReq;
 import cn.projectan.strix.model.request.system.dict.DictDataListReq;
 import cn.projectan.strix.model.request.system.dict.DictDataUpdateReq;
+import cn.projectan.strix.model.request.system.dict.DictExportReq;
+import cn.projectan.strix.model.request.system.dict.DictImportReq;
 import cn.projectan.strix.model.request.system.dict.DictListReq;
+import cn.projectan.strix.model.request.system.dict.DictSortReq;
 import cn.projectan.strix.model.request.system.dict.DictUpdateReq;
 import cn.projectan.strix.model.response.common.BatchImportResp;
 import cn.projectan.strix.model.response.common.BatchImportResp.ImportError;
+import cn.projectan.strix.model.response.system.dict.DictChangeLogListResp;
 import cn.projectan.strix.model.response.system.dict.DictDataListResp;
 import cn.projectan.strix.model.response.system.dict.DictDataResp;
+import cn.projectan.strix.model.response.system.dict.DictExportData;
 import cn.projectan.strix.model.response.system.dict.DictListResp;
 import cn.projectan.strix.model.response.system.dict.DictResp;
+import cn.projectan.strix.model.response.system.dict.DictSearchResultResp;
+import cn.projectan.strix.model.response.system.dict.DictUsageStatsResp;
+import cn.projectan.strix.service.system.DictChangeLogService;
 import cn.projectan.strix.service.system.DictDataService;
+import cn.projectan.strix.service.system.DictGroupService;
 import cn.projectan.strix.service.system.DictService;
+import cn.projectan.strix.service.system.DictUsageStatService;
 import cn.projectan.strix.util.common.I18nUtil;
 import cn.projectan.strix.util.common.ObjectMapperUtil;
 import cn.projectan.strix.util.common.UniqueChecker;
@@ -48,6 +62,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * 系统字典
@@ -64,6 +79,9 @@ public class SystemDictController extends BaseSystemController {
 
     private final DictService dictService;
     private final DictDataService dictDataService;
+    private final DictGroupService dictGroupService;
+    private final DictChangeLogService dictChangeLogService;
+    private final DictUsageStatService dictUsageStatService;
     private final Validator validator;
 
     /**
@@ -76,9 +94,24 @@ public class SystemDictController extends BaseSystemController {
     public RetResult<DictListResp> list(DictListReq req) {
         Page<Dict> page = dictService.listPage(req);
 
-        return RetBuilder.success(
-                new DictListResp(page.getRecords(), page.getTotal())
-        );
+        DictListResp resp = new DictListResp(page.getRecords(), page.getTotal());
+
+        // 批量填充分组名称
+        Set<String> groupIds = resp.getItems().stream()
+                .map(DictListResp.DictItem::getGroupId)
+                .filter(org.springframework.util.StringUtils::hasText)
+                .collect(Collectors.toSet());
+        if (!groupIds.isEmpty()) {
+            Map<String, String> groupNameMap = dictGroupService.listByIds(groupIds).stream()
+                    .collect(Collectors.toMap(DictGroup::getId, DictGroup::getName, (a, b) -> a));
+            resp.getItems().forEach(item -> {
+                if (item.getGroupId() != null) {
+                    item.setGroupName(groupNameMap.get(item.getGroupId()));
+                }
+            });
+        }
+
+        return RetBuilder.success(resp);
     }
 
     /**
@@ -437,6 +470,77 @@ public class SystemDictController extends BaseSystemController {
 
         int failedCount = req.getItems().size() - successCount - skippedCount;
         return RetBuilder.success(new BatchImportResp(req.getItems().size(), successCount, failedCount, skippedCount, errors));
+    }
+
+    // ======================== 字典增强端点 ========================
+
+    @Operation(summary = "克隆字典")
+    @PostMapping("{key}/clone")
+    @PreAuthorize("@ss.hasPermission('system:dict:add')")
+    @StrixLog(operationGroup = "系统字典", operationName = "克隆字典", operationType = SystemLogOperType.ADD)
+    public RetResult<Void> cloneDict(@PathVariable String key, @RequestBody @Validated DictCloneReq req) {
+        dictService.cloneDict(key, req);
+        return RetBuilder.success();
+    }
+
+    @Operation(summary = "批量排序字典数据")
+    @PostMapping("{key}/sort")
+    @PreAuthorize("@ss.hasPermission('system:dict:update')")
+    @StrixLog(operationGroup = "系统字典", operationName = "排序字典数据", operationType = SystemLogOperType.UPDATE)
+    public RetResult<Void> batchSort(@PathVariable String key, @RequestBody @Validated DictSortReq req) {
+        dictService.batchSort(key, req);
+        return RetBuilder.success();
+    }
+
+    @Operation(summary = "字典变更历史")
+    @GetMapping("{key}/changelog")
+    @PreAuthorize("@ss.hasPermission('system:dict')")
+    @StrixLog(operationGroup = "系统字典", operationName = "查看变更历史")
+    public RetResult<DictChangeLogListResp> changelog(@PathVariable String key, BasePageReq<DictChangeLog> pageReq) {
+        Page<DictChangeLog> page = dictChangeLogService.listByDictKey(key, pageReq);
+        return RetBuilder.success(new DictChangeLogListResp(page.getRecords(), page.getTotal()));
+    }
+
+    @Operation(summary = "回滚字典数据")
+    @PostMapping("changelog/{id}/rollback")
+    @PreAuthorize("@ss.hasPermission('system:dict:update')")
+    @StrixLog(operationGroup = "系统字典", operationName = "回滚字典数据", operationType = SystemLogOperType.UPDATE)
+    public RetResult<Void> rollback(@PathVariable String id) {
+        DictChangeLog logEntry = dictChangeLogService.getLog(id);
+        Assert.notNull(logEntry, "变更记录不存在");
+        dictService.rollbackToSnapshot(logEntry.getDictKey(), id);
+        return RetBuilder.success();
+    }
+
+    @Operation(summary = "字典使用统计")
+    @GetMapping("{key}/usage")
+    @PreAuthorize("@ss.hasPermission('system:dict')")
+    public RetResult<DictUsageStatsResp> usage(@PathVariable String key) {
+        return RetBuilder.success(dictUsageStatService.getStatsByDictKey(key));
+    }
+
+    @Operation(summary = "字典全局搜索")
+    @GetMapping("search")
+    @PreAuthorize("@ss.hasPermission('system:dict')")
+    public RetResult<DictSearchResultResp> globalSearch(@RequestParam String keyword) {
+        return RetBuilder.success(dictService.globalSearch(keyword));
+    }
+
+    @Operation(summary = "导出字典")
+    @PostMapping("export")
+    @PreAuthorize("@ss.hasPermission('system:dict')")
+    @StrixLog(operationGroup = "系统字典", operationName = "导出字典")
+    public RetResult<List<DictExportData>> exportDicts(@RequestBody @Validated DictExportReq req) {
+        return RetBuilder.success(dictService.exportDicts(req.getDictKeys()));
+    }
+
+    @Operation(summary = "导入字典")
+    @PostMapping("import")
+    @PreAuthorize("@ss.hasPermission('system:dict:add')")
+    @StrixLog(operationGroup = "系统字典", operationName = "导入字典", operationType = SystemLogOperType.ADD)
+    public RetResult<Void> importDicts(@RequestBody @Validated DictImportReq req) {
+        dictService.importDicts(req);
+        return RetBuilder.success();
     }
 
 }
