@@ -11,6 +11,21 @@
   },
   {
     "interfaces": [
+      "cn.projectan.strix.mapper.system.DictGroupMapper"
+    ]
+  },
+  {
+    "interfaces": [
+      "cn.projectan.strix.mapper.system.DictChangeLogMapper"
+    ]
+  },
+  {
+    "interfaces": [
+      "cn.projectan.strix.mapper.system.DictUsageStatMapper"
+    ]
+  },
+  {
+    "interfaces": [
       "cn.projectan.strix.mapper.JobMapper"
     ]
   },

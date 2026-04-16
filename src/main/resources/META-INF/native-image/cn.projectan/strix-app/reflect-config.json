@@ -13991,6 +13991,24 @@
     ]
   },
   {
+    "name": "cn.projectan.strix.model.db.system.DictGroup",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true
+  },
+  {
+    "name": "cn.projectan.strix.model.db.system.DictChangeLog",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true
+  },
+  {
+    "name": "cn.projectan.strix.model.db.system.DictUsageStat",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true
+  },
+  {
     "name": "cn.projectan.strix.model.db.Job",
     "allDeclaredFields": true,
     "queryAllDeclaredMethods": true,
