@@ -121,8 +121,11 @@ public class SystemDictController extends BaseSystemController {
     @GetMapping("{id}")
     @PreAuthorize("@ss.hasPermission('system:dict')")
     @StrixLog(operationGroup = "系统字典", operationName = "查询字典信息")
-    public RetResult<DictResp> info(@Parameter(description = "字典 ID") @PathVariable String id) {
+    public RetResult<DictResp> info(@Parameter(description = "字典 ID 或 Key") @PathVariable String id) {
         Dict dict = dictService.getById(id);
+        if (dict == null) {
+            dict = dictService.lambdaQuery().eq(Dict::getKey, id).one();
+        }
         Assert.notNull(dict, I18nUtil.notFound("field.dictItem"));
 
         List<DictData> dictDataList = dictDataService.listByKey(dict.getKey());
