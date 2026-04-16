@@ -170,7 +170,7 @@ public class WechatOAController extends BaseWechatController {
      */
     @Operation(summary = "公众号 Token 验证")
     @RequestMapping("checkToken")
-    public RetResult<Object> checkToken(@Parameter(description = "公众号配置 Key") @PathVariable String configKey) {
+    public RetResult<Void> checkToken(@Parameter(description = "公众号配置 Key") @PathVariable String configKey) {
         return RetBuilder.success();
     }
 

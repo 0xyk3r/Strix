@@ -112,7 +112,7 @@ public class OssController extends BaseSystemController {
     @PreAuthorize("@ss.hasPermission('system:module:oss:config:add')")
     @StrixLog(operationGroup = "系统存储", operationName = "新增存储配置", operationType = SystemLogOperType.ADD)
     @Operation(summary = "新增 OSS 配置")
-    public RetResult<Object> update(@RequestBody @Validated(InsertGroup.class) OssConfigUpdateReq req) {
+    public RetResult<Void> update(@RequestBody @Validated(InsertGroup.class) OssConfigUpdateReq req) {
         OssConfig ossConfig = new OssConfig(
                 req.getKey(),
                 req.getName(),
@@ -142,7 +142,7 @@ public class OssController extends BaseSystemController {
     @PreAuthorize("@ss.hasPermission('system:module:oss:config:update')")
     @StrixLog(operationGroup = "系统存储", operationName = "修改存储配置", operationType = SystemLogOperType.UPDATE)
     @Operation(summary = "编辑 OSS 配置")
-    public RetResult<Object> update(@Parameter(description = "OSS 配置 ID") @PathVariable String id, @RequestBody @Validated(UpdateGroup.class) OssConfigUpdateReq req) {
+    public RetResult<Void> update(@Parameter(description = "OSS 配置 ID") @PathVariable String id, @RequestBody @Validated(UpdateGroup.class) OssConfigUpdateReq req) {
         OssConfig ossConfig = ossConfigService.getById(id);
         Assert.notNull(ossConfig, I18nUtil.notFound("field.originalData"));
         String originKey = ossConfig.getKey();
@@ -165,7 +165,7 @@ public class OssController extends BaseSystemController {
     @PreAuthorize("@ss.hasPermission('system:module:oss:config:remove')")
     @StrixLog(operationGroup = "系统存储", operationName = "删除存储配置", operationType = SystemLogOperType.DELETE)
     @Operation(summary = "删除 OSS 配置")
-    public RetResult<Object> remove(@Parameter(description = "OSS 配置 ID") @PathVariable String id) {
+    public RetResult<Void> remove(@Parameter(description = "OSS 配置 ID") @PathVariable String id) {
         OssConfig ossConfig = ossConfigService.getById(id);
         Assert.notNull(ossConfig, I18nUtil.notFound("field.originalData"));
         String key = ossConfig.getKey();
@@ -210,7 +210,7 @@ public class OssController extends BaseSystemController {
     @PreAuthorize("@ss.hasPermission('system:module:oss:file:remove')")
     @StrixLog(operationGroup = "系统存储", operationName = "删除存储文件", operationType = SystemLogOperType.DELETE)
     @Operation(summary = "删除 OSS 文件")
-    public RetResult<Object> removeFile(@Parameter(description = "文件 ID") @PathVariable String id) {
+    public RetResult<Void> removeFile(@Parameter(description = "文件 ID") @PathVariable String id) {
         ossFileService.delete(id);
         return RetBuilder.success();
     }

@@ -127,7 +127,7 @@ public class SystemManagerController extends BaseSystemController {
     @PostMapping("modify/{managerId}")
     @PreAuthorize("@ss.hasPermission('system:manager:update')")
     @StrixLog(operationGroup = "系统人员", operationName = "更改人员信息", operationType = SystemLogOperType.UPDATE)
-    public RetResult<Object> modifyField(@Parameter(description = "管理员 ID") @PathVariable String managerId, @RequestBody @Validated SingleFieldModifyReq req) {
+    public RetResult<SystemManagerResp> modifyField(@Parameter(description = "管理员 ID") @PathVariable String managerId, @RequestBody @Validated SingleFieldModifyReq req) {
         Assert.hasText(req.getField(), "参数错误");
         SystemManager systemManager = systemManagerService.getById(managerId);
         Assert.notNull(systemManager, I18nUtil.notFound("field.systemManager"));
@@ -191,7 +191,7 @@ public class SystemManagerController extends BaseSystemController {
     @PostMapping("update")
     @PreAuthorize("@ss.hasPermission('system:manager:add')")
     @StrixLog(operationGroup = "系统人员", operationName = "新增人员", operationType = SystemLogOperType.ADD)
-    public RetResult<Object> update(@RequestBody @Validated(InsertGroup.class) SystemManagerUpdateReq req) {
+    public RetResult<Void> update(@RequestBody @Validated(InsertGroup.class) SystemManagerUpdateReq req) {
         Assert.notNull(req, I18nUtil.get("error.param.invalid"));
         checkLoginManagerRegionPermission(req.getRegionId());
 
@@ -219,7 +219,7 @@ public class SystemManagerController extends BaseSystemController {
     @PostMapping("update/{managerId}")
     @PreAuthorize("@ss.hasPermission('system:manager:update')")
     @StrixLog(operationGroup = "系统人员", operationName = "修改人员", operationType = SystemLogOperType.UPDATE)
-    public RetResult<Object> update(@Parameter(description = "管理员 ID") @PathVariable String managerId, @RequestBody @Validated(UpdateGroup.class) SystemManagerUpdateReq req) {
+    public RetResult<Void> update(@Parameter(description = "管理员 ID") @PathVariable String managerId, @RequestBody @Validated(UpdateGroup.class) SystemManagerUpdateReq req) {
         Assert.notNull(req, I18nUtil.get("error.param.invalid"));
         SystemManager systemManager = systemManagerService.getById(managerId);
         Assert.notNull(systemManager, I18nUtil.notFound("field.systemManager"));
@@ -247,7 +247,7 @@ public class SystemManagerController extends BaseSystemController {
     @PostMapping("remove/{managerId}")
     @PreAuthorize("@ss.hasPermission('system:manager:remove')")
     @StrixLog(operationGroup = "系统人员", operationName = "删除人员", operationType = SystemLogOperType.DELETE)
-    public RetResult<Object> remove(@Parameter(description = "管理员 ID") @PathVariable String managerId) {
+    public RetResult<Void> remove(@Parameter(description = "管理员 ID") @PathVariable String managerId) {
         SystemManager systemManager = systemManagerService.getById(managerId);
         Assert.notNull(systemManager, I18nUtil.notFound("field.systemManager"));
         Assert.isTrue(systemManager.getBuiltin() == CommonFlag.NO, "内置用户不允许修改");
@@ -271,7 +271,7 @@ public class SystemManagerController extends BaseSystemController {
     @PostMapping("batch/remove")
     @PreAuthorize("@ss.hasPermission('system:manager:remove')")
     @StrixLog(operationGroup = "系统人员", operationName = "批量删除人员", operationType = SystemLogOperType.DELETE)
-    public RetResult<Object> batchRemove(@RequestBody @Validated BatchRemoveReq req) {
+    public RetResult<Void> batchRemove(@RequestBody @Validated BatchRemoveReq req) {
         List<SystemManager> managers = systemManagerService.listByIds(req.getIds());
         Assert.notEmpty(managers, I18nUtil.notFound("field.systemManager"));
 
@@ -297,7 +297,7 @@ public class SystemManagerController extends BaseSystemController {
     @PostMapping("batch/modify")
     @PreAuthorize("@ss.hasPermission('system:manager:update')")
     @StrixLog(operationGroup = "系统人员", operationName = "批量修改人员字段", operationType = SystemLogOperType.UPDATE)
-    public RetResult<Object> batchModify(@RequestBody @Validated BatchModifyReq req) {
+    public RetResult<Void> batchModify(@RequestBody @Validated BatchModifyReq req) {
         Assert.hasText(req.getField(), "参数错误");
 
         switch (req.getField()) {

@@ -81,7 +81,7 @@ public class SystemPermissionController extends BaseSystemController {
     @PostMapping("update")
     @PreAuthorize("@ss.anyPermission('system:menu:add', 'system:menu:update')")
     @StrixLog(operationGroup = "系统权限", operationName = "新增权限", operationType = SystemLogOperType.ADD)
-    public RetResult<Object> update(@RequestBody @Validated(InsertGroup.class) SystemPermissionUpdateReq req) {
+    public RetResult<Void> update(@RequestBody @Validated(InsertGroup.class) SystemPermissionUpdateReq req) {
         Assert.notNull(req, I18nUtil.get("error.param.invalid"));
 
         SystemPermission systemPermission = new SystemPermission(
@@ -105,7 +105,7 @@ public class SystemPermissionController extends BaseSystemController {
     @PostMapping("update/{permissionId}")
     @PreAuthorize("@ss.anyPermission('system:menu:add', 'system:menu:update')")
     @StrixLog(operationGroup = "系统权限", operationName = "修改权限", operationType = SystemLogOperType.UPDATE)
-    public RetResult<Object> update(@Parameter(description = "权限 ID") @PathVariable String permissionId, @RequestBody @Validated(UpdateGroup.class) SystemPermissionUpdateReq req) {
+    public RetResult<Void> update(@Parameter(description = "权限 ID") @PathVariable String permissionId, @RequestBody @Validated(UpdateGroup.class) SystemPermissionUpdateReq req) {
         Assert.notNull(req, I18nUtil.get("error.param.invalid"));
         SystemPermission systemPermission = systemPermissionService.getById(permissionId);
         Assert.notNull(systemPermission, I18nUtil.notFound("field.systemPermission"));
@@ -125,7 +125,7 @@ public class SystemPermissionController extends BaseSystemController {
     @PostMapping("remove/{permissionId}")
     @PreAuthorize("@ss.hasPermission('system:menu:remove')")
     @StrixLog(operationGroup = "系统权限", operationName = "删除权限", operationType = SystemLogOperType.DELETE)
-    public RetResult<Object> remove(@Parameter(description = "权限 ID") @PathVariable String permissionId) {
+    public RetResult<Void> remove(@Parameter(description = "权限 ID") @PathVariable String permissionId) {
         systemPermissionService.deleteByIds(List.of(permissionId));
         return RetBuilder.success();
     }

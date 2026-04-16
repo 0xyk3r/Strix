@@ -166,7 +166,7 @@ public class JobController extends BaseSystemController {
     @PreAuthorize("@ss.hasPermission('system:module:job:remove')")
     @StrixLog(operationGroup = "系统定时任务", operationName = "批量删除定时任务", operationType = SystemLogOperType.DELETE)
     @Operation(summary = "批量删除任务")
-    public RetResult<Object> batchRemove(@RequestBody @Validated BatchRemoveReq req) {
+    public RetResult<Void> batchRemove(@RequestBody @Validated BatchRemoveReq req) {
         List<Job> jobs = jobService.listByIds(req.getIds());
         Assert.notEmpty(jobs, I18nUtil.notFound("field.scheduledJob"));
 
@@ -188,7 +188,7 @@ public class JobController extends BaseSystemController {
     @PreAuthorize("@ss.hasPermission('system:module:job:update')")
     @StrixLog(operationGroup = "系统定时任务", operationName = "批量修改定时任务字段", operationType = SystemLogOperType.UPDATE)
     @Operation(summary = "批量修改任务字段")
-    public RetResult<Object> batchModify(@RequestBody @Validated BatchModifyReq req) {
+    public RetResult<Void> batchModify(@RequestBody @Validated BatchModifyReq req) {
         Assert.hasText(req.getField(), "参数错误");
 
         switch (req.getField()) {

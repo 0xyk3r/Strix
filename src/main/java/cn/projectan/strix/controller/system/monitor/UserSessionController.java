@@ -92,7 +92,7 @@ public class UserSessionController extends BaseSystemController {
     @PostMapping("kick")
     @PreAuthorize("@ss.hasPermission('system:monitor:user-session')")
     @Operation(summary = "踢出指定用户所有会话")
-    public RetResult<Object> kick(@RequestBody KickRequest req) {
+    public RetResult<Void> kick(@RequestBody KickRequest req) {
         tokenSessionService.invalidateUserSession(req.userId());
         log.info("用户 {} 被踢出所有会话", req.userId());
         return RetBuilder.success();
@@ -101,7 +101,7 @@ public class UserSessionController extends BaseSystemController {
     @PostMapping("batch-kick")
     @PreAuthorize("@ss.hasPermission('system:monitor:user-session')")
     @Operation(summary = "批量踢出用户所有会话")
-    public RetResult<Object> batchKick(@RequestBody BatchKickRequest req) {
+    public RetResult<Void> batchKick(@RequestBody BatchKickRequest req) {
         for (String userId : req.userIds()) {
             tokenSessionService.invalidateUserSession(userId);
         }

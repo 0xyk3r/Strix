@@ -8,6 +8,7 @@ import cn.projectan.strix.model.annotation.StrixLog;
 import cn.projectan.strix.model.db.system.SystemLog;
 import cn.projectan.strix.model.dict.system.SystemLogOperType;
 import cn.projectan.strix.model.request.system.monitor.log.SystemLogListReq;
+import cn.projectan.strix.model.response.system.monitor.log.LogOperationGroupsResp;
 import cn.projectan.strix.model.response.system.monitor.log.SystemLogListResp;
 import cn.projectan.strix.model.response.system.monitor.log.SystemLogStatsResp;
 import cn.projectan.strix.service.system.SystemLogService;
@@ -22,7 +23,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 /**
  * 系统操作日志
@@ -71,8 +71,8 @@ public class LogController extends BaseSystemController {
     @GetMapping("groups")
     @PreAuthorize("@ss.hasPermission('system:monitor:log')")
     @Operation(summary = "操作分组列表")
-    public RetResult<List<String>> operationGroups() {
-        return RetBuilder.success(systemLogService.getOperationGroups());
+    public RetResult<LogOperationGroupsResp> operationGroups() {
+        return RetBuilder.success(new LogOperationGroupsResp(systemLogService.getOperationGroups()));
     }
 
     /**

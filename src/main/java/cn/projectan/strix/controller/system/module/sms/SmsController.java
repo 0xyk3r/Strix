@@ -112,7 +112,7 @@ public class SmsController extends BaseSystemController {
     @PreAuthorize("@ss.hasPermission('system:module:sms:config:add')")
     @StrixLog(operationGroup = "系统短信", operationName = "新增短信配置", operationType = SystemLogOperType.ADD)
     @Operation(summary = "新增短信配置")
-    public RetResult<Object> update(@RequestBody @Validated(InsertGroup.class) SmsConfigUpdateReq req) {
+    public RetResult<Void> update(@RequestBody @Validated(InsertGroup.class) SmsConfigUpdateReq req) {
         SmsConfig smsConfig = new SmsConfig(
                 req.getKey(),
                 req.getName(),
@@ -140,7 +140,7 @@ public class SmsController extends BaseSystemController {
     @PreAuthorize("@ss.hasPermission('system:module:sms:config:update')")
     @StrixLog(operationGroup = "系统短信", operationName = "修改短信配置", operationType = SystemLogOperType.UPDATE)
     @Operation(summary = "编辑短信配置")
-    public RetResult<Object> update(@Parameter(description = "短信配置 ID") @PathVariable String id, @RequestBody @Validated(UpdateGroup.class) SmsConfigUpdateReq req) {
+    public RetResult<Void> update(@Parameter(description = "短信配置 ID") @PathVariable String id, @RequestBody @Validated(UpdateGroup.class) SmsConfigUpdateReq req) {
         SmsConfig smsConfig = smsConfigService.getById(id);
         Assert.notNull(smsConfig, I18nUtil.notFound("field.originalData"));
         String originKey = smsConfig.getKey();
@@ -163,7 +163,7 @@ public class SmsController extends BaseSystemController {
     @PreAuthorize("@ss.hasPermission('system:module:sms:config:remove')")
     @StrixLog(operationGroup = "系统短信", operationName = "删除短信配置", operationType = SystemLogOperType.DELETE)
     @Operation(summary = "删除短信配置")
-    public RetResult<Object> remove(@Parameter(description = "短信配置 ID") @PathVariable String id) {
+    public RetResult<Void> remove(@Parameter(description = "短信配置 ID") @PathVariable String id) {
         SmsConfig smsConfig = smsConfigService.getById(id);
         Assert.notNull(smsConfig, I18nUtil.notFound("field.originalData"));
 

@@ -6,6 +6,7 @@ import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.model.annotation.StrixLog;
 import cn.projectan.strix.model.dict.system.SystemLogOperType;
 import cn.projectan.strix.model.request.srv.chat.*;
+import cn.projectan.strix.model.response.srv.chat.ChatMessageListResp;
 import cn.projectan.strix.model.response.srv.chat.ChatMessageResp;
 import cn.projectan.strix.model.response.srv.chat.ChatSessionListItemResp;
 import cn.projectan.strix.model.response.srv.chat.ChatSessionResp;
@@ -71,10 +72,10 @@ public class ChatController extends BaseSrvController {
     @PostMapping("/message/pull")
     @StrixLog(operationGroup = "聊天", operationName = "拉取消息")
     @Operation(summary = "拉取消息", description = "拉取新消息（lastMessageId）或历史消息（firstMessageId）")
-    public RetResult<List<ChatMessageResp>> pullMessages(@Valid @RequestBody PullMessageReq req) {
+    public RetResult<ChatMessageListResp> pullMessages(@Valid @RequestBody PullMessageReq req) {
         String userId = getLoginUserId();
         List<ChatMessageResp> messages = chatMessageBusinessService.pullMessages(req, userId);
-        return RetBuilder.success(messages);
+        return RetBuilder.success(new ChatMessageListResp(messages));
     }
 
     /**

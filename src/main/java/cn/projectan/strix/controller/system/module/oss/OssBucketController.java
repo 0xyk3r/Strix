@@ -67,7 +67,7 @@ public class OssBucketController extends BaseSystemController {
     @PreAuthorize("@ss.hasPermission('system:module:oss:bucket:add')")
     @StrixLog(operationGroup = "系统存储空间", operationName = "新增存储空间", operationType = SystemLogOperType.ADD)
     @Operation(summary = "新增 Bucket")
-    public RetResult<Object> update(@RequestBody @Validated(InsertGroup.class) OssBucketUpdateReq req) {
+    public RetResult<Void> update(@RequestBody @Validated(InsertGroup.class) OssBucketUpdateReq req) {
         OssBucket ossBucket = new OssBucket(
                 req.getConfigKey(),
                 req.getName(),
@@ -89,7 +89,7 @@ public class OssBucketController extends BaseSystemController {
     @PreAuthorize("@ss.hasPermission('system:module:oss:bucket:update')")
     @StrixLog(operationGroup = "系统存储空间", operationName = "修改存储空间", operationType = SystemLogOperType.UPDATE)
     @Operation(summary = "编辑 Bucket")
-    public RetResult<Object> update(@Parameter(description = "Bucket ID") @PathVariable String id, @RequestBody @Validated(UpdateGroup.class) OssBucketUpdateReq req) {
+    public RetResult<Void> update(@Parameter(description = "Bucket ID") @PathVariable String id, @RequestBody @Validated(UpdateGroup.class) OssBucketUpdateReq req) {
         OssBucket ossBucket = ossBucketService.getById(id);
         Assert.notNull(ossBucket, I18nUtil.notFound("field.originalData"));
 
@@ -107,7 +107,7 @@ public class OssBucketController extends BaseSystemController {
     @PreAuthorize("@ss.hasPermission('system:module:oss:bucket:remove')")
     @StrixLog(operationGroup = "系统存储空间", operationName = "删除存储空间", operationType = SystemLogOperType.DELETE)
     @Operation(summary = "删除 Bucket")
-    public RetResult<Object> remove(@Parameter(description = "Bucket ID") @PathVariable String id) {
+    public RetResult<Void> remove(@Parameter(description = "Bucket ID") @PathVariable String id) {
         ossBucketService.removeById(id);
         return RetBuilder.success();
     }

@@ -10,6 +10,8 @@ import cn.projectan.strix.model.db.system.SystemConfig;
 import cn.projectan.strix.model.dict.system.SystemLogOperType;
 import cn.projectan.strix.model.event.cache.ConfigChangedEvent;
 import cn.projectan.strix.model.request.system.config.SystemConfigUpdateReq;
+import cn.projectan.strix.model.response.system.config.SystemConfigListResp;
+import cn.projectan.strix.model.response.system.config.SystemConfigResp;
 import cn.projectan.strix.service.system.SystemConfigService;
 import cn.projectan.strix.util.common.I18nUtil;
 import cn.projectan.strix.util.common.UpdateBuilder;
@@ -48,7 +50,7 @@ public class SystemConfigController extends BaseSystemController {
     @GetMapping("")
     @PreAuthorize("@ss.hasPermission('system:config')")
     @StrixLog(operationGroup = "系统配置", operationName = "查询配置列表")
-    public RetResult<List<SystemConfig>> list(
+    public RetResult<SystemConfigListResp> list(
             @RequestParam(required = false) String keyword) {
         List<SystemConfig> list = systemConfigService.lambdaQuery()
                 .like(StringUtils.hasText(keyword), SystemConfig::getName, keyword)
@@ -56,23 +58,23 @@ public class SystemConfigController extends BaseSystemController {
                 .like(StringUtils.hasText(keyword), SystemConfig::getKey, keyword)
                 .orderByAsc(SystemConfig::getCreatedTime)
                 .list();
-        return RetBuilder.success(list);
+        return RetBuilder.success(new SystemConfigListResp(list));
     }
 
     @Operation(summary = "配置详情")
     @GetMapping("{id}")
     @PreAuthorize("@ss.hasPermission('system:config')")
-    public RetResult<SystemConfig> detail(@Parameter(description = "配置 ID") @PathVariable String id) {
+    public RetResult<SystemConfigResp> detail(@Parameter(description = "配置 ID") @PathVariable String id) {
         SystemConfig config = systemConfigService.getById(id);
         Assert.notNull(config, I18nUtil.notFound("field.config"));
-        return RetBuilder.success(config);
+        return RetBuilder.success(new SystemConfigResp(config));
     }
 
     @Operation(summary = "新增配置")
     @PostMapping("add")
     @PreAuthorize("@ss.hasPermission('system:config:add')")
     @StrixLog(operationGroup = "系统配置", operationName = "新增配置", operationType = SystemLogOperType.ADD)
-    public RetResult<Object> add(@RequestBody @Validated(InsertGroup.class) SystemConfigUpdateReq req) {
+    public RetResult<Void> add(@RequestBody @Validated(InsertGroup.class) SystemConfigUpdateReq req) {
         // 检查 key 唯一性
         SystemConfig existing = systemConfigService.getByKey(req.getKey());
         Assert.isNull(existing, "配置项标识已存在: " + req.getKey());
@@ -93,7 +95,7 @@ public class SystemConfigController extends BaseSystemController {
     @PostMapping("update/{id}")
     @PreAuthorize("@ss.hasPermission('system:config:update')")
     @StrixLog(operationGroup = "系统配置", operationName = "修改配置", operationType = SystemLogOperType.UPDATE)
-    public RetResult<Object> update(
+    public RetResult<Void> update(
             @Parameter(description = "配置 ID") @PathVariable String id,
             @RequestBody @Validated(UpdateGroup.class) SystemConfigUpdateReq req) {
         SystemConfig existing = systemConfigService.getById(id);
@@ -117,7 +119,7 @@ public class SystemConfigController extends BaseSystemController {
     @PostMapping("remove/{id}")
     @PreAuthorize("@ss.hasPermission('system:config:remove')")
     @StrixLog(operationGroup = "系统配置", operationName = "删除配置", operationType = SystemLogOperType.DELETE)
-    public RetResult<Object> remove(@Parameter(description = "配置 ID") @PathVariable String id) {
+    public RetResult<Void> remove(@Parameter(description = "配置 ID") @PathVariable String id) {
         SystemConfig existing = systemConfigService.getById(id);
         Assert.notNull(existing, I18nUtil.notFound("field.config"));
 

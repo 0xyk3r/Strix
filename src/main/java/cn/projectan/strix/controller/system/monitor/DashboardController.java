@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
+
 
 @Slf4j
 @RestController
@@ -47,41 +47,41 @@ public class DashboardController extends BaseSystemController {
     @GetMapping("trends")
     @PreAuthorize("@ss.hasPermission('system:monitor')")
     @Operation(summary = "日趋势数据")
-    public RetResult<List<DashboardTrendItem>> trends(
+    public RetResult<DashboardTrendsResp> trends(
             @RequestParam(defaultValue = "7") int days) {
-        return RetBuilder.success(systemLogService.getDashboardTrends(days));
+        return RetBuilder.success(new DashboardTrendsResp(systemLogService.getDashboardTrends(days)));
     }
 
     @GetMapping("hourly")
     @PreAuthorize("@ss.hasPermission('system:monitor')")
     @Operation(summary = "今日小时分布")
-    public RetResult<List<DashboardHourlyItem>> hourly() {
-        return RetBuilder.success(systemLogService.getHourlyDistribution());
+    public RetResult<DashboardHourlyResp> hourly() {
+        return RetBuilder.success(new DashboardHourlyResp(systemLogService.getHourlyDistribution()));
     }
 
     @GetMapping("user-ranks")
     @PreAuthorize("@ss.hasPermission('system:monitor')")
     @Operation(summary = "用户活跃排名")
-    public RetResult<List<DashboardRankItem>> userRanks(
+    public RetResult<DashboardRanksResp> userRanks(
             @RequestParam(defaultValue = "7") int days,
             @RequestParam(defaultValue = "8") int limit) {
-        return RetBuilder.success(systemLogService.getUserRanks(days, limit));
+        return RetBuilder.success(new DashboardRanksResp(systemLogService.getUserRanks(days, limit)));
     }
 
     @GetMapping("module-ranks")
     @PreAuthorize("@ss.hasPermission('system:monitor')")
     @Operation(summary = "模块操作排名")
-    public RetResult<List<DashboardRankItem>> moduleRanks(
+    public RetResult<DashboardRanksResp> moduleRanks(
             @RequestParam(defaultValue = "7") int days,
             @RequestParam(defaultValue = "8") int limit) {
-        return RetBuilder.success(systemLogService.getModuleRanks(days, limit));
+        return RetBuilder.success(new DashboardRanksResp(systemLogService.getModuleRanks(days, limit)));
     }
 
     @GetMapping("recent")
     @PreAuthorize("@ss.hasPermission('system:monitor')")
     @Operation(summary = "最近操作")
-    public RetResult<List<DashboardRecentItem>> recent(
+    public RetResult<DashboardRecentResp> recent(
             @RequestParam(defaultValue = "10") int limit) {
-        return RetBuilder.success(systemLogService.getRecentActivities(limit));
+        return RetBuilder.success(new DashboardRecentResp(systemLogService.getRecentActivities(limit)));
     }
 }

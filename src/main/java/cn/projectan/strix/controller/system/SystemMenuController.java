@@ -86,7 +86,7 @@ public class SystemMenuController extends BaseSystemController {
     @PostMapping("modify/{menuId}")
     @PreAuthorize("@ss.hasPermission('system:menu:update')")
     @StrixLog(operationGroup = "系统菜单", operationName = "更改菜单信息", operationType = SystemLogOperType.UPDATE)
-    public RetResult<Object> modifyField(@Parameter(description = "菜单 ID") @PathVariable String menuId, @RequestBody @Validated SingleFieldModifyReq req) {
+    public RetResult<Void> modifyField(@Parameter(description = "菜单 ID") @PathVariable String menuId, @RequestBody @Validated SingleFieldModifyReq req) {
         Assert.hasText(req.getField(), "参数错误");
         Assert.isTrue("icon".equals(req.getField()), "参数错误");
 
@@ -106,7 +106,7 @@ public class SystemMenuController extends BaseSystemController {
     @PostMapping("update")
     @PreAuthorize("@ss.hasPermission('system:menu:add')")
     @StrixLog(operationGroup = "系统菜单", operationName = "新增菜单", operationType = SystemLogOperType.ADD)
-    public RetResult<Object> update(@RequestBody @Validated(InsertGroup.class) SystemMenuUpdateReq req) {
+    public RetResult<Void> update(@RequestBody @Validated(InsertGroup.class) SystemMenuUpdateReq req) {
         Assert.notNull(req, I18nUtil.get("error.param.invalid"));
 
         SystemMenu systemMenu = new SystemMenu(
@@ -133,7 +133,7 @@ public class SystemMenuController extends BaseSystemController {
     @PostMapping("update/{menuId}")
     @PreAuthorize("@ss.hasPermission('system:menu:update')")
     @StrixLog(operationGroup = "系统菜单", operationName = "修改菜单", operationType = SystemLogOperType.UPDATE)
-    public RetResult<Object> update(@Parameter(description = "菜单 ID") @PathVariable String menuId, @RequestBody @Validated(UpdateGroup.class) SystemMenuUpdateReq req) {
+    public RetResult<Void> update(@Parameter(description = "菜单 ID") @PathVariable String menuId, @RequestBody @Validated(UpdateGroup.class) SystemMenuUpdateReq req) {
         Assert.notNull(req, I18nUtil.get("error.param.invalid"));
         SystemMenu systemMenu = systemMenuService.getById(menuId);
         Assert.notNull(systemMenu, I18nUtil.notFound("field.systemMenu"));
@@ -153,7 +153,7 @@ public class SystemMenuController extends BaseSystemController {
     @PostMapping("remove/{menuId}")
     @PreAuthorize("@ss.hasPermission('system:menu:remove')")
     @StrixLog(operationGroup = "系统菜单", operationName = "删除菜单", operationType = SystemLogOperType.DELETE)
-    public RetResult<Object> remove(@Parameter(description = "菜单 ID") @PathVariable String menuId) {
+    public RetResult<Void> remove(@Parameter(description = "菜单 ID") @PathVariable String menuId) {
         systemMenuService.deleteByIds(List.of(menuId));
         return RetBuilder.success();
     }

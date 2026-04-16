@@ -5,6 +5,7 @@ import cn.projectan.strix.controller.system.base.BaseSystemController;
 import cn.projectan.strix.core.ret.RetBuilder;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.model.annotation.StrixLog;
+import cn.projectan.strix.model.response.system.monitor.cache.CacheInfoResp;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
@@ -45,27 +47,24 @@ public class CacheController extends BaseSystemController {
     @PreAuthorize("@ss.hasPermission('system:monitor:cache')")
     @StrixLog(operationGroup = "系统缓存信息", operationName = "查询系统缓存信息")
     @Operation(summary = "获取缓存信息")
-    public RetResult<Object> getCacheInfo() {
+    public RetResult<CacheInfoResp> getCacheInfo() {
         Properties info = (Properties) redisTemplate.execute((RedisCallback<Object>) RedisServerCommands::info);
         Properties commandStats = (Properties) redisTemplate.execute((RedisCallback<Object>) connection -> connection.serverCommands().info("commandstats"));
         Object dbSize = redisTemplate.execute((RedisCallback<Object>) RedisServerCommands::dbSize);
 
-        Map<String, Object> result = Map.of(
-                "info", info,
-                "dbSize", dbSize,
-                "commandStats", Optional.ofNullable(commandStats)
-                        .map(stats -> stats.stringPropertyNames().stream()
-                                .filter(key -> !key.equals("cmdstat_ping"))
-                                .map(key -> Map.of(
-                                        "name", StrUtil.removePrefix(key, "cmdstat_"),
-                                        "value", StrUtil.subBetween(stats.getProperty(key), "calls=", ",usec")
-                                ))
-                                .sorted((a, b) -> Integer.parseInt(b.get("value")) - Integer.parseInt(a.get("value")))
-                                .limit(10)
-                                .collect(Collectors.toList()))
-                        .orElse(Collections.emptyList())
-        );
-        return RetBuilder.success(result);
+        List<Map<String, String>> commandStatsList = Optional.ofNullable(commandStats)
+                .map(stats -> stats.stringPropertyNames().stream()
+                        .filter(key -> !key.equals("cmdstat_ping"))
+                        .map(key -> Map.of(
+                                "name", StrUtil.removePrefix(key, "cmdstat_"),
+                                "value", StrUtil.subBetween(stats.getProperty(key), "calls=", ",usec")
+                        ))
+                        .sorted((a, b) -> Integer.parseInt(b.get("value")) - Integer.parseInt(a.get("value")))
+                        .limit(10)
+                        .collect(Collectors.toList()))
+                .orElse(Collections.emptyList());
+
+        return RetBuilder.success(new CacheInfoResp(info, dbSize, commandStatsList));
     }
 
 }

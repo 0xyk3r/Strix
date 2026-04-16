@@ -96,7 +96,7 @@ public class SystemRoleController extends BaseSystemController {
     @PostMapping("update")
     @PreAuthorize("@ss.hasPermission('system:role:add')")
     @StrixLog(operationGroup = "系统角色", operationName = "新增角色", operationType = SystemLogOperType.ADD)
-    public RetResult<Object> update(@RequestBody @Validated(InsertGroup.class) SystemRoleUpdateReq req) {
+    public RetResult<Void> update(@RequestBody @Validated(InsertGroup.class) SystemRoleUpdateReq req) {
         Assert.notNull(req, I18nUtil.get("error.param.invalid"));
 
         SystemRole systemRole = new SystemRole(
@@ -119,7 +119,7 @@ public class SystemRoleController extends BaseSystemController {
     @PostMapping("update/{roleId}")
     @PreAuthorize("@ss.hasPermission('system:role:update')")
     @StrixLog(operationGroup = "系统角色", operationName = "修改角色", operationType = SystemLogOperType.UPDATE)
-    public RetResult<Object> update(@Parameter(description = "角色 ID") @PathVariable String roleId, @RequestBody @Validated(UpdateGroup.class) SystemRoleUpdateReq req) {
+    public RetResult<Void> update(@Parameter(description = "角色 ID") @PathVariable String roleId, @RequestBody @Validated(UpdateGroup.class) SystemRoleUpdateReq req) {
         Assert.notNull(req, I18nUtil.get("error.param.invalid"));
         SystemRole systemRole = systemRoleService.getById(roleId);
         Assert.notNull(systemRole, I18nUtil.notFound("field.systemRole"));
@@ -141,7 +141,7 @@ public class SystemRoleController extends BaseSystemController {
     @PostMapping("update/{roleId}/menu")
     @PreAuthorize("@ss.hasPermission('system:role:update')")
     @StrixLog(operationGroup = "系统角色", operationName = "修改角色菜单权限", operationType = SystemLogOperType.UPDATE)
-    public RetResult<Object> updateMenu(@Parameter(description = "角色 ID") @PathVariable String roleId, @RequestBody @Validated(UpdateGroup.class) SystemRoleUpdateMenuReq req) {
+    public RetResult<SystemRoleResp> updateMenu(@Parameter(description = "角色 ID") @PathVariable String roleId, @RequestBody @Validated(UpdateGroup.class) SystemRoleUpdateMenuReq req) {
         SystemRole systemRole = systemRoleService.getById(roleId);
         Assert.notNull(systemRole, I18nUtil.notFound("field.systemRole"));
         Assert.isTrue(systemRole.getBuiltin() == CommonFlag.NO, I18nUtil.get("assert.role.builtinNoModify"));
@@ -194,7 +194,7 @@ public class SystemRoleController extends BaseSystemController {
     @PostMapping("remove/{roleId}")
     @PreAuthorize("@ss.hasPermission('system:role:remove')")
     @StrixLog(operationGroup = "系统角色", operationName = "删除角色", operationType = SystemLogOperType.DELETE)
-    public RetResult<Object> remove(@Parameter(description = "角色 ID") @PathVariable String roleId) {
+    public RetResult<Void> remove(@Parameter(description = "角色 ID") @PathVariable String roleId) {
         SystemRole systemRole = systemRoleService.getById(roleId);
         Assert.notNull(systemRole, I18nUtil.notFound("field.systemRole"));
         Assert.isTrue(systemRole.getBuiltin() == CommonFlag.NO, I18nUtil.get("assert.role.builtinNoDelete"));
@@ -211,7 +211,7 @@ public class SystemRoleController extends BaseSystemController {
     @PostMapping("batch/remove")
     @PreAuthorize("@ss.hasPermission('system:role:remove')")
     @StrixLog(operationGroup = "系统角色", operationName = "批量删除角色", operationType = SystemLogOperType.DELETE)
-    public RetResult<Object> batchRemove(@RequestBody @Validated BatchRemoveReq req) {
+    public RetResult<Void> batchRemove(@RequestBody @Validated BatchRemoveReq req) {
         List<SystemRole> roles = systemRoleService.listByIds(req.getIds());
         Assert.notEmpty(roles, I18nUtil.notFound("field.systemRole"));
 
