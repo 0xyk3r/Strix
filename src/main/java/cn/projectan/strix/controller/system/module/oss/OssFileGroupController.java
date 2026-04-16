@@ -94,7 +94,7 @@ public class OssFileGroupController extends BaseSystemController {
     @PreAuthorize("@ss.hasPermission('system:module:oss:filegroup:add')")
     @StrixLog(operationGroup = "系统存储分组", operationName = "新增存储分组", operationType = SystemLogOperType.ADD)
     @Operation(summary = "新增文件分组")
-    public RetResult<Object> update(@RequestBody @Validated(InsertGroup.class) OssFileGroupUpdateReq req) {
+    public RetResult<Void> update(@RequestBody @Validated(InsertGroup.class) OssFileGroupUpdateReq req) {
         OssFileGroup ossFileGroup = new OssFileGroup(
                 req.getKey(),
                 req.getConfigKey(),
@@ -122,7 +122,7 @@ public class OssFileGroupController extends BaseSystemController {
     @PreAuthorize("@ss.hasPermission('system:module:oss:filegroup:update')")
     @StrixLog(operationGroup = "系统存储分组", operationName = "修改存储分组", operationType = SystemLogOperType.UPDATE)
     @Operation(summary = "编辑文件分组")
-    public RetResult<Object> update(@Parameter(description = "文件分组 ID") @PathVariable String id, @RequestBody @Validated(UpdateGroup.class) OssFileGroupUpdateReq req) {
+    public RetResult<Void> update(@Parameter(description = "文件分组 ID") @PathVariable String id, @RequestBody @Validated(UpdateGroup.class) OssFileGroupUpdateReq req) {
         OssFileGroup ossFileGroup = ossFileGroupService.getById(id);
         Assert.notNull(ossFileGroup, I18nUtil.notFound("field.originalData"));
 
@@ -140,7 +140,7 @@ public class OssFileGroupController extends BaseSystemController {
     @PreAuthorize("@ss.hasPermission('system:module:oss:filegroup:remove')")
     @StrixLog(operationGroup = "系统存储分组", operationName = "删除存储分组", operationType = SystemLogOperType.DELETE)
     @Operation(summary = "删除文件分组")
-    public RetResult<Object> remove(@Parameter(description = "文件分组 ID") @PathVariable String id) {
+    public RetResult<Void> remove(@Parameter(description = "文件分组 ID") @PathVariable String id) {
         ossFileGroupService.removeById(id);
         return RetBuilder.success();
     }

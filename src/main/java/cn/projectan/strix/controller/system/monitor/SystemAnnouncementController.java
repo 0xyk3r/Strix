@@ -55,7 +55,7 @@ public class SystemAnnouncementController extends BaseSystemController {
     @PostMapping("publish")
     @PreAuthorize("@ss.hasPermission('system:monitor:announcement:publish')")
     @Operation(summary = "发布公告")
-    public RetResult<Object> publish(@RequestBody @Valid PublishAnnouncementReq req) {
+    public RetResult<Void> publish(@RequestBody @Valid PublishAnnouncementReq req) {
         systemAnnouncementService.publish(req);
         return RetBuilder.success();
     }
@@ -63,7 +63,7 @@ public class SystemAnnouncementController extends BaseSystemController {
     @PostMapping("{id}/terminate")
     @PreAuthorize("@ss.hasPermission('system:monitor:announcement:terminate')")
     @Operation(summary = "终止公告")
-    public RetResult<Object> terminate(@PathVariable String id, @RequestBody(required = false) TerminateReq req) {
+    public RetResult<Void> terminate(@PathVariable String id, @RequestBody(required = false) TerminateReq req) {
         String operatorId = SecurityUtil.getOperatorId();
         String reason = req != null ? req.reason() : "管理员手动终止";
         systemAnnouncementService.terminate(id, operatorId, reason);
@@ -73,7 +73,7 @@ public class SystemAnnouncementController extends BaseSystemController {
     @PostMapping("batch-terminate")
     @PreAuthorize("@ss.hasPermission('system:monitor:announcement:terminate')")
     @Operation(summary = "批量终止公告")
-    public RetResult<Object> batchTerminate(@RequestBody BatchTerminateReq req) {
+    public RetResult<Void> batchTerminate(@RequestBody BatchTerminateReq req) {
         String operatorId = SecurityUtil.getOperatorId();
         for (String id : req.ids()) {
             systemAnnouncementService.terminate(id, operatorId, "批量终止");

@@ -116,7 +116,7 @@ public class SystemRegionController extends BaseSystemController {
     @PostMapping("update")
     @PreAuthorize("@ss.hasPermission('system:region:add')")
     @StrixLog(operationGroup = "系统地区", operationName = "新增地区", operationType = SystemLogOperType.ADD)
-    public RetResult<Object> update(@RequestBody @Validated(InsertGroup.class) SystemRegionUpdateReq req) {
+    public RetResult<Void> update(@RequestBody @Validated(InsertGroup.class) SystemRegionUpdateReq req) {
         Assert.notNull(req, I18nUtil.get("error.param.invalid"));
         resolveParentId(req);
         checkLoginManagerRegionPermission(req.getParentId());
@@ -147,7 +147,7 @@ public class SystemRegionController extends BaseSystemController {
     @PostMapping("update/{id}")
     @PreAuthorize("@ss.hasPermission('system:region:update')")
     @StrixLog(operationGroup = "系统地区", operationName = "修改地区", operationType = SystemLogOperType.UPDATE)
-    public RetResult<Object> update(@Parameter(description = "地区 ID") @PathVariable String id, @RequestBody @Validated(UpdateGroup.class) SystemRegionUpdateReq req) {
+    public RetResult<Void> update(@Parameter(description = "地区 ID") @PathVariable String id, @RequestBody @Validated(UpdateGroup.class) SystemRegionUpdateReq req) {
         Assert.notNull(req, I18nUtil.get("error.param.invalid"));
         SystemRegion systemRegion = systemRegionService.getById(id);
         Assert.notNull(systemRegion, I18nUtil.notFound("field.systemRegion"));
@@ -218,7 +218,7 @@ public class SystemRegionController extends BaseSystemController {
     @PostMapping("remove/{id}")
     @PreAuthorize("@ss.hasPermission('system:region:remove')")
     @StrixLog(operationGroup = "系统地区", operationName = "删除地区", operationType = SystemLogOperType.DELETE)
-    public RetResult<Object> remove(@Parameter(description = "地区 ID") @PathVariable String id) {
+    public RetResult<Void> remove(@Parameter(description = "地区 ID") @PathVariable String id) {
         checkLoginManagerRegionPermission(id);
 
         SystemRegion systemRegion = systemRegionService.getById(id);

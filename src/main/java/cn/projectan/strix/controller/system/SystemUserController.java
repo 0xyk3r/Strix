@@ -97,7 +97,7 @@ public class SystemUserController extends BaseSystemController {
     @PostMapping("modify/{userId}")
     @PreAuthorize("@ss.hasPermission('system:user:update')")
     @StrixLog(operationGroup = "系统用户", operationName = "更改用户信息", operationType = SystemLogOperType.UPDATE)
-    public RetResult<Object> modifyField(@Parameter(description = "用户 ID") @PathVariable String userId, @RequestBody @Validated SingleFieldModifyReq req) {
+    public RetResult<Void> modifyField(@Parameter(description = "用户 ID") @PathVariable String userId, @RequestBody @Validated SingleFieldModifyReq req) {
         Assert.hasText(req.getField(), "参数错误");
         SystemUser systemUser = systemUserService.getById(userId);
         Assert.notNull(systemUser, I18nUtil.notFound("field.systemUser"));
@@ -129,7 +129,7 @@ public class SystemUserController extends BaseSystemController {
     @PostMapping("update")
     @PreAuthorize("@ss.hasPermission('system:user:add')")
     @StrixLog(operationGroup = "系统用户", operationName = "新增用户", operationType = SystemLogOperType.ADD)
-    public RetResult<Object> update(@RequestBody @Validated(InsertGroup.class) SystemUserUpdateReq req) {
+    public RetResult<Void> update(@RequestBody @Validated(InsertGroup.class) SystemUserUpdateReq req) {
         Assert.notNull(req, I18nUtil.get("error.param.invalid"));
 
         SystemUser systemUser = new SystemUser(
@@ -154,7 +154,7 @@ public class SystemUserController extends BaseSystemController {
     @PostMapping("update/{userId}")
     @PreAuthorize("@ss.hasPermission('system:user:update')")
     @StrixLog(operationGroup = "系统用户", operationName = "修改用户", operationType = SystemLogOperType.UPDATE)
-    public RetResult<Object> update(@Parameter(description = "用户 ID") @PathVariable String userId, @RequestBody @Validated(UpdateGroup.class) SystemUserUpdateReq req) {
+    public RetResult<Void> update(@Parameter(description = "用户 ID") @PathVariable String userId, @RequestBody @Validated(UpdateGroup.class) SystemUserUpdateReq req) {
         Assert.notNull(req, I18nUtil.get("error.param.invalid"));
         SystemUser systemUser = systemUserService.getById(userId);
         Assert.notNull(systemUser, I18nUtil.notFound("field.systemUser"));
@@ -173,7 +173,7 @@ public class SystemUserController extends BaseSystemController {
     @PostMapping("remove/{userId}")
     @PreAuthorize("@ss.hasPermission('system:user:remove')")
     @StrixLog(operationGroup = "系统用户", operationName = "删除用户", operationType = SystemLogOperType.DELETE)
-    public RetResult<Object> remove(@Parameter(description = "用户 ID") @PathVariable String userId) {
+    public RetResult<Void> remove(@Parameter(description = "用户 ID") @PathVariable String userId) {
         SystemUser systemUser = systemUserService.getById(userId);
         Assert.notNull(systemUser, I18nUtil.notFound("field.systemUser"));
 
@@ -189,7 +189,7 @@ public class SystemUserController extends BaseSystemController {
     @PostMapping("batch/remove")
     @PreAuthorize("@ss.hasPermission('system:user:remove')")
     @StrixLog(operationGroup = "系统用户", operationName = "批量删除用户", operationType = SystemLogOperType.DELETE)
-    public RetResult<Object> batchRemove(@RequestBody @Validated BatchRemoveReq req) {
+    public RetResult<Void> batchRemove(@RequestBody @Validated BatchRemoveReq req) {
         List<SystemUser> users = systemUserService.listByIds(req.getIds());
         Assert.notEmpty(users, I18nUtil.notFound("field.systemUser"));
 
@@ -207,7 +207,7 @@ public class SystemUserController extends BaseSystemController {
     @PostMapping("batch/modify")
     @PreAuthorize("@ss.hasPermission('system:user:update')")
     @StrixLog(operationGroup = "系统用户", operationName = "批量修改用户字段", operationType = SystemLogOperType.UPDATE)
-    public RetResult<Object> batchModify(@RequestBody @Validated BatchModifyReq req) {
+    public RetResult<Void> batchModify(@RequestBody @Validated BatchModifyReq req) {
         Assert.hasText(req.getField(), "参数错误");
 
         switch (req.getField()) {

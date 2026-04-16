@@ -61,7 +61,7 @@ public class NotificationManageController extends BaseSystemController {
     @PostMapping("send")
     @PreAuthorize("@ss.hasPermission('system:monitor:notification:send')")
     @Operation(summary = "发送通知")
-    public RetResult<Object> send(@RequestBody @Valid SendNotificationReq req) {
+    public RetResult<Void> send(@RequestBody @Valid SendNotificationReq req) {
         String senderId = SecurityUtil.getOperatorId();
 
         // 确定接收人列表
@@ -103,7 +103,7 @@ public class NotificationManageController extends BaseSystemController {
     @PostMapping("{id}/terminate")
     @PreAuthorize("@ss.hasPermission('system:monitor:notification:terminate')")
     @Operation(summary = "终止通知")
-    public RetResult<Object> terminate(@PathVariable String id, @RequestBody(required = false) TerminateReq req) {
+    public RetResult<Void> terminate(@PathVariable String id, @RequestBody(required = false) TerminateReq req) {
         String operatorId = SecurityUtil.getOperatorId();
         String reason = req != null ? req.reason() : "管理员手动终止";
         notificationService.terminateNotification(id, operatorId, reason);
@@ -113,7 +113,7 @@ public class NotificationManageController extends BaseSystemController {
     @PostMapping("batch-terminate")
     @PreAuthorize("@ss.hasPermission('system:monitor:notification:terminate')")
     @Operation(summary = "批量终止通知")
-    public RetResult<Object> batchTerminate(@RequestBody BatchTerminateReq req) {
+    public RetResult<Void> batchTerminate(@RequestBody BatchTerminateReq req) {
         String operatorId = SecurityUtil.getOperatorId();
         for (String id : req.ids()) {
             notificationService.terminateNotification(id, operatorId, "批量终止");

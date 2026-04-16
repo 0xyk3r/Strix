@@ -117,7 +117,7 @@ public class SystemDictController extends BaseSystemController {
     @PostMapping("update")
     @PreAuthorize("@ss.hasPermission('system:dict:add')")
     @StrixLog(operationGroup = "系统字典", operationName = "新增字典", operationType = SystemLogOperType.ADD)
-    public RetResult<Object> update(@RequestBody @Validated(InsertGroup.class) DictUpdateReq req) {
+    public RetResult<Void> update(@RequestBody @Validated(InsertGroup.class) DictUpdateReq req) {
         Dict dict = new Dict(
                 req.getKey(),
                 req.getName(),
@@ -140,7 +140,7 @@ public class SystemDictController extends BaseSystemController {
     @PostMapping("update/{id}")
     @PreAuthorize("@ss.hasPermission('system:dict:update')")
     @StrixLog(operationGroup = "系统字典", operationName = "修改字典", operationType = SystemLogOperType.UPDATE)
-    public RetResult<Object> update(@Parameter(description = "字典 ID") @PathVariable String id, @RequestBody @Validated(UpdateGroup.class) DictUpdateReq req) {
+    public RetResult<Void> update(@Parameter(description = "字典 ID") @PathVariable String id, @RequestBody @Validated(UpdateGroup.class) DictUpdateReq req) {
         Dict dict = dictService.getById(id);
         Assert.notNull(dict, I18nUtil.notFound("field.originalData"));
 
@@ -156,7 +156,7 @@ public class SystemDictController extends BaseSystemController {
     @PostMapping("remove/{id}")
     @PreAuthorize("@ss.hasPermission('system:dict:remove')")
     @StrixLog(operationGroup = "系统字典", operationName = "删除字典", operationType = SystemLogOperType.DELETE)
-    public RetResult<Object> remove(@Parameter(description = "字典 ID") @PathVariable String id) {
+    public RetResult<Void> remove(@Parameter(description = "字典 ID") @PathVariable String id) {
         Assert.hasText(id, I18nUtil.get("error.param.invalid"));
 
         Dict dict = dictService.getById(id);
@@ -174,7 +174,7 @@ public class SystemDictController extends BaseSystemController {
     @PostMapping("batch/remove")
     @PreAuthorize("@ss.hasPermission('system:dict:remove')")
     @StrixLog(operationGroup = "系统字典", operationName = "批量删除字典", operationType = SystemLogOperType.DELETE)
-    public RetResult<Object> batchRemove(@RequestBody @Validated BatchRemoveReq req) {
+    public RetResult<Void> batchRemove(@RequestBody @Validated BatchRemoveReq req) {
         List<Dict> dicts = dictService.listByIds(req.getIds());
         Assert.notEmpty(dicts, I18nUtil.notFound("field.dictItem"));
 
@@ -197,7 +197,7 @@ public class SystemDictController extends BaseSystemController {
     @PostMapping("batch/modify")
     @PreAuthorize("@ss.hasPermission('system:dict:update')")
     @StrixLog(operationGroup = "系统字典", operationName = "批量修改字典字段", operationType = SystemLogOperType.UPDATE)
-    public RetResult<Object> batchModify(@RequestBody @Validated BatchModifyReq req) {
+    public RetResult<Void> batchModify(@RequestBody @Validated BatchModifyReq req) {
         Assert.hasText(req.getField(), "参数错误");
 
         switch (req.getField()) {
@@ -264,7 +264,7 @@ public class SystemDictController extends BaseSystemController {
     @PostMapping("data/{key}/update")
     @PreAuthorize("@ss.hasPermission('system:dict:data:add')")
     @StrixLog(operationGroup = "系统字典", operationName = "新增字典数据", operationType = SystemLogOperType.ADD)
-    public RetResult<Object> updateDictData(@RequestBody @Validated(InsertGroup.class) DictDataUpdateReq req) {
+    public RetResult<Void> updateDictData(@RequestBody @Validated(InsertGroup.class) DictDataUpdateReq req) {
         DictData dictData = new DictData(
                 req.getKey(),
                 req.getValue(),
@@ -287,7 +287,7 @@ public class SystemDictController extends BaseSystemController {
     @PostMapping("data/{key}/update/{id}")
     @PreAuthorize("@ss.hasPermission('system:dict:data:update')")
     @StrixLog(operationGroup = "系统字典", operationName = "修改字典数据", operationType = SystemLogOperType.UPDATE)
-    public RetResult<Object> updateDictData(@Parameter(description = "字典数据 ID") @PathVariable String id, @RequestBody @Validated(UpdateGroup.class) DictDataUpdateReq req) {
+    public RetResult<Void> updateDictData(@Parameter(description = "字典数据 ID") @PathVariable String id, @RequestBody @Validated(UpdateGroup.class) DictDataUpdateReq req) {
         DictData dictData = dictDataService.getById(id);
         Assert.notNull(dictData, I18nUtil.notFound("field.originalData"));
 
@@ -303,7 +303,7 @@ public class SystemDictController extends BaseSystemController {
     @PostMapping("data/{key}/remove/{id}")
     @PreAuthorize("@ss.hasPermission('system:dict:data:remove')")
     @StrixLog(operationGroup = "系统字典", operationName = "删除字典数据", operationType = SystemLogOperType.DELETE)
-    public RetResult<Object> removeDictData(@Parameter(description = "字典数据 ID") @PathVariable String id) {
+    public RetResult<Void> removeDictData(@Parameter(description = "字典数据 ID") @PathVariable String id) {
         Assert.hasText(id, I18nUtil.get("error.param.invalid"));
 
         DictData dictData = dictDataService.getById(id);
@@ -321,7 +321,7 @@ public class SystemDictController extends BaseSystemController {
     @PostMapping("data/{key}/batch/remove")
     @PreAuthorize("@ss.hasPermission('system:dict:data:remove')")
     @StrixLog(operationGroup = "系统字典", operationName = "批量删除字典数据", operationType = SystemLogOperType.DELETE)
-    public RetResult<Object> batchRemoveDictData(@PathVariable String key, @RequestBody @Validated BatchRemoveReq req) {
+    public RetResult<Void> batchRemoveDictData(@PathVariable String key, @RequestBody @Validated BatchRemoveReq req) {
         List<DictData> dataList = dictDataService.listByIds(req.getIds());
         Assert.notEmpty(dataList, I18nUtil.notFound("field.dictData"));
 
@@ -339,7 +339,7 @@ public class SystemDictController extends BaseSystemController {
     @PostMapping("data/{key}/batch/modify")
     @PreAuthorize("@ss.hasPermission('system:dict:data:update')")
     @StrixLog(operationGroup = "系统字典", operationName = "批量修改字典数据字段", operationType = SystemLogOperType.UPDATE)
-    public RetResult<Object> batchModifyDictData(@PathVariable String key, @RequestBody @Validated BatchModifyReq req) {
+    public RetResult<Void> batchModifyDictData(@PathVariable String key, @RequestBody @Validated BatchModifyReq req) {
         Assert.hasText(req.getField(), "参数错误");
 
         switch (req.getField()) {

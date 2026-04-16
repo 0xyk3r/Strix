@@ -82,7 +82,7 @@ public class PopularityController extends BaseSystemController {
     @PreAuthorize("@ss.hasPermission('system:tool:popularity:add')")
     @StrixLog(operationGroup = "系统工具-热度工具", operationName = "新增配置", operationType = SystemLogOperType.ADD)
     @Operation(summary = "新增热度配置")
-    public RetResult<Object> update(@RequestBody @Validated(InsertGroup.class) PopularityConfigUpdateReq req) {
+    public RetResult<Void> update(@RequestBody @Validated(InsertGroup.class) PopularityConfigUpdateReq req) {
         Assert.notNull(req, I18nUtil.get("error.param.invalid"));
 
         PopularityConfig popularityConfig = new PopularityConfig(
@@ -105,7 +105,7 @@ public class PopularityController extends BaseSystemController {
     @PreAuthorize("@ss.hasPermission('system:tool:popularity:update')")
     @StrixLog(operationGroup = "系统工具-热度工具", operationName = "修改配置", operationType = SystemLogOperType.UPDATE)
     @Operation(summary = "编辑热度配置")
-    public RetResult<Object> update(@Parameter(description = "热度配置 ID") @PathVariable String id, @RequestBody @Validated(UpdateGroup.class) PopularityConfigUpdateReq req) {
+    public RetResult<Void> update(@Parameter(description = "热度配置 ID") @PathVariable String id, @RequestBody @Validated(UpdateGroup.class) PopularityConfigUpdateReq req) {
         PopularityConfig data = popularityConfigService.getById(id);
         Assert.notNull(data, I18nUtil.notFound("field.data"));
 
@@ -123,7 +123,7 @@ public class PopularityController extends BaseSystemController {
     @PreAuthorize("@ss.hasPermission('system:tool:popularity:remove')")
     @StrixLog(operationGroup = "系统工具-热度工具", operationName = "删除配置", operationType = SystemLogOperType.DELETE)
     @Operation(summary = "删除热度配置")
-    public RetResult<Object> remove(@Parameter(description = "热度配置 ID") @PathVariable String id) {
+    public RetResult<Void> remove(@Parameter(description = "热度配置 ID") @PathVariable String id) {
         PopularityConfig data = popularityConfigService.getById(id);
         Assert.notNull(data, I18nUtil.notFound("field.data"));
 
@@ -158,7 +158,7 @@ public class PopularityController extends BaseSystemController {
     @PreAuthorize("@ss.hasPermission('system:tool:popularity:data')")
     @StrixLog(operationGroup = "系统工具-热度工具", operationName = "修改热度数据", operationType = SystemLogOperType.UPDATE)
     @Operation(summary = "更新热度数据")
-    public RetResult<Object> updateData(@Parameter(description = "热度配置 ID") @PathVariable String id, @Parameter(description = "热度数据 ID") @PathVariable String dataId, @RequestBody @Validated(UpdateGroup.class) PopularityDataUpdateReq req) {
+    public RetResult<Void> updateData(@Parameter(description = "热度配置 ID") @PathVariable String id, @Parameter(description = "热度数据 ID") @PathVariable String dataId, @RequestBody @Validated(UpdateGroup.class) PopularityDataUpdateReq req) {
         PopularityConfig config = popularityConfigService.getById(id);
         Assert.notNull(config, I18nUtil.notFound("field.data"));
 
@@ -173,7 +173,7 @@ public class PopularityController extends BaseSystemController {
     @PreAuthorize("@ss.hasPermission('system:tool:popularity:data')")
     @StrixLog(operationGroup = "系统工具-热度工具", operationName = "删除热度数据", operationType = SystemLogOperType.DELETE)
     @Operation(summary = "删除热度数据")
-    public RetResult<Object> removeData(@Parameter(description = "热度配置 ID") @PathVariable String id, @Parameter(description = "热度数据 ID") @PathVariable String dataId) {
+    public RetResult<Void> removeData(@Parameter(description = "热度配置 ID") @PathVariable String id, @Parameter(description = "热度数据 ID") @PathVariable String dataId) {
         PopularityConfig config = popularityConfigService.getById(id);
         Assert.notNull(config, I18nUtil.notFound("field.data"));
 
