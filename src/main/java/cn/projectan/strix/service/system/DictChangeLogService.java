@@ -80,11 +80,18 @@ public class DictChangeLogService extends ServiceImpl<DictChangeLogMapper, DictC
 
     /**
      * 从快照 JSON 反序列化 DictData 列表
+     * 兼容历史记录中的单个对象格式 (非数组)
      */
     public List<DictData> deserializeSnapshot(String snapshotJson) {
         try {
-            return ObjectMapperUtil.get().readValue(snapshotJson,
-                    ObjectMapperUtil.get().getTypeFactory().constructCollectionType(List.class, DictData.class));
+            String trimmed = snapshotJson.trim();
+            if (trimmed.startsWith("[")) {
+                return ObjectMapperUtil.get().readValue(snapshotJson,
+                        ObjectMapperUtil.get().getTypeFactory().constructCollectionType(List.class, DictData.class));
+            } else {
+                DictData single = ObjectMapperUtil.get().readValue(snapshotJson, DictData.class);
+                return List.of(single);
+            }
         } catch (Exception e) {
             throw new IllegalArgumentException("反序列化快照数据失败", e);
         }

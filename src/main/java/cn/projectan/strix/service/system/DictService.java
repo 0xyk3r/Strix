@@ -211,9 +211,11 @@ public class DictService extends ServiceImpl<DictMapper, Dict> {
                     .count();
             Assert.isTrue(existingDefaults == 0, "该字典已有默认值，每个字典最多允许一个默认项");
         }
+        List<DictData> beforeList = dictDataService.listByKey(dictData.getKey());
         incrementDictVersion(dictData.getKey());
         Assert.isTrue(dictDataService.save(dictData), "保存失败");
-        dictChangeLogService.record(dictData.getKey(), DictChangeType.DATA_ADDED, null, dictData, "新增数据项");
+        List<DictData> afterList = dictDataService.listByKey(dictData.getKey());
+        dictChangeLogService.record(dictData.getKey(), DictChangeType.DATA_ADDED, beforeList, afterList, "新增数据项");
         eventPublisher.publishEvent(new DictChangedEvent(this, dictData.getKey(), "data_added"));
     }
 
@@ -231,12 +233,13 @@ public class DictService extends ServiceImpl<DictMapper, Dict> {
     )
     @Transactional(rollbackFor = Exception.class)
     public void updateDictData(DictData dictData, DictDataUpdateReq req) {
-        DictData before = dictDataService.getById(dictData.getId());
+        List<DictData> beforeList = dictDataService.listByKey(dictData.getKey());
         LambdaUpdateWrapper<DictData> updateWrapper = UpdateBuilder.build(dictData, req);
         UniqueChecker.check(dictData);
         incrementDictVersion(dictData.getKey());
         Assert.isTrue(dictDataService.update(updateWrapper), "保存失败");
-        dictChangeLogService.record(dictData.getKey(), DictChangeType.DATA_UPDATED, before, dictData, "修改数据项");
+        List<DictData> afterList = dictDataService.listByKey(dictData.getKey());
+        dictChangeLogService.record(dictData.getKey(), DictChangeType.DATA_UPDATED, beforeList, afterList, "修改数据项");
         eventPublisher.publishEvent(new DictChangedEvent(this, dictData.getKey(), "data_updated"));
     }
 
@@ -271,13 +274,15 @@ public class DictService extends ServiceImpl<DictMapper, Dict> {
     )
     @Transactional(rollbackFor = Exception.class)
     public void deleteDictData(DictData dictData) {
-        dictChangeLogService.record(dictData.getKey(), DictChangeType.DATA_DELETED, dictData, null, "删除数据项");
+        List<DictData> beforeList = dictDataService.listByKey(dictData.getKey());
         incrementDictVersion(dictData.getKey());
 
         dictDataService.lambdaUpdate()
                 .eq(DictData::getKey, dictData.getKey())
                 .eq(DictData::getValue, dictData.getValue())
                 .remove();
+        List<DictData> afterList = dictDataService.listByKey(dictData.getKey());
+        dictChangeLogService.record(dictData.getKey(), DictChangeType.DATA_DELETED, beforeList, afterList, "删除数据项");
         eventPublisher.publishEvent(new DictChangedEvent(this, dictData.getKey(), "data_deleted"));
     }
 
