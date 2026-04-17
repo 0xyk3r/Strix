@@ -179,7 +179,7 @@ public class OssFileService extends ServiceImpl<OssFileMapper, OssFile> {
             throw new StrixException(I18nUtil.get("error.file.uploadException"), e);
         }
 
-        return saveOssFile(ossFileGroup, filePath, file.length(), ext);
+        return saveOssFile(ossFileGroup, filePath, file.length(), ext, originalName);
     }
 
     /**
@@ -206,7 +206,7 @@ public class OssFileService extends ServiceImpl<OssFileMapper, OssFile> {
             throw new StrixException(I18nUtil.get("error.file.uploadException"), e);
         }
 
-        return saveOssFile(ossFileGroup, filePath, file.getSize(), ext);
+        return saveOssFile(ossFileGroup, filePath, file.getSize(), ext, file.getOriginalFilename());
     }
 
     /**
@@ -235,7 +235,7 @@ public class OssFileService extends ServiceImpl<OssFileMapper, OssFile> {
             throw new StrixException(I18nUtil.get("error.file.uploadException"), e);
         }
 
-        return saveOssFile(ossFileGroup, filePath, contentLength, ext);
+        return saveOssFile(ossFileGroup, filePath, contentLength, ext, originalName);
     }
 
     /**
@@ -267,7 +267,7 @@ public class OssFileService extends ServiceImpl<OssFileMapper, OssFile> {
             throw new StrixException(I18nUtil.get("error.file.uploadException"), e);
         }
 
-        return saveOssFile(ossFileGroup, filePath, (long) data.length, ext);
+        return saveOssFile(ossFileGroup, filePath, (long) data.length, ext, originalName);
     }
 
     /**
@@ -530,17 +530,65 @@ public class OssFileService extends ServiceImpl<OssFileMapper, OssFile> {
      * @param filePath     文件路径
      * @param size         文件大小
      * @param ext          扩展名
+     * @param originalName 原始文件名
      * @return 保存的文件信息
      */
-    private OssFile saveOssFile(OssFileGroup ossFileGroup, String filePath, Long size, String ext) {
+    private OssFile saveOssFile(OssFileGroup ossFileGroup, String filePath, Long size, String ext, String originalName) {
         OssFile ossFile = new OssFile()
                 .setConfigKey(ossFileGroup.getConfigKey())
                 .setGroupKey(ossFileGroup.getKey())
                 .setPath(filePath)
                 .setSize(size)
-                .setExt(ext);
+                .setExt(ext)
+                .setOriginalName(originalName)
+                .setContentType(resolveContentType(ext));
         Assert.isTrue(save(ossFile), I18nUtil.get("assert.oss.upload.saveFailed"));
         return ossFile;
+    }
+
+    private String resolveContentType(String ext) {
+        if (ext == null) return "application/octet-stream";
+        return switch (ext.toLowerCase()) {
+            case ".png" -> "image/png";
+            case ".jpg", ".jpeg" -> "image/jpeg";
+            case ".gif" -> "image/gif";
+            case ".webp" -> "image/webp";
+            case ".svg" -> "image/svg+xml";
+            case ".bmp" -> "image/bmp";
+            case ".ico" -> "image/x-icon";
+            case ".mp4" -> "video/mp4";
+            case ".webm" -> "video/webm";
+            case ".mov" -> "video/quicktime";
+            case ".avi" -> "video/x-msvideo";
+            case ".mp3" -> "audio/mpeg";
+            case ".wav" -> "audio/wav";
+            case ".ogg" -> "audio/ogg";
+            case ".flac" -> "audio/flac";
+            case ".pdf" -> "application/pdf";
+            case ".zip" -> "application/zip";
+            case ".rar" -> "application/vnd.rar";
+            case ".7z" -> "application/x-7z-compressed";
+            case ".tar" -> "application/x-tar";
+            case ".gz" -> "application/gzip";
+            case ".json" -> "application/json";
+            case ".xml" -> "application/xml";
+            case ".html", ".htm" -> "text/html";
+            case ".css" -> "text/css";
+            case ".js" -> "text/javascript";
+            case ".ts" -> "text/typescript";
+            case ".java" -> "text/x-java-source";
+            case ".py" -> "text/x-python";
+            case ".md" -> "text/markdown";
+            case ".yaml", ".yml" -> "text/yaml";
+            case ".txt" -> "text/plain";
+            case ".csv" -> "text/csv";
+            case ".sql" -> "text/x-sql";
+            case ".sh" -> "text/x-shellscript";
+            case ".xlsx" -> "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+            case ".docx" -> "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+            case ".pptx" -> "application/vnd.openxmlformats-officedocument.presentationml.presentation";
+            default -> "application/octet-stream";
+        };
     }
 
     /**

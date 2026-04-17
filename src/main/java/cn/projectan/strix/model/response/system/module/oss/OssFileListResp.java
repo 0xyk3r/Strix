@@ -25,7 +25,9 @@ public class OssFileListResp extends BasePageResp {
 
     public OssFileListResp(List<OssFile> data, Long total) {
         files = data.stream().map(d ->
-                new OssFileItem(d.getId(), d.getConfigKey(), d.getGroupKey(), d.getPath(), d.getSize(), d.getExt(), d.getCreatedBy(), d.getCreatedTime())
+                new OssFileItem(d.getId(), d.getConfigKey(), d.getGroupKey(), d.getPath(),
+                        d.getSize(), d.getExt(), d.getOriginalName(), d.getContentType(),
+                        d.getCreatedBy(), d.getCreatedTime())
         ).collect(Collectors.toList());
         this.setTotal(total);
     }
@@ -53,6 +55,12 @@ public class OssFileListResp extends BasePageResp {
 
         @Schema(description = "文件扩展名")
         private String ext;
+
+        @Schema(description = "文件原始名称")
+        private String originalName;
+
+        @Schema(description = "MIME 类型")
+        private String contentType;
 
         @Schema(description = "上传者ID")
         private String uploaderId;

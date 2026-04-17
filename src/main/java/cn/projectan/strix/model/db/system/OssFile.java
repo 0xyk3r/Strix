@@ -27,7 +27,7 @@ import java.io.Serial;
 public class OssFile extends BaseModel<OssFile> {
 
     @Serial
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = 3L;
 
     /**
      * OSS 配置 Key
@@ -50,8 +50,18 @@ public class OssFile extends BaseModel<OssFile> {
     private Long size;
 
     /**
-     * 图片扩展名
+     * 文件扩展名
      */
     private String ext;
+
+    /**
+     * 文件原始名称
+     */
+    private String originalName;
+
+    /**
+     * MIME 类型
+     */
+    private String contentType;
 
 }
