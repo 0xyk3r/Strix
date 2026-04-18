@@ -194,10 +194,11 @@ public class OssFileService extends ServiceImpl<OssFileMapper, OssFile> {
         Assert.notNull(ossFileGroup, I18nUtil.get("assert.oss.upload.groupNotFound"));
         StrixOssClient client = getOssClient(ossFileGroup.getConfigKey());
 
-        String ext = FileUtil.getExtension(file.getOriginalFilename());
+        String originalFilename = file.getOriginalFilename();
+        String ext = FileUtil.getExtension(originalFilename);
         validateExtension(ossFileGroup, ext);
 
-        String filePath = buildFilePath(ossFileGroup, file.getOriginalFilename());
+        String filePath = buildFilePath(ossFileGroup, originalFilename);
 
         try (InputStream is = file.getInputStream()) {
             validateFileMagic(is, ext);
@@ -206,7 +207,7 @@ public class OssFileService extends ServiceImpl<OssFileMapper, OssFile> {
             throw new StrixException(I18nUtil.get("error.file.uploadException"), e);
         }
 
-        return saveOssFile(ossFileGroup, filePath, file.getSize(), ext, file.getOriginalFilename());
+        return saveOssFile(ossFileGroup, filePath, file.getSize(), ext, originalFilename);
     }
 
     /**
@@ -546,8 +547,14 @@ public class OssFileService extends ServiceImpl<OssFileMapper, OssFile> {
         return ossFile;
     }
 
+    /**
+     * 根据文件扩展名解析 MIME 类型
+     *
+     * @param ext 文件扩展名 (包含点号, 例如 ".jpg"), 允许为 null 或空字符串
+     * @return 对应的 MIME 类型, 未知类型返回 "application/octet-stream"
+     */
     private String resolveContentType(String ext) {
-        if (ext == null) return "application/octet-stream";
+        if (!StringUtils.hasText(ext)) return "application/octet-stream";
         return switch (ext.toLowerCase()) {
             case ".png" -> "image/png";
             case ".jpg", ".jpeg" -> "image/jpeg";
@@ -579,7 +586,7 @@ public class OssFileService extends ServiceImpl<OssFileMapper, OssFile> {
             case ".java" -> "text/x-java-source";
             case ".py" -> "text/x-python";
             case ".md" -> "text/markdown";
-            case ".yaml", ".yml" -> "text/yaml";
+            case ".yaml", ".yml" -> "application/yaml";
             case ".txt" -> "text/plain";
             case ".csv" -> "text/csv";
             case ".sql" -> "text/x-sql";
