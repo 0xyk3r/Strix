@@ -253,6 +253,21 @@ public class LocalOssClient implements StrixOssClient {
         }
 
         @Override
+        public void copy(String bucketName, String sourceObjectName, String targetObjectName) {
+            File source = safeResolve(sourceObjectName);
+            if (!source.exists()) {
+                throw new StrixException(I18nUtil.get("error.oss.fileNotExist"));
+            }
+            try {
+                File target = createFile(targetObjectName);
+                FileUtil.copy(source, target, true);
+            } catch (IOException e) {
+                log.error("本地存储操作异常: {}", e.getMessage(), e);
+                throw new StrixException(I18nUtil.get("error.oss.copyFailed"));
+            }
+        }
+
+        @Override
         public List<StrixOssBucket> listBuckets() {
             return List.of();
         }

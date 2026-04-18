@@ -371,6 +371,22 @@ public class AliyunOssClient implements StrixOssClient {
         }
 
         @Override
+        public void copy(String bucketName, String sourceObjectName, String targetObjectName) {
+            try {
+                CopyObjectRequest copyObjectRequest = CopyObjectRequest.builder()
+                        .sourceBucket(bucketName)
+                        .sourceKey(sourceObjectName)
+                        .destinationBucket(bucketName)
+                        .destinationKey(targetObjectName)
+                        .build();
+                client.copyObject(copyObjectRequest);
+            } catch (Exception e) {
+                log.error("OSS 操作异常: {}", e.getMessage(), e);
+                throw new StrixException(I18nUtil.get("error.oss.copyFailed"));
+            }
+        }
+
+        @Override
         public List<StrixOssBucket> listBuckets() {
             try {
                 ListBucketsResponse response = client.listBuckets();

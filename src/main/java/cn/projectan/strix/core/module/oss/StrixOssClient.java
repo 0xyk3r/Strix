@@ -199,6 +199,15 @@ public interface StrixOssClient {
          */
         void deleteBucket(String bucketName);
 
+        /**
+         * 复制对象
+         *
+         * @param bucketName       源桶名称
+         * @param sourceObjectName 源对象名称
+         * @param targetObjectName 目标对象名称
+         */
+        void copy(String bucketName, String sourceObjectName, String targetObjectName);
+
     }
 
 }
