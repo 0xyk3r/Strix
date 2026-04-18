@@ -38,6 +38,7 @@ public class OssFileBrowseService {
     private static final String KEEP_FILE = ".keep";
     private static final long ARCHIVE_MAX_SIZE = 100 * 1024 * 1024; // 100MB
     private static final long PREVIEW_URL_EXPIRES = TimeUnit.HOURS.toMillis(1);
+    private static final int ARCHIVE_MAX_ENTRIES = 10_000;
 
     /**
      * 浏览指定前缀下的文件和目录
@@ -73,6 +74,7 @@ public class OssFileBrowseService {
         Map<String, Long> dirFileCounts = new HashMap<>();
 
         for (OssFile file : allFiles) {
+            if (!file.getPath().startsWith(fullPrefix)) continue;
             String relativePath = file.getPath().substring(fullPrefix.length());
 
             int slashIndex = relativePath.indexOf('/');
@@ -90,12 +92,11 @@ public class OssFileBrowseService {
         // Also detect directories from .keep files
         for (OssFile file : allFiles) {
             String path = file.getPath();
-            if (path.endsWith("/" + KEEP_FILE)) {
-                String relDir = path.substring(fullPrefix.length());
-                int slashIdx = relDir.indexOf('/');
-                if (slashIdx >= 0) {
-                    dirNames.add(relDir.substring(0, slashIdx));
-                }
+            if (!path.startsWith(fullPrefix) || !path.endsWith("/" + KEEP_FILE)) continue;
+            String relDir = path.substring(fullPrefix.length());
+            int slashIdx = relDir.indexOf('/');
+            if (slashIdx >= 0) {
+                dirNames.add(relDir.substring(0, slashIdx));
             }
         }
 
@@ -144,6 +145,11 @@ public class OssFileBrowseService {
 
         String baseDir = StringUtils.hasText(group.getBaseDir()) ? group.getBaseDir() + "/" : "";
         String parentPrefix = StringUtils.hasText(req.getParentPrefix()) ? req.getParentPrefix() : "";
+
+        // Path traversal guard
+        Assert.isTrue(!req.getDirName().contains("/") && !req.getDirName().contains(".."),
+                I18nUtil.get("assert.oss.invalidDirName"));
+
         String keepPath = baseDir + parentPrefix + req.getDirName() + "/" + KEEP_FILE;
 
         // Check if directory already exists
@@ -218,11 +224,16 @@ public class OssFileBrowseService {
         String targetBaseDir = StringUtils.hasText(targetGroup.getBaseDir()) ? targetGroup.getBaseDir() + "/" : "";
         String targetPrefix = StringUtils.hasText(req.getTargetPrefix()) ? req.getTargetPrefix() : "";
 
-        for (String fileId : req.getFileIds()) {
-            OssFile file = ossFileService.getById(fileId);
-            if (file == null) continue;
+        // Pre-fetch all files and unique groups to avoid N+1
+        List<OssFile> files = ossFileService.lambdaQuery()
+                .in(OssFile::getId, req.getFileIds())
+                .list();
+        Map<String, OssFileGroup> groupCache = files.stream()
+                .map(OssFile::getGroupKey).distinct()
+                .collect(Collectors.toMap(k -> k, k -> ossFileGroupService.getGroupByKey(k)));
 
-            OssFileGroup sourceGroup = ossFileGroupService.getGroupByKey(file.getGroupKey());
+        for (OssFile file : files) {
+            OssFileGroup sourceGroup = groupCache.get(file.getGroupKey());
             if (sourceGroup == null) continue;
 
             // Build new path
@@ -231,11 +242,21 @@ public class OssFileBrowseService {
                     : file.getPath();
             String newPath = targetBaseDir + targetPrefix + fileName;
 
-            // OSS: copy + delete
-            StrixOssClient client = getOssClient(file.getConfigKey());
-            StrixOssClient.Operations ops = client.getPublic();
-            ops.copy(sourceGroup.getBucketName(), file.getPath(), newPath);
-            ops.delete(sourceGroup.getBucketName(), file.getPath());
+            // OSS: copy (handle cross-config) + delete
+            if (file.getConfigKey().equals(targetGroup.getConfigKey())) {
+                StrixOssClient client = getOssClient(file.getConfigKey());
+                client.getPublic().copy(sourceGroup.getBucketName(), file.getPath(), newPath);
+                client.getPublic().delete(sourceGroup.getBucketName(), file.getPath());
+            } else {
+                StrixOssClient sourceClient = getOssClient(file.getConfigKey());
+                StrixOssClient targetClient = getOssClient(targetGroup.getConfigKey());
+                try (InputStream is = sourceClient.getPublic().downloadAsStream(sourceGroup.getBucketName(), file.getPath())) {
+                    targetClient.getPublic().upload(targetGroup.getBucketName(), newPath, is.readAllBytes());
+                } catch (Exception e) {
+                    throw new StrixException(I18nUtil.get("error.oss.crossConfigMoveFailed"));
+                }
+                sourceClient.getPublic().delete(sourceGroup.getBucketName(), file.getPath());
+            }
 
             // DB update
             ossFileService.lambdaUpdate()
@@ -257,11 +278,16 @@ public class OssFileBrowseService {
         String targetBaseDir = StringUtils.hasText(targetGroup.getBaseDir()) ? targetGroup.getBaseDir() + "/" : "";
         String targetPrefix = StringUtils.hasText(req.getTargetPrefix()) ? req.getTargetPrefix() : "";
 
-        for (String fileId : req.getFileIds()) {
-            OssFile file = ossFileService.getById(fileId);
-            if (file == null) continue;
+        // Pre-fetch all files and unique groups to avoid N+1
+        List<OssFile> files = ossFileService.lambdaQuery()
+                .in(OssFile::getId, req.getFileIds())
+                .list();
+        Map<String, OssFileGroup> groupCache = files.stream()
+                .map(OssFile::getGroupKey).distinct()
+                .collect(Collectors.toMap(k -> k, k -> ossFileGroupService.getGroupByKey(k)));
 
-            OssFileGroup sourceGroup = ossFileGroupService.getGroupByKey(file.getGroupKey());
+        for (OssFile file : files) {
+            OssFileGroup sourceGroup = groupCache.get(file.getGroupKey());
             if (sourceGroup == null) continue;
 
             // Build new path with new snowflake ID
@@ -270,10 +296,19 @@ public class OssFileBrowseService {
             String newFileName = SnowflakeUtil.nextOssFileName() + "_" + originalName;
             String newPath = targetBaseDir + targetPrefix + newFileName;
 
-            // OSS: copy
-            StrixOssClient client = getOssClient(file.getConfigKey());
-            StrixOssClient.Operations ops = client.getPublic();
-            ops.copy(sourceGroup.getBucketName(), file.getPath(), newPath);
+            // OSS: copy (handle cross-config)
+            if (file.getConfigKey().equals(targetGroup.getConfigKey())) {
+                getOssClient(file.getConfigKey()).getPublic()
+                        .copy(sourceGroup.getBucketName(), file.getPath(), newPath);
+            } else {
+                StrixOssClient sourceClient = getOssClient(file.getConfigKey());
+                StrixOssClient targetClient = getOssClient(targetGroup.getConfigKey());
+                try (InputStream is = sourceClient.getPublic().downloadAsStream(sourceGroup.getBucketName(), file.getPath())) {
+                    targetClient.getPublic().upload(targetGroup.getBucketName(), newPath, is.readAllBytes());
+                } catch (Exception e) {
+                    throw new StrixException(I18nUtil.get("error.oss.crossConfigMoveFailed"));
+                }
+            }
 
             // DB: create new record
             OssFile newFile = new OssFile()
@@ -293,24 +328,32 @@ public class OssFileBrowseService {
      */
     @Transactional(rollbackFor = Exception.class)
     public void batchRemove(OssFileBatchRemoveReq req) {
-        for (String fileId : req.getFileIds()) {
-            OssFile file = ossFileService.getById(fileId);
-            if (file == null) continue;
+        // Pre-fetch all files and unique groups to avoid N+1
+        List<OssFile> files = ossFileService.lambdaQuery()
+                .in(OssFile::getId, req.getFileIds())
+                .list();
+        Map<String, OssFileGroup> groupCache = files.stream()
+                .map(OssFile::getGroupKey).distinct()
+                .collect(Collectors.toMap(k -> k, k -> ossFileGroupService.getGroupByKey(k)));
 
-            OssFileGroup group = ossFileGroupService.getGroupByKey(file.getGroupKey());
+        List<String> deletedIds = new ArrayList<>();
+        for (OssFile file : files) {
+            OssFileGroup group = groupCache.get(file.getGroupKey());
             if (group == null) continue;
 
             // OSS: delete
             StrixOssClient client = getOssClient(file.getConfigKey());
-            StrixOssClient.Operations ops = client.getPublic();
             try {
-                ops.delete(group.getBucketName(), file.getPath());
+                client.getPublic().delete(group.getBucketName(), file.getPath());
             } catch (Exception e) {
-                log.warn("OSS 文件删除失败, 继续删除数据库记录: fileId={}, path={}", fileId, file.getPath(), e);
+                log.warn("OSS 文件删除失败, 继续删除数据库记录: fileId={}, path={}", file.getId(), file.getPath(), e);
             }
+            deletedIds.add(file.getId());
+        }
 
-            // DB: soft delete
-            ossFileService.removeById(fileId);
+        // DB: batch soft delete
+        if (!deletedIds.isEmpty()) {
+            ossFileService.removeByIds(deletedIds);
         }
     }
 
@@ -358,6 +401,9 @@ public class OssFileBrowseService {
                  java.util.zip.ZipInputStream zis = new java.util.zip.ZipInputStream(is)) {
                 java.util.zip.ZipEntry entry;
                 while ((entry = zis.getNextEntry()) != null) {
+                    if (entries.size() >= ARCHIVE_MAX_ENTRIES) {
+                        throw new StrixException(I18nUtil.get("error.oss.archiveTooManyEntries"));
+                    }
                     entries.add(new OssFileArchiveResp.ArchiveEntry(
                             entry.getName(),
                             entry.getSize() >= 0 ? entry.getSize() : 0,
@@ -381,6 +427,9 @@ public class OssFileBrowseService {
                  ArchiveInputStream<?> ais = new ArchiveStreamFactory().createArchiveInputStream(bis)) {
                 ArchiveEntry entry;
                 while ((entry = ais.getNextEntry()) != null) {
+                    if (entries.size() >= ARCHIVE_MAX_ENTRIES) {
+                        throw new StrixException(I18nUtil.get("error.oss.archiveTooManyEntries"));
+                    }
                     entries.add(new OssFileArchiveResp.ArchiveEntry(
                             entry.getName(),
                             entry.getSize() >= 0 ? entry.getSize() : 0,
@@ -413,10 +462,10 @@ public class OssFileBrowseService {
     }
 
     private void sortFiles(List<OssFile> files, String sortBy, String sortOrder) {
-        if (!StringUtils.hasText(sortBy)) sortBy = "name";
+        String effectiveSortBy = StringUtils.hasText(sortBy) ? sortBy : "name";
         boolean asc = !"desc".equalsIgnoreCase(sortOrder);
 
-        Comparator<OssFile> comparator = switch (sortBy) {
+        Comparator<OssFile> comparator = switch (effectiveSortBy) {
             case "size" -> Comparator.comparing(OssFile::getSize, Comparator.nullsLast(Comparator.naturalOrder()));
             case "time" -> Comparator.comparing(OssFile::getCreatedTime, Comparator.nullsLast(Comparator.naturalOrder()));
             case "type" -> Comparator.comparing(OssFile::getExt, Comparator.nullsLast(Comparator.naturalOrder()));

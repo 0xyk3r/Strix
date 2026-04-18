@@ -14,13 +14,11 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-@Slf4j
 @RestController
 @RequestMapping("system/oss/file/browse")
 @ConditionalOnBean(StrixOssStore.class)
@@ -80,15 +78,6 @@ public class OssFileBrowseController extends BaseSystemController {
     @Operation(summary = "批量删除文件")
     public RetResult<Object> batchRemove(@RequestBody @Validated OssFileBatchRemoveReq req) {
         ossFileBrowseService.batchRemove(req);
-        return RetBuilder.success();
-    }
-
-    @PostMapping("batch/move")
-    @PreAuthorize("@ss.hasPermission('system:oss:file:move')")
-    @StrixLog(operationGroup = "文件浏览器", operationName = "批量移动文件", operationType = SystemLogOperType.UPDATE)
-    @Operation(summary = "批量移动文件")
-    public RetResult<Object> batchMove(@RequestBody @Validated OssFileMoveReq req) {
-        ossFileBrowseService.move(req);
         return RetBuilder.success();
     }
 
