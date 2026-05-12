@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
+import org.springframework.web.context.request.async.AsyncRequestNotUsableException;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import java.io.*;
@@ -199,9 +200,15 @@ public class LocalOssClient implements StrixOssClient {
                         outputStream.write(buffer, 0, bytesRead);
                     }
                     outputStream.flush();
+                } catch (AsyncRequestNotUsableException e) {
+                    log.debug("Strix OSS: 客户端断开连接，流式下载中止: {}", e.getMessage());
                 } catch (IOException e) {
-                    log.error("Strix OSS: 流式下载文件失败: {}", e.getMessage(), e);
-                    throw new StrixException(I18nUtil.get("error.oss.streamDownloadFailed"));
+                    if (e.getMessage() != null && (e.getMessage().contains("Broken pipe") || e.getMessage().contains("Connection reset"))) {
+                        log.debug("Strix OSS: 客户端断开连接，流式下载中止: {}", e.getMessage());
+                    } else {
+                        log.error("Strix OSS: 流式下载文件失败: {}", e.getMessage(), e);
+                        throw new StrixException(I18nUtil.get("error.oss.streamDownloadFailed"));
+                    }
                 }
             };
         }

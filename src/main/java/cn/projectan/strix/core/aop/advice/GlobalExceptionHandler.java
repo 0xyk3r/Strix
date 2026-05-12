@@ -25,6 +25,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.async.AsyncRequestNotUsableException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.servlet.NoHandlerFoundException;
@@ -43,6 +44,11 @@ import java.util.stream.Collectors;
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(AsyncRequestNotUsableException.class)
+    public void handleAsyncRequestNotUsable(AsyncRequestNotUsableException e) {
+        log.debug("客户端断开连接，流式响应中止: {}", e.getMessage());
+    }
 
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
     public ResponseEntity<RetResult<Object>> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {

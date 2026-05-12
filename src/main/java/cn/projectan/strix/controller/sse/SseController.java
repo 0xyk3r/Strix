@@ -101,7 +101,7 @@ public class SseController extends BaseController {
             log.warn("发送活跃公告失败: managerId={}", managerId, e);
         }
 
-        log.info("SSE 连接已建立: managerId={}", managerId);
+        log.debug("SSE 连接已建立: managerId={}", managerId);
         return emitter;
     }
 }

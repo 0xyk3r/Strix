@@ -74,7 +74,7 @@ public class SseSessionManager {
             log.warn("发送 SSE reconnectTime 失败: managerId={}", managerId);
         }
 
-        log.info("SSE 连接建立: managerId={}, 当前该管理员连接数={}",
+        log.debug("SSE 连接建立: managerId={}, 当前该管理员连接数={}",
                 managerId, emitters.getOrDefault(managerId, new CopyOnWriteArrayList<>()).size());
 
         return emitter;
