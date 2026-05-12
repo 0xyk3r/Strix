@@ -64,7 +64,7 @@ public class OssFileBrowseService {
         } else {
             allFiles = ossFileService.lambdaQuery()
                     .eq(OssFile::getGroupKey, req.getGroupKey())
-                    .likeRight(OssFile::getPath, fullPrefix)
+                    .likeRight(OssFile::getPath, escapeLike(fullPrefix))
                     .list();
         }
 
@@ -155,7 +155,7 @@ public class OssFileBrowseService {
         // Check if directory already exists
         boolean exists = ossFileService.lambdaQuery()
                 .eq(OssFile::getGroupKey, req.getGroupKey())
-                .likeRight(OssFile::getPath, baseDir + parentPrefix + req.getDirName() + "/")
+                .likeRight(OssFile::getPath, escapeLike(baseDir + parentPrefix + req.getDirName() + "/"))
                 .exists();
         Assert.isTrue(!exists, I18nUtil.get("assert.oss.dirAlreadyExists"));
 
@@ -477,6 +477,13 @@ public class OssFileBrowseService {
 
         if (!asc) comparator = comparator.reversed();
         files.sort(comparator);
+    }
+
+    /**
+     * Escape backslashes in LIKE pattern — MySQL treats '\' as an escape character in LIKE.
+     */
+    private static String escapeLike(String value) {
+        return value.replace("\\", "\\\\");
     }
 
 }

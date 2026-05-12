@@ -10,7 +10,6 @@ import cn.projectan.strix.model.dict.system.OssFileGroupSecretType;
 import cn.projectan.strix.model.request.system.module.oss.OssFileListReq;
 import cn.projectan.strix.util.common.I18nUtil;
 import cn.projectan.strix.util.common.SnowflakeUtil;
-import cn.projectan.strix.util.file.FileMagicValidator;
 import cn.projectan.strix.util.file.FileUtil;
 import cn.projectan.strix.util.http.ServletUtil;
 import cn.projectan.strix.util.text.RegexPatterns;
@@ -25,7 +24,10 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -165,11 +167,6 @@ public class OssFileService extends ServiceImpl<OssFileMapper, OssFile> {
 
         String ext = FileUtil.getExtension(originalName);
         validateExtension(ossFileGroup, ext);
-        try (InputStream is = new FileInputStream(file)) {
-            validateFileMagic(is, ext);
-        } catch (IOException e) {
-            throw new StrixException(I18nUtil.get("error.file.readFailed"), e);
-        }
 
         String filePath = buildFilePath(ossFileGroup, originalName);
 
@@ -201,7 +198,6 @@ public class OssFileService extends ServiceImpl<OssFileMapper, OssFile> {
         String filePath = buildFilePath(ossFileGroup, originalFilename);
 
         try (InputStream is = file.getInputStream()) {
-            validateFileMagic(is, ext);
             client.getPrivate().upload(ossFileGroup.getBucketName(), filePath, is, file.getSize());
         } catch (IOException e) {
             throw new StrixException(I18nUtil.get("error.file.uploadException"), e);
@@ -226,7 +222,6 @@ public class OssFileService extends ServiceImpl<OssFileMapper, OssFile> {
 
         String ext = FileUtil.getExtension(originalName);
         validateExtension(ossFileGroup, ext);
-        validateFileMagic(inputStream, ext);
 
         String filePath = buildFilePath(ossFileGroup, originalName);
 
@@ -254,11 +249,6 @@ public class OssFileService extends ServiceImpl<OssFileMapper, OssFile> {
 
         String ext = FileUtil.getExtension(originalName);
         validateExtension(ossFileGroup, ext);
-        try (InputStream is = new ByteArrayInputStream(data)) {
-            validateFileMagic(is, ext);
-        } catch (IOException e) {
-            throw new StrixException(I18nUtil.get("error.file.readFailed"), e);
-        }
 
         String filePath = buildFilePath(ossFileGroup, originalName);
 
@@ -495,14 +485,6 @@ public class OssFileService extends ServiceImpl<OssFileMapper, OssFile> {
     private void validateExtension(OssFileGroup ossFileGroup, String ext) {
         List<String> allowExtSet = Arrays.asList(ossFileGroup.getAllowExtension().split(","));
         Assert.isTrue(allowExtSet.contains(ext), I18nUtil.get("assert.oss.upload.unsupportedFormat"));
-    }
-
-    /**
-     * 验证文件内容头是否与扩展名一致
-     */
-    private void validateFileMagic(InputStream inputStream, String ext) {
-        boolean valid = FileMagicValidator.validate(inputStream, ext);
-        Assert.isTrue(valid, I18nUtil.get("assert.oss.upload.contentMismatch"));
     }
 
     /**
