@@ -68,6 +68,7 @@ strix:
     oauth: true
     push: true
     pay: true
+    ai: true
   # 控制台输出原始请求内容
   show-request: false
   # 控制台输出原始响应内容

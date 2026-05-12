@@ -1,6 +1,8 @@
 package cn.projectan.strix.websocket.config;
 
+import cn.projectan.strix.websocket.handler.AiAsrWebSocketHandler;
 import cn.projectan.strix.websocket.handler.ChatWebSocketHandler;
+import cn.projectan.strix.websocket.interceptor.AiAsrHandshakeInterceptor;
 import cn.projectan.strix.websocket.interceptor.ChatWebSocketHandshakeInterceptor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
@@ -21,12 +23,18 @@ public class WebSocketConfig implements WebSocketConfigurer {
 
     private final ChatWebSocketHandler chatWebSocketHandler;
     private final ChatWebSocketHandshakeInterceptor chatWebSocketHandshakeInterceptor;
+    private final AiAsrWebSocketHandler aiAsrWebSocketHandler;
+    private final AiAsrHandshakeInterceptor aiAsrHandshakeInterceptor;
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
         registry.addHandler(chatWebSocketHandler, "/ws/chat")
                 .addInterceptors(chatWebSocketHandshakeInterceptor)
-                .setAllowedOrigins("*"); // 生产环境应配置具体的域名
+                .setAllowedOrigins("*");
+
+        registry.addHandler(aiAsrWebSocketHandler, "/ws/ai/asr")
+                .addInterceptors(aiAsrHandshakeInterceptor)
+                .setAllowedOrigins("*");
     }
 
 }
