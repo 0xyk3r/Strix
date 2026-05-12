@@ -71,6 +71,15 @@ public class AiModelConfigResp {
     @Schema(description = "备注")
     private String remark;
 
+    @Schema(description = "TTS 克隆参考音频 URL")
+    private String promptAudioUrl;
+
+    @Schema(description = "OSS 配置 Key（STT 专用）")
+    private String ossConfigKey;
+
+    @Schema(description = "OSS 桶名称（STT 专用）")
+    private String ossBucketName;
+
     @Schema(description = "创建时间")
     private LocalDateTime createdTime;
 
@@ -98,6 +107,9 @@ public class AiModelConfigResp {
         resp.setLanguage(config.getLanguage());
         resp.setStatus(config.getStatus());
         resp.setRemark(config.getRemark());
+        resp.setPromptAudioUrl(config.getPromptAudioUrl());
+        resp.setOssConfigKey(config.getOssConfigKey());
+        resp.setOssBucketName(config.getOssBucketName());
         resp.setCreatedTime(config.getCreatedTime());
         resp.setUpdatedTime(config.getUpdatedTime());
         return resp;

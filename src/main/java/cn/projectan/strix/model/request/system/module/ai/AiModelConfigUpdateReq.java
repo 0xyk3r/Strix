@@ -132,4 +132,9 @@ public class AiModelConfigUpdateReq {
     @UpdateField(allowEmpty = true)
     private String ossBucketName;
 
+    @Schema(description = "TTS 克隆参考音频 URL（TTS 零样本克隆专用）")
+    @Size(groups = {InsertGroup.class, UpdateGroup.class}, max = 512, message = "参考音频 URL 过长")
+    @UpdateField(allowEmpty = true)
+    private String promptAudioUrl;
+
 }
