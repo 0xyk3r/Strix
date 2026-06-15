@@ -65,6 +65,16 @@ public class AiMessage extends BaseModel<AiMessage> {
     private Integer completionTokens;
 
     /**
+     * 模型配置 ID（记录生成此消息时使用的模型）
+     */
+    private String modelConfigId;
+
+    /**
+     * 生成耗时（毫秒，仅 assistant 角色）
+     */
+    private Long durationMs;
+
+    /**
      * 消息状态（0=生成中 1=完成 2=出错）
      *
      * @see cn.projectan.strix.model.dict.system.AiMessageStatus

@@ -52,7 +52,7 @@ public class AiModelConfigUpdateReq {
     @Schema(description = "API Key")
     @NotEmpty(groups = {InsertGroup.class}, message = "API Key 不能为空")
     @Size(groups = {InsertGroup.class, UpdateGroup.class}, max = 512, message = "API Key 过长")
-    @UpdateField(allowEmpty = true)
+    @UpdateField
     private String apiKey;
 
     @Schema(description = "模型标识", example = "qwen3-max")
@@ -83,9 +83,9 @@ public class AiModelConfigUpdateReq {
     @UpdateField(allowEmpty = true)
     private String systemPrompt;
 
-    @Schema(description = "是否启用思考模式（TEXT 专用）", example = "true")
+    @Schema(description = "是否启用思考模式（TEXT 专用）：0=禁用 1=启用", example = "1")
     @UpdateField(allowEmpty = true)
-    private Boolean enableThinking;
+    private Short enableThinking;
 
     @Schema(description = "思考模式 Token 预算（TEXT 专用）", example = "8192")
     @Min(groups = {InsertGroup.class, UpdateGroup.class}, value = 1, message = "思考预算不合法")

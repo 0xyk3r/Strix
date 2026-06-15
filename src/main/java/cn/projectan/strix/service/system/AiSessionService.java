@@ -47,4 +47,14 @@ public class AiSessionService extends ServiceImpl<AiSessionMapper, AiSession> {
                 .update();
     }
 
+    /**
+     * 切换会话使用的模型配置
+     */
+    public void switchModel(String sessionId, String modelConfigId) {
+        lambdaUpdate()
+                .eq(AiSession::getId, sessionId)
+                .set(AiSession::getModelConfigId, modelConfigId)
+                .update();
+    }
+
 }

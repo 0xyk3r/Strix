@@ -51,7 +51,8 @@ public class AiMessageService extends ServiceImpl<AiMessageMapper, AiMessage> {
      * 将消息标记为完成
      */
     public void markCompleted(String messageId, String content, String thinkingContent,
-                              Integer promptTokens, Integer completionTokens) {
+                              Integer promptTokens, Integer completionTokens,
+                              String modelConfigId, Long durationMs) {
         lambdaUpdate()
                 .eq(AiMessage::getId, messageId)
                 .set(AiMessage::getStatus, AiMessageStatus.COMPLETED)
@@ -59,6 +60,8 @@ public class AiMessageService extends ServiceImpl<AiMessageMapper, AiMessage> {
                 .set(thinkingContent != null, AiMessage::getThinkingContent, thinkingContent)
                 .set(promptTokens != null, AiMessage::getPromptTokens, promptTokens)
                 .set(completionTokens != null, AiMessage::getCompletionTokens, completionTokens)
+                .set(modelConfigId != null, AiMessage::getModelConfigId, modelConfigId)
+                .set(durationMs != null, AiMessage::getDurationMs, durationMs)
                 .update();
     }
 

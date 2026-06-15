@@ -87,9 +87,9 @@ public class AiModelConfig extends BaseModel<AiModelConfig> {
     private String systemPrompt;
 
     /**
-     * 是否启用思考模式（TEXT 专用）
+     * 是否启用思考模式（TEXT 专用，0=禁用 1=启用）
      */
-    private Boolean enableThinking;
+    private Short enableThinking;
 
     /**
      * 思考模式 Token 预算（nullable）
@@ -97,16 +97,16 @@ public class AiModelConfig extends BaseModel<AiModelConfig> {
     private Integer thinkingBudget;
 
     /**
-     * 是否启用代码解释器（TEXT 流式专用，需同时开启思考模式）
+     * 是否启用代码解释器（TEXT 流式专用，需同时开启思考模式，0=禁用 1=启用）
      * <p>
      * 仅在流式调用（streamChat）时生效，非流式调用忽略此参数。
      */
-    private Boolean enableCodeInterpreter;
+    private Short enableCodeInterpreter;
 
     /**
-     * 是否启用联网搜索（TEXT 专用）
+     * 是否启用联网搜索（TEXT 专用，0=禁用 1=启用）
      */
-    private Boolean enableSearch;
+    private Short enableSearch;
 
     /**
      * 搜索策略（TEXT 专用，可选：auto/standard/max/agent）
@@ -120,9 +120,9 @@ public class AiModelConfig extends BaseModel<AiModelConfig> {
     private String searchStrategy;
 
     /**
-     * 是否在响应中附带搜索来源引用（TEXT 专用）
+     * 是否在响应中附带搜索来源引用（TEXT 专用，0=禁用 1=启用）
      */
-    private Boolean enableSource;
+    private Short enableSource;
 
     /**
      * 语音名称（TTS 专用，cosyvoice-v2 系统音色，如 longxiaochun_v2）

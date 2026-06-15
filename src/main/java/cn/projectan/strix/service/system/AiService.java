@@ -88,12 +88,16 @@ public class AiService {
             return;
         }
 
+        // 记录开始时间
+        long startTime = System.currentTimeMillis();
+
         // 2. 保存用户消息
         AiMessage userMsg = new AiMessage()
                 .setSessionId(sessionId)
                 .setRole("user")
                 .setContent(content)
                 .setAttachments(attachmentsToJson(attachments))
+                .setModelConfigId(config.getId())
                 .setStatus(AiMessageStatus.COMPLETED);
         aiMessageService.save(userMsg);
 
@@ -155,17 +159,21 @@ public class AiService {
 
             Integer finalPromptTokens = promptTokens[0] >= 0 ? promptTokens[0] : null;
             Integer finalCompletionTokens = completionTokens[0] >= 0 ? completionTokens[0] : null;
+            Long durationMs = System.currentTimeMillis() - startTime;
 
             // 7. 更新 assistant 消息为完成状态
             aiMessageService.markCompleted(assistantMsg.getId(),
                     fullContent.toString(),
                     thinkingContent.isEmpty() ? null : thinkingContent.toString(),
-                    finalPromptTokens, finalCompletionTokens);
+                    finalPromptTokens, finalCompletionTokens,
+                    config.getId(), durationMs);
 
             // 8. 发送完成事件
             Map<String, Object> doneData = new HashMap<>();
             doneData.put("messageId", assistantMsg.getId());
             doneData.put("userMessageId", userMsg.getId());
+            doneData.put("modelConfigId", config.getId());
+            doneData.put("modelConfigName", config.getName());
             if (finalPromptTokens != null) doneData.put("promptTokens", finalPromptTokens);
             if (finalCompletionTokens != null) doneData.put("completionTokens", finalCompletionTokens);
             sendSseEvent(emitter, AiSseEvent.DONE, doneData);
@@ -201,6 +209,9 @@ public class AiService {
             sendSseError(emitter, "AI 模型配置不可用");
             return;
         }
+
+        // 记录开始时间
+        long startTime = System.currentTimeMillis();
 
         // 2. 删除最后一条 assistant 消息
         AiMessage lastAssistant = aiMessageService.lambdaQuery()
@@ -280,14 +291,18 @@ public class AiService {
 
             Integer finalPromptTokens = promptTokens[0] >= 0 ? promptTokens[0] : null;
             Integer finalCompletionTokens = completionTokens[0] >= 0 ? completionTokens[0] : null;
+            Long durationMs = System.currentTimeMillis() - startTime;
 
             aiMessageService.markCompleted(assistantMsg.getId(),
                     fullContent.toString(),
                     thinkingContent.isEmpty() ? null : thinkingContent.toString(),
-                    finalPromptTokens, finalCompletionTokens);
+                    finalPromptTokens, finalCompletionTokens,
+                    config.getId(), durationMs);
 
             Map<String, Object> doneData = new HashMap<>();
             doneData.put("messageId", assistantMsg.getId());
+            doneData.put("modelConfigId", config.getId());
+            doneData.put("modelConfigName", config.getName());
             if (finalPromptTokens != null) doneData.put("promptTokens", finalPromptTokens);
             if (finalCompletionTokens != null) doneData.put("completionTokens", finalCompletionTokens);
             sendSseEvent(emitter, AiSseEvent.DONE, doneData);
@@ -439,24 +454,25 @@ public class AiService {
         if (config.getMaxTokens() != null) builder.maxTokens(config.getMaxTokens());
 
         // 思考模式 + 代码解释器（代码解释器要求流式模式且同时开启思考）
-        if (Boolean.TRUE.equals(config.getEnableThinking()) || Boolean.TRUE.equals(config.getEnableSearch())) {
+        if ((config.getEnableThinking() != null && config.getEnableThinking() == 1)
+                || (config.getEnableSearch() != null && config.getEnableSearch() == 1)) {
             Map<String, Object> extra = new HashMap<>();
-            if (Boolean.TRUE.equals(config.getEnableThinking())) {
+            if (config.getEnableThinking() != null && config.getEnableThinking() == 1) {
                 extra.put("enable_thinking", true);
                 if (config.getThinkingBudget() != null) {
                     extra.put("thinking_budget", config.getThinkingBudget());
                 }
-                if (streaming && Boolean.TRUE.equals(config.getEnableCodeInterpreter())) {
+                if (streaming && config.getEnableCodeInterpreter() != null && config.getEnableCodeInterpreter() == 1) {
                     extra.put("enable_code_interpreter", true);
                 }
             }
-            if (Boolean.TRUE.equals(config.getEnableSearch())) {
+            if (config.getEnableSearch() != null && config.getEnableSearch() == 1) {
                 extra.put("enable_search", true);
                 Map<String, Object> searchOptions = new HashMap<>();
                 if (config.getSearchStrategy() != null && !config.getSearchStrategy().isBlank()) {
                     searchOptions.put("search_strategy", config.getSearchStrategy());
                 }
-                if (Boolean.TRUE.equals(config.getEnableSource())) {
+                if (config.getEnableSource() != null && config.getEnableSource() == 1) {
                     searchOptions.put("enable_source", true);
                 }
                 if (!searchOptions.isEmpty()) {
@@ -529,24 +545,24 @@ public class AiService {
         if (config.getMaxTokens() != null) builder.maxCompletionTokens(config.getMaxTokens().longValue());
 
         // 思考模式 + 代码解释器（代码解释器要求流式模式且同时开启思考）
-        if (Boolean.TRUE.equals(config.getEnableThinking())) {
+        if (config.getEnableThinking() != null && config.getEnableThinking() == 1) {
             builder.putAdditionalBodyProperty("enable_thinking", JsonValue.from(true));
             if (config.getThinkingBudget() != null) {
                 builder.putAdditionalBodyProperty("thinking_budget", JsonValue.from(config.getThinkingBudget()));
             }
-            if (streaming && Boolean.TRUE.equals(config.getEnableCodeInterpreter())) {
+            if (streaming && config.getEnableCodeInterpreter() != null && config.getEnableCodeInterpreter() == 1) {
                 builder.putAdditionalBodyProperty("enable_code_interpreter", JsonValue.from(true));
             }
         }
 
         // 联网搜索
-        if (Boolean.TRUE.equals(config.getEnableSearch())) {
+        if (config.getEnableSearch() != null && config.getEnableSearch() == 1) {
             builder.putAdditionalBodyProperty("enable_search", JsonValue.from(true));
             Map<String, Object> searchOptions = new HashMap<>();
             if (StringUtils.hasText(config.getSearchStrategy())) {
                 searchOptions.put("search_strategy", config.getSearchStrategy());
             }
-            if (Boolean.TRUE.equals(config.getEnableSource())) {
+            if (config.getEnableSource() != null && config.getEnableSource() == 1) {
                 searchOptions.put("enable_source", true);
             }
             if (!searchOptions.isEmpty()) {

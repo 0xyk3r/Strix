@@ -40,6 +40,15 @@ public class AiMessageResp {
     @Schema(description = "输出 Token 消耗")
     private Integer completionTokens;
 
+    @Schema(description = "模型配置 ID")
+    private String modelConfigId;
+
+    @Schema(description = "模型配置名称")
+    private String modelConfigName;
+
+    @Schema(description = "生成耗时（毫秒）")
+    private Long durationMs;
+
     @Schema(description = "消息状态：0=生成中 1=完成 2=错误")
     private Short status;
 
@@ -60,6 +69,8 @@ public class AiMessageResp {
         resp.setAttachments(message.getAttachments());
         resp.setPromptTokens(message.getPromptTokens());
         resp.setCompletionTokens(message.getCompletionTokens());
+        resp.setModelConfigId(message.getModelConfigId());
+        resp.setDurationMs(message.getDurationMs());
         resp.setStatus(message.getStatus());
         resp.setErrorMsg(message.getErrorMsg());
         resp.setCreatedTime(message.getCreatedTime());

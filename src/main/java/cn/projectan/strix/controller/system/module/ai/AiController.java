@@ -129,6 +129,28 @@ public class AiController extends BaseSystemController {
         return RetBuilder.success();
     }
 
+    /**
+     * 切换会话模型
+     */
+    @PatchMapping("session/{id}/model")
+    @StrixLog(operationGroup = "AI 对话", operationName = "切换模型", operationType = SystemLogOperType.UPDATE)
+    @Operation(summary = "切换 AI 会话模型")
+    public RetResult<Void> switchModel(
+            @Parameter(description = "会话 ID") @PathVariable String id,
+            @RequestBody @Validated AiSessionSwitchModelReq req) {
+        // 验证会话所有权
+        Assert.isTrue(aiSessionService.isOwner(id, loginManagerId()), I18nUtil.notFound("field.originalData"));
+
+        // 验证模型配置存在且已启用
+        AiModelConfig config = aiModelConfigService.getById(req.getModelConfigId());
+        Assert.notNull(config, I18nUtil.notFound("field.config"));
+        Assert.isTrue(config.getStatus() != null && config.getStatus() == 1, "模型配置未启用");
+
+        // 调用 Service 层切换模型
+        aiSessionService.switchModel(id, req.getModelConfigId());
+        return RetBuilder.success();
+    }
+
     // ============================================================
     //  消息历史
     // ============================================================
@@ -141,9 +163,23 @@ public class AiController extends BaseSystemController {
     public RetResult<List<AiMessageResp>> getMessages(
             @Parameter(description = "会话 ID") @PathVariable String id) {
         Assert.isTrue(aiSessionService.isOwner(id, loginManagerId()), I18nUtil.notFound("field.originalData"));
-        return RetBuilder.success(
-                aiMessageService.listBySessionId(id).stream().map(AiMessageResp::from).toList()
-        );
+
+        // 关联查询模型配置名称
+        List<AiMessageResp> messages = aiMessageService.listBySessionId(id).stream()
+                .map(message -> {
+                    AiMessageResp resp = AiMessageResp.from(message);
+                    // 根据 modelConfigId 查询模型配置名称
+                    if (message.getModelConfigId() != null) {
+                        AiModelConfig config = aiModelConfigService.getById(message.getModelConfigId());
+                        if (config != null) {
+                            resp.setModelConfigName(config.getName());
+                        }
+                    }
+                    return resp;
+                })
+                .toList();
+
+        return RetBuilder.success(messages);
     }
 
     /**
@@ -321,6 +357,46 @@ public class AiController extends BaseSystemController {
                 req.getSize()
         );
         return RetBuilder.success(imageUrl);
+    }
+
+    // ============================================================
+    //  模型配置增强
+    // ============================================================
+
+    /**
+     * 获取云服务商可用模型列表
+     * <p>从远程 API 获取服务商支持的模型列表，包含模型名称、类型、描述等信息</p>
+     */
+    @PostMapping("model-config/fetch-models")
+    @Operation(summary = "获取云服务商可用模型列表")
+    public RetResult<List<cn.projectan.strix.model.response.system.ai.AiModelInfoResp>> fetchModels(
+            @RequestBody @Validated AiFetchModelsReq req) {
+        try {
+            String apiKey = req.getApiKey();
+
+            // 如果 API Key 是占位符，尝试从现有配置中获取
+            if ("__USE_EXISTING__".equals(apiKey)) {
+                // 根据 Base URL 查找已有配置
+                AiModelConfig existingConfig = aiModelConfigService.lambdaQuery()
+                        .eq(AiModelConfig::getBaseUrl, req.getBaseUrl())
+                        .last("LIMIT 1")
+                        .one();
+
+                if (existingConfig != null && existingConfig.getApiKey() != null) {
+                    apiKey = existingConfig.getApiKey();
+                    log.debug("使用现有配置的 API Key");
+                } else {
+                    return RetBuilder.error("未找到现有配置的 API Key，请填写 API Key");
+                }
+            }
+
+            List<cn.projectan.strix.model.response.system.ai.AiModelInfoResp> models =
+                    aiModelConfigService.fetchAvailableModels(req.getBaseUrl(), apiKey);
+            return RetBuilder.success(models);
+        } catch (Exception e) {
+            log.error("Failed to fetch models from base URL: {}", req.getBaseUrl(), e);
+            return RetBuilder.error("获取模型列表失败: " + e.getMessage());
+        }
     }
 
 }

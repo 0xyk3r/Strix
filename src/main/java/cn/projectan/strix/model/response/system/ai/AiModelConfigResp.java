@@ -47,8 +47,8 @@ public class AiModelConfigResp {
     @Schema(description = "系统提示词")
     private String systemPrompt;
 
-    @Schema(description = "是否启用思考模式")
-    private Boolean enableThinking;
+    @Schema(description = "是否启用思考模式：0=禁用 1=启用")
+    private Short enableThinking;
 
     @Schema(description = "思考模式 Token 预算")
     private Integer thinkingBudget;
