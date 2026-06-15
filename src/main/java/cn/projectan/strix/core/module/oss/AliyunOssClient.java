@@ -108,12 +108,17 @@ public class AliyunOssClient implements StrixOssClient {
         @Override
         public void upload(String bucketName, String objectName, InputStream inputStream, long contentLength) {
             try {
+                // AWS SDK 需要支持 mark/reset 的流，使用 BufferedInputStream 包装
+                InputStream bufferedStream = inputStream.markSupported()
+                        ? inputStream
+                        : new BufferedInputStream(inputStream);
+
                 PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                         .bucket(bucketName)
                         .key(objectName)
                         .contentLength(contentLength)
                         .build();
-                client.putObject(putObjectRequest, RequestBody.fromInputStream(inputStream, contentLength));
+                client.putObject(putObjectRequest, RequestBody.fromInputStream(bufferedStream, contentLength));
             } catch (Exception e) {
                 log.error("OSS 操作异常: {}", e.getMessage(), e);
                 throw new StrixException(I18nUtil.get("error.oss.uploadFailed"));

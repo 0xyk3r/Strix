@@ -7,8 +7,9 @@ import cn.projectan.strix.model.db.system.AiSession;
 import cn.projectan.strix.model.dict.system.AiMessageStatus;
 import cn.projectan.strix.model.dict.system.AiModelType;
 import cn.projectan.strix.model.response.system.ai.AiSseEvent;
+import com.openai.client.OpenAIClient;
 import com.openai.core.JsonValue;
-import com.openai.models.chat.completions.ChatCompletionChunk;
+import com.openai.models.chat.completions.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.messages.AssistantMessage;
@@ -108,61 +109,192 @@ public class AiService {
         List<AiMessage> history = aiMessageService.listContextMessages(sessionId);
         List<Message> messages = buildMessages(config, history, content, attachments);
 
-        // 5. 构建 options
-        OpenAiChatOptions options = buildChatOptions(config, true);
+        // 5. 构建 SDK 请求参数（直接使用同步 OkHttp 客户端，绕过 Spring AI Flux 的缓冲问题）
+        ChatCompletionCreateParams params = buildSdkParams(config, messages, true);
 
         // 6. 执行流式调用
         try {
-            OpenAiChatModel chatModel = aiModelStore.getChatModel(config);
-            Flux<ChatResponse> flux = chatModel.stream(new Prompt(messages, options));
+            OpenAIClient syncClient = aiModelStore.getSyncClient(config);
 
             StringBuilder fullContent = new StringBuilder();
             StringBuilder thinkingContent = new StringBuilder();
-            Integer promptTokens = null;
-            Integer completionTokens = null;
+            int[] promptTokens = {-1};
+            int[] completionTokens = {-1};
 
-            for (ChatResponse response : flux.toIterable()) {
-                if (response.getResult() == null) continue;
+            try (var stream = syncClient.chat().completions().createStreaming(params)) {
+                stream.stream().forEach(chunk -> {
+                    // 提取 token 使用情况（通常在最后一个 chunk）
+                    chunk.usage().ifPresent(usage -> {
+                        promptTokens[0] = (int) usage.promptTokens();
+                        completionTokens[0] = (int) usage.completionTokens();
+                    });
 
-                String delta = response.getResult().getOutput().getText();
-                String thinkingDelta = extractThinkingDelta(response);
+                    if (chunk.choices().isEmpty()) return;
 
-                // 发送思考内容块
-                if (StringUtils.hasText(thinkingDelta)) {
-                    thinkingContent.append(thinkingDelta);
-                    sendSseEvent(emitter, AiSseEvent.THINKING, Map.of("content", thinkingDelta));
-                }
+                    ChatCompletionChunk.Choice choice = chunk.choices().get(0);
+                    String delta = choice.delta().content().orElse(null);
 
-                // 发送正文内容块
-                if (StringUtils.hasText(delta)) {
-                    fullContent.append(delta);
-                    sendSseEvent(emitter, AiSseEvent.CONTENT, Map.of("content", delta));
-                }
+                    // 提取思考内容 reasoning_content（百炼 qwen3 思考模式非标准字段）
+                    String thinkingDelta = null;
+                    JsonValue reasoningValue = choice.delta()._additionalProperties().get("reasoning_content");
+                    if (reasoningValue != null) {
+                        Object val = reasoningValue.asString().orElse(null);
+                        thinkingDelta = val instanceof String s ? s : null;
+                    }
 
-                // 提取 Token 使用情况
-                if (response.getMetadata() != null && response.getMetadata().getUsage() != null) {
-                    var usage = response.getMetadata().getUsage();
-                    if (usage.getPromptTokens() != null) promptTokens = usage.getPromptTokens().intValue();
-                    if (usage.getCompletionTokens() != null) completionTokens = usage.getCompletionTokens().intValue();
-                }
+                    if (StringUtils.hasText(thinkingDelta)) {
+                        thinkingContent.append(thinkingDelta);
+                        sendSseEvent(emitter, AiSseEvent.THINKING, Map.of("content", thinkingDelta));
+                    }
+                    if (StringUtils.hasText(delta)) {
+                        fullContent.append(delta);
+                        sendSseEvent(emitter, AiSseEvent.CONTENT, Map.of("content", delta));
+                    }
+                });
             }
+
+            Integer finalPromptTokens = promptTokens[0] >= 0 ? promptTokens[0] : null;
+            Integer finalCompletionTokens = completionTokens[0] >= 0 ? completionTokens[0] : null;
 
             // 7. 更新 assistant 消息为完成状态
             aiMessageService.markCompleted(assistantMsg.getId(),
                     fullContent.toString(),
                     thinkingContent.isEmpty() ? null : thinkingContent.toString(),
-                    promptTokens, completionTokens);
+                    finalPromptTokens, finalCompletionTokens);
 
             // 8. 发送完成事件
             Map<String, Object> doneData = new HashMap<>();
             doneData.put("messageId", assistantMsg.getId());
-            if (promptTokens != null) doneData.put("promptTokens", promptTokens);
-            if (completionTokens != null) doneData.put("completionTokens", completionTokens);
+            doneData.put("userMessageId", userMsg.getId());
+            if (finalPromptTokens != null) doneData.put("promptTokens", finalPromptTokens);
+            if (finalCompletionTokens != null) doneData.put("completionTokens", finalCompletionTokens);
             sendSseEvent(emitter, AiSseEvent.DONE, doneData);
             emitter.complete();
 
         } catch (Exception e) {
             log.error("AI 流式对话出错: sessionId={}", sessionId, e);
+            aiMessageService.markError(assistantMsg.getId(), e.getMessage());
+            sendSseError(emitter, "AI 调用出错: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 重新生成最后一条 AI 回复（SSE 流式）
+     * <p>
+     * 删除当前会话最后一条 assistant 消息，找到最后一条 user 消息内容，重新触发流式生成。
+     * 应在虚拟线程中调用。
+     *
+     * @param sessionId 会话 ID
+     * @param emitter   SSE emitter
+     * @param managerId 当前管理员 ID
+     */
+    public void streamRegenerate(String sessionId, SseEmitter emitter, String managerId) {
+        // 1. 校验会话
+        AiSession session = aiSessionService.getById(sessionId);
+        if (session == null || !session.getManagerId().equals(managerId)) {
+            sendSseError(emitter, "会话不存在或无权限");
+            return;
+        }
+
+        AiModelConfig config = aiModelConfigService.getById(session.getModelConfigId());
+        if (config == null || config.getStatus() == null || config.getStatus() != 1) {
+            sendSseError(emitter, "AI 模型配置不可用");
+            return;
+        }
+
+        // 2. 删除最后一条 assistant 消息
+        AiMessage lastAssistant = aiMessageService.lambdaQuery()
+                .eq(AiMessage::getSessionId, sessionId)
+                .eq(AiMessage::getRole, "assistant")
+                .orderByDesc(AiMessage::getCreatedTime)
+                .last("LIMIT 1")
+                .one();
+        if (lastAssistant != null) {
+            aiMessageService.removeById(lastAssistant.getId());
+        }
+
+        // 3. 找到最后一条 user 消息
+        AiMessage lastUser = aiMessageService.lambdaQuery()
+                .eq(AiMessage::getSessionId, sessionId)
+                .eq(AiMessage::getRole, "user")
+                .orderByDesc(AiMessage::getCreatedTime)
+                .last("LIMIT 1")
+                .one();
+        if (lastUser == null) {
+            sendSseError(emitter, "没有可以重新生成的用户消息");
+            return;
+        }
+
+        // 4. 解析附件 JSON
+        List<Map<String, String>> attachments = parseAttachmentsJson(lastUser.getAttachments());
+
+        // 5. 保存新的 assistant 占位消息
+        AiMessage assistantMsg = new AiMessage()
+                .setSessionId(sessionId)
+                .setRole("assistant")
+                .setContent("")
+                .setStatus(AiMessageStatus.GENERATING);
+        aiMessageService.save(assistantMsg);
+
+        // 6-8. 加载上下文 → 构建参数 → 流式调用（与 streamChat 相同逻辑）
+        List<AiMessage> history = aiMessageService.listContextMessages(sessionId);
+        List<Message> messages = buildMessages(config, history, lastUser.getContent(), attachments);
+        ChatCompletionCreateParams params = buildSdkParams(config, messages, true);
+
+        try {
+            OpenAIClient syncClient = aiModelStore.getSyncClient(config);
+
+            StringBuilder fullContent = new StringBuilder();
+            StringBuilder thinkingContent = new StringBuilder();
+            int[] promptTokens = {-1};
+            int[] completionTokens = {-1};
+
+            try (var stream = syncClient.chat().completions().createStreaming(params)) {
+                stream.stream().forEach(chunk -> {
+                    chunk.usage().ifPresent(usage -> {
+                        promptTokens[0] = (int) usage.promptTokens();
+                        completionTokens[0] = (int) usage.completionTokens();
+                    });
+                    if (chunk.choices().isEmpty()) return;
+
+                    ChatCompletionChunk.Choice choice = chunk.choices().get(0);
+                    String delta = choice.delta().content().orElse(null);
+
+                    String thinkingDelta = null;
+                    JsonValue reasoningValue = choice.delta()._additionalProperties().get("reasoning_content");
+                    if (reasoningValue != null) {
+                        Object val = reasoningValue.asString().orElse(null);
+                        thinkingDelta = val instanceof String s ? s : null;
+                    }
+
+                    if (StringUtils.hasText(thinkingDelta)) {
+                        thinkingContent.append(thinkingDelta);
+                        sendSseEvent(emitter, AiSseEvent.THINKING, Map.of("content", thinkingDelta));
+                    }
+                    if (StringUtils.hasText(delta)) {
+                        fullContent.append(delta);
+                        sendSseEvent(emitter, AiSseEvent.CONTENT, Map.of("content", delta));
+                    }
+                });
+            }
+
+            Integer finalPromptTokens = promptTokens[0] >= 0 ? promptTokens[0] : null;
+            Integer finalCompletionTokens = completionTokens[0] >= 0 ? completionTokens[0] : null;
+
+            aiMessageService.markCompleted(assistantMsg.getId(),
+                    fullContent.toString(),
+                    thinkingContent.isEmpty() ? null : thinkingContent.toString(),
+                    finalPromptTokens, finalCompletionTokens);
+
+            Map<String, Object> doneData = new HashMap<>();
+            doneData.put("messageId", assistantMsg.getId());
+            if (finalPromptTokens != null) doneData.put("promptTokens", finalPromptTokens);
+            if (finalCompletionTokens != null) doneData.put("completionTokens", finalCompletionTokens);
+            sendSseEvent(emitter, AiSseEvent.DONE, doneData);
+            emitter.complete();
+
+        } catch (Exception e) {
+            log.error("AI 重新生成出错: sessionId={}", sessionId, e);
             aiMessageService.markError(assistantMsg.getId(), e.getMessage());
             sendSseError(emitter, "AI 调用出错: " + e.getMessage());
         }
@@ -338,27 +470,91 @@ public class AiService {
     }
 
     /**
-     * 从流式响应中提取思考内容（reasoning_content）
-     * <p>
-     * 百炼 qwen3 思考模式将 {@code reasoning_content} 作为非标准字段返回，
-     * Spring AI 2.0 将原始 {@link ChatCompletionChunk.Choice} 存入 metadata["chunkChoice"]，
-     * 该字段通过 openai-java SDK 的 {@code _additionalProperties()} 获取。
+     * 将 Spring AI Message 列表转换为 OpenAI SDK 的 ChatCompletionMessageParam 列表
      */
-    private String extractThinkingDelta(ChatResponse response) {
-        if (response.getResult() == null || response.getResult().getOutput() == null) return null;
-        Map<String, Object> metadata = response.getResult().getOutput().getMetadata();
-        if (metadata == null) return null;
-        Object chunkChoiceObj = metadata.get("chunkChoice");
-        if (!(chunkChoiceObj instanceof ChatCompletionChunk.Choice chunkChoice)) return null;
-        try {
-            JsonValue reasoningValue = chunkChoice.delta()._additionalProperties().get("reasoning_content");
-            if (reasoningValue == null) return null;
-            // asString() 在 Java 端受 Kotlin 泛型擦除影响，orElse 返回 Object，需用 instanceof 提取
-            Object val = reasoningValue.asString().orElse(null);
-            return val instanceof String s ? s : null;
-        } catch (Exception e) {
-            return null;
+    private List<ChatCompletionMessageParam> toSdkMessages(List<Message> messages) {
+        List<ChatCompletionMessageParam> result = new ArrayList<>();
+        for (Message msg : messages) {
+            if (msg instanceof SystemMessage) {
+                result.add(ChatCompletionMessageParam.ofSystem(
+                        ChatCompletionSystemMessageParam.builder()
+                                .content(msg.getText() != null ? msg.getText() : "")
+                                .build()));
+            } else if (msg instanceof UserMessage um) {
+                List<Media> media = um.getMedia();
+                if (media != null && !media.isEmpty()) {
+                    List<ChatCompletionContentPart> parts = new ArrayList<>();
+                    if (StringUtils.hasText(um.getText())) {
+                        parts.add(ChatCompletionContentPart.ofText(
+                                ChatCompletionContentPartText.builder().text(um.getText()).build()));
+                    }
+                    for (Media m : media) {
+                        parts.add(ChatCompletionContentPart.ofImageUrl(
+                                ChatCompletionContentPartImage.builder()
+                                        .imageUrl(ChatCompletionContentPartImage.ImageUrl.builder()
+                                                .url(m.getData().toString())
+                                                .build())
+                                        .build()));
+                    }
+                    result.add(ChatCompletionMessageParam.ofUser(
+                            ChatCompletionUserMessageParam.builder()
+                                    .contentOfArrayOfContentParts(parts)
+                                    .build()));
+                } else {
+                    result.add(ChatCompletionMessageParam.ofUser(
+                            ChatCompletionUserMessageParam.builder()
+                                    .content(um.getText() != null ? um.getText() : "")
+                                    .build()));
+                }
+            } else if (msg instanceof AssistantMessage) {
+                result.add(ChatCompletionMessageParam.ofAssistant(
+                        ChatCompletionAssistantMessageParam.builder()
+                                .content(msg.getText() != null ? msg.getText() : "")
+                                .build()));
+            }
         }
+        return result;
+    }
+
+    /**
+     * 构建 OpenAI SDK {@link ChatCompletionCreateParams}，包含思考/搜索扩展参数
+     */
+    private ChatCompletionCreateParams buildSdkParams(AiModelConfig config, List<Message> messages, boolean streaming) {
+        ChatCompletionCreateParams.Builder builder = ChatCompletionCreateParams.builder()
+                .model(config.getModelName())
+                .messages(toSdkMessages(messages));
+
+        if (config.getTemperature() != null) builder.temperature(config.getTemperature().doubleValue());
+        if (config.getTopP() != null) builder.topP(config.getTopP().doubleValue());
+        if (config.getMaxTokens() != null) builder.maxCompletionTokens(config.getMaxTokens().longValue());
+
+        // 思考模式 + 代码解释器（代码解释器要求流式模式且同时开启思考）
+        if (Boolean.TRUE.equals(config.getEnableThinking())) {
+            builder.putAdditionalBodyProperty("enable_thinking", JsonValue.from(true));
+            if (config.getThinkingBudget() != null) {
+                builder.putAdditionalBodyProperty("thinking_budget", JsonValue.from(config.getThinkingBudget()));
+            }
+            if (streaming && Boolean.TRUE.equals(config.getEnableCodeInterpreter())) {
+                builder.putAdditionalBodyProperty("enable_code_interpreter", JsonValue.from(true));
+            }
+        }
+
+        // 联网搜索
+        if (Boolean.TRUE.equals(config.getEnableSearch())) {
+            builder.putAdditionalBodyProperty("enable_search", JsonValue.from(true));
+            Map<String, Object> searchOptions = new HashMap<>();
+            if (StringUtils.hasText(config.getSearchStrategy())) {
+                searchOptions.put("search_strategy", config.getSearchStrategy());
+            }
+            if (Boolean.TRUE.equals(config.getEnableSource())) {
+                searchOptions.put("enable_source", true);
+            }
+            if (!searchOptions.isEmpty()) {
+                builder.putAdditionalBodyProperty("search_options", JsonValue.from(searchOptions));
+            }
+        }
+
+        return builder.build();
     }
 
     /**
@@ -397,6 +593,22 @@ public class AiService {
         }
         sb.append("]");
         return sb.toString();
+    }
+
+    /**
+     * 将附件 JSON 字符串解析为 List&lt;Map&lt;String, String&gt;&gt;
+     */
+    @SuppressWarnings("unchecked")
+    private List<Map<String, String>> parseAttachmentsJson(String json) {
+        if (!StringUtils.hasText(json)) return null;
+        try {
+            return (List<Map<String, String>>) new com.fasterxml.jackson.databind.ObjectMapper()
+                    .readValue(json, new com.fasterxml.jackson.core.type.TypeReference<List<Map<String, String>>>() {
+                    });
+        } catch (Exception e) {
+            log.warn("解析附件 JSON 失败: {}", json, e);
+            return null;
+        }
     }
 
     /**

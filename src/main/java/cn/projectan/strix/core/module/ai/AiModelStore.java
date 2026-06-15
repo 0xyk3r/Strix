@@ -2,6 +2,7 @@ package cn.projectan.strix.core.module.ai;
 
 import cn.projectan.strix.model.db.system.AiModelConfig;
 import cn.projectan.strix.model.dict.system.AiModelType;
+import com.openai.client.OpenAIClient;
 import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +29,7 @@ public class AiModelStore {
     private final AiClientFactory clientFactory;
 
     private final Map<String, OpenAiChatModel> chatModelMap = new ConcurrentHashMap<>();
+    private final Map<String, OpenAIClient> syncClientMap = new ConcurrentHashMap<>();
 
     /**
      * 获取或创建文本/视觉对话模型（TYPE = TEXT 或 VISION）
@@ -36,6 +38,16 @@ public class AiModelStore {
         return chatModelMap.computeIfAbsent(config.getKey(), k -> {
             log.info("AI: 初始化 Chat 模型实例 <{}>", config.getKey());
             return clientFactory.createChatModel(config);
+        });
+    }
+
+    /**
+     * 获取或创建同步客户端（用于 SSE 真正流式推送）
+     */
+    public OpenAIClient getSyncClient(AiModelConfig config) {
+        return syncClientMap.computeIfAbsent(config.getKey(), k -> {
+            log.info("AI: 初始化 Sync 客户端实例 <{}>", config.getKey());
+            return clientFactory.createSyncClient(config);
         });
     }
 
@@ -57,12 +69,14 @@ public class AiModelStore {
      */
     public void invalidate(String key) {
         chatModelMap.remove(key);
+        syncClientMap.remove(key);
         log.info("AI: 已清除模型缓存 <{}>", key);
     }
 
     @PreDestroy
     private void destroy() {
         chatModelMap.clear();
+        syncClientMap.clear();
         log.info("AI 模型缓存已清空");
     }
 

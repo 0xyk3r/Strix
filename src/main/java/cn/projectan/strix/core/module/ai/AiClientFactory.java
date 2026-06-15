@@ -70,6 +70,17 @@ public class AiClientFactory {
     }
 
     /**
+     * 创建底层同步客户端（用于 SSE 流式调用，绕过 Spring AI 的 Flux 缓冲问题）
+     */
+    public OpenAIClient createSyncClient(AiModelConfig config) {
+        return OpenAIOkHttpClient.builder()
+                .apiKey(config.getApiKey())
+                .baseUrl(config.getBaseUrl())
+                .timeout(CHAT_TIMEOUT)
+                .build();
+    }
+
+    /**
      * 根据模型类型创建对应客户端实例
      * <p>
      * 当前仅支持通过阿里云百炼 OpenAI 兼容端点调用的模型类型：TEXT 和 VISION。

@@ -37,4 +37,14 @@ public class AiSessionService extends ServiceImpl<AiSessionMapper, AiSession> {
                 .exists();
     }
 
+    /**
+     * 重命名会话标题
+     */
+    public void renameTitle(String sessionId, String newTitle) {
+        lambdaUpdate()
+                .eq(AiSession::getId, sessionId)
+                .set(AiSession::getTitle, newTitle)
+                .update();
+    }
+
 }

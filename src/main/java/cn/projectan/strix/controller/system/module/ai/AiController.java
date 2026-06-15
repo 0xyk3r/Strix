@@ -4,14 +4,13 @@ import cn.projectan.strix.controller.system.base.BaseSystemController;
 import cn.projectan.strix.core.module.ai.AiModelStore;
 import cn.projectan.strix.core.ret.RetBuilder;
 import cn.projectan.strix.core.ret.RetResult;
+import cn.projectan.strix.model.annotation.IgnoreEncryption;
 import cn.projectan.strix.model.annotation.StrixLog;
+import cn.projectan.strix.model.db.system.AiMessage;
 import cn.projectan.strix.model.db.system.AiModelConfig;
 import cn.projectan.strix.model.db.system.AiSession;
 import cn.projectan.strix.model.dict.system.SystemLogOperType;
-import cn.projectan.strix.model.request.system.module.ai.AiChatMessageReq;
-import cn.projectan.strix.model.request.system.module.ai.AiImageGenerateReq;
-import cn.projectan.strix.model.request.system.module.ai.AiSessionCreateReq;
-import cn.projectan.strix.model.request.system.module.ai.AiTtsSynthesizeReq;
+import cn.projectan.strix.model.request.system.module.ai.*;
 import cn.projectan.strix.model.response.system.ai.AiMessageResp;
 import cn.projectan.strix.model.response.system.ai.AiSessionResp;
 import cn.projectan.strix.service.system.*;
@@ -111,8 +110,22 @@ public class AiController extends BaseSystemController {
         Assert.isTrue(aiSessionService.isOwner(id, loginManagerId()), I18nUtil.notFound("field.originalData"));
         aiSessionService.removeById(id);
         aiMessageService.lambdaUpdate()
-                .eq(cn.projectan.strix.model.db.system.AiMessage::getSessionId, id)
+                .eq(AiMessage::getSessionId, id)
                 .remove();
+        return RetBuilder.success();
+    }
+
+    /**
+     * 重命名会话标题
+     */
+    @PatchMapping("session/{id}/title")
+    @StrixLog(operationGroup = "AI 对话", operationName = "重命名会话", operationType = SystemLogOperType.UPDATE)
+    @Operation(summary = "重命名 AI 会话标题")
+    public RetResult<Void> renameSession(
+            @Parameter(description = "会话 ID") @PathVariable String id,
+            @RequestBody @Validated AiSessionRenameTitleReq req) {
+        Assert.isTrue(aiSessionService.isOwner(id, loginManagerId()), I18nUtil.notFound("field.originalData"));
+        aiSessionService.renameTitle(id, req.getTitle());
         return RetBuilder.success();
     }
 
@@ -131,6 +144,41 @@ public class AiController extends BaseSystemController {
         return RetBuilder.success(
                 aiMessageService.listBySessionId(id).stream().map(AiMessageResp::from).toList()
         );
+    }
+
+    /**
+     * 清空会话所有消息
+     */
+    @DeleteMapping("chat/{sessionId}/messages/all")
+    @StrixLog(operationGroup = "AI 对话", operationName = "清空消息", operationType = SystemLogOperType.DELETE)
+    @Operation(summary = "清空指定会话的所有消息")
+    public RetResult<Void> clearMessages(
+            @Parameter(description = "会话 ID") @PathVariable String sessionId) {
+        Assert.isTrue(aiSessionService.isOwner(sessionId, loginManagerId()), I18nUtil.notFound("field.originalData"));
+        aiMessageService.lambdaUpdate()
+                .eq(AiMessage::getSessionId, sessionId)
+                .remove();
+        return RetBuilder.success();
+    }
+
+    /**
+     * 删除指定消息及其之后的所有消息（用于编辑重发）
+     */
+    @DeleteMapping("chat/{sessionId}/messages/from/{messageId}")
+    @StrixLog(operationGroup = "AI 对话", operationName = "截断消息", operationType = SystemLogOperType.DELETE)
+    @Operation(summary = "删除指定消息及其之后的所有消息")
+    public RetResult<Void> deleteMessagesFrom(
+            @Parameter(description = "会话 ID") @PathVariable String sessionId,
+            @Parameter(description = "起始消息 ID（含）") @PathVariable String messageId) {
+        Assert.isTrue(aiSessionService.isOwner(sessionId, loginManagerId()), I18nUtil.notFound("field.originalData"));
+        AiMessage target = aiMessageService.getById(messageId);
+        Assert.notNull(target, I18nUtil.notFound("field.originalData"));
+        Assert.isTrue(sessionId.equals(target.getSessionId()), I18nUtil.notFound("field.originalData"));
+        aiMessageService.lambdaUpdate()
+                .eq(AiMessage::getSessionId, sessionId)
+                .ge(AiMessage::getCreatedTime, target.getCreatedTime())
+                .remove();
+        return RetBuilder.success();
     }
 
     // ============================================================
@@ -164,6 +212,25 @@ public class AiController extends BaseSystemController {
         return emitter;
     }
 
+    /**
+     * 重新生成最后一条 AI 回复（SSE 流式）
+     * <p>删除最后一条 assistant 消息并重新生成，事件格式与 sendMessage 相同。</p>
+     */
+    @PostMapping(value = "chat/{sessionId}/regenerate", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @Operation(summary = "重新生成最后一条 AI 回复（SSE 流式）")
+    public SseEmitter regenerate(
+            @Parameter(description = "会话 ID") @PathVariable String sessionId) {
+
+        SseEmitter emitter = new SseEmitter(180_000L);
+        String managerId = loginManagerId();
+
+        mvcAsyncExecutor.execute(() ->
+                aiService.streamRegenerate(sessionId, emitter, managerId)
+        );
+
+        return emitter;
+    }
+
     // ============================================================
     //  TTS 语音合成
     // ============================================================
@@ -174,6 +241,7 @@ public class AiController extends BaseSystemController {
      */
     @PostMapping("tts/synthesize")
     @Operation(summary = "TTS 语音合成（返回音频文件）")
+    @IgnoreEncryption
     public ResponseEntity<byte[]> synthesizeSpeech(@RequestBody @Validated AiTtsSynthesizeReq req) {
         byte[] audioBytes = dashScopeAiService.synthesizeSpeech(req.getConfigKey(), req.getText());
 
@@ -217,6 +285,7 @@ public class AiController extends BaseSystemController {
      */
     @PostMapping("stt/transcribe")
     @Operation(summary = "STT 语音转录（上传音频文件）")
+    @IgnoreEncryption
     public RetResult<String> transcribeAudio(
             @Parameter(description = "音频文件") @RequestParam("audio") MultipartFile audio,
             @Parameter(description = "STT 模型配置 Key") @RequestParam("configKey") String configKey) throws Exception {
