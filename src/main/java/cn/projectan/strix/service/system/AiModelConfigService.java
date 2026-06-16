@@ -3,6 +3,7 @@ package cn.projectan.strix.service.system;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import cn.projectan.strix.core.exception.StrixException;
 import cn.projectan.strix.core.module.ai.AiModelStore;
 import cn.projectan.strix.mapper.system.AiModelConfigMapper;
 import cn.projectan.strix.model.db.system.AiModelConfig;
@@ -34,6 +35,15 @@ import java.util.concurrent.TimeUnit;
 public class AiModelConfigService extends ServiceImpl<AiModelConfigMapper, AiModelConfig> {
 
     private final AiModelStore aiModelStore;
+
+    /**
+     * 复用的 OkHttpClient（获取模型列表用）
+     * <p>避免每次调用 {@code new OkHttpClient()} 导致连接池/调度线程泄漏。
+     */
+    private final OkHttpClient modelListHttpClient = new OkHttpClient.Builder()
+            .connectTimeout(10, TimeUnit.SECONDS)
+            .readTimeout(30, TimeUnit.SECONDS)
+            .build();
 
     /**
      * 根据 key 查询配置
@@ -120,15 +130,8 @@ public class AiModelConfigService extends ServiceImpl<AiModelConfigMapper, AiMod
         try {
             return fetchOpenAiCompatibleModels(normalizedUrl, apiKey);
         } catch (Exception e) {
-            log.warn("OpenAI Compatible API 调用失败，尝试 DashScope: {}", e.getMessage());
-        }
-
-        // 回退到 DashScope
-        try {
-            return fetchDashScopeModels(apiKey);
-        } catch (Exception e) {
-            log.error("DashScope API 调用失败: {}", e.getMessage());
-            throw new RuntimeException("无法获取模型列表，请检查 Base URL 和 API Key 是否正确", e);
+            log.warn("获取模型列表失败（疑似不兼容端点）: baseUrl={}, error={}", normalizedUrl, e.getMessage());
+            throw new StrixException("不兼容的 API 端点", e);
         }
     }
 
@@ -162,7 +165,12 @@ public class AiModelConfigService extends ServiceImpl<AiModelConfigMapper, AiMod
             return AiModelType.TTS;
         }
 
-        // STT 模型
+        // 实时语音识别 ASR（流式：paraformer-realtime / gummy-realtime 等）—— 须先于离线 STT 判断
+        if (lower.contains("realtime") || lower.contains("gummy")) {
+            return AiModelType.ASR;
+        }
+
+        // STT 模型（离线 / 批量转写）
         if (lower.contains("whisper") || lower.contains("stt") ||
                 lower.contains("transcribe") || lower.contains("-asr-")) {
             return AiModelType.STT;
@@ -188,11 +196,6 @@ public class AiModelConfigService extends ServiceImpl<AiModelConfigMapper, AiMod
      * 从 OpenAI Compatible API 获取模型列表
      */
     private List<AiModelInfoResp> fetchOpenAiCompatibleModels(String baseUrl, String apiKey) throws IOException {
-        OkHttpClient client = new OkHttpClient.Builder()
-                .connectTimeout(10, TimeUnit.SECONDS)
-                .readTimeout(30, TimeUnit.SECONDS)
-                .build();
-
         // 尝试多个可能的路径
         String[] possiblePaths = {"/v1/models", "/models", "/api/v1/models"};
         IOException lastException = null;
@@ -206,23 +209,28 @@ public class AiModelConfigService extends ServiceImpl<AiModelConfigMapper, AiMod
                         .get()
                         .build();
 
-                try (Response response = client.newCall(request).execute()) {
+                try (Response response = modelListHttpClient.newCall(request).execute()) {
                     if (response.isSuccessful() && response.body() != null) {
                         String body = response.body().string();
                         JSONObject json = JSONUtil.parseObj(body);
                         JSONArray data = json.getJSONArray("data");
 
+                        // 校验响应是否为合法的模型列表（OpenAI /models 规范：data 为对象数组且含 id 字段）
                         if (data == null || data.isEmpty()) {
-                            throw new IOException("API 返回的模型列表为空");
+                            throw new IOException("响应不含 data 模型数组，疑似不兼容端点");
                         }
 
                         List<AiModelInfoResp> result = new ArrayList<>();
                         for (int i = 0; i < data.size(); i++) {
                             JSONObject model = data.getJSONObject(i);
+                            String modelId = model != null ? model.getStr("id") : null;
+                            if (modelId == null || modelId.isBlank()) {
+                                continue; // 跳过无 id 的非法条目
+                            }
 
                             AiModelInfoResp info = new AiModelInfoResp();
-                            info.setId(model.getStr("id"));
-                            info.setName(model.getStr("id")); // 默认使用 id 作为 name
+                            info.setId(modelId);
+                            info.setName(modelId); // 默认使用 id 作为 name
                             info.setOwnedBy(model.getStr("owned_by", "unknown"));
                             info.setCreated(model.getLong("created", System.currentTimeMillis() / 1000));
                             info.setType((int) inferModelType(info.getId()));
@@ -230,7 +238,9 @@ public class AiModelConfigService extends ServiceImpl<AiModelConfigMapper, AiMod
                             result.add(info);
                         }
 
-//                        log.info(ObjectMapperUtil.writeValue(result));
+                        if (result.isEmpty()) {
+                            throw new IOException("响应 data 数组中无合法模型条目，疑似不兼容端点");
+                        }
 
                         log.info("成功从 {} 获取 {} 个模型", baseUrl + path, result.size());
                         return result;

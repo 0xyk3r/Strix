@@ -25,23 +25,29 @@ public class AiMessageService extends ServiceImpl<AiMessageMapper, AiMessage> {
     private static final int DEFAULT_CONTEXT_LIMIT = 20;
 
     /**
-     * 获取会话的历史消息列表（按时间升序）
+     * 获取会话的历史消息列表（按消息 ID 升序）
+     * <p>
+     * 注意：必须按雪花主键 {@code id} 排序而非 {@code createdTime}。{@code created_time} 列为秒级
+     * DATETIME，同一轮内毫秒级先后保存的 user/assistant 消息会得到相同秒值，按时间排序会出现
+     * 不稳定结果（消息顺序错乱）。雪花 id 单调递增且唯一，能保证插入顺序。
      */
     public List<AiMessage> listBySessionId(String sessionId) {
         return lambdaQuery()
                 .eq(AiMessage::getSessionId, sessionId)
-                .orderByAsc(AiMessage::getCreatedTime)
+                .orderByAsc(AiMessage::getId)
                 .list();
     }
 
     /**
-     * 获取最近 N 条历史消息作为上下文（不含状态为"生成中"的消息）
+     * 获取最近 N 条历史消息作为上下文（不含状态为"生成中"的消息），按消息 ID 升序返回
+     * <p>
+     * 同 {@link #listBySessionId}，按雪花 id 排序以保证顺序稳定。
      */
     public List<AiMessage> listContextMessages(String sessionId) {
         return lambdaQuery()
                 .eq(AiMessage::getSessionId, sessionId)
                 .ne(AiMessage::getStatus, AiMessageStatus.GENERATING)
-                .orderByDesc(AiMessage::getCreatedTime)
+                .orderByDesc(AiMessage::getId)
                 .last("LIMIT " + DEFAULT_CONTEXT_LIMIT)
                 .list()
                 .reversed();

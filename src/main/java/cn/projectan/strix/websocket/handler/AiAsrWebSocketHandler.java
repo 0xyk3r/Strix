@@ -1,18 +1,17 @@
 package cn.projectan.strix.websocket.handler;
 
-import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
-import cn.projectan.strix.core.module.ai.dashscope.DashScopeHttpClient;
+import cn.projectan.strix.core.module.ai.asr.AsrResultListener;
+import cn.projectan.strix.core.module.ai.asr.RealtimeAsrProvider;
+import cn.projectan.strix.core.module.ai.asr.RealtimeAsrSession;
 import cn.projectan.strix.model.db.system.AiModelConfig;
+import cn.projectan.strix.model.dict.system.AiModelType;
 import cn.projectan.strix.service.system.AiModelConfigService;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.Request;
-import okhttp3.Response;
-import okhttp3.WebSocket;
-import okhttp3.WebSocketListener;
-import okio.ByteString;
 import org.jspecify.annotations.NonNull;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.BinaryMessage;
 import org.springframework.web.socket.CloseStatus;
@@ -21,32 +20,31 @@ import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.AbstractWebSocketHandler;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
- * AI 实时 ASR WebSocket 处理器
+ * AI 实时语音识别（ASR）WebSocket 处理器（平台无关）。
  * <p>
- * 作为 DashScope WebSocket 实时语音识别的代理：
- * <ol>
- *   <li>客户端连接时，向 DashScope 建立 WebSocket 并发送 {@code run-task} 启动识别</li>
- *   <li>客户端发送 PCM 16kHz 单声道音频二进制帧 → 转发至 DashScope</li>
- *   <li>DashScope 推送识别结果 → 解析后以 JSON 文本消息转发给客户端</li>
- *   <li>客户端发送文本 {@code end} 或断开连接 → 发送 {@code finish-task} 结束任务</li>
- * </ol>
+ * 作为浏览器与各 ASR 平台之间的代理：浏览器以二进制帧上行 PCM 16kHz 单声道音频，
+ * 处理器按模型配置选择 {@link RealtimeAsrProvider} 建立上游会话并转发音频，
+ * 平台返回的增量/最终结果经回调转为统一 JSON 下发给浏览器。
  *
- * <p>客户端连接 URL：{@code ws://host/ws/ai/asr?token=<token>&configKey=<key>}</p>
+ * <p>客户端连接 URL：{@code ws://host/api/ws/ai/asr?token=<token>&configKey=<key>}</p>
  *
- * <p>客户端收到的 JSON 格式：</p>
+ * <p>下发给客户端的 JSON：</p>
  * <pre>
- *   {@code {"text":"识别文本","sentenceId":1,"final":false}}  // 中间结果
- *   {@code {"text":"完整句子","sentenceId":2,"final":true}}   // 句子完成
- *   {@code {"done":true}}                                     // 任务结束
- *   {@code {"error":"错误信息"}}                              // 错误
+ *   {@code {"text":"识别文本","final":false}}  // 中间结果
+ *   {@code {"text":"整句","final":true}}        // 句子完成
+ *   {@code {"done":true}}                        // 任务结束
+ *   {@code {"error":"错误信息"}}                 // 错误
  * </pre>
  *
  * <p><b>音频要求</b>：PCM 16kHz 单声道 16-bit（little-endian）</p>
+ * <p><b>加固</b>：仅允许 ASR 类型配置；每用户并发连接数上限；空闲超时自动关闭。</p>
  *
  * @author ProjectAn
  * @since 2026-05-21
@@ -56,19 +54,45 @@ import java.util.concurrent.ConcurrentHashMap;
 @RequiredArgsConstructor
 public class AiAsrWebSocketHandler extends AbstractWebSocketHandler {
 
-    private static final String DASHSCOPE_WS_URL = "wss://dashscope.aliyuncs.com/api-ws/v1/inference/";
+    /**
+     * 每个用户允许的最大并发 ASR 连接数
+     */
+    private static final int MAX_CONNECTIONS_PER_USER = 3;
+    /**
+     * 空闲超时（毫秒）：超过此时长未收到音频帧的连接将被关闭
+     */
+    private static final long IDLE_TIMEOUT_MS = 120_000L;
 
     private final AiModelConfigService aiModelConfigService;
-    private final DashScopeHttpClient dashScopeHttpClient;
+    /**
+     * 所有已注册的 ASR 平台 Provider（Spring 注入）
+     */
+    private final List<RealtimeAsrProvider> asrProviders;
+
+    @Qualifier("strixScheduledExecutor")
+    private final ScheduledExecutorService scheduledExecutor;
 
     /**
-     * sessionId → DashScope WebSocket
+     * sessionId → 上游 ASR 会话
      */
-    private final Map<String, WebSocket> dashScopeWsMap = new ConcurrentHashMap<>();
+    private final Map<String, RealtimeAsrSession> sessions = new ConcurrentHashMap<>();
     /**
-     * sessionId → taskId
+     * sessionId → 客户端会话
      */
-    private final Map<String, String> taskIdMap = new ConcurrentHashMap<>();
+    private final Map<String, WebSocketSession> clientSessions = new ConcurrentHashMap<>();
+    /**
+     * sessionId → 最近一次收到音频帧的时间戳（毫秒）
+     */
+    private final Map<String, Long> lastActiveAt = new ConcurrentHashMap<>();
+    /**
+     * userId → 当前并发连接数
+     */
+    private final Map<String, Integer> userConnCount = new ConcurrentHashMap<>();
+
+    @PostConstruct
+    void init() {
+        scheduledExecutor.scheduleWithFixedDelay(this::sweepIdleSessions, 30, 30, TimeUnit.SECONDS);
+    }
 
     // ============================================================
     //  Spring WebSocket 生命周期
@@ -76,51 +100,94 @@ public class AiAsrWebSocketHandler extends AbstractWebSocketHandler {
 
     @Override
     public void afterConnectionEstablished(@NonNull WebSocketSession session) throws Exception {
+        String userId = (String) session.getAttributes().get("userId");
         String configKey = (String) session.getAttributes().get("configKey");
         AiModelConfig config = aiModelConfigService.requireEnabledByKey(configKey);
 
-        String taskId = UUID.randomUUID().toString().replace("-", "");
-        taskIdMap.put(session.getId(), taskId);
+        // 仅允许实时语音识别（ASR）类型配置
+        if (config.getType() == null || config.getType() != AiModelType.ASR) {
+            sendToClient(session, errorJson("该配置不是实时语音识别 (ASR) 模型"));
+            session.close(CloseStatus.NOT_ACCEPTABLE);
+            return;
+        }
 
-        Request wsRequest = new Request.Builder()
-                .url(DASHSCOPE_WS_URL)
-                .header("Authorization", "Bearer " + config.getApiKey())
-                .build();
+        // 选择支持该模型的 Provider
+        RealtimeAsrProvider provider = asrProviders.stream()
+                .filter(p -> p.supports(config))
+                .findFirst()
+                .orElse(null);
+        if (provider == null) {
+            sendToClient(session, errorJson("暂不支持该 ASR 模型: " + config.getModelName()));
+            session.close(CloseStatus.NOT_ACCEPTABLE);
+            return;
+        }
 
-        String model = config.getModelName();
-        WebSocket dashScopeWs = dashScopeHttpClient.getHttpClient()
-                .newWebSocket(wsRequest, new DashScopeAsrListener(session, taskId, model));
-        dashScopeWsMap.put(session.getId(), dashScopeWs);
+        // 每用户并发连接数上限（软上限）
+        if (userConnCount.getOrDefault(userId, 0) >= MAX_CONNECTIONS_PER_USER) {
+            sendToClient(session, errorJson("并发语音识别连接数已达上限，请稍后再试"));
+            session.close(CloseStatus.POLICY_VIOLATION);
+            return;
+        }
+        if (userId != null) {
+            userConnCount.merge(userId, 1, Integer::sum);
+        }
+        clientSessions.put(session.getId(), session);
+        lastActiveAt.put(session.getId(), System.currentTimeMillis());
 
-        log.info("ASR WebSocket 已建立: sessionId={}, configKey={}, taskId={}",
-                session.getId(), configKey, taskId);
+        // 建立上游会话，结果回调转发给浏览器
+        RealtimeAsrSession asrSession = provider.open(config, new AsrResultListener() {
+            @Override
+            public void onTranscript(String text, boolean isFinal) {
+                sendToClient(session, JSONUtil.createObj().set("text", text).set("final", isFinal).toJSONString(0));
+            }
+
+            @Override
+            public void onError(String message) {
+                sendToClient(session, errorJson(message));
+                closeClient(session);
+            }
+
+            @Override
+            public void onCompleted() {
+                sendToClient(session, JSONUtil.createObj().set("done", true).toJSONString(0));
+            }
+        });
+        sessions.put(session.getId(), asrSession);
+
+        log.info("ASR WebSocket 已建立: sessionId={}, userId={}, provider={}, model={}",
+                session.getId(), userId, provider.getClass().getSimpleName(), config.getModelName());
     }
 
     @Override
     protected void handleBinaryMessage(@NonNull WebSocketSession session,
                                        @NonNull BinaryMessage message) throws Exception {
-        WebSocket dashScopeWs = dashScopeWsMap.get(session.getId());
-        if (dashScopeWs != null) {
-            byte[] audioBytes = message.getPayload().array();
-            dashScopeWs.send(ByteString.of(audioBytes));
+        lastActiveAt.put(session.getId(), System.currentTimeMillis());
+        RealtimeAsrSession asrSession = sessions.get(session.getId());
+        if (asrSession != null) {
+            // 基于 ByteBuffer 的 remaining() 精确取字节，避免 array() 取整个底层数组带来多余字节
+            java.nio.ByteBuffer payload = message.getPayload();
+            byte[] pcm = new byte[payload.remaining()];
+            payload.get(pcm);
+            asrSession.sendAudio(pcm);
         }
     }
 
     @Override
     protected void handleTextMessage(@NonNull WebSocketSession session,
                                      @NonNull TextMessage message) throws Exception {
-        // 客户端发送 "end" 信号表示音频流已结束
+        // 客户端发送 "end" 表示音频流结束
         if ("end".equalsIgnoreCase(message.getPayload().trim())) {
-            sendFinishTask(session.getId());
+            RealtimeAsrSession asrSession = sessions.get(session.getId());
+            if (asrSession != null) {
+                asrSession.finish();
+            }
         }
     }
 
     @Override
     public void afterConnectionClosed(@NonNull WebSocketSession session,
                                       @NonNull CloseStatus status) throws Exception {
-        sendFinishTask(session.getId());
-        dashScopeWsMap.remove(session.getId());
-        taskIdMap.remove(session.getId());
+        cleanupSession(session);
         log.info("ASR WebSocket 已断开: sessionId={}, status={}", session.getId(), status);
     }
 
@@ -128,30 +195,64 @@ public class AiAsrWebSocketHandler extends AbstractWebSocketHandler {
     public void handleTransportError(@NonNull WebSocketSession session,
                                      @NonNull Throwable exception) throws Exception {
         log.error("ASR WebSocket 传输错误: sessionId={}", session.getId(), exception);
-        sendFinishTask(session.getId());
-        dashScopeWsMap.remove(session.getId());
-        taskIdMap.remove(session.getId());
+        cleanupSession(session);
     }
 
     // ============================================================
     //  内部工具
     // ============================================================
 
-    private void sendFinishTask(String sessionId) {
-        WebSocket dashScopeWs = dashScopeWsMap.get(sessionId);
-        String taskId = taskIdMap.get(sessionId);
-        if (dashScopeWs != null && taskId != null) {
-            String finishMsg = JSONUtil.createObj()
-                    .set("header", JSONUtil.createObj()
-                            .set("action", "finish-task")
-                            .set("task_id", taskId)
-                            .set("streaming", "duplex"))
-                    .set("payload", JSONUtil.createObj()
-                            .set("input", JSONUtil.createObj()))
-                    .toJSONString(0);
-            dashScopeWs.send(finishMsg);
-            log.debug("已发送 finish-task: sessionId={}, taskId={}", sessionId, taskId);
+    private void cleanupSession(WebSocketSession session) {
+        String sessionId = session.getId();
+        boolean tracked = clientSessions.remove(sessionId) != null;
+        lastActiveAt.remove(sessionId);
+        if (tracked) {
+            String userId = (String) session.getAttributes().get("userId");
+            if (userId != null) {
+                userConnCount.computeIfPresent(userId, (k, v) -> v <= 1 ? null : v - 1);
+            }
         }
+        RealtimeAsrSession asrSession = sessions.remove(sessionId);
+        if (asrSession != null) {
+            asrSession.close();
+        }
+    }
+
+    /**
+     * 周期性关闭空闲超时的连接（无音频帧超过 {@link #IDLE_TIMEOUT_MS}）
+     */
+    private void sweepIdleSessions() {
+        long now = System.currentTimeMillis();
+        lastActiveAt.forEach((sessionId, last) -> {
+            if (now - last > IDLE_TIMEOUT_MS) {
+                WebSocketSession s = clientSessions.get(sessionId);
+                if (s != null) {
+                    synchronized (s) {
+                        if (s.isOpen()) {
+                            try {
+                                s.close(CloseStatus.GOING_AWAY.withReason("idle timeout"));
+                            } catch (IOException ignored) {
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    private void closeClient(WebSocketSession session) {
+        synchronized (session) {
+            if (session.isOpen()) {
+                try {
+                    session.close(CloseStatus.SERVER_ERROR);
+                } catch (IOException ignored) {
+                }
+            }
+        }
+    }
+
+    private static String errorJson(String message) {
+        return JSONUtil.createObj().set("error", message).toJSONString(0);
     }
 
     private static void sendToClient(WebSocketSession session, String jsonMsg) {
@@ -163,109 +264,6 @@ public class AiAsrWebSocketHandler extends AbstractWebSocketHandler {
                     log.warn("向客户端发送 ASR 消息失败: sessionId={}", session.getId(), e);
                 }
             }
-        }
-    }
-
-    // ============================================================
-    //  DashScope WebSocket 监听器
-    // ============================================================
-
-    private class DashScopeAsrListener extends WebSocketListener {
-
-        private final WebSocketSession clientSession;
-        private final String taskId;
-        private final String model;
-
-        DashScopeAsrListener(WebSocketSession clientSession, String taskId, String model) {
-            this.clientSession = clientSession;
-            this.taskId = taskId;
-            this.model = model;
-        }
-
-        @Override
-        public void onOpen(@NonNull WebSocket webSocket, @NonNull Response response) {
-            // 发送 run-task 消息启动识别
-            String runTaskMsg = JSONUtil.createObj()
-                    .set("header", JSONUtil.createObj()
-                            .set("action", "run-task")
-                            .set("task_id", taskId)
-                            .set("streaming", "duplex"))
-                    .set("payload", JSONUtil.createObj()
-                            .set("task_group", "audio")
-                            .set("task", "asr")
-                            .set("function", "recognition")
-                            .set("model", model)
-                            .set("parameters", JSONUtil.createObj()
-                                    .set("format", "pcm")
-                                    .set("sample_rate", 16000))
-                            .set("input", JSONUtil.createObj()))
-                    .toJSONString(0);
-            webSocket.send(runTaskMsg);
-            log.info("DashScope ASR run-task 已发送: taskId={}, model={}", taskId, model);
-        }
-
-        @Override
-        public void onMessage(@NonNull WebSocket webSocket, @NonNull String text) {
-            try {
-                JSONObject msg = JSONUtil.parseObj(text);
-                JSONObject header = msg.getJSONObject("header");
-                String event = header != null ? header.getStr("event") : null;
-
-                if ("result-generated".equals(event)) {
-                    JSONObject payload = msg.getJSONObject("payload");
-                    if (payload != null) {
-                        JSONObject output = payload.getJSONObject("output");
-                        if (output != null) {
-                            JSONObject sentence = output.getJSONObject("sentence");
-                            if (sentence != null) {
-                                String recognizedText = sentence.getStr("text", "");
-                                int sentenceId = sentence.getInt("sentence_id", 0);
-                                boolean isFinal = sentence.getBool("is_end", false);
-
-                                String clientMsg = JSONUtil.createObj()
-                                        .set("text", recognizedText)
-                                        .set("sentenceId", sentenceId)
-                                        .set("final", isFinal)
-                                        .toJSONString(0);
-                                sendToClient(clientSession, clientMsg);
-                            }
-                        }
-                    }
-                } else if ("task-finished".equals(event)) {
-                    sendToClient(clientSession, JSONUtil.createObj()
-                            .set("done", true).toJSONString(0));
-                }
-            } catch (Exception e) {
-                log.error("处理 DashScope ASR 消息出错: sessionId={}", clientSession.getId(), e);
-            }
-        }
-
-        @Override
-        public void onFailure(@NonNull WebSocket webSocket, @NonNull Throwable t,
-                              Response response) {
-            log.error("DashScope ASR WebSocket 连接失败: sessionId={}, taskId={}",
-                    clientSession.getId(), taskId, t);
-            sendToClient(clientSession, JSONUtil.createObj()
-                    .set("error", "DashScope ASR 连接失败: " + t.getMessage())
-                    .toJSONString(0));
-            synchronized (clientSession) {
-                if (clientSession.isOpen()) {
-                    try {
-                        clientSession.close(CloseStatus.SERVER_ERROR);
-                    } catch (IOException ignored) {
-                    }
-                }
-            }
-            dashScopeWsMap.remove(clientSession.getId());
-            taskIdMap.remove(clientSession.getId());
-        }
-
-        @Override
-        public void onClosed(@NonNull WebSocket webSocket, int code, @NonNull String reason) {
-            log.info("DashScope ASR WebSocket 已关闭: sessionId={}, code={}, reason={}",
-                    clientSession.getId(), code, reason);
-            dashScopeWsMap.remove(clientSession.getId());
-            taskIdMap.remove(clientSession.getId());
         }
     }
 }

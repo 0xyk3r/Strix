@@ -37,9 +37,9 @@ public class AiModelType implements BaseDict {
     short TTS = 3;
 
     /**
-     * 语音识别 STT
+     * 离线语音识别 STT（上传音频文件批量转写）
      */
-    @DictData(label = "语音识别 STT", sort = 4, style = DictDataStyle.WARNING)
+    @DictData(label = "离线语音识别 STT", sort = 4, style = DictDataStyle.WARNING)
     public static final
     short STT = 4;
 
@@ -50,8 +50,15 @@ public class AiModelType implements BaseDict {
     public static final
     short IMAGE_GEN = 5;
 
+    /**
+     * 实时语音识别 ASR（WebSocket 流式，麦克风实时转写）
+     */
+    @DictData(label = "实时语音识别 ASR", sort = 6, style = DictDataStyle.WARNING)
+    public static final
+    short ASR = 6;
+
     public static boolean valid(short value) {
-        return value == TEXT || value == VISION || value == TTS || value == STT || value == IMAGE_GEN;
+        return value == TEXT || value == VISION || value == TTS || value == STT || value == IMAGE_GEN || value == ASR;
     }
 
 }

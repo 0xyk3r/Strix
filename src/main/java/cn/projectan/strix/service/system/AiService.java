@@ -7,6 +7,8 @@ import cn.projectan.strix.model.db.system.AiSession;
 import cn.projectan.strix.model.dict.system.AiMessageStatus;
 import cn.projectan.strix.model.dict.system.AiModelType;
 import cn.projectan.strix.model.response.system.ai.AiSseEvent;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.openai.client.OpenAIClient;
 import com.openai.core.JsonValue;
 import com.openai.models.chat.completions.*;
@@ -43,7 +45,8 @@ import java.util.Map;
  *   <li>程序化调用（同步阻塞）：{@link #chat}, {@link #analyzeMedia}</li>
  * </ul>
  * <p>
- * TTS/STT/IMAGE_GEN 暂未实现（需 DashScope 原生 API，非 OpenAI 兼容端点）。
+ * 在线对话相关能力在本类实现；TTS/STT/图片生成等 DashScope 原生 API（非 OpenAI 兼容端点）
+ * 由 {@link DashScopeAiService} 实现。
  *
  * @author ProjectAn
  * @since 2026-05-12
@@ -52,6 +55,8 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 public class AiService {
+
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     private final AiModelStore aiModelStore;
     private final AiModelConfigService aiModelConfigService;
@@ -113,10 +118,87 @@ public class AiService {
         List<AiMessage> history = aiMessageService.listContextMessages(sessionId);
         List<Message> messages = buildMessages(config, history, content, attachments);
 
-        // 5. 构建 SDK 请求参数（直接使用同步 OkHttp 客户端，绕过 Spring AI Flux 的缓冲问题）
-        ChatCompletionCreateParams params = buildSdkParams(config, messages, true);
+        // 5. 执行流式调用（与 streamRegenerate 共用 runStreaming）
+        runStreaming(config, messages, assistantMsg.getId(), userMsg.getId(), emitter, startTime, sessionId);
+    }
 
-        // 6. 执行流式调用
+    /**
+     * 重新生成最后一条 AI 回复（SSE 流式）
+     * <p>
+     * 删除当前会话最后一条 assistant 消息，找到最后一条 user 消息内容，重新触发流式生成。
+     * 应在虚拟线程中调用。
+     *
+     * @param sessionId 会话 ID
+     * @param emitter   SSE emitter
+     * @param managerId 当前管理员 ID
+     */
+    public void streamRegenerate(String sessionId, SseEmitter emitter, String managerId) {
+        // 1. 校验会话
+        AiSession session = aiSessionService.getById(sessionId);
+        if (session == null || !session.getManagerId().equals(managerId)) {
+            sendSseError(emitter, "会话不存在或无权限");
+            return;
+        }
+
+        AiModelConfig config = aiModelConfigService.getById(session.getModelConfigId());
+        if (config == null || config.getStatus() == null || config.getStatus() != 1) {
+            sendSseError(emitter, "AI 模型配置不可用");
+            return;
+        }
+
+        // 记录开始时间
+        long startTime = System.currentTimeMillis();
+
+        // 2. 删除最后一条 assistant 消息（按雪花 id 取最新，避免秒级时间戳并列导致的顺序错乱）
+        AiMessage lastAssistant = aiMessageService.lambdaQuery()
+                .eq(AiMessage::getSessionId, sessionId)
+                .eq(AiMessage::getRole, "assistant")
+                .orderByDesc(AiMessage::getId)
+                .last("LIMIT 1")
+                .one();
+        if (lastAssistant != null) {
+            aiMessageService.removeById(lastAssistant.getId());
+        }
+
+        // 3. 找到最后一条 user 消息
+        AiMessage lastUser = aiMessageService.lambdaQuery()
+                .eq(AiMessage::getSessionId, sessionId)
+                .eq(AiMessage::getRole, "user")
+                .orderByDesc(AiMessage::getId)
+                .last("LIMIT 1")
+                .one();
+        if (lastUser == null) {
+            sendSseError(emitter, "没有可以重新生成的用户消息");
+            return;
+        }
+
+        // 4. 解析附件 JSON
+        List<Map<String, String>> attachments = parseAttachmentsJson(lastUser.getAttachments());
+
+        // 5. 保存新的 assistant 占位消息
+        AiMessage assistantMsg = new AiMessage()
+                .setSessionId(sessionId)
+                .setRole("assistant")
+                .setContent("")
+                .setStatus(AiMessageStatus.GENERATING);
+        aiMessageService.save(assistantMsg);
+
+        // 6. 加载上下文 → 构建 messages → 流式调用（与 streamChat 共用 runStreaming）
+        List<AiMessage> history = aiMessageService.listContextMessages(sessionId);
+        List<Message> messages = buildMessages(config, history, lastUser.getContent(), attachments);
+        runStreaming(config, messages, assistantMsg.getId(), null, emitter, startTime, sessionId);
+    }
+
+    /**
+     * 执行底层流式调用：消费 OpenAI SDK 流、推送 thinking/content 事件、落库并发送 DONE/ERROR 事件。
+     * <p>由 {@link #streamChat} 与 {@link #streamRegenerate} 共用。应在虚拟线程中调用。
+     *
+     * @param userMsgId 用户消息 ID，仅 streamChat 需要在 DONE 事件回传；regenerate 传 {@code null}
+     */
+    private void runStreaming(AiModelConfig config, List<Message> messages, String assistantMsgId,
+                              String userMsgId, SseEmitter emitter, long startTime, String sessionId) {
+        // 构建 SDK 请求参数（直接使用同步 OkHttp 客户端，绕过 Spring AI Flux 的缓冲问题）
+        ChatCompletionCreateParams params = buildSdkParams(config, messages, true);
         try {
             OpenAIClient syncClient = aiModelStore.getSyncClient(config);
 
@@ -161,17 +243,17 @@ public class AiService {
             Integer finalCompletionTokens = completionTokens[0] >= 0 ? completionTokens[0] : null;
             Long durationMs = System.currentTimeMillis() - startTime;
 
-            // 7. 更新 assistant 消息为完成状态
-            aiMessageService.markCompleted(assistantMsg.getId(),
+            // 更新 assistant 消息为完成状态
+            aiMessageService.markCompleted(assistantMsgId,
                     fullContent.toString(),
                     thinkingContent.isEmpty() ? null : thinkingContent.toString(),
                     finalPromptTokens, finalCompletionTokens,
                     config.getId(), durationMs);
 
-            // 8. 发送完成事件
+            // 发送完成事件
             Map<String, Object> doneData = new HashMap<>();
-            doneData.put("messageId", assistantMsg.getId());
-            doneData.put("userMessageId", userMsg.getId());
+            doneData.put("messageId", assistantMsgId);
+            if (userMsgId != null) doneData.put("userMessageId", userMsgId);
             doneData.put("modelConfigId", config.getId());
             doneData.put("modelConfigName", config.getName());
             if (finalPromptTokens != null) doneData.put("promptTokens", finalPromptTokens);
@@ -180,137 +262,8 @@ public class AiService {
             emitter.complete();
 
         } catch (Exception e) {
-            log.error("AI 流式对话出错: sessionId={}", sessionId, e);
-            aiMessageService.markError(assistantMsg.getId(), e.getMessage());
-            sendSseError(emitter, "AI 调用出错: " + e.getMessage());
-        }
-    }
-
-    /**
-     * 重新生成最后一条 AI 回复（SSE 流式）
-     * <p>
-     * 删除当前会话最后一条 assistant 消息，找到最后一条 user 消息内容，重新触发流式生成。
-     * 应在虚拟线程中调用。
-     *
-     * @param sessionId 会话 ID
-     * @param emitter   SSE emitter
-     * @param managerId 当前管理员 ID
-     */
-    public void streamRegenerate(String sessionId, SseEmitter emitter, String managerId) {
-        // 1. 校验会话
-        AiSession session = aiSessionService.getById(sessionId);
-        if (session == null || !session.getManagerId().equals(managerId)) {
-            sendSseError(emitter, "会话不存在或无权限");
-            return;
-        }
-
-        AiModelConfig config = aiModelConfigService.getById(session.getModelConfigId());
-        if (config == null || config.getStatus() == null || config.getStatus() != 1) {
-            sendSseError(emitter, "AI 模型配置不可用");
-            return;
-        }
-
-        // 记录开始时间
-        long startTime = System.currentTimeMillis();
-
-        // 2. 删除最后一条 assistant 消息
-        AiMessage lastAssistant = aiMessageService.lambdaQuery()
-                .eq(AiMessage::getSessionId, sessionId)
-                .eq(AiMessage::getRole, "assistant")
-                .orderByDesc(AiMessage::getCreatedTime)
-                .last("LIMIT 1")
-                .one();
-        if (lastAssistant != null) {
-            aiMessageService.removeById(lastAssistant.getId());
-        }
-
-        // 3. 找到最后一条 user 消息
-        AiMessage lastUser = aiMessageService.lambdaQuery()
-                .eq(AiMessage::getSessionId, sessionId)
-                .eq(AiMessage::getRole, "user")
-                .orderByDesc(AiMessage::getCreatedTime)
-                .last("LIMIT 1")
-                .one();
-        if (lastUser == null) {
-            sendSseError(emitter, "没有可以重新生成的用户消息");
-            return;
-        }
-
-        // 4. 解析附件 JSON
-        List<Map<String, String>> attachments = parseAttachmentsJson(lastUser.getAttachments());
-
-        // 5. 保存新的 assistant 占位消息
-        AiMessage assistantMsg = new AiMessage()
-                .setSessionId(sessionId)
-                .setRole("assistant")
-                .setContent("")
-                .setStatus(AiMessageStatus.GENERATING);
-        aiMessageService.save(assistantMsg);
-
-        // 6-8. 加载上下文 → 构建参数 → 流式调用（与 streamChat 相同逻辑）
-        List<AiMessage> history = aiMessageService.listContextMessages(sessionId);
-        List<Message> messages = buildMessages(config, history, lastUser.getContent(), attachments);
-        ChatCompletionCreateParams params = buildSdkParams(config, messages, true);
-
-        try {
-            OpenAIClient syncClient = aiModelStore.getSyncClient(config);
-
-            StringBuilder fullContent = new StringBuilder();
-            StringBuilder thinkingContent = new StringBuilder();
-            int[] promptTokens = {-1};
-            int[] completionTokens = {-1};
-
-            try (var stream = syncClient.chat().completions().createStreaming(params)) {
-                stream.stream().forEach(chunk -> {
-                    chunk.usage().ifPresent(usage -> {
-                        promptTokens[0] = (int) usage.promptTokens();
-                        completionTokens[0] = (int) usage.completionTokens();
-                    });
-                    if (chunk.choices().isEmpty()) return;
-
-                    ChatCompletionChunk.Choice choice = chunk.choices().get(0);
-                    String delta = choice.delta().content().orElse(null);
-
-                    String thinkingDelta = null;
-                    JsonValue reasoningValue = choice.delta()._additionalProperties().get("reasoning_content");
-                    if (reasoningValue != null) {
-                        Object val = reasoningValue.asString().orElse(null);
-                        thinkingDelta = val instanceof String s ? s : null;
-                    }
-
-                    if (StringUtils.hasText(thinkingDelta)) {
-                        thinkingContent.append(thinkingDelta);
-                        sendSseEvent(emitter, AiSseEvent.THINKING, Map.of("content", thinkingDelta));
-                    }
-                    if (StringUtils.hasText(delta)) {
-                        fullContent.append(delta);
-                        sendSseEvent(emitter, AiSseEvent.CONTENT, Map.of("content", delta));
-                    }
-                });
-            }
-
-            Integer finalPromptTokens = promptTokens[0] >= 0 ? promptTokens[0] : null;
-            Integer finalCompletionTokens = completionTokens[0] >= 0 ? completionTokens[0] : null;
-            Long durationMs = System.currentTimeMillis() - startTime;
-
-            aiMessageService.markCompleted(assistantMsg.getId(),
-                    fullContent.toString(),
-                    thinkingContent.isEmpty() ? null : thinkingContent.toString(),
-                    finalPromptTokens, finalCompletionTokens,
-                    config.getId(), durationMs);
-
-            Map<String, Object> doneData = new HashMap<>();
-            doneData.put("messageId", assistantMsg.getId());
-            doneData.put("modelConfigId", config.getId());
-            doneData.put("modelConfigName", config.getName());
-            if (finalPromptTokens != null) doneData.put("promptTokens", finalPromptTokens);
-            if (finalCompletionTokens != null) doneData.put("completionTokens", finalCompletionTokens);
-            sendSseEvent(emitter, AiSseEvent.DONE, doneData);
-            emitter.complete();
-
-        } catch (Exception e) {
-            log.error("AI 重新生成出错: sessionId={}", sessionId, e);
-            aiMessageService.markError(assistantMsg.getId(), e.getMessage());
+            log.error("AI 流式调用出错: sessionId={}", sessionId, e);
+            aiMessageService.markError(assistantMsgId, e.getMessage());
             sendSseError(emitter, "AI 调用出错: " + e.getMessage());
         }
     }
@@ -396,9 +349,10 @@ public class AiService {
 
     /**
      * 根据历史消息和当前输入构建 Spring AI Message 列表
+     * <p>包级可见以便单元测试（{@code AiServiceContextTest}）直接验证上下文截断逻辑。
      */
-    private List<Message> buildMessages(AiModelConfig config, List<AiMessage> history,
-                                        String currentContent, List<Map<String, String>> attachments) {
+    List<Message> buildMessages(AiModelConfig config, List<AiMessage> history,
+                                String currentContent, List<Map<String, String>> attachments) {
         List<Message> messages = new ArrayList<>();
 
         // 添加 system prompt
@@ -406,8 +360,9 @@ public class AiService {
             messages.add(new SystemMessage(config.getSystemPrompt()));
         }
 
-        // 添加历史消息（排除当前最后两条：刚保存的用户消息和占位 assistant 消息）
-        int skipLast = 2;
+        // 添加历史消息（排除当前刚保存的用户消息——它会作为本轮输入单独追加）
+        // 注意：占位的 assistant 消息（GENERATING）已被 listContextMessages 过滤，因此这里只需跳过最后 1 条（user）
+        int skipLast = 1;
         List<AiMessage> contextHistory = history.size() > skipLast
                 ? history.subList(0, history.size() - skipLast)
                 : List.of();
@@ -594,33 +549,26 @@ public class AiService {
 
     /**
      * 将附件列表序列化为 JSON 字符串存储
+     * <p>使用 Jackson 序列化，正确转义引号/反斜杠/控制字符，避免手写拼接产生非法 JSON。
      */
     private String attachmentsToJson(List<Map<String, String>> attachments) {
         if (attachments == null || attachments.isEmpty()) return null;
-        // 简单 JSON 序列化（避免引入额外依赖）
-        StringBuilder sb = new StringBuilder("[");
-        for (int i = 0; i < attachments.size(); i++) {
-            Map<String, String> att = attachments.get(i);
-            sb.append("{");
-            att.forEach((k, v) -> sb.append("\"").append(k).append("\":\"").append(v.replace("\"", "\\\"")).append("\","));
-            if (sb.charAt(sb.length() - 1) == ',') sb.deleteCharAt(sb.length() - 1);
-            sb.append("}");
-            if (i < attachments.size() - 1) sb.append(",");
+        try {
+            return OBJECT_MAPPER.writeValueAsString(attachments);
+        } catch (Exception e) {
+            log.warn("AI: 序列化附件失败", e);
+            return null;
         }
-        sb.append("]");
-        return sb.toString();
     }
 
     /**
      * 将附件 JSON 字符串解析为 List&lt;Map&lt;String, String&gt;&gt;
      */
-    @SuppressWarnings("unchecked")
     private List<Map<String, String>> parseAttachmentsJson(String json) {
         if (!StringUtils.hasText(json)) return null;
         try {
-            return (List<Map<String, String>>) new com.fasterxml.jackson.databind.ObjectMapper()
-                    .readValue(json, new com.fasterxml.jackson.core.type.TypeReference<List<Map<String, String>>>() {
-                    });
+            return OBJECT_MAPPER.readValue(json, new TypeReference<List<Map<String, String>>>() {
+            });
         } catch (Exception e) {
             log.warn("解析附件 JSON 失败: {}", json, e);
             return null;

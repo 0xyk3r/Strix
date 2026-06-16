@@ -19,6 +19,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -45,6 +46,7 @@ public class AiModelConfigController extends BaseSystemController {
      * 查询模型配置列表
      */
     @GetMapping("")
+    @PreAuthorize("@ss.hasPermission('system:ai:model-config')")
     @StrixLog(operationGroup = "AI 模型配置", operationName = "查询配置列表")
     @Operation(summary = "AI 模型配置列表")
     public RetResult<List<AiModelConfigResp>> getList() {
@@ -59,6 +61,7 @@ public class AiModelConfigController extends BaseSystemController {
      * 查询模型配置详情
      */
     @GetMapping("{id}")
+    @PreAuthorize("@ss.hasPermission('system:ai:model-config')")
     @StrixLog(operationGroup = "AI 模型配置", operationName = "查询配置详情")
     @Operation(summary = "AI 模型配置详情")
     public RetResult<AiModelConfigResp> getInfo(@Parameter(description = "配置 ID") @PathVariable String id) {
@@ -71,6 +74,7 @@ public class AiModelConfigController extends BaseSystemController {
      * 新增模型配置
      */
     @PostMapping("update")
+    @PreAuthorize("@ss.hasPermission('system:ai:model-config')")
     @StrixLog(operationGroup = "AI 模型配置", operationName = "新增配置", operationType = SystemLogOperType.ADD)
     @Operation(summary = "新增 AI 模型配置")
     public RetResult<Void> add(@RequestBody @Validated(cn.projectan.strix.core.validation.group.InsertGroup.class) AiModelConfigUpdateReq req) {
@@ -87,6 +91,10 @@ public class AiModelConfigController extends BaseSystemController {
                 .setSystemPrompt(req.getSystemPrompt())
                 .setEnableThinking(req.getEnableThinking())
                 .setThinkingBudget(req.getThinkingBudget())
+                .setEnableCodeInterpreter(req.getEnableCodeInterpreter())
+                .setEnableSearch(req.getEnableSearch())
+                .setSearchStrategy(req.getSearchStrategy())
+                .setEnableSource(req.getEnableSource())
                 .setVoice(req.getVoice())
                 .setSpeed(req.getSpeed())
                 .setResponseFormat(req.getResponseFormat())
@@ -103,6 +111,7 @@ public class AiModelConfigController extends BaseSystemController {
      * 修改模型配置
      */
     @PostMapping("update/{id}")
+    @PreAuthorize("@ss.hasPermission('system:ai:model-config')")
     @StrixLog(operationGroup = "AI 模型配置", operationName = "修改配置", operationType = SystemLogOperType.UPDATE)
     @Operation(summary = "编辑 AI 模型配置")
     public RetResult<Void> update(@Parameter(description = "配置 ID") @PathVariable String id,
@@ -122,6 +131,7 @@ public class AiModelConfigController extends BaseSystemController {
      * 删除模型配置
      */
     @PostMapping("remove/{id}")
+    @PreAuthorize("@ss.hasPermission('system:ai:model-config')")
     @StrixLog(operationGroup = "AI 模型配置", operationName = "删除配置", operationType = SystemLogOperType.DELETE)
     @Operation(summary = "删除 AI 模型配置")
     public RetResult<Void> remove(@Parameter(description = "配置 ID") @PathVariable String id) {
@@ -136,6 +146,7 @@ public class AiModelConfigController extends BaseSystemController {
      * 测试模型配置连通性（仅对文本/视觉类模型有效）
      */
     @PostMapping("test/{id}")
+    @PreAuthorize("@ss.hasPermission('system:ai:model-config')")
     @StrixLog(operationGroup = "AI 模型配置", operationName = "测试配置连通性")
     @Operation(summary = "测试 AI 模型配置连通性")
     public RetResult<String> testConnection(@Parameter(description = "配置 ID") @PathVariable String id) {

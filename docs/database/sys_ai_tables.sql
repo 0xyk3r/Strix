@@ -14,7 +14,7 @@ CREATE TABLE `sys_ai_model_config`
     -- 基础信息
     `key`                     VARCHAR(64)  NOT NULL COMMENT '配置唯一标识 Key',
     `name`                    VARCHAR(128) NOT NULL COMMENT '配置显示名称',
-    `type`                    TINYINT      NOT NULL COMMENT '模型类型：1=TEXT 2=VISION 3=TTS 4=STT 5=IMAGE_GEN',
+    `type` TINYINT NOT NULL COMMENT '模型类型：1=TEXT 2=VISION 3=TTS 4=STT(离线) 5=IMAGE_GEN 6=ASR(实时)',
 
     -- 连接信息
     `base_url`                VARCHAR(512) NOT NULL COMMENT 'OpenAI 兼容端点 Base URL',

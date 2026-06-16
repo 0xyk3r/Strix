@@ -26,7 +26,7 @@ public class AiModelConfigResp {
     @Schema(description = "配置显示名称")
     private String name;
 
-    @Schema(description = "模型类型：1=TEXT 2=VISION 3=TTS 4=STT 5=IMAGE_GEN")
+    @Schema(description = "模型类型：1=TEXT 2=VISION 3=TTS 4=STT(离线) 5=IMAGE_GEN 6=ASR(实时)")
     private Short type;
 
     @Schema(description = "Base URL")
@@ -52,6 +52,18 @@ public class AiModelConfigResp {
 
     @Schema(description = "思考模式 Token 预算")
     private Integer thinkingBudget;
+
+    @Schema(description = "是否启用代码解释器：0=禁用 1=启用")
+    private Short enableCodeInterpreter;
+
+    @Schema(description = "是否启用联网搜索：0=禁用 1=启用")
+    private Short enableSearch;
+
+    @Schema(description = "搜索策略：auto/standard/max/agent")
+    private String searchStrategy;
+
+    @Schema(description = "是否在响应中附带搜索来源引用：0=禁用 1=启用")
+    private Short enableSource;
 
     @Schema(description = "语音名称（TTS）")
     private String voice;
@@ -101,6 +113,10 @@ public class AiModelConfigResp {
         resp.setSystemPrompt(config.getSystemPrompt());
         resp.setEnableThinking(config.getEnableThinking());
         resp.setThinkingBudget(config.getThinkingBudget());
+        resp.setEnableCodeInterpreter(config.getEnableCodeInterpreter());
+        resp.setEnableSearch(config.getEnableSearch());
+        resp.setSearchStrategy(config.getSearchStrategy());
+        resp.setEnableSource(config.getEnableSource());
         resp.setVoice(config.getVoice());
         resp.setSpeed(config.getSpeed());
         resp.setResponseFormat(config.getResponseFormat());

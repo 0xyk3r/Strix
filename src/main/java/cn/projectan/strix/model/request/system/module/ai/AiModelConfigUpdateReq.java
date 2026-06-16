@@ -36,10 +36,10 @@ public class AiModelConfigUpdateReq {
      *
      * @see cn.projectan.strix.model.dict.system.AiModelType
      */
-    @Schema(description = "模型类型：1=TEXT 2=VISION 3=TTS 4=STT 5=IMAGE_GEN", example = "1")
+    @Schema(description = "模型类型：1=TEXT 2=VISION 3=TTS 4=STT(离线) 5=IMAGE_GEN 6=ASR(实时)", example = "1")
     @NotNull(groups = {InsertGroup.class, UpdateGroup.class}, message = "模型类型不能为空")
     @Min(groups = {InsertGroup.class, UpdateGroup.class}, value = 1, message = "模型类型不合法")
-    @Max(groups = {InsertGroup.class, UpdateGroup.class}, value = 5, message = "模型类型不合法")
+    @Max(groups = {InsertGroup.class, UpdateGroup.class}, value = 6, message = "模型类型不合法")
     @UpdateField
     private Short type;
 
@@ -91,6 +91,24 @@ public class AiModelConfigUpdateReq {
     @Min(groups = {InsertGroup.class, UpdateGroup.class}, value = 1, message = "思考预算不合法")
     @UpdateField(allowEmpty = true)
     private Integer thinkingBudget;
+
+    @Schema(description = "是否启用代码解释器（TEXT 流式专用，需同时开启思考模式）：0=禁用 1=启用", example = "0")
+    @UpdateField(allowEmpty = true)
+    private Short enableCodeInterpreter;
+
+    @Schema(description = "是否启用联网搜索（TEXT 专用）：0=禁用 1=启用", example = "0")
+    @UpdateField(allowEmpty = true)
+    private Short enableSearch;
+
+    @Schema(description = "搜索策略（TEXT 专用）：auto/standard/max/agent", example = "auto")
+    @Pattern(groups = {InsertGroup.class, UpdateGroup.class}, regexp = "^(auto|standard|max|agent)$",
+            message = "搜索策略不合法")
+    @UpdateField(allowEmpty = true)
+    private String searchStrategy;
+
+    @Schema(description = "是否在响应中附带搜索来源引用（TEXT 专用）：0=禁用 1=启用", example = "0")
+    @UpdateField(allowEmpty = true)
+    private Short enableSource;
 
     @Schema(description = "语音名称（TTS 专用）", example = "cosyvoice-v2-longxiaochun")
     @Size(groups = {InsertGroup.class, UpdateGroup.class}, max = 64, message = "语音名称过长")

@@ -65,19 +65,34 @@ public class AiModelStore {
     }
 
     /**
-     * 清除指定 key 的所有缓存（配置更新时调用）
+     * 清除指定 key 的所有缓存（配置更新时调用），并关闭底层客户端释放连接池/线程
      */
     public void invalidate(String key) {
-        chatModelMap.remove(key);
-        syncClientMap.remove(key);
+        closeQuietly(chatModelMap.remove(key));
+        closeQuietly(syncClientMap.remove(key));
         log.info("AI: 已清除模型缓存 <{}>", key);
     }
 
     @PreDestroy
     private void destroy() {
+        chatModelMap.values().forEach(this::closeQuietly);
+        syncClientMap.values().forEach(this::closeQuietly);
         chatModelMap.clear();
         syncClientMap.clear();
         log.info("AI 模型缓存已清空");
+    }
+
+    /**
+     * 安全关闭可关闭的客户端（{@link OpenAIClient} 实现 AutoCloseable，关闭可释放其 OkHttp 连接池/调度线程）
+     */
+    private void closeQuietly(Object client) {
+        if (client instanceof AutoCloseable closeable) {
+            try {
+                closeable.close();
+            } catch (Exception e) {
+                log.debug("AI: 关闭模型客户端失败: {}", e.getMessage());
+            }
+        }
     }
 
 }

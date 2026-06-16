@@ -1,6 +1,6 @@
 package cn.projectan.strix.websocket.interceptor;
 
-import cn.projectan.strix.core.ss.details.LoginSystemUser;
+import cn.projectan.strix.core.ss.details.LoginSystemManager;
 import cn.projectan.strix.model.constant.system.LoginRedisKeys;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -54,10 +54,11 @@ public class AiAsrHandshakeInterceptor implements HandshakeInterceptor {
             return false;
         }
 
-        String redisKey = LoginRedisKeys.USER_TOKEN_PREFIX + token;
-        LoginSystemUser user = (LoginSystemUser) redisTemplate.opsForValue().get(redisKey);
-        if (user == null || user.getSystemUser() == null) {
-            log.warn("ASR WebSocket 握手失败: Token 无效或已过期, token={}", token);
+        String redisKey = LoginRedisKeys.MANAGER_TOKEN_PREFIX + token;
+        LoginSystemManager manager = (LoginSystemManager) redisTemplate.opsForValue().get(redisKey);
+        if (manager == null || manager.getSystemManager() == null) {
+            // 不记录 token 明文，避免凭证泄漏到日志
+            log.warn("ASR WebSocket 握手失败: Token 无效或已过期");
             return false;
         }
 
@@ -68,9 +69,9 @@ public class AiAsrHandshakeInterceptor implements HandshakeInterceptor {
             return false;
         }
 
-        attributes.put("userId", user.getSystemUser().getId());
+        attributes.put("userId", manager.getSystemManager().getId());
         attributes.put("configKey", configKey);
-        log.info("ASR WebSocket 握手成功: userId={}, configKey={}", user.getSystemUser().getId(), configKey);
+        log.info("ASR WebSocket 握手成功: managerId={}, configKey={}", manager.getSystemManager().getId(), configKey);
         return true;
     }
 

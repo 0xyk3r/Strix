@@ -1,11 +1,13 @@
 package cn.projectan.strix.service.system;
 
 import cn.projectan.strix.mapper.system.AiSessionMapper;
+import cn.projectan.strix.model.db.system.AiMessage;
 import cn.projectan.strix.model.db.system.AiSession;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * AI 对话会话服务
@@ -17,6 +19,8 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class AiSessionService extends ServiceImpl<AiSessionMapper, AiSession> {
 
+    private final AiMessageService aiMessageService;
+
     /**
      * 分页查询指定管理员的会话列表
      */
@@ -25,6 +29,17 @@ public class AiSessionService extends ServiceImpl<AiSessionMapper, AiSession> {
                 .eq(AiSession::getManagerId, managerId)
                 .orderByDesc(AiSession::getCreatedTime)
                 .page(new Page<>(pageNum, pageSize));
+    }
+
+    /**
+     * 删除会话及其全部消息（同一事务，避免半失败留下孤儿消息）
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void removeWithMessages(String sessionId) {
+        removeById(sessionId);
+        aiMessageService.lambdaUpdate()
+                .eq(AiMessage::getSessionId, sessionId)
+                .remove();
     }
 
     /**
