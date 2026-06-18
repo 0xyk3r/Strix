@@ -2,6 +2,7 @@ package cn.projectan.strix.websocket.handler;
 
 import cn.hutool.json.JSONUtil;
 import cn.projectan.strix.core.module.ai.asr.AsrResultListener;
+import cn.projectan.strix.core.module.ai.asr.AsrTranscript;
 import cn.projectan.strix.core.module.ai.asr.RealtimeAsrProvider;
 import cn.projectan.strix.core.module.ai.asr.RealtimeAsrSession;
 import cn.projectan.strix.model.db.system.AiModelConfig;
@@ -13,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import org.springframework.web.socket.BinaryMessage;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
@@ -37,11 +39,12 @@ import java.util.concurrent.TimeUnit;
  *
  * <p>下发给客户端的 JSON：</p>
  * <pre>
- *   {@code {"text":"识别文本","final":false}}  // 中间结果
- *   {@code {"text":"整句","final":true}}        // 句子完成
+ *   {@code {"itemId":"item_x","text":"识别文本","final":false,"emotion":"neutral","language":"zh"}}  // 中间结果
+ *   {@code {"itemId":"item_x","text":"整句","final":true,"emotion":"neutral","language":"zh"}}        // 句子完成
  *   {@code {"done":true}}                        // 任务结束
  *   {@code {"error":"错误信息"}}                 // 错误
  * </pre>
+ * <p>其中 {@code emotion} / {@code language} 仅在平台返回时下发（如 Qwen-ASR），不支持的平台省略该键。</p>
  *
  * <p><b>音频要求</b>：PCM 16kHz 单声道 16-bit（little-endian）</p>
  * <p><b>加固</b>：仅允许 ASR 类型配置；每用户并发连接数上限；空闲超时自动关闭。</p>
@@ -137,8 +140,22 @@ public class AiAsrWebSocketHandler extends AbstractWebSocketHandler {
         // 建立上游会话，结果回调转发给浏览器
         RealtimeAsrSession asrSession = provider.open(config, new AsrResultListener() {
             @Override
-            public void onTranscript(String text, boolean isFinal) {
-                sendToClient(session, JSONUtil.createObj().set("text", text).set("final", isFinal).toJSONString(0));
+            public void onTranscript(AsrTranscript result) {
+                log.info("qwen-asr-realtime 收到识别结果: sessionId={}, itemId={}, final={}, text={}",
+                        session.getId(), result.itemId(), result.isFinal(), result.text());
+
+                cn.hutool.json.JSONObject obj = JSONUtil.createObj()
+                        .set("itemId", result.itemId())
+                        .set("text", result.text())
+                        .set("final", result.isFinal());
+                // emotion / language 仅在平台返回时下发（Qwen-ASR 支持，Paraformer 为 null）
+                if (StringUtils.hasText(result.emotion())) {
+                    obj.set("emotion", result.emotion());
+                }
+                if (StringUtils.hasText(result.language())) {
+                    obj.set("language", result.language());
+                }
+                sendToClient(session, obj.toJSONString(0));
             }
 
             @Override

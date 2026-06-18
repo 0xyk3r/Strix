@@ -3,6 +3,7 @@ package cn.projectan.strix.core.module.ai.asr.dashscope;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import cn.projectan.strix.core.module.ai.asr.AsrResultListener;
+import cn.projectan.strix.core.module.ai.asr.AsrTranscript;
 import cn.projectan.strix.core.module.ai.asr.RealtimeAsrProvider;
 import cn.projectan.strix.core.module.ai.asr.RealtimeAsrSession;
 import cn.projectan.strix.core.module.ai.dashscope.DashScopeHttpClient;
@@ -78,6 +79,11 @@ public class DashScopeParaformerAsrProvider implements RealtimeAsrProvider {
         private volatile boolean taskReady = false;
         private final java.util.concurrent.ConcurrentLinkedQueue<byte[]> pendingAudio = new java.util.concurrent.ConcurrentLinkedQueue<>();
         private static final int MAX_PENDING_FRAMES = 200;
+        /**
+         * 句序号：Paraformer 协议不返回 item_id，用 taskId + 序号生成稳定句 ID，供前端按句聚合。
+         * 每句最终结果（is_end=true）后自增，切到下一句。仅在单连接的下行回调线程访问，无需同步。
+         */
+        private int sentenceSeq = 0;
 
         ParaformerSession(String model, AsrResultListener listener) {
             this.model = model;
@@ -175,7 +181,12 @@ public class DashScopeParaformerAsrProvider implements RealtimeAsrProvider {
                     if (sentence != null) {
                         String recognizedText = sentence.getStr("text", "");
                         boolean isFinal = sentence.getBool("is_end", false);
-                        listener.onTranscript(recognizedText, isFinal);
+                        // Paraformer 无 item_id 与情绪：用 taskId+句序号生成稳定句 ID，emotion/language 为 null
+                        String itemId = taskId + "-" + sentenceSeq;
+                        listener.onTranscript(new AsrTranscript(itemId, recognizedText, isFinal, null, null));
+                        if (isFinal) {
+                            sentenceSeq++;
+                        }
                     }
                 } else if ("task-finished".equals(event)) {
                     listener.onCompleted();

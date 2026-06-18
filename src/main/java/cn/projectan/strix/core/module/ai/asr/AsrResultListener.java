@@ -11,12 +11,11 @@ package cn.projectan.strix.core.module.ai.asr;
 public interface AsrResultListener {
 
     /**
-     * 收到一段转写文本。
+     * 收到一段转写结果。
      *
-     * @param text    当前文本（中间结果为该句累积文本，最终结果为整句）
-     * @param isFinal 是否为该句的最终结果
+     * @param result 转写结果（含文本、是否最终、情绪、语种等，详见 {@link AsrTranscript}）
      */
-    void onTranscript(String text, boolean isFinal);
+    void onTranscript(AsrTranscript result);
 
     /**
      * 发生错误（上游连接失败、鉴权失败、协议错误等）。

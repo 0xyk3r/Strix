@@ -3,6 +3,7 @@ package cn.projectan.strix.core.module.ai.asr.dashscope;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import cn.projectan.strix.core.module.ai.asr.AsrResultListener;
+import cn.projectan.strix.core.module.ai.asr.AsrTranscript;
 import cn.projectan.strix.core.module.ai.asr.RealtimeAsrProvider;
 import cn.projectan.strix.core.module.ai.asr.RealtimeAsrSession;
 import cn.projectan.strix.core.module.ai.dashscope.DashScopeHttpClient;
@@ -116,6 +117,7 @@ public class DashScopeQwenRealtimeAsrProvider implements RealtimeAsrProvider {
             if (w == null || pcm == null || pcm.length == 0) return;
             // session.update 未被确认前先缓存，避免音频先于 session.update 到达服务端（否则报 session already started）
             if (!sessionReady) {
+                log.warn("qwen-asr-realtime 音频到达时会话未就绪，先行缓存: pendingAudio.size={}", pendingAudio.size());
                 if (pendingAudio.size() < MAX_PENDING_FRAMES) {
                     pendingAudio.add(pcm);
                 }
@@ -204,14 +206,19 @@ public class DashScopeQwenRealtimeAsrProvider implements RealtimeAsrProvider {
                     // 中间结果：text=已确认文本，stash=未确认尾部，拼接为当前轮的实时展示（替换式，非追加）
                     String partial = data.getStr("text", "") + data.getStr("stash", "");
                     if (!partial.isEmpty()) {
-                        listener.onTranscript(partial, false);
+                        // 顶层 item_id 标识当前句，emotion/language 为该句的情绪与语种（Qwen-ASR 固定返回）
+                        listener.onTranscript(new AsrTranscript(
+                                data.getStr("item_id"), partial, false,
+                                data.getStr("emotion"), data.getStr("language")));
                     }
                 } else if ("conversation.item.input_audio_transcription.completed".equals(type)) {
                     // 最终结果：transcript 为该轮完整文本（含标点）
                     String transcript = data.getStr("transcript", "");
                     log.info("qwen-asr-realtime 最终结果: transcript='{}'", transcript); // 诊断用，可下调级别
                     if (!transcript.isEmpty()) {
-                        listener.onTranscript(transcript, true);
+                        listener.onTranscript(new AsrTranscript(
+                                data.getStr("item_id"), transcript, true,
+                                data.getStr("emotion"), data.getStr("language")));
                     }
                 } else if ("session.finished".equals(type)) {
                     // 会话正常结束（通常由客户端 session.finish 触发）
