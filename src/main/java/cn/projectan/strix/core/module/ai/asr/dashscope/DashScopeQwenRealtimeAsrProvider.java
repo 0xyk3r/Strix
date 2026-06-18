@@ -18,7 +18,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import java.util.Base64;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -30,7 +29,8 @@ import java.util.concurrent.atomic.AtomicLong;
  *       Header 携带 {@code Authorization: Bearer <key>} 与 {@code OpenAI-Beta: realtime=v1}</li>
  *   <li>连接建立后发送 {@code session.update}（pcm/16k，server_vad 自动断句）</li>
  *   <li>音频以 {@code input_audio_buffer.append}（Base64）持续上行</li>
- *   <li>结果通过 {@code *.input_audio_transcription.delta/completed} 事件返回</li>
+ *   <li>中间结果通过 {@code conversation.item.input_audio_transcription.text}（text+stash）返回，
+ *       最终结果通过 {@code conversation.item.input_audio_transcription.completed}（transcript）返回</li>
  * </ul>
  *
  * @author ProjectAn
@@ -88,7 +88,6 @@ public class DashScopeQwenRealtimeAsrProvider implements RealtimeAsrProvider {
 
         private final AiModelConfig config;
         private final AsrResultListener listener;
-        private final StringBuilder currentTurn = new StringBuilder();
         private volatile WebSocket ws;
         /**
          * session.update 是否已被服务端确认（收到 session.updated）；之前到达的音频需缓存，保证 session.update 为首条消息
@@ -136,7 +135,14 @@ public class DashScopeQwenRealtimeAsrProvider implements RealtimeAsrProvider {
 
         @Override
         public void finish() {
-            // server_vad 模式由服务端自动断句，无需 commit；保留以兼容非 VAD 场景
+            // 通知服务端结束会话：冲刷最后一段语音的识别结果，并回送 session.finished（官方示例在音频结束后发送）
+            WebSocket w = ws;
+            if (w == null) return;
+            String event = JSONUtil.createObj()
+                    .set("event_id", nextEventId())
+                    .set("type", "session.finish")
+                    .toJSONString(0);
+            w.send(event);
         }
 
         @Override
@@ -154,17 +160,20 @@ public class DashScopeQwenRealtimeAsrProvider implements RealtimeAsrProvider {
         public void onOpen(@NonNull WebSocket webSocket, @NonNull Response response) {
             String lang = StringUtils.hasText(config.getLanguage()) ? config.getLanguage() : "zh";
             JSONObject session = JSONUtil.createObj()
-                    .set("modalities", List.of("text"))
                     .set("input_audio_format", "pcm")
                     .set("sample_rate", 16000)
                     .set("input_audio_transcription", JSONUtil.createObj().set("language", lang))
                     .set("turn_detection", JSONUtil.createObj()
                             .set("type", "server_vad")
-                            .set("threshold", 0.2)
-                            .set("silence_duration_ms", 800));
+                            // VAD 灵敏度：官方原始协议示例取 0.0（最灵敏），避免说话停顿/AGC 回落时过早断句，
+                            // 进而后续语音不再触发 speech_started，导致"只识别开头一句"。
+                            .set("threshold", 0.0)
+                            // 断句静音阈值：取较长值（1500ms），避免词间/换气的微停顿（常被降噪压成零）触发
+                            // 频繁断句，把连续语音切成 1 秒碎片导致边界丢字、不连贯；只有真正句末停顿才提交。
+                            .set("silence_duration_ms", 400));
             String event = JSONUtil.createObj()
-                    .set("event_id", nextEventId())
                     .set("type", "session.update")
+                    .set("event_id", nextEventId())
                     .set("session", session)
                     .toJSONString(0);
             webSocket.send(event);
@@ -191,23 +200,30 @@ public class DashScopeQwenRealtimeAsrProvider implements RealtimeAsrProvider {
                         }
                         log.info("qwen-asr-realtime 会话就绪（{}），开始上行音频", type);
                     }
-                } else if (type.contains("transcription") && type.endsWith("delta")) {
-                    String delta = data.getStr("delta", "");
-                    if (!delta.isEmpty()) {
-                        currentTurn.append(delta);
-                        listener.onTranscript(currentTurn.toString(), false);
+                } else if ("conversation.item.input_audio_transcription.text".equals(type)) {
+                    // 中间结果：text=已确认文本，stash=未确认尾部，拼接为当前轮的实时展示（替换式，非追加）
+                    String partial = data.getStr("text", "") + data.getStr("stash", "");
+                    if (!partial.isEmpty()) {
+                        listener.onTranscript(partial, false);
                     }
-                } else if (type.contains("transcription") && type.endsWith("completed")) {
-                    String transcript = data.getStr("transcript", currentTurn.toString());
-                    listener.onTranscript(transcript, true);
-                    currentTurn.setLength(0);
+                } else if ("conversation.item.input_audio_transcription.completed".equals(type)) {
+                    // 最终结果：transcript 为该轮完整文本（含标点）
+                    String transcript = data.getStr("transcript", "");
+                    log.info("qwen-asr-realtime 最终结果: transcript='{}'", transcript); // 诊断用，可下调级别
+                    if (!transcript.isEmpty()) {
+                        listener.onTranscript(transcript, true);
+                    }
+                } else if ("session.finished".equals(type)) {
+                    // 会话正常结束（通常由客户端 session.finish 触发）
+                    listener.onCompleted();
                 } else if ("error".equals(type) || data.containsKey("error")) {
                     JSONObject err = data.getJSONObject("error");
                     String msg = err != null ? err.getStr("message", "ASR 识别错误")
                             : data.getStr("message", "ASR 识别错误");
+                    log.warn("qwen-asr-realtime 错误事件: {}", text); // 诊断用
                     listener.onError(msg);
                 } else {
-                    log.debug("qwen-asr-realtime 未处理事件: type={}", type);
+                    log.info("qwen-asr-realtime 未处理事件: type={}, raw={}", type, text); // 诊断用：捕获 response.* 等事件原文
                 }
             } catch (Exception e) {
                 log.error("解析 qwen-asr-realtime 消息出错", e);
