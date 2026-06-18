@@ -165,11 +165,11 @@ public class DashScopeQwenRealtimeAsrProvider implements RealtimeAsrProvider {
                     .set("input_audio_transcription", JSONUtil.createObj().set("language", lang))
                     .set("turn_detection", JSONUtil.createObj()
                             .set("type", "server_vad")
-                            // VAD 灵敏度：官方原始协议示例取 0.0（最灵敏），避免说话停顿/AGC 回落时过早断句，
-                            // 进而后续语音不再触发 speech_started，导致"只识别开头一句"。
+                            // VAD 灵敏度阈值：取 0.0（最灵敏），将收到的音频均视为语音。
+                            // 前端已做 RMS VAD、仅在说话时上行，故断句完全交由 silence_duration_ms 控制。
                             .set("threshold", 0.0)
-                            // 断句静音阈值：取较长值（1500ms），避免词间/换气的微停顿（常被降噪压成零）触发
-                            // 频繁断句，把连续语音切成 1 秒碎片导致边界丢字、不连贯；只有真正句末停顿才提交。
+                            // 断句静音阈值：400ms。句末静音累计超过该值即提交一句最终结果。
+                            // 取值偏短可让 final 结果更快返回；过长则整句迟迟不出。
                             .set("silence_duration_ms", 400));
             String event = JSONUtil.createObj()
                     .set("type", "session.update")
