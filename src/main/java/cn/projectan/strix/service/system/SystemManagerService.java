@@ -355,6 +355,26 @@ public class SystemManagerService extends ServiceImpl<SystemManagerMapper, Syste
                 .update();
     }
 
+    /**
+     * 批量删除管理员及其关联数据
+     *
+     * @param managerIds 管理员 ID 列表
+     */
+    @org.springframework.transaction.annotation.Transactional(rollbackFor = Exception.class)
+    public void batchRemoveWithRelations(List<String> managerIds) {
+        if (CollectionUtils.isEmpty(managerIds)) {
+            return;
+        }
+        // 1. 批量删除角色关系
+        systemManagerRoleService.lambdaUpdate()
+                .in(SystemManagerRole::getSystemManagerId, managerIds)
+                .remove();
+        // 2. 批量删除管理员
+        removeByIds(managerIds);
+        // 3. 批量失效 Token
+        managerIds.forEach(tokenSessionService::invalidateManagerSession);
+    }
+
     @Override
     public String getDataNameById(String id) {
         SystemManager data = lambdaQuery()

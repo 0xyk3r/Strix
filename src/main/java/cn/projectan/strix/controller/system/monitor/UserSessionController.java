@@ -17,7 +17,11 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * 在线用户会话管理
@@ -42,8 +46,13 @@ public class UserSessionController extends BaseSystemController {
         List<OnlineUserSessionItem> items = new ArrayList<>();
         int totalSessions = 0;
 
+        // 批量查询所有在线用户，避免 N+1 查询
+        Map<String, SystemUser> userMap = systemUserService.listByIds(onlineUserIds)
+                .stream()
+                .collect(Collectors.toMap(SystemUser::getId, u -> u));
+
         for (String userId : onlineUserIds) {
-            SystemUser user = systemUserService.getById(userId);
+            SystemUser user = userMap.get(userId);
             if (user == null) {
                 continue;
             }

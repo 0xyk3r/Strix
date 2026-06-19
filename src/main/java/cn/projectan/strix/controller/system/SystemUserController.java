@@ -44,6 +44,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * 系统用户
@@ -239,11 +240,12 @@ public class SystemUserController extends BaseSystemController {
         int successCount = 0;
         int skippedCount = 0;
 
+        // 1. 批量反序列化 + 校验
+        List<SystemUserUpdateReq> validItems = new ArrayList<>();
         for (int i = 0; i < req.getItems().size(); i++) {
             Map<String, Object> itemMap = req.getItems().get(i);
             try {
                 SystemUserUpdateReq itemReq = ObjectMapperUtil.get().convertValue(itemMap, SystemUserUpdateReq.class);
-
                 Set<ConstraintViolation<SystemUserUpdateReq>> violations = validator.validate(itemReq, InsertGroup.class);
                 if (!violations.isEmpty()) {
                     for (ConstraintViolation<SystemUserUpdateReq> v : violations) {
@@ -251,31 +253,43 @@ public class SystemUserController extends BaseSystemController {
                     }
                     continue;
                 }
+                validItems.add(itemReq);
+            } catch (Exception e) {
+                errors.add(new ImportError(i, "parse", e.getMessage()));
+            }
+        }
 
-                SystemUser existing = systemUserService.lambdaQuery()
-                        .eq(SystemUser::getPhoneNumber, itemReq.getPhoneNumber())
-                        .one();
+        // 2. 批量预加载已存在的用户
+        List<String> phoneNumbers = validItems.stream()
+                .map(SystemUserUpdateReq::getPhoneNumber)
+                .distinct()
+                .collect(Collectors.toList());
+        Map<String, SystemUser> existingMap = systemUserService.getByPhoneNumbers(phoneNumbers);
 
-                if (existing != null) {
-                    if (strategy == DuplicateStrategy.SKIP) {
-                        skippedCount++;
-                        errors.add(new ImportError(i, "phoneNumber", "手机号码已存在，已跳过"));
-                        continue;
-                    }
-                    existing.setNickname(itemReq.getNickname());
-                    existing.setStatus(itemReq.getStatus());
-                    existing.setPhoneNumber(itemReq.getPhoneNumber());
-                    try {
-                        UniqueChecker.check(existing);
-                    } catch (StrixUniqueCheckerException e) {
-                        errors.add(new ImportError(i, "unique", e.getMessage()));
-                        continue;
-                    }
-                    systemUserService.updateById(existing);
-                    successCount++;
+        // 3. 分流: 新增 vs 更新
+        List<SystemUser> toSave = new ArrayList<>();
+        List<SystemUser> toUpdate = new ArrayList<>();
+
+        for (int i = 0; i < validItems.size(); i++) {
+            SystemUserUpdateReq itemReq = validItems.get(i);
+            SystemUser existing = existingMap.get(itemReq.getPhoneNumber());
+
+            if (existing != null) {
+                if (strategy == DuplicateStrategy.SKIP) {
+                    skippedCount++;
+                    errors.add(new ImportError(i, "phoneNumber", "手机号码已存在，已跳过"));
                     continue;
                 }
-
+                existing.setNickname(itemReq.getNickname());
+                existing.setStatus(itemReq.getStatus());
+                try {
+                    UniqueChecker.check(existing);
+                } catch (StrixUniqueCheckerException e) {
+                    errors.add(new ImportError(i, "unique", e.getMessage()));
+                    continue;
+                }
+                toUpdate.add(existing);
+            } else {
                 SystemUser systemUser = new SystemUser(
                         itemReq.getNickname(),
                         itemReq.getStatus(),
@@ -289,12 +303,18 @@ public class SystemUserController extends BaseSystemController {
                     errors.add(new ImportError(i, "unique", e.getMessage()));
                     continue;
                 }
-                systemUserService.save(systemUser);
-                successCount++;
-
-            } catch (Exception e) {
-                errors.add(new ImportError(i, "general", e.getMessage()));
+                toSave.add(systemUser);
             }
+        }
+
+        // 4. 批量写入
+        if (!toSave.isEmpty()) {
+            systemUserService.saveBatch(toSave);
+            successCount += toSave.size();
+        }
+        if (!toUpdate.isEmpty()) {
+            systemUserService.updateBatchById(toUpdate);
+            successCount += toUpdate.size();
         }
 
         int failedCount = req.getItems().size() - successCount - skippedCount;

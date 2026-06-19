@@ -9,12 +9,7 @@ import cn.projectan.strix.model.dict.common.CommonSwitch;
 import cn.projectan.strix.model.dict.system.DictChangeType;
 import cn.projectan.strix.model.enums.common.NumCategory;
 import cn.projectan.strix.model.event.DictChangedEvent;
-import cn.projectan.strix.model.request.system.dict.DictCloneReq;
-import cn.projectan.strix.model.request.system.dict.DictDataUpdateReq;
-import cn.projectan.strix.model.request.system.dict.DictImportReq;
-import cn.projectan.strix.model.request.system.dict.DictListReq;
-import cn.projectan.strix.model.request.system.dict.DictSortReq;
-import cn.projectan.strix.model.request.system.dict.DictUpdateReq;
+import cn.projectan.strix.model.request.system.dict.*;
 import cn.projectan.strix.model.response.common.CommonDictResp;
 import cn.projectan.strix.model.response.common.CommonDictVersionResp;
 import cn.projectan.strix.model.response.system.dict.DictDataListResp;
@@ -39,8 +34,8 @@ import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -376,8 +371,22 @@ public class DictService extends ServiceImpl<DictMapper, Dict> {
                 .or().like(DictData::getValue, keyword)
                 .last("LIMIT 25")
                 .list();
+
+        // 批量查询父 Dict，避免 N+1 查询
+        Set<String> dictKeys = matchedData.stream()
+                .map(DictData::getKey)
+                .collect(Collectors.toSet());
+        Map<String, Dict> dictByKey = new HashMap<>();
+        if (!dictKeys.isEmpty()) {
+            dictByKey = lambdaQuery()
+                    .in(Dict::getKey, dictKeys)
+                    .list()
+                    .stream()
+                    .collect(Collectors.toMap(Dict::getKey, d -> d));
+        }
+
         for (DictData dd : matchedData) {
-            Dict parentDict = lambdaQuery().eq(Dict::getKey, dd.getKey()).one();
+            Dict parentDict = dictByKey.get(dd.getKey());
             String dictName = parentDict != null ? parentDict.getName() : dd.getKey();
             if (dd.getLabel() != null && dd.getLabel().contains(keyword)) {
                 results.add(new DictSearchResultResp.SearchResultItem(dd.getKey(), dictName, "DATA_LABEL", "label", dd.getLabel()));
@@ -395,11 +404,30 @@ public class DictService extends ServiceImpl<DictMapper, Dict> {
     // ======================== Export / Import ========================
 
     public List<DictExportData> exportDicts(List<String> dictKeys) {
+        if (CollectionUtils.isEmpty(dictKeys)) {
+            return new ArrayList<>();
+        }
+
+        // 批量查询所有 Dict
+        Map<String, Dict> dictMap = lambdaQuery()
+                .in(Dict::getKey, dictKeys)
+                .list()
+                .stream()
+                .collect(Collectors.toMap(Dict::getKey, d -> d));
+
+        // 批量查询所有 DictData
+        Map<String, List<DictData>> dataMap = dictDataService.lambdaQuery()
+                .in(DictData::getKey, dictKeys)
+                .list()
+                .stream()
+                .collect(Collectors.groupingBy(DictData::getKey));
+
+        // 组装结果
         List<DictExportData> result = new ArrayList<>();
         for (String key : dictKeys) {
-            Dict dict = lambdaQuery().eq(Dict::getKey, key).one();
+            Dict dict = dictMap.get(key);
             if (dict == null) continue;
-            List<DictData> dataList = dictDataService.listByKey(key);
+            List<DictData> dataList = dataMap.getOrDefault(key, Collections.emptyList());
             List<DictExportData.ExportDataItem> items = dataList.stream()
                     .map(d -> new DictExportData.ExportDataItem(
                             d.getValue(), d.getLabel(), d.getSort(), d.getStyle(),
@@ -412,8 +440,19 @@ public class DictService extends ServiceImpl<DictMapper, Dict> {
 
     @Transactional(rollbackFor = Exception.class)
     public void importDicts(DictImportReq req) {
+        // 批量预加载所有已存在的 Dict
+        List<String> importKeys = req.getDicts().stream()
+                .map(DictExportData::getKey)
+                .distinct()
+                .collect(Collectors.toList());
+        Map<String, Dict> existingMap = lambdaQuery()
+                .in(Dict::getKey, importKeys)
+                .list()
+                .stream()
+                .collect(Collectors.toMap(Dict::getKey, d -> d));
+
         for (DictExportData dictData : req.getDicts()) {
-            Dict existing = lambdaQuery().eq(Dict::getKey, dictData.getKey()).one();
+            Dict existing = existingMap.get(dictData.getKey());
 
             if (existing != null) {
                 switch (req.getConflictStrategy()) {

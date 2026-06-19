@@ -21,6 +21,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * <p>
  * Strix 系统用户 服务类
@@ -150,6 +153,23 @@ public class SystemUserService extends ServiceImpl<SystemUserMapper, SystemUser>
         SystemUser systemUser = getById(userId);
         Assert.notNull(systemUser, I18nUtil.notFound("field.systemUser") + ": " + userId);
         return new LoginSystemUser(systemUser);
+    }
+
+    /**
+     * 批量预加载用户（按手机号）
+     *
+     * @param phoneNumbers 手机号列表
+     * @return 手机号 → 用户的映射
+     */
+    public Map<String, SystemUser> getByPhoneNumbers(List<String> phoneNumbers) {
+        if (phoneNumbers == null || phoneNumbers.isEmpty()) {
+            return new java.util.HashMap<>();
+        }
+        return lambdaQuery()
+                .in(SystemUser::getPhoneNumber, phoneNumbers)
+                .list()
+                .stream()
+                .collect(java.util.stream.Collectors.toMap(SystemUser::getPhoneNumber, u -> u));
     }
 
 }

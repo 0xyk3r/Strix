@@ -280,12 +280,14 @@ public class SystemManagerController extends BaseSystemController {
                 .toList();
         Assert.notEmpty(removable, "内置用户不允许删除");
 
-        for (SystemManager manager : removable) {
-            checkLoginManagerRegionPermission(manager.getRegionId());
-            systemManagerService.removeById(manager);
-            systemManagerRoleService.deleteByManagerId(manager.getId());
-            tokenSessionService.invalidateManagerSession(manager.getId());
-        }
+        // 批量检查地区权限
+        removable.forEach(m -> checkLoginManagerRegionPermission(m.getRegionId()));
+
+        // 使用 Service 层批量删除方法
+        List<String> removableIds = removable.stream()
+                .map(SystemManager::getId)
+                .collect(Collectors.toList());
+        systemManagerService.batchRemoveWithRelations(removableIds);
 
         return RetBuilder.success();
     }
