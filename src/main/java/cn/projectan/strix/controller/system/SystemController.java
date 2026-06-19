@@ -88,7 +88,7 @@ public class SystemController extends BaseSystemController {
     @GetMapping("current-info")
     public RetResult<SystemManagerLoginResp.LoginManagerInfo> currentInfo() {
         LoginSystemManager lsm = SecurityUtil.getSystemManagerLoginInfo();
-        Assert.notNull(lsm, I18nUtil.get("assert.auth.notLogin"));
+        Assert.notNull(lsm, I18nUtil.get("error.notLogin"));
 
         var sm = lsm.getSystemManager();
         List<String> permissionKeys = new ArrayList<>();
