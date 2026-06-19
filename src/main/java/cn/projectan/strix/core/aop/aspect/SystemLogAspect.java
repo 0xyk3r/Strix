@@ -22,13 +22,11 @@ import cn.projectan.strix.util.ua.UserAgentUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
-import org.aspectj.lang.annotation.AfterReturning;
-import org.aspectj.lang.annotation.AfterThrowing;
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Before;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.core.NamedThreadLocal;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Component;
@@ -59,8 +57,6 @@ import java.util.Map;
 @ConditionalOnProperty(prefix = "strix.log", name = "enable", havingValue = "true")
 public class SystemLogAspect {
 
-    private static final ThreadLocal<Long> TIME_THREADLOCAL = new NamedThreadLocal<>("Spend Time");
-
     private final ObjectMapper objectMapper;
     private final ApplicationVersionConfig versionConfig;
     private final AsyncSystemLogService asyncSystemLogService;
@@ -80,49 +76,26 @@ public class SystemLogAspect {
     }
 
     /**
-     * 请求前执行
+     * 环绕通知，替代 @Before + @AfterReturning/@AfterThrowing，避免使用 ThreadLocal
      */
-    @Before(value = "@annotation(strixLog)")
-    public void doBefore(JoinPoint joinPoint, StrixLog strixLog) {
-        TIME_THREADLOCAL.set(System.currentTimeMillis());
-    }
-
-    /**
-     * 请求后执行
-     *
-     * @param joinPoint 切点
-     * @param strixLog  日志注解
-     * @param retResult 返回结果
-     */
-    @AfterReturning(pointcut = "@annotation(strixLog)", returning = "retResult")
-    public void doAfterReturning(JoinPoint joinPoint, StrixLog strixLog, Object retResult) {
-        handleLog(joinPoint, strixLog, null, retResult);
-    }
-
-    /**
-     * 请求异常时执行
-     *
-     * @param joinPoint 切点
-     * @param strixLog  日志注解
-     * @param e         异常
-     */
-    @AfterThrowing(value = "@annotation(strixLog)", throwing = "e")
-    public void doAfterThrowing(JoinPoint joinPoint, StrixLog strixLog, Exception e) {
-        handleLog(joinPoint, strixLog, e, null);
+    @Around(value = "@annotation(strixLog)")
+    public Object doAround(ProceedingJoinPoint joinPoint, StrixLog strixLog) throws Throwable {
+        long startTime = System.currentTimeMillis();
+        try {
+            Object result = joinPoint.proceed();
+            handleLog(joinPoint, strixLog, null, result, startTime);
+            return result;
+        } catch (Throwable e) {
+            handleLog(joinPoint, strixLog, e, null, startTime);
+            throw e;
+        }
     }
 
     /**
      * 处理日志记录
      */
-    protected void handleLog(final JoinPoint joinPoint, StrixLog strixLog, final Exception e, Object retResult) {
+    protected void handleLog(final JoinPoint joinPoint, StrixLog strixLog, final Throwable e, Object retResult, long startTime) {
         try {
-            // 检查 ThreadLocal 是否有值（防止只执行 After 未执行 Before 的情况）
-            Long startTime = TIME_THREADLOCAL.get();
-            if (startTime == null) {
-                log.warn("TIME_THREADLOCAL is null, skip log recording");
-                return;
-            }
-
             SystemLog systemLog = new SystemLog();
 
             // 应用信息
@@ -191,15 +164,13 @@ public class SystemLogAspect {
             asyncSystemLogService.saveAsync(systemLog);
         } catch (Exception exp) {
             log.warn("SystemLogAspect error: {}", exp.getMessage(), exp);
-        } finally {
-            TIME_THREADLOCAL.remove();
         }
     }
 
     /**
      * 处理响应信息
      */
-    private void handleResponse(SystemLog systemLog, StrixLog strixLog, Exception e, Object retResult) {
+    private void handleResponse(SystemLog systemLog, StrixLog strixLog, Throwable e, Object retResult) {
         if (e != null) {
             // 异常情况：根据异常类型设置不同的响应码
             switch (e) {

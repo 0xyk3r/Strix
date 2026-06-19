@@ -4,7 +4,6 @@ import cn.projectan.strix.core.ratelimit.RateLimitInterceptor;
 import cn.projectan.strix.core.xss.XssFilter;
 import cn.projectan.strix.model.properties.system.StrixRateLimitProperties;
 import cn.projectan.strix.util.common.RedisUtil;
-import cn.projectan.strix.util.context.ContextInterceptor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -62,7 +61,6 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(new RateLimitInterceptor(redisUtil, rateLimitProperties, objectMapper));
-        registry.addInterceptor(new ContextInterceptor());
     }
 
     @Bean

@@ -13,19 +13,18 @@ import org.quartz.JobExecutionContext;
 @Slf4j
 public abstract class AbstractQuartzJob implements org.quartz.Job {
 
-    private static final ThreadLocal<Long> threadLocal = new ThreadLocal<>();
-
     @Override
     public void execute(JobExecutionContext context) {
         Object o = context.getMergedJobDataMap().get(StrixJobConst.TASK_PROPERTIES);
         if (o instanceof Job job) {
+            long startTime = System.currentTimeMillis();
             try {
                 before(context, job);
                 doExecute(context, job);
-                after(context, job, null);
+                after(context, job, null, startTime);
             } catch (Exception e) {
                 log.error("任务执行异常  - ：", e);
-                after(context, job, e);
+                after(context, job, e, startTime);
             }
         }
     }
@@ -37,18 +36,20 @@ public abstract class AbstractQuartzJob implements org.quartz.Job {
      * @param job     系统计划任务
      */
     protected void before(JobExecutionContext context, Job job) {
-        threadLocal.set(System.currentTimeMillis());
+        // 子类可覆写以执行前置逻辑
     }
 
     /**
      * 执行后
      *
-     * @param context 工作执行上下文对象
-     * @param job     系统计划任务
+     * @param context   工作执行上下文对象
+     * @param job       系统计划任务
+     * @param e         异常（正常执行时为 null）
+     * @param startTime 任务开始时间戳（毫秒）
      */
-    protected void after(JobExecutionContext context, Job job, Exception e) {
-        Long startTime = threadLocal.get();
-        threadLocal.remove();
+    protected void after(JobExecutionContext context, Job job, Exception e, long startTime) {
+        long spend = System.currentTimeMillis() - startTime;
+        log.debug("任务执行耗时: {}ms", spend);
     }
 
     /**
