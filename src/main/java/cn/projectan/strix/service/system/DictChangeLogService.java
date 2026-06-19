@@ -42,8 +42,9 @@ public class DictChangeLogService extends ServiceImpl<DictChangeLogMapper, DictC
             try {
                 operatorId = SecurityUtil.getOperatorId();
                 operatorName = SecurityUtil.getSystemManager().getNickname();
-            } catch (Exception ignored) {
+            } catch (Exception e) {
                 // 启动时同步或系统任务等场景无 SecurityContext
+                log.debug("获取当前操作人信息失败（可能为系统任务）: {}", e.getMessage());
             }
 
             DictChangeLog logEntry = new DictChangeLog()

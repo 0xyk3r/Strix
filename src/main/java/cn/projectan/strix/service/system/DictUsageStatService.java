@@ -97,7 +97,8 @@ public class DictUsageStatService extends ServiceImpl<DictUsageStatMapper, DictU
             if (val instanceof String s) {
                 return Long.parseLong(s);
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            log.debug("字典值转换为 Long 失败，返回默认值 0: {}", e.getMessage());
         }
         return 0;
     }

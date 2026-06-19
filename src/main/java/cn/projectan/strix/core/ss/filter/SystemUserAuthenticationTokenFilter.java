@@ -12,6 +12,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -27,6 +28,7 @@ import java.util.Collections;
  * @author ProjectAn
  * @since 2023/2/25 15:09
  */
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class SystemUserAuthenticationTokenFilter extends OncePerRequestFilter {
@@ -75,7 +77,8 @@ public class SystemUserAuthenticationTokenFilter extends OncePerRequestFilter {
                 return;
             }
             tokenSessionService.updateUserLastActiveTime(userId, token);
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            log.debug("更新用户最后活跃时间失败: {}", e.getMessage());
         }
     }
 }

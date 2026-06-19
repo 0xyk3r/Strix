@@ -10,17 +10,18 @@ import cn.projectan.strix.model.constant.system.StrixRedisKeyConst;
 import cn.projectan.strix.model.db.system.SystemManager;
 import cn.projectan.strix.model.dict.system.SystemManagerStatus;
 import cn.projectan.strix.model.other.system.captcha.CaptchaData;
-import cn.projectan.strix.model.response.system.monitor.session.SessionMeta;
-import jakarta.servlet.http.HttpServletRequest;
 import cn.projectan.strix.model.request.system.login.SystemLoginReq;
 import cn.projectan.strix.model.response.system.login.SystemManagerLoginResp;
+import cn.projectan.strix.model.response.system.monitor.session.SessionMeta;
 import cn.projectan.strix.util.common.I18nUtil;
 import cn.projectan.strix.util.common.RedisUtil;
 import cn.projectan.strix.util.crypto.StrixSM3Util;
 import cn.projectan.strix.util.http.ServletUtil;
 import cn.projectan.strix.util.http.TokenUtil;
 import cn.projectan.strix.util.ip.IpUtils;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
@@ -34,6 +35,7 @@ import java.util.concurrent.TimeUnit;
  *
  * @author ProjectAn
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class SystemLoginService {
@@ -167,7 +169,8 @@ public class SystemLoginService {
                     return ua.getOs().getName();
                 }
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            log.debug("解析 UserAgent 获取操作系统失败: {}", e.getMessage());
         }
         return "Unknown";
     }

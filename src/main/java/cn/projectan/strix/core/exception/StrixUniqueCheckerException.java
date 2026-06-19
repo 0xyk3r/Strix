@@ -24,8 +24,8 @@ public class StrixUniqueCheckerException extends StrixException {
         super(cause);
     }
 
-    protected StrixUniqueCheckerException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
+    protected StrixUniqueCheckerException(String message, Throwable cause, boolean enableSuppression) {
+        super(message, cause, enableSuppression);
     }
 
 }

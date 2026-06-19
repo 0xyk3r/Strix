@@ -97,7 +97,8 @@ public class SystemManagerLogoutSuccessHandler implements LogoutSuccessHandler {
                     return;
                 }
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            log.debug("解析 UserAgent 获取设备信息失败: {}", e.getMessage());
         }
         systemLog.setClientDevice("Unknown");
     }

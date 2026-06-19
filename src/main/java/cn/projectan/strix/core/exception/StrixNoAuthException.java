@@ -24,8 +24,8 @@ public class StrixNoAuthException extends StrixException {
         super(cause);
     }
 
-    protected StrixNoAuthException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
+    protected StrixNoAuthException(String message, Throwable cause, boolean enableSuppression) {
+        super(message, cause, enableSuppression);
     }
 
 }
