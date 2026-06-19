@@ -41,7 +41,7 @@ public class AuthenticationEntryPointImpl implements AuthenticationEntryPoint {
         recordSecurityLog(request, authException);
 
         response.setContentType("application/json;charset=utf-8");
-        response.setStatus(HttpServletResponse.SC_OK);
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         ServletUtil.write(response, objectMapper.writeValueAsString(RetBuilder.error(RetCode.NOT_LOGIN, I18nUtil.get("error.notLogin"))));
     }
 

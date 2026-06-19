@@ -134,7 +134,7 @@ public class SystemUserController extends BaseSystemController {  // 必须继�
 ### 关键约定
 
 1. **必须继承 `BaseController`**（直接或间接），否则 GraalVM 原生编译失败
-2. **所有接口返回 `RetResult<T>`**，HTTP 状态码始终为 200
+2. **所有接口返回 `RetResult<T>`**，HTTP 状态码与业务码语义一致（200=成功，400=参数错误，401=未登录，403=无权限，404=未找到，500=服务器错误）
 3. **权限校验**：`@PreAuthorize("@ss.hasPermission('module:resource:action')")`
 4. **免认证接口**：使用 `@Anonymous` 注解
 5. **审计日志**：`@StrixLog(operationGroup, operationName, operationType)`
@@ -333,10 +333,19 @@ String notFound = I18nUtil.notFound("field.systemUser");  // "系统用户不存
 统一响应构建：
 
 ```java
-return RetBuilder.success();                    // { code: 0, msg: "操作成功", data: null }
-return RetBuilder.success(data);                // { code: 0, msg: "操作成功", data: {...} }
-return RetBuilder.error("错误信息");             // { code: 1, msg: "错误信息", data: null }
-return RetBuilder.build(RetCode.PARAM_ERROR);   // 使用预定义错误码
+return RetBuilder.success();                    // { code: 200, msg: "success", data: null }
+return RetBuilder.
+
+success(data);                // { code: 200, msg: "success", data: {...} }
+return RetBuilder.
+
+error("错误信息");             // { code: 400, msg: "错误信息", data: null } — 业务参数错误
+return RetBuilder.
+
+serverError("服务器异常");     // { code: 500, msg: "服务器异常", data: null } — 系统异常
+return RetBuilder.
+
+build(RetCode.NOT_FOUND, msg); // 使用预定义错误码
 ```
 
 ## 配置

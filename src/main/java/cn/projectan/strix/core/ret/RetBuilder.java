@@ -23,6 +23,10 @@ public class RetBuilder {
     }
 
     public static <T> RetResult<T> error(String message) {
+        return new RetResult<>(RetCode.BAD_REQUEST, message, null);
+    }
+
+    public static <T> RetResult<T> serverError(String message) {
         return new RetResult<>(RetCode.SERVER_ERROR, message, null);
     }
 

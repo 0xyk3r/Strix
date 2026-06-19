@@ -58,9 +58,9 @@ public class GlobalExceptionHandler {
                 .filter(StringUtils::hasText)
                 .collect(Collectors.joining("、"));
         return ResponseEntity
-                .status(HttpStatus.OK)
+                .status(HttpStatus.BAD_REQUEST)
                 .header(HttpHeaders.CONTENT_TYPE, "application/json")
-                .body(RetBuilder.error(message));
+                .body(RetBuilder.build(RetCode.BAD_REQUEST, message));
     }
 
     @ExceptionHandler(BindException.class)
@@ -71,24 +71,24 @@ public class GlobalExceptionHandler {
                 .filter(StringUtils::hasText)
                 .collect(Collectors.joining("、"));
         return ResponseEntity
-                .status(HttpStatus.OK)
+                .status(HttpStatus.BAD_REQUEST)
                 .header(HttpHeaders.CONTENT_TYPE, "application/json")
-                .body(RetBuilder.error(message));
+                .body(RetBuilder.build(RetCode.BAD_REQUEST, message));
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<RetResult<Object>> handleHttpMessageNotReadableException(HttpMessageNotReadableException e) {
         log.warn("请求体解析失败: {}", e.getMessage());
         return ResponseEntity
-                .status(HttpStatus.OK)
+                .status(HttpStatus.BAD_REQUEST)
                 .header(HttpHeaders.CONTENT_TYPE, "application/json")
-                .body(RetBuilder.error(I18nUtil.get("error.paramsNotAllow")));
+                .body(RetBuilder.build(RetCode.BAD_REQUEST, I18nUtil.get("error.paramsNotAllow")));
     }
 
     @ExceptionHandler(NoHandlerFoundException.class)
     public ResponseEntity<RetResult<Object>> handleNoHandlerFoundException(NoHandlerFoundException e) {
         return ResponseEntity
-                .status(HttpStatus.OK)
+                .status(HttpStatus.NOT_FOUND)
                 .header(HttpHeaders.CONTENT_TYPE, "application/json")
                 .body(RetBuilder.build(RetCode.NOT_FOUND, I18nUtil.get("error.apiNotFound")));
     }
@@ -96,7 +96,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(NoResourceFoundException.class)
     public ResponseEntity<RetResult<Object>> handleNoResourceFoundException(NoResourceFoundException e) {
         return ResponseEntity
-                .status(HttpStatus.OK)
+                .status(HttpStatus.NOT_FOUND)
                 .header(HttpHeaders.CONTENT_TYPE, "application/json")
                 .body(RetBuilder.build(RetCode.NOT_FOUND, I18nUtil.get("error.apiNotFound")));
     }
@@ -104,7 +104,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(StrixNoAuthException.class)
     public ResponseEntity<RetResult<Object>> handleStrixNoAuthException(StrixNoAuthException e) {
         return ResponseEntity
-                .status(HttpStatus.OK)
+                .status(HttpStatus.UNAUTHORIZED)
                 .header(HttpHeaders.CONTENT_TYPE, "application/json")
                 .body(RetBuilder.build(RetCode.NOT_LOGIN, I18nUtil.get("error.notLogin")));
     }
@@ -112,7 +112,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<RetResult<Object>> handleAccessDeniedException(AccessDeniedException e) {
         return ResponseEntity
-                .status(HttpStatus.OK)
+                .status(HttpStatus.FORBIDDEN)
                 .header(HttpHeaders.CONTENT_TYPE, "application/json")
                 .body(RetBuilder.build(RetCode.NOT_PERMISSION, I18nUtil.get("error.notPermission")));
     }
@@ -120,25 +120,25 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<RetResult<Object>> handleIllegalArgumentException(IllegalArgumentException e) {
         return ResponseEntity
-                .status(HttpStatus.OK)
+                .status(HttpStatus.BAD_REQUEST)
                 .header(HttpHeaders.CONTENT_TYPE, "application/json")
-                .body(RetBuilder.error(e.getMessage()));
+                .body(RetBuilder.build(RetCode.BAD_REQUEST, e.getMessage()));
     }
 
     @ExceptionHandler(MissingServletRequestParameterException.class)
     public ResponseEntity<RetResult<Object>> handleMissingServletRequestParameterException(MissingServletRequestParameterException e) {
         return ResponseEntity
-                .status(HttpStatus.OK)
+                .status(HttpStatus.BAD_REQUEST)
                 .header(HttpHeaders.CONTENT_TYPE, "application/json")
-                .body(RetBuilder.error(I18nUtil.get("error.paramsNotPresent")));
+                .body(RetBuilder.build(RetCode.BAD_REQUEST, I18nUtil.get("error.paramsNotPresent")));
     }
 
     @ExceptionHandler(StrixException.class)
     public ResponseEntity<RetResult<Object>> handleStrixException(StrixException e) {
         return ResponseEntity
-                .status(HttpStatus.OK)
+                .status(HttpStatus.BAD_REQUEST)
                 .header(HttpHeaders.CONTENT_TYPE, "application/json")
-                .body(RetBuilder.error(e.getMessage()));
+                .body(RetBuilder.build(RetCode.BAD_REQUEST, e.getMessage()));
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
@@ -148,24 +148,24 @@ public class GlobalExceptionHandler {
                 .map(ConstraintViolation::getMessage)
                 .collect(Collectors.joining("、"));
         return ResponseEntity
-                .status(HttpStatus.OK)
+                .status(HttpStatus.BAD_REQUEST)
                 .header(HttpHeaders.CONTENT_TYPE, "application/json")
-                .body(RetBuilder.error(message));
+                .body(RetBuilder.build(RetCode.BAD_REQUEST, message));
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<RetResult<Object>> handleDataIntegrityViolationException(DataIntegrityViolationException e) {
         log.warn("数据完整性约束异常: {}", e.getMessage());
         return ResponseEntity
-                .status(HttpStatus.OK)
+                .status(HttpStatus.BAD_REQUEST)
                 .header(HttpHeaders.CONTENT_TYPE, "application/json")
-                .body(RetBuilder.error(I18nUtil.get("error.dataIntegrityViolation")));
+                .body(RetBuilder.build(RetCode.BAD_REQUEST, I18nUtil.get("error.dataIntegrityViolation")));
     }
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public ResponseEntity<RetResult<Object>> handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException e) {
         return ResponseEntity
-                .status(HttpStatus.OK)
+                .status(HttpStatus.METHOD_NOT_ALLOWED)
                 .header(HttpHeaders.CONTENT_TYPE, "application/json")
                 .body(RetBuilder.build(RetCode.METHOD_ERROR, I18nUtil.get("error.apiMethodUnsupported")));
     }
@@ -173,34 +173,34 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<RetResult<Object>> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException e) {
         return ResponseEntity
-                .status(HttpStatus.OK)
+                .status(HttpStatus.BAD_REQUEST)
                 .header(HttpHeaders.CONTENT_TYPE, "application/json")
-                .body(RetBuilder.error(I18nUtil.get("error.paramsNotAllow")));
+                .body(RetBuilder.build(RetCode.BAD_REQUEST, I18nUtil.get("error.paramsNotAllow")));
     }
 
     @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
     public ResponseEntity<RetResult<Object>> handleHttpMediaTypeNotSupportedException(HttpMediaTypeNotSupportedException e) {
         return ResponseEntity
-                .status(HttpStatus.OK)
+                .status(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
                 .header(HttpHeaders.CONTENT_TYPE, "application/json")
-                .body(RetBuilder.error(I18nUtil.get("error.paramsNotAllow")));
+                .body(RetBuilder.build(RetCode.BAD_REQUEST, I18nUtil.get("error.paramsNotAllow")));
     }
 
     @ExceptionHandler(MaxUploadSizeExceededException.class)
     public ResponseEntity<RetResult<Object>> handleMaxUploadSizeExceededException(MaxUploadSizeExceededException e) {
         return ResponseEntity
-                .status(HttpStatus.OK)
+                .status(HttpStatus.PAYLOAD_TOO_LARGE)
                 .header(HttpHeaders.CONTENT_TYPE, "application/json")
-                .body(RetBuilder.error(I18nUtil.get("error.fileTooLarge")));
+                .body(RetBuilder.build(RetCode.BAD_REQUEST, I18nUtil.get("error.fileTooLarge")));
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<RetResult<Object>> handleException(Exception e) {
         log.error("未处理的异常: {}", e.getMessage(), e);
         return ResponseEntity
-                .status(HttpStatus.OK)
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .header(HttpHeaders.CONTENT_TYPE, "application/json")
-                .body(RetBuilder.error(I18nUtil.get("error.otherError")));
+                .body(RetBuilder.serverError(I18nUtil.get("error.otherError")));
     }
 
 }
