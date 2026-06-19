@@ -136,6 +136,11 @@ public class AiModelConfigUpdateReq {
     @UpdateField(allowEmpty = true)
     private String asrParams;
 
+    @Schema(description = "STT 离线默认参数（JSON 文本，STT 专用）")
+    @Size(groups = {InsertGroup.class, UpdateGroup.class}, max = 2048, message = "STT 参数过长")
+    @UpdateField(allowEmpty = true)
+    private String sttParams;
+
     @Schema(description = "配置状态：0=禁用 1=启用", example = "1")
     @UpdateField(allowEmpty = true)
     private Short status;

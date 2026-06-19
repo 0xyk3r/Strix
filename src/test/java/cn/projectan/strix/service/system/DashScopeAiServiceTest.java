@@ -85,7 +85,7 @@ class DashScopeAiServiceTest {
         log.info("TTS 音频 URL: {}", audioUrl);
 
         // 再用 ASR 转录
-        String transcription = dashScopeAiService.transcribeAudioUrl("default-stt", audioUrl);
+        String transcription = dashScopeAiService.transcribeAudioUrl("default-stt", null, audioUrl);
         assertNotNull(transcription, "转录结果不应为 null");
         assertFalse(transcription.isBlank(), "转录结果不应为空");
         log.info("✅ ASR 转录结果: {}", transcription);

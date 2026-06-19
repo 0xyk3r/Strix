@@ -165,14 +165,15 @@ public class AiModelConfigService extends ServiceImpl<AiModelConfigMapper, AiMod
             return AiModelType.TTS;
         }
 
-        // 实时语音识别 ASR（流式：paraformer-realtime / gummy-realtime / fun-asr-realtime 等）—— 须先于离线 STT 判断
-        if (lower.contains("realtime") || lower.contains("gummy") || lower.contains("fun-asr")) {
+        // 实时语音识别 ASR（流式）—— realtime/gummy 为实时专属标记，须先于离线 STT 判断
+        if (lower.contains("realtime") || lower.contains("gummy")) {
             return AiModelType.ASR;
         }
 
-        // STT 模型（离线 / 批量转写）
-        if (lower.contains("whisper") || lower.contains("stt") ||
-                lower.contains("transcribe") || lower.contains("-asr-")) {
+        // 离线语音识别 STT（批量转写：fun-asr / paraformer / qwen-asr / whisper 等，均不含 realtime）
+        if (lower.contains("whisper") || lower.contains("stt") || lower.contains("transcribe")
+                || lower.contains("fun-asr") || lower.contains("paraformer")
+                || lower.contains("filetrans") || lower.contains("-asr-")) {
             return AiModelType.STT;
         }
 

@@ -220,18 +220,18 @@ public class DashScopeHttpClient {
     }
 
     // ============================================================
-    //  同步多模态图片生成（qwen-image-2.0-pro）
+    //  同步多模态生成（multimodal-generation：图片生成 / Qwen-Flash 语音识别等共用）
     // ============================================================
 
     /**
-     * 同步调用 multimodal-generation 接口，用于 qwen-image-2.0-pro 等图片生成模型
+     * 同步调用 multimodal-generation 接口（图片生成 qwen-image / Qwen-Flash 语音识别等共用）。
      *
      * @param apiKey      API 密钥
      * @param baseUrl     DashScope 原生 API 基础 URL
      * @param requestBody JSON 请求体字符串
-     * @return output 对象（包含 choices 数组）
+     * @return output 对象（含 choices 数组）
      */
-    public JSONObject generateImageSync(String apiKey, String baseUrl, String requestBody) {
+    public JSONObject multimodalGenerationSync(String apiKey, String baseUrl, String requestBody) {
         String url = normalizeBaseUrl(baseUrl) + "/services/aigc/multimodal-generation/generation";
         Request request = new Request.Builder()
                 .url(url)
@@ -242,20 +242,20 @@ public class DashScopeHttpClient {
         try (Response resp = httpClient.newCall(request).execute()) {
             String body = Objects.requireNonNull(resp.body()).string();
             if (!resp.isSuccessful()) {
-                throw new RuntimeException("DashScope 图片生成请求失败 [" + resp.code() + "]: " + body);
+                throw new RuntimeException("DashScope multimodal-generation 请求失败 [" + resp.code() + "]: " + body);
             }
             JSONObject json = JSONUtil.parseObj(body);
             // 检查 API 级别错误（200 但包含 code 字段）
             if (json.containsKey("code") && !json.containsKey("output")) {
-                throw new RuntimeException("DashScope 图片生成 API 错误: " + body);
+                throw new RuntimeException("DashScope multimodal-generation API 错误: " + body);
             }
             JSONObject output = json.getJSONObject("output");
             if (output == null) {
-                throw new RuntimeException("DashScope 图片生成响应中未找到 output 字段: " + body);
+                throw new RuntimeException("DashScope multimodal-generation 响应中未找到 output 字段: " + body);
             }
             return output;
         } catch (IOException e) {
-            throw new RuntimeException("DashScope 图片生成 HTTP 请求异常", e);
+            throw new RuntimeException("DashScope multimodal-generation HTTP 请求异常", e);
         }
     }
 

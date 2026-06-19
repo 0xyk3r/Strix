@@ -80,6 +80,9 @@ public class AiModelConfigResp {
     @Schema(description = "ASR run-task 默认参数（JSON 文本，ASR 专用）")
     private String asrParams;
 
+    @Schema(description = "STT 离线默认参数（JSON 文本，STT 专用）")
+    private String sttParams;
+
     @Schema(description = "状态：0=禁用 1=启用")
     private Short status;
 
@@ -125,6 +128,7 @@ public class AiModelConfigResp {
         resp.setResponseFormat(config.getResponseFormat());
         resp.setLanguage(config.getLanguage());
         resp.setAsrParams(config.getAsrParams());
+        resp.setSttParams(config.getSttParams());
         resp.setStatus(config.getStatus());
         resp.setRemark(config.getRemark());
         resp.setPromptAudioUrl(config.getPromptAudioUrl());

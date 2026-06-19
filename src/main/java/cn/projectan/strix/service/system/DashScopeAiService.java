@@ -4,6 +4,8 @@ import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import cn.projectan.strix.core.module.ai.dashscope.DashScopeHttpClient;
+import cn.projectan.strix.core.module.ai.stt.OfflineSttProvider;
+import cn.projectan.strix.core.module.ai.stt.SttResultJson;
 import cn.projectan.strix.core.module.oss.StrixOssStore;
 import cn.projectan.strix.model.db.system.AiModelConfig;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +16,6 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.UUID;
 
@@ -34,6 +35,7 @@ public class DashScopeAiService {
 
     private final AiModelConfigService aiModelConfigService;
     private final DashScopeHttpClient dashScopeHttpClient;
+    private final java.util.List<OfflineSttProvider> sttProviders;
 
     @Autowired(required = false)
     private StrixOssStore ossStore;
@@ -128,27 +130,29 @@ public class DashScopeAiService {
     // ============================================================
 
     /**
-     * 批量转录：直接传入可公网访问的音频 URL
+     * 批量转录：直接传入可公网访问的音频 URL，返回结构化结果的 JSON 字符串
      *
-     * @param configKey 模型配置 key
-     * @param audioUrl  音频文件的公网 HTTPS URL
-     * @return 识别文本
+     * @param configKey  模型配置 key
+     * @param paramsJson 请求级覆盖参数（JSON，可为 null）
+     * @param audioUrl   音频文件的公网 HTTPS URL
+     * @return SttResult 的 JSON 字符串
      */
-    public String transcribeAudioUrl(String configKey, String audioUrl) {
+    public String transcribeAudioUrl(String configKey, String paramsJson, String audioUrl) {
         AiModelConfig config = aiModelConfigService.requireEnabledByKey(configKey);
-        return doTranscribeAudioUrl(config, audioUrl);
+        return SttResultJson.toJson(doTranscribe(config, paramsJson, audioUrl));
     }
 
     /**
-     * 批量转录：上传音频流到 OSS 后进行转录（转录完成后自动删除临时文件）
+     * 批量转录：上传音频流到 OSS 后转录（完成后自动删除临时文件），返回结构化结果的 JSON 字符串
      *
      * @param configKey     模型配置 key（需配置 ossConfigKey 和 ossBucketName）
+     * @param paramsJson    请求级覆盖参数（JSON，可为 null）
      * @param audioStream   音频输入流
      * @param contentLength 内容长度（字节）
      * @param fileName      原始文件名（用于生成 OSS 对象名）
-     * @return 识别文本
+     * @return SttResult 的 JSON 字符串
      */
-    public String transcribeAudio(String configKey, InputStream audioStream,
+    public String transcribeAudio(String configKey, String paramsJson, InputStream audioStream,
                                   long contentLength, String fileName) {
         AiModelConfig config = aiModelConfigService.requireEnabledByKey(configKey);
         String ossConfigKey = config.getOssConfigKey();
@@ -169,57 +173,30 @@ public class DashScopeAiService {
         String signedUrl = ossClient.getPublic().signDownloadUrl(ossBucketName, objectName, 3_600_000L);
 
         try {
-            return doTranscribeAudioUrl(config, signedUrl);
+            return SttResultJson.toJson(doTranscribe(config, paramsJson, signedUrl));
         } finally {
             try {
                 ossClient.getPublic().delete(ossBucketName, objectName);
-                log.info("ASR 临时音频文件已删除: bucket={}, object={}", ossBucketName, objectName);
+                log.info("STT 临时音频文件已删除: bucket={}, object={}", ossBucketName, objectName);
             } catch (Exception e) {
-                log.warn("ASR 临时文件删除失败: bucket={}, object={}", ossBucketName, objectName, e);
+                log.warn("STT 临时文件删除失败: bucket={}, object={}", ossBucketName, objectName, e);
             }
         }
     }
 
-    private String doTranscribeAudioUrl(AiModelConfig config, String audioUrl) {
-        JSONObject params = JSONUtil.createObj();
-        if (StringUtils.hasText(config.getLanguage())) {
-            params.set("language_hints", List.of(config.getLanguage()));
-        }
-
-        String reqBody = JSONUtil.createObj()
-                .set("model", config.getModelName())
-                .set("input", JSONUtil.createObj().set("file_urls", List.of(audioUrl)))
-                .set("parameters", params)
-                .toJSONString(0);
-
-        String taskId = dashScopeHttpClient.submitAsyncTask(
-                config.getApiKey(), config.getBaseUrl(),
-                "services/audio/asr/transcription", reqBody);
-        log.info("DashScope ASR 任务已提交: taskId={}, configKey={}, audioUrl={}", taskId, config.getKey(), audioUrl);
-
-        JSONObject output = dashScopeHttpClient.pollTaskUntilDone(
-                config.getApiKey(), config.getBaseUrl(), taskId);
-
-        JSONArray results = output.getJSONArray("results");
-        if (results == null || results.isEmpty()) {
-            throw new RuntimeException("DashScope ASR 未返回结果 (taskId=" + taskId + ")");
-        }
-
-        String transcriptionUrl = results.getJSONObject(0).getStr("transcription_url");
-        if (!StringUtils.hasText(transcriptionUrl)) {
-            throw new RuntimeException("DashScope ASR 未返回 transcription_url (taskId=" + taskId + ")");
-        }
-
-        // 下载并解析转录 JSON
-        byte[] transcriptionBytes = dashScopeHttpClient.downloadBytes(transcriptionUrl);
-        String transcriptionJson = new String(transcriptionBytes, StandardCharsets.UTF_8);
-        JSONObject transcriptionResult = JSONUtil.parseObj(transcriptionJson);
-
-        JSONArray transcripts = transcriptionResult.getJSONArray("transcripts");
-        if (transcripts == null || transcripts.isEmpty()) {
-            return "";
-        }
-        return transcripts.getJSONObject(0).getStr("text", "");
+    /**
+     * 合并分层参数 → 选首个匹配 Provider → 转写。
+     */
+    private cn.projectan.strix.core.module.ai.stt.SttResult doTranscribe(
+            AiModelConfig config, String paramsJson, String audioUrl) {
+        cn.projectan.strix.core.module.ai.stt.SttParams params =
+                cn.projectan.strix.core.module.ai.stt.SttParams.fromJson(config.getSttParams())
+                        .merge(cn.projectan.strix.core.module.ai.stt.SttParams.fromJson(paramsJson));
+        return sttProviders.stream()
+                .filter(p -> p.supports(config))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("未找到匹配的 STT Provider: " + config.getModelName()))
+                .transcribe(config, audioUrl, params);
     }
 
     // ============================================================
@@ -268,7 +245,7 @@ public class DashScopeAiService {
                 .set("parameters", parameters)
                 .toJSONString(0);
 
-        JSONObject output = dashScopeHttpClient.generateImageSync(
+        JSONObject output = dashScopeHttpClient.multimodalGenerationSync(
                 config.getApiKey(), config.getBaseUrl(), reqBody);
         log.info("DashScope 图片生成完成: configKey={}", configKey);
 

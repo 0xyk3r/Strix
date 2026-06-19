@@ -158,6 +158,13 @@ public class AiModelConfig extends BaseModel<AiModelConfig> {
     private String asrParams;
 
     /**
+     * STT 专用：离线 run-task 默认参数（JSON 文本）。
+     * <p>请求级参数可在前端覆盖；最终生效 = 请求覆盖 &gt; 本默认 &gt; 系统硬编码默认。
+     * 形如：{@code {"diarizationEnabled":true,"speakerCount":2,"vocabularyId":"v1"}}
+     */
+    private String sttParams;
+
+    /**
      * 配置状态（0=禁用 1=启用）
      */
     @TableField("`status`")

@@ -363,7 +363,9 @@ public class AiController extends BaseSystemController {
     @IgnoreEncryption
     public RetResult<String> transcribeAudio(
             @Parameter(description = "音频文件") @RequestParam("audio") MultipartFile audio,
-            @Parameter(description = "STT 模型配置 Key") @RequestParam("configKey") String configKey) throws Exception {
+            @Parameter(description = "STT 模型配置 Key") @RequestParam("configKey") String configKey,
+            @Parameter(description = "请求级参数(JSON，可选)") @RequestParam(value = "params", required = false) String params)
+            throws Exception {
 
         Assert.notNull(audio, "音频文件不能为空");
         Assert.isTrue(!audio.isEmpty(), "音频文件不能为空");
@@ -375,7 +377,7 @@ public class AiController extends BaseSystemController {
 
         String taskId = aiTaskService.submit("stt-transcribe", () ->
                 dashScopeAiService.transcribeAudio(
-                        configKey, new ByteArrayInputStream(audioBytes), audioBytes.length, filename));
+                        configKey, params, new ByteArrayInputStream(audioBytes), audioBytes.length, filename));
         return RetBuilder.success(taskId);
     }
 
