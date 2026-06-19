@@ -1,10 +1,7 @@
 package cn.projectan.strix.websocket.handler;
 
 import cn.hutool.json.JSONUtil;
-import cn.projectan.strix.core.module.ai.asr.AsrResultListener;
-import cn.projectan.strix.core.module.ai.asr.AsrTranscript;
-import cn.projectan.strix.core.module.ai.asr.RealtimeAsrProvider;
-import cn.projectan.strix.core.module.ai.asr.RealtimeAsrSession;
+import cn.projectan.strix.core.module.ai.asr.*;
 import cn.projectan.strix.model.db.system.AiModelConfig;
 import cn.projectan.strix.model.dict.system.AiModelType;
 import cn.projectan.strix.service.system.AiModelConfigService;
@@ -92,6 +89,21 @@ public class AiAsrWebSocketHandler extends AbstractWebSocketHandler {
      */
     private final Map<String, Integer> userConnCount = new ConcurrentHashMap<>();
 
+    /**
+     * sessionId → 待开启上下文（已通过校验、等待前端 config 消息）。收到 config 或超时后移除并 open。
+     */
+    private final Map<String, PendingOpen> pendingOpens = new ConcurrentHashMap<>();
+    /**
+     * 等待 config 的超时（毫秒）：超时后以模型默认参数 open（兼容未发 config 的客户端）。
+     */
+    private static final long CONFIG_WAIT_TIMEOUT_MS = 1500L;
+
+    /**
+     * 待开启上下文：保存 open 所需信息，config 到达或超时后触发 open（幂等）。
+     */
+    private record PendingOpen(WebSocketSession session, AiModelConfig config, RealtimeAsrProvider provider) {
+    }
+
     @PostConstruct
     void init() {
         scheduledExecutor.scheduleWithFixedDelay(this::sweepIdleSessions, 30, 30, TimeUnit.SECONDS);
@@ -137,41 +149,12 @@ public class AiAsrWebSocketHandler extends AbstractWebSocketHandler {
         clientSessions.put(session.getId(), session);
         lastActiveAt.put(session.getId(), System.currentTimeMillis());
 
-        // 建立上游会话，结果回调转发给浏览器
-        RealtimeAsrSession asrSession = provider.open(config, new AsrResultListener() {
-            @Override
-            public void onTranscript(AsrTranscript result) {
-                log.info("qwen-asr-realtime 收到识别结果: sessionId={}, itemId={}, final={}, text={}",
-                        session.getId(), result.itemId(), result.isFinal(), result.text());
+        // 不立即 open：等待前端首条 config 消息（携带会话级参数）后再建立上游会话；超时兜底用模型默认参数
+        pendingOpens.put(session.getId(), new PendingOpen(session, config, provider));
+        scheduledExecutor.schedule(() -> openIfPending(session.getId(), null),
+                CONFIG_WAIT_TIMEOUT_MS, TimeUnit.MILLISECONDS);
 
-                cn.hutool.json.JSONObject obj = JSONUtil.createObj()
-                        .set("itemId", result.itemId())
-                        .set("text", result.text())
-                        .set("final", result.isFinal());
-                // emotion / language 仅在平台返回时下发（Qwen-ASR 支持，Paraformer 为 null）
-                if (StringUtils.hasText(result.emotion())) {
-                    obj.set("emotion", result.emotion());
-                }
-                if (StringUtils.hasText(result.language())) {
-                    obj.set("language", result.language());
-                }
-                sendToClient(session, obj.toJSONString(0));
-            }
-
-            @Override
-            public void onError(String message) {
-                sendToClient(session, errorJson(message));
-                closeClient(session);
-            }
-
-            @Override
-            public void onCompleted() {
-                sendToClient(session, JSONUtil.createObj().set("done", true).toJSONString(0));
-            }
-        });
-        sessions.put(session.getId(), asrSession);
-
-        log.info("ASR WebSocket 已建立: sessionId={}, userId={}, provider={}, model={}",
+        log.info("ASR WebSocket 已建立(待配置): sessionId={}, userId={}, provider={}, model={}",
                 session.getId(), userId, provider.getClass().getSimpleName(), config.getModelName());
     }
 
@@ -192,12 +175,26 @@ public class AiAsrWebSocketHandler extends AbstractWebSocketHandler {
     @Override
     protected void handleTextMessage(@NonNull WebSocketSession session,
                                      @NonNull TextMessage message) throws Exception {
+        String payload = message.getPayload().trim();
         // 客户端发送 "end" 表示音频流结束
-        if ("end".equalsIgnoreCase(message.getPayload().trim())) {
+        if ("end".equalsIgnoreCase(payload)) {
             RealtimeAsrSession asrSession = sessions.get(session.getId());
             if (asrSession != null) {
                 asrSession.finish();
             }
+            return;
+        }
+        // 首条 config 消息：{"type":"config","params":{...}} → 合并参数并 open（幂等）
+        try {
+            cn.hutool.json.JSONObject msg = JSONUtil.parseObj(payload);
+            if ("config".equals(msg.getStr("type"))) {
+                cn.hutool.json.JSONObject params = msg.getJSONObject("params");
+                AsrSessionParams override = params != null
+                        ? AsrSessionParams.fromJson(params.toJSONString(0)) : null;
+                openIfPending(session.getId(), override);
+            }
+        } catch (Exception e) {
+            log.warn("解析 ASR config 消息失败: sessionId={}, payload={}", session.getId(), payload, e);
         }
     }
 
@@ -221,6 +218,7 @@ public class AiAsrWebSocketHandler extends AbstractWebSocketHandler {
 
     private void cleanupSession(WebSocketSession session) {
         String sessionId = session.getId();
+        pendingOpens.remove(sessionId);
         boolean tracked = clientSessions.remove(sessionId) != null;
         lastActiveAt.remove(sessionId);
         if (tracked) {
@@ -233,6 +231,84 @@ public class AiAsrWebSocketHandler extends AbstractWebSocketHandler {
         if (asrSession != null) {
             asrSession.close();
         }
+    }
+
+    /**
+     * 触发待开启会话的 open（幂等）：config 消息到达或超时兜底均调用此方法，仅首个生效。
+     *
+     * @param sessionId      客户端会话 ID
+     * @param overrideParams 会话级覆盖参数；超时兜底传 null（仅用模型默认）
+     */
+    private void openIfPending(String sessionId, AsrSessionParams overrideParams) {
+        PendingOpen pending = pendingOpens.remove(sessionId);
+        if (pending == null) return; // 已被 open 或已清理
+
+        WebSocketSession session = pending.session();
+        AiModelConfig config = pending.config();
+        // 合并：模型默认（asr_params 列）作底，会话级覆盖在上
+        AsrSessionParams merged = AsrSessionParams.fromJson(config.getAsrParams()).merge(overrideParams);
+
+        RealtimeAsrSession asrSession = pending.provider().open(config, merged, new AsrResultListener() {
+            @Override
+            public void onTranscript(AsrTranscript result) {
+                log.info("asr-realtime 收到识别结果: final={}, text={}, emotion={}",
+                        result.isFinal(), result.text(), result.emotion());
+                sendToClient(session, buildTranscriptJson(result));
+            }
+
+            @Override
+            public void onError(String message) {
+                sendToClient(session, errorJson(message));
+                closeClient(session);
+            }
+
+            @Override
+            public void onCompleted() {
+                sendToClient(session, JSONUtil.createObj().set("done", true).toJSONString(0));
+            }
+        });
+        sessions.put(sessionId, asrSession);
+        log.info("ASR 上游会话已建立: sessionId={}, model={}", sessionId, config.getModelName());
+    }
+
+    /**
+     * 将转写结果构建为下发 JSON（空字段省略，保证 Qwen 链路自动省略时间戳/字级/置信度）。
+     */
+    static String buildTranscriptJson(AsrTranscript t) {
+        cn.hutool.json.JSONObject obj = JSONUtil.createObj()
+                .set("itemId", t.itemId())
+                .set("text", t.text())
+                .set("final", t.isFinal());
+        if (StringUtils.hasText(t.emotion())) {
+            obj.set("emotion", t.emotion());
+        }
+        if (StringUtils.hasText(t.emotionScheme())) {
+            obj.set("emotionScheme", t.emotionScheme());
+        }
+        if (t.emotionConfidence() != null) {
+            obj.set("emotionConfidence", t.emotionConfidence());
+        }
+        if (StringUtils.hasText(t.language())) {
+            obj.set("language", t.language());
+        }
+        if (t.beginTime() != null) {
+            obj.set("beginTime", t.beginTime());
+        }
+        if (t.endTime() != null) {
+            obj.set("endTime", t.endTime());
+        }
+        if (t.words() != null && !t.words().isEmpty()) {
+            cn.hutool.json.JSONArray arr = JSONUtil.createArray();
+            for (AsrWord w : t.words()) {
+                arr.add(JSONUtil.createObj()
+                        .set("beginTime", w.beginTime())
+                        .set("endTime", w.endTime())
+                        .set("text", w.text())
+                        .set("punctuation", w.punctuation()));
+            }
+            obj.set("words", arr);
+        }
+        return obj.toJSONString(0);
     }
 
     /**

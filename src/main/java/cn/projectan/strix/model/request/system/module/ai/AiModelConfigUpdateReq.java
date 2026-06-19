@@ -131,6 +131,11 @@ public class AiModelConfigUpdateReq {
     @UpdateField(allowEmpty = true)
     private String language;
 
+    @Schema(description = "ASR run-task 默认参数（JSON 文本，ASR 专用）")
+    @Size(groups = {InsertGroup.class, UpdateGroup.class}, max = 2048, message = "ASR 参数过长")
+    @UpdateField(allowEmpty = true)
+    private String asrParams;
+
     @Schema(description = "配置状态：0=禁用 1=启用", example = "1")
     @UpdateField(allowEmpty = true)
     private Short status;

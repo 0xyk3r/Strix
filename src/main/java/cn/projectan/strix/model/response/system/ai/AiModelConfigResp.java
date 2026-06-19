@@ -77,6 +77,9 @@ public class AiModelConfigResp {
     @Schema(description = "识别语言（STT）")
     private String language;
 
+    @Schema(description = "ASR run-task 默认参数（JSON 文本，ASR 专用）")
+    private String asrParams;
+
     @Schema(description = "状态：0=禁用 1=启用")
     private Short status;
 
@@ -121,6 +124,7 @@ public class AiModelConfigResp {
         resp.setSpeed(config.getSpeed());
         resp.setResponseFormat(config.getResponseFormat());
         resp.setLanguage(config.getLanguage());
+        resp.setAsrParams(config.getAsrParams());
         resp.setStatus(config.getStatus());
         resp.setRemark(config.getRemark());
         resp.setPromptAudioUrl(config.getPromptAudioUrl());

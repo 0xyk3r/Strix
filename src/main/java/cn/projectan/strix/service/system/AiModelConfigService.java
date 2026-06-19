@@ -165,8 +165,8 @@ public class AiModelConfigService extends ServiceImpl<AiModelConfigMapper, AiMod
             return AiModelType.TTS;
         }
 
-        // 实时语音识别 ASR（流式：paraformer-realtime / gummy-realtime 等）—— 须先于离线 STT 判断
-        if (lower.contains("realtime") || lower.contains("gummy")) {
+        // 实时语音识别 ASR（流式：paraformer-realtime / gummy-realtime / fun-asr-realtime 等）—— 须先于离线 STT 判断
+        if (lower.contains("realtime") || lower.contains("gummy") || lower.contains("fun-asr")) {
             return AiModelType.ASR;
         }
 

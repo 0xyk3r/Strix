@@ -195,7 +195,7 @@ public class DashScopeAiService {
         String taskId = dashScopeHttpClient.submitAsyncTask(
                 config.getApiKey(), config.getBaseUrl(),
                 "services/audio/asr/transcription", reqBody);
-        log.info("DashScope ASR 任务已提交: taskId={}, configKey={}", taskId, config.getKey());
+        log.info("DashScope ASR 任务已提交: taskId={}, configKey={}, audioUrl={}", taskId, config.getKey(), audioUrl);
 
         JSONObject output = dashScopeHttpClient.pollTaskUntilDone(
                 config.getApiKey(), config.getBaseUrl(), taskId);

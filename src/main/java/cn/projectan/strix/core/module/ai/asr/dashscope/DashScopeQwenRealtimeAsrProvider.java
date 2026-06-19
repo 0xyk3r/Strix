@@ -2,10 +2,7 @@ package cn.projectan.strix.core.module.ai.asr.dashscope;
 
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
-import cn.projectan.strix.core.module.ai.asr.AsrResultListener;
-import cn.projectan.strix.core.module.ai.asr.AsrTranscript;
-import cn.projectan.strix.core.module.ai.asr.RealtimeAsrProvider;
-import cn.projectan.strix.core.module.ai.asr.RealtimeAsrSession;
+import cn.projectan.strix.core.module.ai.asr.*;
 import cn.projectan.strix.core.module.ai.dashscope.DashScopeHttpClient;
 import cn.projectan.strix.model.db.system.AiModelConfig;
 import lombok.RequiredArgsConstructor;
@@ -54,7 +51,7 @@ public class DashScopeQwenRealtimeAsrProvider implements RealtimeAsrProvider {
     }
 
     @Override
-    public RealtimeAsrSession open(AiModelConfig config, AsrResultListener listener) {
+    public RealtimeAsrSession open(AiModelConfig config, AsrSessionParams params, AsrResultListener listener) {
         String url = resolveWsUrl(config.getBaseUrl()) + "?model=" + config.getModelName();
         Request request = new Request.Builder()
                 .url(url)
@@ -160,7 +157,7 @@ public class DashScopeQwenRealtimeAsrProvider implements RealtimeAsrProvider {
 
         @Override
         public void onOpen(@NonNull WebSocket webSocket, @NonNull Response response) {
-            String lang = StringUtils.hasText(config.getLanguage()) ? config.getLanguage() : "zh";
+            String lang = StringUtils.hasText(config.getLanguage()) ? config.getLanguage() : null;
             JSONObject session = JSONUtil.createObj()
                     .set("input_audio_format", "pcm")
                     .set("sample_rate", 16000)
@@ -207,18 +204,22 @@ public class DashScopeQwenRealtimeAsrProvider implements RealtimeAsrProvider {
                     String partial = data.getStr("text", "") + data.getStr("stash", "");
                     if (!partial.isEmpty()) {
                         // 顶层 item_id 标识当前句，emotion/language 为该句的情绪与语种（Qwen-ASR 固定返回）
+                        String emo = data.getStr("emotion");
                         listener.onTranscript(new AsrTranscript(
                                 data.getStr("item_id"), partial, false,
-                                data.getStr("emotion"), data.getStr("language")));
+                                emo, emo != null ? "qwen7" : null, null,
+                                data.getStr("language"), null, null, null));
                     }
                 } else if ("conversation.item.input_audio_transcription.completed".equals(type)) {
                     // 最终结果：transcript 为该轮完整文本（含标点）
                     String transcript = data.getStr("transcript", "");
                     log.info("qwen-asr-realtime 最终结果: transcript='{}'", transcript); // 诊断用，可下调级别
                     if (!transcript.isEmpty()) {
+                        String emoFinal = data.getStr("emotion");
                         listener.onTranscript(new AsrTranscript(
                                 data.getStr("item_id"), transcript, true,
-                                data.getStr("emotion"), data.getStr("language")));
+                                emoFinal, emoFinal != null ? "qwen7" : null, null,
+                                data.getStr("language"), null, null, null));
                     }
                 } else if ("session.finished".equals(type)) {
                     // 会话正常结束（通常由客户端 session.finish 触发）

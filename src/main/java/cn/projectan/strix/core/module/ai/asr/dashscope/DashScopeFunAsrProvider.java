@@ -9,30 +9,24 @@ import cn.projectan.strix.model.db.system.AiModelConfig;
 import org.springframework.stereotype.Component;
 
 /**
- * 阿里云百炼 paraformer-realtime / gummy-realtime 系列实时识别 Provider。
- * <p>采用 DashScope run-task 协议（见基类）。支持顺滑过滤、标点预测、ITN、语义断句、
- * VAD 断句阈值、热词；其中 paraformer-realtime-8k-v2 额外支持情感识别（需关闭语义断句）。
+ * 阿里云百炼 fun-asr-realtime 系列实时识别 Provider。
+ * <p>采用 DashScope run-task 协议（见基类）。支持语义断句、VAD 断句阈值、多阈值模式、
+ * Fun-ASR 专属噪音判定阈值、语种、热词。不支持顺滑/标点/ITN，亦不支持情感识别。
  *
  * @author ProjectAn
- * @since 2026-06-17
+ * @since 2026-06-19
  */
 @Component
-public class DashScopeParaformerAsrProvider extends AbstractDashScopeRunTaskAsrProvider {
+public class DashScopeFunAsrProvider extends AbstractDashScopeRunTaskAsrProvider {
 
-    public DashScopeParaformerAsrProvider(DashScopeHttpClient dashScopeHttpClient) {
+    public DashScopeFunAsrProvider(DashScopeHttpClient dashScopeHttpClient) {
         super(dashScopeHttpClient);
     }
 
     @Override
     public boolean supports(AiModelConfig config) {
         String model = config.getModelName() == null ? "" : config.getModelName().toLowerCase();
-        return model.contains("paraformer") || model.contains("gummy");
-    }
-
-    @Override
-    protected boolean supportsEmotion(AiModelConfig config) {
-        String model = config.getModelName() == null ? "" : config.getModelName().toLowerCase();
-        return model.contains("paraformer-realtime-8k-v2");
+        return model.contains("fun-asr") || model.contains("funasr");
     }
 
     @Override
@@ -47,14 +41,8 @@ public class DashScopeParaformerAsrProvider extends AbstractDashScopeRunTaskAsrP
         if (p.multiThresholdModeEnabled() != null) {
             params.set("multi_threshold_mode_enabled", p.multiThresholdModeEnabled());
         }
-        if (p.disfluencyRemovalEnabled() != null) {
-            params.set("disfluency_removal_enabled", p.disfluencyRemovalEnabled());
-        }
-        if (p.punctuationPredictionEnabled() != null) {
-            params.set("punctuation_prediction_enabled", p.punctuationPredictionEnabled());
-        }
-        if (p.inverseTextNormalizationEnabled() != null) {
-            params.set("inverse_text_normalization_enabled", p.inverseTextNormalizationEnabled());
+        if (p.speechNoiseThreshold() != null) {
+            params.set("speech_noise_threshold", p.speechNoiseThreshold());
         }
         if (p.languageHints() != null && !p.languageHints().isEmpty()) {
             params.set("language_hints", new JSONArray(p.languageHints()));

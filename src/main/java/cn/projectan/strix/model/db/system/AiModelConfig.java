@@ -151,6 +151,13 @@ public class AiModelConfig extends BaseModel<AiModelConfig> {
     private String language;
 
     /**
+     * ASR 专用：run-task 默认参数（JSON 文本）。
+     * <p>会话级参数可在前端覆盖；最终生效 = 会话覆盖 &gt; 本默认 &gt; 系统硬编码默认。
+     * 形如：{@code {"semanticPunctuationEnabled":false,"maxSentenceSilence":800,"vocabularyId":"v1"}}
+     */
+    private String asrParams;
+
+    /**
      * 配置状态（0=禁用 1=启用）
      */
     @TableField("`status`")
