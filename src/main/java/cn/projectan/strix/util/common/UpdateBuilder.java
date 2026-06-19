@@ -60,20 +60,26 @@ public class UpdateBuilder {
         for (Field field : fields) {
             UpdateField annotation = field.getAnnotation(UpdateField.class);
             if (annotation != null) {
-                String newValue = ReflectUtil.getString(req, field.getName());
-                String originalValue = ReflectUtil.getString(bean, field.getName());
+                // 直接使用 Object 比较，避免不必要的 String 转换
+                Object newValue = ReflectUtil.get(req, field.getName());
+                Object originalValue = ReflectUtil.get(bean, field.getName());
 
-                boolean hasNewValue = StringUtils.hasText(newValue);
+                boolean hasNewValue = newValue != null && (!(newValue instanceof String s) || StringUtils.hasText(s));
                 if (hasNewValue || annotation.allowEmpty()) {
                     if (!hasNewValue) {
-                        newValue = "null".equals(annotation.defaultValue()) ? null : annotation.defaultValue();
+                        String defaultVal = annotation.defaultValue();
+                        if ("null".equals(defaultVal)) {
+                            newValue = null;
+                        } else if (StringUtils.hasText(defaultVal)) {
+                            newValue = Convert.convert(field.getType(), defaultVal);
+                        }
                     }
                     // 仅当数据发生变动才添加 set 语句
                     if (!Objects.equals(originalValue, newValue)) {
                         updateWrapper = updateWrapper.set("`" + StrUtil.toUnderlineCase(field.getName()) + "`", newValue).or();
                         setCount.getAndIncrement();
-                        // 转换回原数据类型，并回写数据
-                        ReflectUtil.set(bean, field.getName(), Convert.convert(field.getType(), newValue));
+                        // 回写数据到 bean
+                        ReflectUtil.set(bean, field.getName(), newValue);
                     }
                 }
             }
