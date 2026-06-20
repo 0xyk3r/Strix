@@ -2,14 +2,20 @@ package cn.projectan.strix.core.module.ai.dashscope;
 
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import cn.projectan.strix.core.module.ai.tts.TtsParams;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 import org.springframework.stereotype.Component;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 /**
  * DashScope 原生 HTTP 客户端
@@ -49,29 +55,20 @@ public class DashScopeHttpClient {
     /**
      * TTS 语音合成（阻塞模式），返回 DashScope 预签名音频 URL
      *
-     * <p>使用前需通过 {@link #enrollVoice} 注册音色，并将返回的 voice_id 存入数据库。</p>
+     * <p>使用前需通过声音复刻/设计创建音色，并将 voice_id 传入 {@code params.voice()}。</p>
      *
-     * @param apiKey     API 密钥
-     * @param baseUrl    DashScope 原生 API 基础 URL，如 {@code https://dashscope.aliyuncs.com/api/v1}
-     * @param model      模型名称，如 {@code cosyvoice-v3.5-plus}
-     * @param text       要合成的文本
-     * @param voice      音色 ID（通过 enrollVoice 注册后的 voice_id）
-     * @param format     音频格式，如 {@code wav}、{@code mp3}
-     * @param speed      语速（1.0 = 正常，0.5 = 减速，2.0 = 加速）
-     * @param sampleRate 采样率（如 22050）
+     * @param apiKey  API 密钥
+     * @param baseUrl DashScope 原生 API 基础 URL，如 {@code https://dashscope.aliyuncs.com/api/v1}
+     * @param model   模型名称，如 {@code cosyvoice-v3.5-plus}
+     * @param text    要合成的文本
+     * @param params  合并后的合成参数（voice/format/sampleRate/rate/pitch/volume/instruction/enableSsml 等）
      * @return 音频文件的预签名 URL
      */
     public String synthesizeSpeechToUrl(String apiKey, String baseUrl, String model,
-                                        String text, String voice, String format,
-                                        double speed, int sampleRate) {
+                                        String text, TtsParams params) {
         String reqBody = JSONUtil.createObj()
                 .set("model", model)
-                .set("input", JSONUtil.createObj()
-                        .set("text", text)
-                        .set("voice", voice)
-                        .set("format", format != null && !format.isBlank() ? format : "wav")
-                        .set("sample_rate", sampleRate > 0 ? sampleRate : 22050)
-                        .set("rate", speed > 0 ? speed : 1.0))
+                .set("input", buildTtsInput(text, params))
                 .toJSONString(0);
 
         String url = normalizeBaseUrl(baseUrl) + "/services/audio/tts/SpeechSynthesizer";
@@ -97,12 +94,112 @@ public class DashScopeHttpClient {
         }
     }
 
+    /**
+     * TTS 流式语音合成（HTTP SSE），逐段回调 Base64 解码后的音频字节。
+     *
+     * <p>添加 {@code X-DashScope-SSE: enable} 头，服务端以 SSE 返回，data 中含 output.audio.data（Base64 PCM/音频块）。</p>
+     *
+     * @param apiKey  API 密钥
+     * @param baseUrl DashScope 原生 API 基础 URL
+     * @param model   模型名称
+     * @param text    要合成的文本
+     * @param params  合并后的合成参数
+     * @param onAudio 音频块回调（已 Base64 解码）
+     */
+    public void synthesizeSpeechStream(String apiKey, String baseUrl, String model,
+                                       String text, TtsParams params, Consumer<byte[]> onAudio) {
+        String reqBody = JSONUtil.createObj()
+                .set("model", model)
+                .set("input", buildTtsInput(text, params))
+                .toJSONString(0);
+
+        String url = normalizeBaseUrl(baseUrl) + "/services/audio/tts/SpeechSynthesizer";
+        Request request = new Request.Builder()
+                .url(url)
+                .header("Authorization", "Bearer " + apiKey)
+                .header("X-DashScope-SSE", "enable")
+                .post(RequestBody.create(reqBody, JSON_MEDIA))
+                .build();
+
+        try (Response resp = httpClient.newCall(request).execute()) {
+            if (!resp.isSuccessful()) {
+                String body = resp.body() != null ? resp.body().string() : "";
+                throw new RuntimeException("DashScope TTS 流式请求失败 [" + resp.code() + "]: " + body);
+            }
+            ResponseBody respBody = resp.body();
+            if (respBody == null) {
+                throw new RuntimeException("DashScope TTS 流式响应体为空");
+            }
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(respBody.byteStream(), StandardCharsets.UTF_8))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    if (!line.startsWith("data:")) {
+                        continue;
+                    }
+                    String data = line.substring(5).trim();
+                    if (data.isEmpty()) {
+                        continue;
+                    }
+                    try {
+                        JSONObject json = JSONUtil.parseObj(data);
+                        String b64 = json.getByPath("output.audio.data", String.class);
+                        if (b64 != null && !b64.isBlank()) {
+                            onAudio.accept(Base64.getDecoder().decode(b64));
+                        }
+                    } catch (Exception e) {
+                        log.debug("跳过无法解析的 TTS SSE 数据行: {}", data);
+                    }
+                }
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("DashScope TTS 流式 HTTP 请求异常", e);
+        }
+    }
+
+    /**
+     * 构建 TTS input 对象（仅写入非 null 字段，voice 必填由调用方保证）。
+     */
+    private JSONObject buildTtsInput(String text, TtsParams params) {
+        TtsParams p = params != null ? params : TtsParams.empty();
+        JSONObject input = JSONUtil.createObj()
+                .set("text", text)
+                .set("voice", p.voice())
+                .set("format", p.format() != null && !p.format().isBlank() ? p.format() : "mp3")
+                .set("sample_rate", p.sampleRate() != null ? p.sampleRate() : 22050);
+        if (p.volume() != null) {
+            input.set("volume", p.volume());
+        }
+        if (p.rate() != null) {
+            input.set("rate", p.rate());
+        }
+        if (p.pitch() != null) {
+            input.set("pitch", p.pitch());
+        }
+        if (p.bitRate() != null) {
+            input.set("bit_rate", p.bitRate());
+        }
+        if (p.instruction() != null && !p.instruction().isBlank()) {
+            input.set("instruction", p.instruction());
+        }
+        if (Boolean.TRUE.equals(p.enableSsml())) {
+            input.set("enable_ssml", true);
+        }
+        if (p.seed() != null) {
+            input.set("seed", p.seed());
+        }
+        if (p.languageHints() != null && !p.languageHints().isEmpty()) {
+            input.set("language_hints", p.languageHints());
+        }
+        return input;
+    }
+
     // ============================================================
-    //  TTS 音色注册（声音复刻）
+    //  TTS 音色管理（声音复刻 / 声音设计）
     // ============================================================
 
     /**
-     * 注册 TTS 音色（声音复刻），提交后立即返回 voice_id
+     * 声音复刻：上传参考音频 URL 创建音色，提交后立即返回 voice_id
      *
      * <p>音色创建后处于 DEPLOYING 状态，需调用 {@link #pollVoiceUntilReady} 等待审核通过。</p>
      *
@@ -115,75 +212,150 @@ public class DashScopeHttpClient {
      */
     public String enrollVoice(String apiKey, String baseUrl, String targetModel,
                               String audioUrl, String prefix) {
-        String url = normalizeBaseUrl(baseUrl) + "/services/audio/tts/customization";
-        String reqBody = JSONUtil.createObj()
-                .set("model", "voice-enrollment")
-                .set("input", JSONUtil.createObj()
-                        .set("action", "create_voice")
-                        .set("target_model", targetModel)
-                        .set("url", audioUrl)
-                        .set("prefix", prefix)
-                        .set("language_hints", List.of("zh")))
-                .toJSONString(0);
-
-        Request request = new Request.Builder()
-                .url(url)
-                .header("Authorization", "Bearer " + apiKey)
-                .post(RequestBody.create(reqBody, JSON_MEDIA))
-                .build();
-
-        try (Response resp = httpClient.newCall(request).execute()) {
-            String body = Objects.requireNonNull(resp.body()).string();
-            if (!resp.isSuccessful()) {
-                throw new RuntimeException("DashScope 音色注册失败 [" + resp.code() + "]: " + body);
-            }
-            JSONObject json = JSONUtil.parseObj(body);
-            String voiceId = json.getByPath("output.voice_id", String.class);
-            if (voiceId == null || voiceId.isBlank()) {
-                throw new RuntimeException("DashScope 音色注册响应中未找到 voice_id: " + body);
-            }
-            return voiceId;
-        } catch (IOException e) {
-            throw new RuntimeException("DashScope 音色注册 HTTP 请求异常", e);
+        JSONObject input = JSONUtil.createObj()
+                .set("action", "create_voice")
+                .set("target_model", targetModel)
+                .set("url", audioUrl)
+                .set("prefix", prefix)
+                .set("language_hints", List.of("zh"));
+        JSONObject output = postVoiceCustomization(apiKey, baseUrl, "voice-enrollment", input, null);
+        String voiceId = output.getStr("voice_id");
+        if (voiceId == null || voiceId.isBlank()) {
+            throw new RuntimeException("DashScope 声音复刻响应中未找到 voice_id: " + output);
         }
+        return voiceId;
+    }
+
+    /**
+     * 声音设计：用文字描述创建音色，返回 voice_id 与预览音频（Base64）
+     *
+     * @param apiKey         API 密钥
+     * @param baseUrl        DashScope 原生 API 基础 URL
+     * @param targetModel    语音合成模型，如 {@code cosyvoice-v3.5-plus}
+     * @param voicePrompt    声音描述文本（≤500 字符）
+     * @param previewText    预览音频朗读文本
+     * @param prefix         音色前缀（仅允许小写字母和数字，不超过 10 个字符）
+     * @param sampleRate     预览音频采样率
+     * @param responseFormat 预览音频格式
+     * @return [0]=voice_id，[1]=预览音频 Base64（可能为 null）
+     */
+    public String[] designVoice(String apiKey, String baseUrl, String targetModel,
+                                String voicePrompt, String previewText, String prefix,
+                                int sampleRate, String responseFormat) {
+        JSONObject input = JSONUtil.createObj()
+                .set("action", "create_voice")
+                .set("target_model", targetModel)
+                .set("voice_prompt", voicePrompt)
+                .set("preview_text", previewText)
+                .set("prefix", prefix);
+        JSONObject parameters = JSONUtil.createObj()
+                .set("sample_rate", sampleRate > 0 ? sampleRate : 24000)
+                .set("response_format", responseFormat != null && !responseFormat.isBlank() ? responseFormat : "wav");
+        JSONObject output = postVoiceCustomization(apiKey, baseUrl, "voice-enrollment", input, parameters);
+        String voiceId = output.getStr("voice_id");
+        if (voiceId == null || voiceId.isBlank()) {
+            throw new RuntimeException("DashScope 声音设计响应中未找到 voice_id: " + output);
+        }
+        String previewAudio = output.getByPath("preview_audio.data", String.class);
+        return new String[]{voiceId, previewAudio};
     }
 
     /**
      * 查询音色状态
      *
-     * @param apiKey  API 密钥
-     * @param baseUrl DashScope 原生 API 基础 URL
-     * @param voiceId 音色 ID
      * @return 音色状态：{@code DEPLOYING}（审核中）/ {@code OK}（可用）/ {@code UNDEPLOYED}（审核不通过）
      */
     public String queryVoiceStatus(String apiKey, String baseUrl, String voiceId) {
-        String url = normalizeBaseUrl(baseUrl) + "/services/audio/tts/customization";
-        String reqBody = JSONUtil.createObj()
-                .set("model", "voice-enrollment")
-                .set("input", JSONUtil.createObj()
-                        .set("action", "query_voice")
-                        .set("voice_id", voiceId))
-                .toJSONString(0);
+        JSONObject input = JSONUtil.createObj()
+                .set("action", "query_voice")
+                .set("voice_id", voiceId);
+        JSONObject output = postVoiceCustomization(apiKey, baseUrl, "voice-enrollment", input, null);
+        String status = output.getStr("status");
+        if (status == null) {
+            throw new RuntimeException("DashScope 音色查询响应中未找到 status: " + output);
+        }
+        return status;
+    }
 
+    /**
+     * 删除音色
+     */
+    public void deleteVoice(String apiKey, String baseUrl, String voiceId) {
+        JSONObject input = JSONUtil.createObj()
+                .set("action", "delete_voice")
+                .set("voice_id", voiceId);
+        postVoiceCustomization(apiKey, baseUrl, "voice-enrollment", input, null);
+    }
+
+    /**
+     * 查询账号下的全部音色（分页拉取并汇总），返回每个音色的原始 JSON
+     * （含 {@code voice_id}、{@code status}、{@code gmt_create}、{@code gmt_modified}）。
+     *
+     * @param apiKey  API 密钥
+     * @param baseUrl DashScope 原生 API 基础 URL
+     * @param prefix  音色前缀过滤（可空，空则拉全部）
+     * @return 音色 JSON 列表
+     */
+    public List<JSONObject> listVoices(String apiKey, String baseUrl, String prefix) {
+        List<JSONObject> all = new java.util.ArrayList<>();
+        int pageIndex = 0;
+        int pageSize = 100;
+        // 最多拉 10 页（1000 个），与账号音色上限一致
+        for (int page = 0; page < 10; page++) {
+            JSONObject input = JSONUtil.createObj()
+                    .set("action", "list_voice")
+                    .set("page_index", pageIndex)
+                    .set("page_size", pageSize);
+            if (prefix != null && !prefix.isBlank()) {
+                input.set("prefix", prefix);
+            }
+            JSONObject output = postVoiceCustomization(apiKey, baseUrl, "voice-enrollment", input, null);
+            cn.hutool.json.JSONArray arr = output.getJSONArray("voice_list");
+            if (arr == null || arr.isEmpty()) {
+                break;
+            }
+            for (Object o : arr) {
+                all.add((JSONObject) o);
+            }
+            if (arr.size() < pageSize) {
+                break;
+            }
+            pageIndex++;
+        }
+        return all;
+    }
+
+    /**
+     * 提交音色定制请求（create_voice / query_voice / delete_voice 等），返回 output 对象。
+     */
+    private JSONObject postVoiceCustomization(String apiKey, String baseUrl, String model,
+                                              JSONObject input, JSONObject parameters) {
+        String url = normalizeBaseUrl(baseUrl) + "/services/audio/tts/customization";
+        JSONObject reqObj = JSONUtil.createObj()
+                .set("model", model)
+                .set("input", input);
+        if (parameters != null) {
+            reqObj.set("parameters", parameters);
+        }
         Request request = new Request.Builder()
                 .url(url)
                 .header("Authorization", "Bearer " + apiKey)
-                .post(RequestBody.create(reqBody, JSON_MEDIA))
+                .post(RequestBody.create(reqObj.toJSONString(0), JSON_MEDIA))
                 .build();
 
         try (Response resp = httpClient.newCall(request).execute()) {
             String body = Objects.requireNonNull(resp.body()).string();
             if (!resp.isSuccessful()) {
-                throw new RuntimeException("DashScope 音色查询失败 [" + resp.code() + "]: " + body);
+                throw new RuntimeException("DashScope 音色定制失败 [" + resp.code() + "]: " + body);
             }
             JSONObject json = JSONUtil.parseObj(body);
-            String status = json.getByPath("output.status", String.class);
-            if (status == null) {
-                throw new RuntimeException("DashScope 音色查询响应中未找到 status: " + body);
+            JSONObject output = json.getJSONObject("output");
+            if (output == null) {
+                throw new RuntimeException("DashScope 音色定制响应中未找到 output: " + body);
             }
-            return status;
+            return output;
         } catch (IOException e) {
-            throw new RuntimeException("DashScope 音色查询 HTTP 请求异常", e);
+            throw new RuntimeException("DashScope 音色定制 HTTP 请求异常", e);
         }
     }
 

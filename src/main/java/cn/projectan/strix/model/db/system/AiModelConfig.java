@@ -165,6 +165,13 @@ public class AiModelConfig extends BaseModel<AiModelConfig> {
     private String sttParams;
 
     /**
+     * TTS 专用：语音合成默认参数（JSON 文本）。
+     * <p>会话/请求级参数可在前端覆盖；最终生效 = 会话覆盖 &gt; 本默认 &gt; 系统硬编码默认。
+     * 形如：{@code {"format":"mp3","sampleRate":22050,"rate":1.0,"enableSsml":false}}
+     */
+    private String ttsParams;
+
+    /**
      * 配置状态（0=禁用 1=启用）
      */
     @TableField("`status`")

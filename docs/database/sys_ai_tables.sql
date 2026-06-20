@@ -47,6 +47,15 @@ CREATE TABLE `sys_ai_model_config`
     -- STT 参数
     `language`                VARCHAR(16)           DEFAULT NULL COMMENT '识别语言（STT 专用，如 zh、en）',
 
+    -- STT 专用：OSS 配置
+    `oss_config_key`  VARCHAR(64)   DEFAULT NULL COMMENT 'STT 专用：OSS 配置 Key',
+    `oss_bucket_name` VARCHAR(128)  DEFAULT NULL COMMENT 'STT 专用：OSS 桶名称',
+
+    -- 语音可变参数（JSON 文本，会话/请求级覆盖此默认）
+    `asr_params`      VARCHAR(2048) DEFAULT NULL COMMENT 'ASR run-task 默认参数(JSON)',
+    `stt_params`      VARCHAR(2048) DEFAULT NULL COMMENT 'STT 离线默认参数(JSON)',
+    `tts_params`      VARCHAR(2048) DEFAULT NULL COMMENT 'TTS 合成默认参数(JSON)',
+
     -- 状态
     `status`                  TINYINT      NOT NULL DEFAULT 1 COMMENT '状态：0=禁用 1=启用',
     `remark`                  VARCHAR(512)          DEFAULT NULL COMMENT '备注',
@@ -67,6 +76,43 @@ CREATE TABLE `sys_ai_model_config`
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci
   COMMENT = 'AI 模型配置表';
+
+
+-- AI TTS 自定义音色表（声音复刻 / 声音设计）
+DROP TABLE IF EXISTS `sys_ai_tts_voice`;
+
+CREATE TABLE `sys_ai_tts_voice`
+(
+    `id`               VARCHAR(32)  NOT NULL COMMENT '主键 ID（雪花）',
+    `config_id`        VARCHAR(32)  NOT NULL COMMENT '关联 TTS 模型配置 ID',
+    `config_key`       VARCHAR(64)  NOT NULL COMMENT '关联 TTS 模型配置 Key',
+    `voice_id`         VARCHAR(128) NOT NULL COMMENT 'DashScope 音色 ID（voice_id）',
+    `name`             VARCHAR(128) NOT NULL COMMENT '音色显示名称',
+    `voice_type`       TINYINT      NOT NULL COMMENT '音色类型：1=声音复刻 2=声音设计',
+    `target_model`     VARCHAR(128) NOT NULL COMMENT '绑定的语音合成模型（如 cosyvoice-v3.5-plus）',
+    `prompt_audio_url` VARCHAR(1024)         DEFAULT NULL COMMENT '复刻参考音频 URL（声音复刻）',
+    `voice_prompt`     VARCHAR(2048)         DEFAULT NULL COMMENT '声音描述文本（声音设计）',
+    `preview_text`     VARCHAR(512)          DEFAULT NULL COMMENT '预览文本（声音设计）',
+    `status`           VARCHAR(16)  NOT NULL DEFAULT 'DEPLOYING' COMMENT '音色状态：DEPLOYING/OK/UNDEPLOYED',
+    `remark`           VARCHAR(512)          DEFAULT NULL COMMENT '备注',
+
+    -- 公共字段
+    `deleted_status`   TINYINT      NOT NULL DEFAULT 0 COMMENT '逻辑删除：0=正常 1=已删除',
+    `created_time`     DATETIME              DEFAULT NULL COMMENT '创建时间',
+    `created_by_type`  TINYINT               DEFAULT NULL COMMENT '创建者类型',
+    `created_by`       VARCHAR(32)           DEFAULT NULL COMMENT '创建者 ID',
+    `updated_time`     DATETIME              DEFAULT NULL COMMENT '更新时间',
+    `updated_by_type`  TINYINT               DEFAULT NULL COMMENT '更新者类型',
+    `updated_by`       VARCHAR(32)           DEFAULT NULL COMMENT '更新者 ID',
+
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_voice_id` (`voice_id`),
+    KEY                `idx_config_id` (`config_id`),
+    KEY                `idx_config_key_type` (`config_key`, `voice_type`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci
+  COMMENT = 'AI TTS 自定义音色表（声音复刻/设计）';
 
 
 -- AI 对话会话表

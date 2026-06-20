@@ -2,6 +2,7 @@ package cn.projectan.strix.controller.system.module.ai;
 
 import cn.projectan.strix.controller.system.base.BaseSystemController;
 import cn.projectan.strix.core.module.ai.AiModelStore;
+import cn.projectan.strix.core.module.ai.tts.TtsAudioListener;
 import cn.projectan.strix.core.ret.RetBuilder;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.model.annotation.IgnoreEncryption;
@@ -12,9 +13,7 @@ import cn.projectan.strix.model.db.system.AiModelConfig;
 import cn.projectan.strix.model.db.system.AiSession;
 import cn.projectan.strix.model.dict.system.SystemLogOperType;
 import cn.projectan.strix.model.request.system.module.ai.*;
-import cn.projectan.strix.model.response.system.ai.AiMessageResp;
-import cn.projectan.strix.model.response.system.ai.AiSessionResp;
-import cn.projectan.strix.model.response.system.ai.AiTaskStatusResp;
+import cn.projectan.strix.model.response.system.ai.*;
 import cn.projectan.strix.service.system.*;
 import cn.projectan.strix.util.common.I18nUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -35,10 +34,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.ByteArrayInputStream;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 
@@ -62,6 +58,7 @@ public class AiController extends BaseSystemController {
     private final AiModelConfigService aiModelConfigService;
     private final AiModelStore aiModelStore;
     private final AiTaskService aiTaskService;
+    private final AiTtsVoiceService aiTtsVoiceService;
     @Qualifier("mvcAsyncExecutor")
     private final Executor mvcAsyncExecutor;
 
@@ -304,8 +301,8 @@ public class AiController extends BaseSystemController {
     // ============================================================
 
     /**
-     * TTS 语音合成
-     * <p>返回音频字节流，Content-Type 根据模型配置的 responseFormat 决定（默认 audio/wav）</p>
+     * TTS 语音合成（非流式）
+     * <p>返回音频字节流，Content-Type 根据合成参数（params/模型配置）的 format 决定（默认 audio/mpeg）</p>
      */
     @PostMapping("tts/synthesize")
     @PreAuthorize("@ss.hasPermission('system:ai:workshop')")
@@ -313,15 +310,17 @@ public class AiController extends BaseSystemController {
     @Operation(summary = "TTS 语音合成（返回音频文件）")
     @IgnoreEncryption
     public ResponseEntity<byte[]> synthesizeSpeech(@RequestBody @Validated AiTtsSynthesizeReq req) {
-        byte[] audioBytes = dashScopeAiService.synthesizeSpeech(req.getConfigKey(), req.getText());
+        byte[] audioBytes = dashScopeAiService.synthesizeSpeech(
+                req.getConfigKey(), req.getText(), req.getVoiceId(), req.getParams());
 
         AiModelConfig config = aiModelConfigService.requireEnabledByKey(req.getConfigKey());
-        String format = config.getResponseFormat() != null ? config.getResponseFormat().toLowerCase() : "wav";
+        String format = dashScopeAiService.mergeTtsParams(config, req.getVoiceId(), req.getParams()).format();
+        format = format != null ? format.toLowerCase() : "mp3";
         MediaType mediaType = switch (format) {
-            case "mp3" -> MediaType.valueOf("audio/mpeg");
-            case "ogg" -> MediaType.valueOf("audio/ogg");
+            case "wav" -> MediaType.valueOf("audio/wav");
+            case "ogg", "opus" -> MediaType.valueOf("audio/ogg");
             case "pcm" -> MediaType.valueOf("audio/pcm");
-            default -> MediaType.valueOf("audio/wav");
+            default -> MediaType.valueOf("audio/mpeg");
         };
 
         return ResponseEntity.ok()
@@ -332,19 +331,158 @@ public class AiController extends BaseSystemController {
     }
 
     /**
-     * TTS 音色注册（声音复刻）—— 异步任务
-     * <p>音色注册需等待 DashScope 审核（约 5 分钟），改为提交后立即返回 taskId，
-     * 前端通过 {@code GET task/{taskId}} 轮询；成功后 result 为 voice_id。</p>
+     * TTS 流式语音合成（HTTP SSE）
+     * <p>逐段返回 Base64 音频块，事件类型 {@code audio}/{@code done}/{@code error}。</p>
      */
-    @PostMapping("tts/enroll/{configKey}")
+    @PostMapping(value = "tts/synthesize/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     @PreAuthorize("@ss.hasPermission('system:ai:workshop')")
     @RateLimit(limit = 10, window = 60, key = "ai:media", message = "AI 生成请求过于频繁，请稍后再试")
-    @StrixLog(operationGroup = "AI TTS", operationName = "音色注册", operationType = SystemLogOperType.ADD)
-    @Operation(summary = "TTS 音色注册（异步，返回 taskId）")
-    public RetResult<String> enrollTtsVoice(
-            @Parameter(description = "TTS 模型配置 Key") @PathVariable String configKey) {
-        String taskId = aiTaskService.submit("tts-enroll", () -> dashScopeAiService.enrollTtsVoice(configKey));
+    @Operation(summary = "TTS 流式语音合成（SSE，逐段 Base64 音频）")
+    public SseEmitter synthesizeSpeechStream(@RequestBody @Validated AiTtsSynthesizeReq req) {
+        SseEmitter emitter = new SseEmitter(180_000L);
+        mvcAsyncExecutor.execute(() -> {
+            try {
+                dashScopeAiService.synthesizeSpeechStream(
+                        req.getConfigKey(), req.getText(), req.getVoiceId(), req.getParams(),
+                        new TtsAudioListener() {
+                            @Override
+                            public void onAudio(byte[] audio) {
+                                try {
+                                    emitter.send(SseEmitter.event().name("audio")
+                                            .data(Base64.getEncoder().encodeToString(audio)));
+                                } catch (Exception e) {
+                                    emitter.completeWithError(e);
+                                }
+                            }
+
+                            @Override
+                            public void onError(String message) {
+                                try {
+                                    emitter.send(SseEmitter.event().name("error").data(message));
+                                } catch (Exception ignored) {
+                                }
+                                emitter.complete();
+                            }
+
+                            @Override
+                            public void onCompleted() {
+                                try {
+                                    emitter.send(SseEmitter.event().name("done").data("{}"));
+                                } catch (Exception ignored) {
+                                }
+                                emitter.complete();
+                            }
+                        });
+            } catch (Exception e) {
+                try {
+                    emitter.send(SseEmitter.event().name("error").data(e.getMessage()));
+                } catch (Exception ignored) {
+                }
+                emitter.complete();
+            }
+        });
+        return emitter;
+    }
+
+    // ============================================================
+    //  TTS 音色管理（声音复刻 / 声音设计）
+    // ============================================================
+
+    /**
+     * 声音复刻（上传音频文件，经 OSS 转公网 URL）—— 异步任务
+     */
+    @PostMapping("tts/voice/clone/upload")
+    @PreAuthorize("@ss.hasPermission('system:ai:workshop')")
+    @RateLimit(limit = 10, window = 60, key = "ai:media", message = "AI 生成请求过于频繁，请稍后再试")
+    @StrixLog(operationGroup = "AI TTS", operationName = "声音复刻(上传)", operationType = SystemLogOperType.ADD)
+    @Operation(summary = "声音复刻 - 上传音频（异步，返回 taskId）")
+    @IgnoreEncryption
+    public RetResult<String> cloneVoiceByUpload(
+            @Parameter(description = "参考音频文件") @RequestParam("audio") MultipartFile audio,
+            @Parameter(description = "TTS 模型配置 Key") @RequestParam("configKey") String configKey,
+            @Parameter(description = "音色名称") @RequestParam("name") String name,
+            @Parameter(description = "备注") @RequestParam(value = "remark", required = false) String remark)
+            throws Exception {
+        Assert.notNull(audio, "参考音频不能为空");
+        Assert.isTrue(!audio.isEmpty(), "参考音频不能为空");
+        Assert.hasText(configKey, "模型配置 Key 不能为空");
+        Assert.hasText(name, "音色名称不能为空");
+
+        byte[] audioBytes = audio.getBytes();
+        String filename = audio.getOriginalFilename() != null ? audio.getOriginalFilename() : "voice.wav";
+        String taskId = aiTaskService.submit("tts-voice-clone", () ->
+                aiTtsVoiceService.cloneVoiceByUpload(configKey, name,
+                        new ByteArrayInputStream(audioBytes), audioBytes.length, filename, remark));
         return RetBuilder.success(taskId);
+    }
+
+    /**
+     * 声音复刻（公网音频 URL）—— 异步任务
+     */
+    @PostMapping("tts/voice/clone")
+    @PreAuthorize("@ss.hasPermission('system:ai:workshop')")
+    @RateLimit(limit = 10, window = 60, key = "ai:media", message = "AI 生成请求过于频繁，请稍后再试")
+    @StrixLog(operationGroup = "AI TTS", operationName = "声音复刻(URL)", operationType = SystemLogOperType.ADD)
+    @Operation(summary = "声音复刻 - 公网 URL（异步，返回 taskId）")
+    public RetResult<String> cloneVoiceByUrl(@RequestBody @Validated AiTtsVoiceCloneReq req) {
+        String taskId = aiTaskService.submit("tts-voice-clone", () ->
+                aiTtsVoiceService.cloneVoiceByUrl(req.getConfigKey(), req.getName(), req.getAudioUrl(), req.getRemark()));
+        return RetBuilder.success(taskId);
+    }
+
+    /**
+     * 声音设计（文字描述）—— 异步任务
+     * <p>成功后 result 为 {@code voiceId|previewBase64}（预览音频 Base64，| 分隔）。</p>
+     */
+    @PostMapping("tts/voice/design")
+    @PreAuthorize("@ss.hasPermission('system:ai:workshop')")
+    @RateLimit(limit = 10, window = 60, key = "ai:media", message = "AI 生成请求过于频繁，请稍后再试")
+    @StrixLog(operationGroup = "AI TTS", operationName = "声音设计", operationType = SystemLogOperType.ADD)
+    @Operation(summary = "声音设计（异步，返回 taskId，result 为 voiceId|预览Base64）")
+    public RetResult<String> designVoice(@RequestBody @Validated AiTtsVoiceDesignReq req) {
+        String taskId = aiTaskService.submit("tts-voice-design", () ->
+                aiTtsVoiceService.designVoice(req.getConfigKey(), req.getName(),
+                        req.getVoicePrompt(), req.getPreviewText(), req.getRemark()));
+        return RetBuilder.success(taskId);
+    }
+
+    /**
+     * 音色列表（按 TTS 配置 Key）
+     */
+    @GetMapping("tts/voice/list")
+    @PreAuthorize("@ss.hasPermission('system:ai:workshop')")
+    @Operation(summary = "TTS 音色列表")
+    public RetResult<List<AiTtsVoiceResp>> listVoices(
+            @Parameter(description = "TTS 模型配置 Key") @RequestParam String configKey) {
+        List<AiTtsVoiceResp> list =
+                aiTtsVoiceService.listByConfigKey(configKey).stream()
+                        .map(AiTtsVoiceResp::from)
+                        .toList();
+        return RetBuilder.success(list);
+    }
+
+    /**
+     * 同步云端音色（拉取 DashScope 账号下属于该模型的历史音色到本地）
+     */
+    @PostMapping("tts/voice/sync")
+    @PreAuthorize("@ss.hasPermission('system:ai:workshop')")
+    @RateLimit(limit = 10, window = 60, key = "ai:media", message = "AI 生成请求过于频繁，请稍后再试")
+    @Operation(summary = "同步云端 TTS 音色（返回新增数量）")
+    public RetResult<Integer> syncVoices(
+            @Parameter(description = "TTS 模型配置 Key") @RequestParam String configKey) {
+        return RetBuilder.success(aiTtsVoiceService.syncVoices(configKey));
+    }
+
+    /**
+     * 删除音色（同步删除 DashScope 音色 + 本地）
+     */
+    @PostMapping("tts/voice/remove/{id}")
+    @PreAuthorize("@ss.hasPermission('system:ai:workshop')")
+    @StrixLog(operationGroup = "AI TTS", operationName = "删除音色", operationType = SystemLogOperType.DELETE)
+    @Operation(summary = "删除 TTS 音色")
+    public RetResult<Void> removeVoice(@Parameter(description = "音色记录 ID") @PathVariable String id) {
+        aiTtsVoiceService.deleteVoice(id);
+        return RetBuilder.success();
     }
 
     // ============================================================
@@ -433,7 +571,7 @@ public class AiController extends BaseSystemController {
     @PreAuthorize("@ss.hasPermission('system:ai:model-config')")
     @RateLimit(limit = 10, window = 60, key = "ai:model-fetch", message = "获取模型列表过于频繁，请稍后再试")
     @Operation(summary = "获取云服务商可用模型列表")
-    public RetResult<List<cn.projectan.strix.model.response.system.ai.AiModelInfoResp>> fetchModels(
+    public RetResult<List<AiModelInfoResp>> fetchModels(
             @RequestBody @Validated AiFetchModelsReq req) {
         try {
             String apiKey = req.getApiKey();
@@ -459,7 +597,7 @@ public class AiController extends BaseSystemController {
                 }
             }
 
-            List<cn.projectan.strix.model.response.system.ai.AiModelInfoResp> models =
+            List<AiModelInfoResp> models =
                     aiModelConfigService.fetchAvailableModels(req.getBaseUrl(), apiKey);
             return RetBuilder.success(models);
         } catch (Exception e) {

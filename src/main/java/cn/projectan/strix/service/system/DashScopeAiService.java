@@ -6,6 +6,9 @@ import cn.hutool.json.JSONUtil;
 import cn.projectan.strix.core.module.ai.dashscope.DashScopeHttpClient;
 import cn.projectan.strix.core.module.ai.stt.OfflineSttProvider;
 import cn.projectan.strix.core.module.ai.stt.SttResultJson;
+import cn.projectan.strix.core.module.ai.tts.TtsAudioListener;
+import cn.projectan.strix.core.module.ai.tts.TtsParams;
+import cn.projectan.strix.core.module.ai.tts.TtsProvider;
 import cn.projectan.strix.core.module.oss.StrixOssStore;
 import cn.projectan.strix.model.db.system.AiModelConfig;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +39,7 @@ public class DashScopeAiService {
     private final AiModelConfigService aiModelConfigService;
     private final DashScopeHttpClient dashScopeHttpClient;
     private final java.util.List<OfflineSttProvider> sttProviders;
+    private final java.util.List<TtsProvider> ttsProviders;
 
     @Autowired(required = false)
     private StrixOssStore ossStore;
@@ -45,84 +49,69 @@ public class DashScopeAiService {
     // ============================================================
 
     /**
-     * TTS 语音合成，返回 DashScope 预签名音频 URL（临时有效）
+     * TTS 语音合成（非流式），返回音频字节数组
      *
-     * @param configKey 模型配置 key
-     * @param text      要合成的文本
-     * @return 音频文件 URL
-     */
-    public String synthesizeSpeechToUrl(String configKey, String text) {
-        AiModelConfig config = aiModelConfigService.requireEnabledByKey(configKey);
-        return doSynthesizeSpeechToUrl(config, text);
-    }
-
-    /**
-     * TTS 语音合成，返回音频字节数组
-     *
-     * @param configKey 模型配置 key
-     * @param text      要合成的文本
+     * @param configKey  模型配置 key
+     * @param text       要合成的文本
+     * @param voiceId    音色 ID（声音复刻/设计的 voice_id，覆盖参数中的 voice）
+     * @param paramsJson 请求级覆盖参数（JSON，可为 null）
      * @return 音频字节数组
      */
-    public byte[] synthesizeSpeech(String configKey, String text) {
+    public byte[] synthesizeSpeech(String configKey, String text, String voiceId, String paramsJson) {
         AiModelConfig config = aiModelConfigService.requireEnabledByKey(configKey);
-        String audioUrl = doSynthesizeSpeechToUrl(config, text);
-        return dashScopeHttpClient.downloadBytes(audioUrl);
+        TtsParams params = mergeTtsParams(config, voiceId, paramsJson);
+        Assert.hasText(params.voice(), "缺少音色（voice），请先选择或注册音色后再合成");
+        return selectProvider(config).synthesize(config, text, params);
     }
-
-    private String doSynthesizeSpeechToUrl(AiModelConfig config, String text) {
-        String voice = config.getVoice();
-        Assert.hasText(voice, "TTS 配置缺少 voice 字段，请先调用 /tts/enroll/{configKey} 注册音色: " + config.getKey());
-
-        String format = StringUtils.hasText(config.getResponseFormat()) ? config.getResponseFormat() : "wav";
-        double speed = config.getSpeed() != null ? config.getSpeed().doubleValue() : 1.0;
-
-        return dashScopeHttpClient.synthesizeSpeechToUrl(
-                config.getApiKey(),
-                config.getBaseUrl(),
-                config.getModelName(),
-                text,
-                voice,
-                format,
-                speed,
-                22050
-        );
-    }
-
-    // ============================================================
-    //  TTS 音色注册（声音复刻）
-    // ============================================================
 
     /**
-     * TTS 音色注册（声音复刻）：提交注册任务、轮询审核结果，完成后将 voice_id 写入数据库
+     * TTS 流式语音合成（HTTP SSE），逐段回调音频字节
      *
-     * <p>前置条件：模型配置的 {@code prompt_audio_url} 字段须设置为参考音频的公网 URL。</p>
-     *
-     * @param configKey TTS 模型配置 key
-     * @return 注册成功的 voice_id
+     * @param configKey  模型配置 key
+     * @param text       要合成的文本
+     * @param voiceId    音色 ID
+     * @param paramsJson 请求级覆盖参数（JSON，可为 null）
+     * @param listener   流式音频回调
      */
-    public String enrollTtsVoice(String configKey) {
+    public void synthesizeSpeechStream(String configKey, String text, String voiceId,
+                                       String paramsJson, TtsAudioListener listener) {
         AiModelConfig config = aiModelConfigService.requireEnabledByKey(configKey);
-        String promptAudioUrl = config.getPromptAudioUrl();
-        Assert.hasText(promptAudioUrl, "TTS 配置缺少 prompt_audio_url（参考音频 URL）: " + configKey);
+        TtsParams params = mergeTtsParams(config, voiceId, paramsJson);
+        if (!StringUtils.hasText(params.voice())) {
+            listener.onError("缺少音色（voice），请先选择或注册音色后再合成");
+            return;
+        }
+        selectProvider(config).synthesizeStream(config, text, params, listener);
+    }
 
-        // 前缀：仅保留小写字母和数字，最多 10 个字符
-        String prefix = configKey.toLowerCase().replaceAll("[^a-z0-9]", "");
-        if (prefix.length() > 10) prefix = prefix.substring(0, 10);
-        if (prefix.isBlank()) prefix = "voice";
+    /**
+     * 合并 TTS 参数：模型默认（tts_params 列）作底，请求级覆盖在上，voiceId 最终覆盖 voice。
+     */
+    public TtsParams mergeTtsParams(AiModelConfig config, String voiceId, String paramsJson) {
+        TtsParams merged = TtsParams.fromJson(config.getTtsParams())
+                .merge(TtsParams.fromJson(paramsJson));
+        if (StringUtils.hasText(voiceId)) {
+            merged = merged.merge(new TtsParams(voiceId, null, null, null, null, null, null, null, null, null, null));
+        }
+        // 兜底：模型配置存量 voice 字段（旧数据兼容）
+        if (!StringUtils.hasText(merged.voice()) && StringUtils.hasText(config.getVoice())) {
+            merged = merged.merge(new TtsParams(config.getVoice(), null, null, null, null, null, null, null, null, null, null));
+        }
+        // 兜底：模型配置 responseFormat 作为默认 format
+        if (!StringUtils.hasText(merged.format()) && StringUtils.hasText(config.getResponseFormat())) {
+            merged = merged.merge(new TtsParams(null, config.getResponseFormat(), null, null, null, null, null, null, null, null, null));
+        }
+        return merged;
+    }
 
-        log.info("开始 TTS 音色注册: configKey={}, prefix={}", configKey, prefix);
-
-        String voiceId = dashScopeHttpClient.enrollVoice(
-                config.getApiKey(), config.getBaseUrl(), config.getModelName(),
-                promptAudioUrl, prefix);
-        log.info("音色注册已提交: configKey={}, voiceId={}", configKey, voiceId);
-
-        dashScopeHttpClient.pollVoiceUntilReady(config.getApiKey(), config.getBaseUrl(), voiceId);
-
-        aiModelConfigService.updateVoice(config.getId(), voiceId);
-        log.info("音色注册完成并已写入 DB: configKey={}, voiceId={}", configKey, voiceId);
-
-        return voiceId;
+    /**
+     * 选首个匹配的 TTS Provider。
+     */
+    public TtsProvider selectProvider(AiModelConfig config) {
+        return ttsProviders.stream()
+                .filter(p -> p.supports(config))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("未找到匹配的 TTS Provider: " + config.getModelName()));
     }
 
     // ============================================================

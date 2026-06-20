@@ -34,57 +34,47 @@ class DashScopeAiServiceTest {
     @Autowired
     private DashScopeAiService dashScopeAiService;
 
+    @Autowired
+    private AiTtsVoiceService aiTtsVoiceService;
+
     // ============================================================
-    //  TTS 音色注册（须先运行，才能进行 TTS 合成测试）
+    //  TTS 音色复刻（须先运行，才能进行 TTS 合成测试）
     // ============================================================
 
     @Test
-    @DisplayName("TTS：音色注册（声音复刻，需 prompt_audio_url 已配置）")
-    void testTtsEnrollVoice() {
-        String voiceId = dashScopeAiService.enrollTtsVoice("default-tts");
+    @DisplayName("TTS：声音复刻（公网音频 URL）")
+    void testTtsCloneVoice() {
+        String sampleAudioUrl = "https://dashscope.oss-cn-beijing.aliyuncs.com/samples/audio/cosyvoice/cosyvoice-zeroshot-sample.wav";
+        String voiceId = aiTtsVoiceService.cloneVoiceByUrl("default-tts", "测试复刻音色", sampleAudioUrl, "集成测试");
         assertNotNull(voiceId, "voice_id 不应为 null");
         assertFalse(voiceId.isBlank(), "voice_id 不应为空");
-        log.info("✅ 音色注册成功，voice_id: {}", voiceId);
+        log.info("✅ 声音复刻成功，voice_id: {}", voiceId);
     }
 
     // ============================================================
-    //  TTS 测试（cosyvoice-v3.5-plus，需已注册音色）
+    //  TTS 测试（cosyvoice-v3.5-plus，需已注册音色，传入 voiceId）
     // ============================================================
 
     @Test
-    @DisplayName("TTS：获取音频 URL（需已注册音色）")
-    void testTtsSynthesizeToUrl() {
-        String audioUrl = dashScopeAiService.synthesizeSpeechToUrl("default-tts", "你好，我是 Strix 智能助手，很高兴为您服务。");
-        assertNotNull(audioUrl, "音频 URL 不应为 null");
-        assertFalse(audioUrl.isBlank(), "音频 URL 不应为空");
-        assertTrue(audioUrl.startsWith("http"), "音频 URL 应以 http 开头，实际: " + audioUrl);
-        log.info("✅ TTS 音频 URL: {}", audioUrl);
-    }
-
-    @Test
-    @DisplayName("TTS：合成音频字节（需已注册音色）")
+    @DisplayName("TTS：合成音频字节（需传入已注册音色 voiceId）")
     void testTtsSynthesizeBytes() {
-        byte[] audioBytes = dashScopeAiService.synthesizeSpeech("default-tts", "欢迎使用 Strix 智能平台。");
+        // 替换为实际已注册的 voice_id；或先运行 testTtsCloneVoice 获取
+        String voiceId = aiTtsVoiceService.listByConfigKey("default-tts").stream()
+                .findFirst().map(v -> v.getVoiceId()).orElse(null);
+        byte[] audioBytes = dashScopeAiService.synthesizeSpeech("default-tts", "欢迎使用 Strix 智能平台。", voiceId, null);
         assertNotNull(audioBytes, "音频字节不应为 null");
         assertTrue(audioBytes.length > 0, "音频字节长度应大于 0，实际: " + audioBytes.length);
         log.info("✅ TTS 合成成功，音频大小: {} bytes", audioBytes.length);
     }
 
     // ============================================================
-    //  ASR 测试（通过 TTS URL 链式测试，无需上传文件）
+    //  ASR 测试（通过 TTS 合成字节链式测试，无需上传文件）
     // ============================================================
 
     @Test
-    @DisplayName("ASR：TTS → URL → 转录链式测试")
-    void testSttTranscribeViaTts() {
-        String testText = "春眠不觉晓，处处闻啼鸟。";
-
-        // 先用 TTS 生成音频 URL
-        String audioUrl = dashScopeAiService.synthesizeSpeechToUrl("default-tts", testText);
-        assertNotNull(audioUrl, "TTS 音频 URL 不应为 null");
-        log.info("TTS 音频 URL: {}", audioUrl);
-
-        // 再用 ASR 转录
+    @DisplayName("ASR：批量转录（公网音频 URL）")
+    void testSttTranscribeViaUrl() {
+        String audioUrl = "https://dashscope.oss-cn-beijing.aliyuncs.com/samples/audio/cosyvoice/cosyvoice-zeroshot-sample.wav";
         String transcription = dashScopeAiService.transcribeAudioUrl("default-stt", null, audioUrl);
         assertNotNull(transcription, "转录结果不应为 null");
         assertFalse(transcription.isBlank(), "转录结果不应为空");
