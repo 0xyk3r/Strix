@@ -52,6 +52,13 @@ public class AiModelConfig extends BaseModel<AiModelConfig> {
     private Short type;
 
     /**
+     * 云提供商类型（0=自动识别 1=DashScope 2=DeepSeek 3=OpenAI 9=其他兼容）
+     *
+     * @see cn.projectan.strix.model.dict.system.AiProviderType
+     */
+    private Short providerType;
+
+    /**
      * OpenAI 兼容端点 Base URL
      */
     private String baseUrl;

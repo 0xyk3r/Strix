@@ -43,6 +43,10 @@ public class AiModelConfigUpdateReq {
     @UpdateField
     private Short type;
 
+    @Schema(description = "云提供商类型：0=自动识别 1=DashScope 2=DeepSeek 3=OpenAI 9=其他", example = "1")
+    @UpdateField(allowEmpty = true)
+    private Short providerType;
+
     @Schema(description = "OpenAI 兼容端点 Base URL", example = "https://dashscope.aliyuncs.com/compatible-mode/v1")
     @NotEmpty(groups = {InsertGroup.class, UpdateGroup.class}, message = "Base URL 不能为空")
     @Size(groups = {InsertGroup.class, UpdateGroup.class}, max = 512, message = "Base URL 过长")

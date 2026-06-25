@@ -121,8 +121,6 @@ dependencies {
 
     // GraalVM
     compileOnly 'org.graalvm.sdk:graal-sdk:25.0.2'
-    // Spring AI
-    implementation "org.springframework.ai:spring-ai-openai"
 }
 
 test {

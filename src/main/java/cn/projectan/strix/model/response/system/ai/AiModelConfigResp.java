@@ -29,6 +29,9 @@ public class AiModelConfigResp {
     @Schema(description = "模型类型：1=TEXT 2=VISION 3=TTS 4=STT(离线) 5=IMAGE_GEN 6=ASR(实时)")
     private Short type;
 
+    @Schema(description = "云提供商类型：0=自动识别 1=DashScope 2=DeepSeek 3=OpenAI 9=其他")
+    private Short providerType;
+
     @Schema(description = "Base URL")
     private String baseUrl;
 
@@ -177,6 +180,7 @@ public class AiModelConfigResp {
         resp.setKey(config.getKey());
         resp.setName(config.getName());
         resp.setType(config.getType());
+        resp.setProviderType(config.getProviderType());
         resp.setBaseUrl(config.getBaseUrl());
         resp.setModelName(config.getModelName());
         resp.setTemperature(config.getTemperature());

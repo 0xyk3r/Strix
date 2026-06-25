@@ -1,6 +1,7 @@
 package cn.projectan.strix.controller.system.module.ai;
 
 import cn.projectan.strix.controller.system.base.BaseSystemController;
+import cn.projectan.strix.core.module.ai.AiChatClient;
 import cn.projectan.strix.core.module.ai.AiModelStore;
 import cn.projectan.strix.core.ret.RetBuilder;
 import cn.projectan.strix.core.ret.RetResult;
@@ -24,7 +25,9 @@ import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * AI 模型配置管理
@@ -41,6 +44,7 @@ public class AiModelConfigController extends BaseSystemController {
 
     private final AiModelConfigService aiModelConfigService;
     private final AiModelStore aiModelStore;
+    private final AiChatClient aiChatClient;
 
     /**
      * 查询模型配置列表
@@ -156,8 +160,13 @@ public class AiModelConfigController extends BaseSystemController {
 
         aiModelStore.invalidate(config.getKey());
 
+        // 发送最小有效 API 请求验证连通性（非流式，单轮 hello 消息）
         try {
-            aiModelStore.getChatModel(config);
+            Map<String, Object> body = new LinkedHashMap<>();
+            body.put("model", config.getModelName());
+            body.put("messages", List.of(Map.of("role", "user", "content", "hi")));
+            body.put("max_completion_tokens", 1);
+            aiChatClient.chat(config.getBaseUrl(), config.getApiKey(), body);
             return RetBuilder.success("配置验证通过");
         } catch (Exception e) {
             log.warn("AI 模型配置连通性测试失败: key={}, error={}", config.getKey(), e.getMessage());
