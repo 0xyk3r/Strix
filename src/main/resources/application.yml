@@ -60,6 +60,9 @@ mybatis-plus:
 # strix
 strix:
   instance-id: ${random.uuid}
+  # AI 文件预览签名密钥
+  ai:
+    preview-sign-secret: strix-ai-file-preview
   # strix 模块开关
   module:
     sms: true

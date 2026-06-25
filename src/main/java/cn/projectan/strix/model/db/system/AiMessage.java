@@ -65,6 +65,24 @@ public class AiMessage extends BaseModel<AiMessage> {
     private Integer completionTokens;
 
     /**
+     * 缓存命中 Token 数（prompt_tokens_details.cached_tokens）
+     * <p>实际计费输入 = promptTokens - cacheHitTokens
+     */
+    private Integer cacheHitTokens;
+
+    /**
+     * 缓存写入 Token 数（cache_write_tokens，DashScope 特有）
+     * <p>写入缓存有独立计费单价，null 表示该轮未触发缓存写入
+     */
+    private Integer cacheWriteTokens;
+
+    /**
+     * 思考链 Token 数（completion_tokens_details.reasoning_tokens）
+     * <p>包含于 completionTokens 内，null 表示未启用思考模式
+     */
+    private Integer reasoningTokens;
+
+    /**
      * 模型配置 ID（记录生成此消息时使用的模型）
      */
     private String modelConfigId;

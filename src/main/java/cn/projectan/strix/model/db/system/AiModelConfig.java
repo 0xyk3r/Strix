@@ -77,14 +77,70 @@ public class AiModelConfig extends BaseModel<AiModelConfig> {
     private BigDecimal topP;
 
     /**
-     * 最大输出 Token 数（nullable）
+     * 最大输出 Token 数（nullable，即将废弃，推荐使用 maxCompletionTokens）
      */
     private Integer maxTokens;
+
+    /**
+     * 最大输出 Token 数（含思考链）
+     */
+    private Integer maxCompletionTokens;
+
+    /**
+     * 存在惩罚 [-2.0, 2.0]
+     */
+    private BigDecimal presencePenalty;
+
+    /**
+     * 频率惩罚 [-2.0, 2.0]
+     */
+    private BigDecimal frequencyPenalty;
+
+    /**
+     * 重复惩罚 (>0)
+     */
+    private BigDecimal repetitionPenalty;
+
+    /**
+     * 候选 Token 数量
+     */
+    private Integer topK;
+
+    /**
+     * 随机数种子
+     */
+    private Long seed;
+
+    /**
+     * 生成响应数量 [1-4]
+     */
+    private Short n;
+
+    /**
+     * 停止词 JSON 数组
+     */
+    private String stopSequences;
+
+    /**
+     * 是否返回 Token 对数概率（0=否 1=是）
+     */
+    private Short logprobs;
+
+    /**
+     * 候选 Token 概率数 [0-5]
+     */
+    private Short topLogprobs;
 
     /**
      * 系统提示词（TEXT/VISION，nullable）
      */
     private String systemPrompt;
+
+    /**
+     * 支持的多模态输入，JSON 数组（TEXT 类型适用）
+     * <p>如 ["image","video","audio"]
+     */
+    private String supportedModalities;
 
     /**
      * 是否启用思考模式（TEXT 专用，0=禁用 1=启用）
@@ -97,9 +153,17 @@ public class AiModelConfig extends BaseModel<AiModelConfig> {
     private Integer thinkingBudget;
 
     /**
+     * 是否传递历史思考过程（0=否 1=是）
+     */
+    private Short preserveThinking;
+
+    /**
+     * 推理力度（DeepSeek-V4 专用：high/max）
+     */
+    private String reasoningEffort;
+
+    /**
      * 是否启用代码解释器（TEXT 流式专用，需同时开启思考模式，0=禁用 1=启用）
-     * <p>
-     * 仅在流式调用（streamChat）时生效，非流式调用忽略此参数。
      */
     private Short enableCodeInterpreter;
 
@@ -109,13 +173,7 @@ public class AiModelConfig extends BaseModel<AiModelConfig> {
     private Short enableSearch;
 
     /**
-     * 搜索策略（TEXT 专用，可选：auto/standard/max/agent）
-     * <ul>
-     *   <li>auto - 模型自主判断是否搜索（默认）</li>
-     *   <li>standard - 标准搜索</li>
-     *   <li>max - 高性能搜索</li>
-     *   <li>agent - 深度研究场景</li>
-     * </ul>
+     * 搜索策略（TEXT 专用，可选：turbo/max/agent/agent_max）
      */
     private String searchStrategy;
 
@@ -123,6 +181,46 @@ public class AiModelConfig extends BaseModel<AiModelConfig> {
      * 是否在响应中附带搜索来源引用（TEXT 专用，0=禁用 1=启用）
      */
     private Short enableSource;
+
+    /**
+     * 强制联网搜索（0=否 1=是）
+     */
+    private Short forcedSearch;
+
+    /**
+     * 搜索时效：7/30/180/365 天
+     */
+    private Integer searchFreshness;
+
+    /**
+     * 是否开启垂域搜索（0=否 1=是）
+     */
+    private Short enableSearchExtension;
+
+    /**
+     * 高分辨率图像处理（0=否 1=是）
+     */
+    private Short vlHighResolutionImages;
+
+    /**
+     * 图像最小像素阈值
+     */
+    private Integer minPixels;
+
+    /**
+     * 图像最大像素阈值
+     */
+    private Integer maxPixels;
+
+    /**
+     * 视频抽帧频率 [0.1-10]
+     */
+    private BigDecimal videoFps;
+
+    /**
+     * 图文混合输出（0=否 1=是）
+     */
+    private Short enableTextImageMixed;
 
     /**
      * 语音名称（TTS 专用，cosyvoice-v2 系统音色，如 longxiaochun_v2）

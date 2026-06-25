@@ -44,8 +44,41 @@ public class AiModelConfigResp {
     @Schema(description = "最大 Token 数")
     private Integer maxTokens;
 
+    @Schema(description = "最大输出 Token 数（含思考链）")
+    private Integer maxCompletionTokens;
+
+    @Schema(description = "存在惩罚")
+    private BigDecimal presencePenalty;
+
+    @Schema(description = "频率惩罚")
+    private BigDecimal frequencyPenalty;
+
+    @Schema(description = "重复惩罚")
+    private BigDecimal repetitionPenalty;
+
+    @Schema(description = "候选 Token 数")
+    private Integer topK;
+
+    @Schema(description = "随机种子")
+    private Long seed;
+
+    @Schema(description = "生成响应数量")
+    private Short n;
+
+    @Schema(description = "停止词 JSON 数组")
+    private String stopSequences;
+
+    @Schema(description = "是否返回 Token 对数概率")
+    private Short logprobs;
+
+    @Schema(description = "候选 Token 概率数")
+    private Short topLogprobs;
+
     @Schema(description = "系统提示词")
     private String systemPrompt;
+
+    @Schema(description = "支持的多模态输入 JSON 数组")
+    private String supportedModalities;
 
     @Schema(description = "是否启用思考模式：0=禁用 1=启用")
     private Short enableThinking;
@@ -53,17 +86,47 @@ public class AiModelConfigResp {
     @Schema(description = "思考模式 Token 预算")
     private Integer thinkingBudget;
 
+    @Schema(description = "是否传递历史思考过程")
+    private Short preserveThinking;
+
+    @Schema(description = "推理力度")
+    private String reasoningEffort;
+
     @Schema(description = "是否启用代码解释器：0=禁用 1=启用")
     private Short enableCodeInterpreter;
 
     @Schema(description = "是否启用联网搜索：0=禁用 1=启用")
     private Short enableSearch;
 
-    @Schema(description = "搜索策略：auto/standard/max/agent")
+    @Schema(description = "搜索策略")
     private String searchStrategy;
 
     @Schema(description = "是否在响应中附带搜索来源引用：0=禁用 1=启用")
     private Short enableSource;
+
+    @Schema(description = "强制联网搜索")
+    private Short forcedSearch;
+
+    @Schema(description = "搜索时效")
+    private Integer searchFreshness;
+
+    @Schema(description = "垂域搜索")
+    private Short enableSearchExtension;
+
+    @Schema(description = "高分辨率图像")
+    private Short vlHighResolutionImages;
+
+    @Schema(description = "图像最小像素阈值")
+    private Integer minPixels;
+
+    @Schema(description = "图像最大像素阈值")
+    private Integer maxPixels;
+
+    @Schema(description = "视频抽帧频率")
+    private BigDecimal videoFps;
+
+    @Schema(description = "图文混合输出")
+    private Short enableTextImageMixed;
 
     @Schema(description = "语音名称（TTS）")
     private String voice;
@@ -82,6 +145,9 @@ public class AiModelConfigResp {
 
     @Schema(description = "STT 离线默认参数（JSON 文本，STT 专用）")
     private String sttParams;
+
+    @Schema(description = "TTS 合成默认参数（JSON 文本，TTS 专用）")
+    private String ttsParams;
 
     @Schema(description = "状态：0=禁用 1=启用")
     private Short status;
@@ -116,19 +182,41 @@ public class AiModelConfigResp {
         resp.setTemperature(config.getTemperature());
         resp.setTopP(config.getTopP());
         resp.setMaxTokens(config.getMaxTokens());
+        resp.setMaxCompletionTokens(config.getMaxCompletionTokens());
+        resp.setPresencePenalty(config.getPresencePenalty());
+        resp.setFrequencyPenalty(config.getFrequencyPenalty());
+        resp.setRepetitionPenalty(config.getRepetitionPenalty());
+        resp.setTopK(config.getTopK());
+        resp.setSeed(config.getSeed());
+        resp.setN(config.getN());
+        resp.setStopSequences(config.getStopSequences());
+        resp.setLogprobs(config.getLogprobs());
+        resp.setTopLogprobs(config.getTopLogprobs());
         resp.setSystemPrompt(config.getSystemPrompt());
+        resp.setSupportedModalities(config.getSupportedModalities());
         resp.setEnableThinking(config.getEnableThinking());
         resp.setThinkingBudget(config.getThinkingBudget());
+        resp.setPreserveThinking(config.getPreserveThinking());
+        resp.setReasoningEffort(config.getReasoningEffort());
         resp.setEnableCodeInterpreter(config.getEnableCodeInterpreter());
         resp.setEnableSearch(config.getEnableSearch());
         resp.setSearchStrategy(config.getSearchStrategy());
         resp.setEnableSource(config.getEnableSource());
+        resp.setForcedSearch(config.getForcedSearch());
+        resp.setSearchFreshness(config.getSearchFreshness());
+        resp.setEnableSearchExtension(config.getEnableSearchExtension());
+        resp.setVlHighResolutionImages(config.getVlHighResolutionImages());
+        resp.setMinPixels(config.getMinPixels());
+        resp.setMaxPixels(config.getMaxPixels());
+        resp.setVideoFps(config.getVideoFps());
+        resp.setEnableTextImageMixed(config.getEnableTextImageMixed());
         resp.setVoice(config.getVoice());
         resp.setSpeed(config.getSpeed());
         resp.setResponseFormat(config.getResponseFormat());
         resp.setLanguage(config.getLanguage());
         resp.setAsrParams(config.getAsrParams());
         resp.setSttParams(config.getSttParams());
+        resp.setTtsParams(config.getTtsParams());
         resp.setStatus(config.getStatus());
         resp.setRemark(config.getRemark());
         resp.setPromptAudioUrl(config.getPromptAudioUrl());

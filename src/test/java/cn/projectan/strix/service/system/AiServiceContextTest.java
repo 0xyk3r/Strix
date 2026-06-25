@@ -25,7 +25,7 @@ class AiServiceContextTest {
     /**
      * buildMessages 不使用任何注入依赖，传 null 即可构造
      */
-    private final AiService aiService = new AiService(null, null, null, null);
+    private final AiService aiService = new AiService(null, null, null, null, null);
 
     private static AiMessage msg(String role, String content) {
         return new AiMessage().setRole(role).setContent(content);

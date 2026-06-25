@@ -1,16 +1,19 @@
 package cn.projectan.strix.controller.system.module.ai;
 
 import cn.projectan.strix.controller.system.base.BaseSystemController;
+import cn.projectan.strix.core.module.ai.AiFilePreviewSigner;
 import cn.projectan.strix.core.module.ai.AiModelStore;
 import cn.projectan.strix.core.module.ai.tts.TtsAudioListener;
 import cn.projectan.strix.core.ret.RetBuilder;
 import cn.projectan.strix.core.ret.RetResult;
+import cn.projectan.strix.model.annotation.Anonymous;
 import cn.projectan.strix.model.annotation.IgnoreEncryption;
 import cn.projectan.strix.model.annotation.RateLimit;
 import cn.projectan.strix.model.annotation.StrixLog;
 import cn.projectan.strix.model.db.system.AiMessage;
 import cn.projectan.strix.model.db.system.AiModelConfig;
 import cn.projectan.strix.model.db.system.AiSession;
+import cn.projectan.strix.model.db.system.OssFile;
 import cn.projectan.strix.model.dict.system.SystemLogOperType;
 import cn.projectan.strix.model.request.system.module.ai.*;
 import cn.projectan.strix.model.response.system.ai.*;
@@ -20,6 +23,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -34,6 +38,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
@@ -59,6 +64,8 @@ public class AiController extends BaseSystemController {
     private final AiModelStore aiModelStore;
     private final AiTaskService aiTaskService;
     private final AiTtsVoiceService aiTtsVoiceService;
+    private final AiFilePreviewSigner aiFilePreviewSigner;
+    private final OssFileService ossFileService;
     @Qualifier("mvcAsyncExecutor")
     private final Executor mvcAsyncExecutor;
 
@@ -200,6 +207,14 @@ public class AiController extends BaseSystemController {
                     return resp;
                 })
                 .toList();
+
+        // 为附件填充带签名的预览 URL
+        messages.forEach(msg -> {
+            if (msg.getAttachments() != null) {
+                msg.getAttachments().forEach(att ->
+                        att.setPreviewUrl(aiFilePreviewSigner.generatePreviewUrl(att.getFileId())));
+            }
+        });
 
         return RetBuilder.success(messages);
     }
@@ -605,6 +620,36 @@ public class AiController extends BaseSystemController {
             log.warn("获取模型列表失败: baseUrl={}", req.getBaseUrl(), e);
             return RetBuilder.error("不兼容的 API 端点");
         }
+    }
+
+    // ============================================================
+    //  文件预览
+    // ============================================================
+
+    /**
+     * 文件预览（签名验证，免登录）
+     */
+    @Anonymous
+    @IgnoreEncryption
+    @GetMapping("file/{fileId}/preview")
+    @Operation(summary = "AI 附件文件预览（签名鉴权）")
+    public void previewFile(@PathVariable String fileId,
+                            @RequestParam String sign,
+                            @RequestParam long expire,
+                            HttpServletResponse response) throws IOException {
+        if (!aiFilePreviewSigner.verifySign(fileId, sign, expire)) {
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            return;
+        }
+        OssFile ossFile = ossFileService.getById(fileId);
+        if (ossFile == null) {
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
+        response.setContentType(ossFile.getContentType());
+        response.setHeader("Cache-Control", "private, max-age=300");
+        ossFileService.downloadToStream(fileId, response.getOutputStream());
+        response.flushBuffer();
     }
 
 }

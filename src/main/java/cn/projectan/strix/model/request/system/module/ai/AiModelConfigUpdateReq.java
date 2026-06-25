@@ -78,10 +78,57 @@ public class AiModelConfigUpdateReq {
     @UpdateField(allowEmpty = true)
     private Integer maxTokens;
 
+    @Schema(description = "最大输出 Token 数（含思考链）", example = "16384")
+    @Min(groups = {InsertGroup.class, UpdateGroup.class}, value = 1, message = "最大 Completion Token 数不合法")
+    @UpdateField(allowEmpty = true)
+    private Integer maxCompletionTokens;
+
+    @Schema(description = "存在惩罚 [-2.0, 2.0]")
+    @UpdateField(allowEmpty = true)
+    private BigDecimal presencePenalty;
+
+    @Schema(description = "频率惩罚 [-2.0, 2.0]")
+    @UpdateField(allowEmpty = true)
+    private BigDecimal frequencyPenalty;
+
+    @Schema(description = "重复惩罚 (>0)")
+    @UpdateField(allowEmpty = true)
+    private BigDecimal repetitionPenalty;
+
+    @Schema(description = "候选 Token 数量")
+    @UpdateField(allowEmpty = true)
+    private Integer topK;
+
+    @Schema(description = "随机数种子")
+    @UpdateField(allowEmpty = true)
+    private Long seed;
+
+    @Schema(description = "生成响应数量 [1-4]")
+    @UpdateField(allowEmpty = true)
+    private Short n;
+
+    @Schema(description = "停止词 JSON 数组")
+    @Size(groups = {InsertGroup.class, UpdateGroup.class}, max = 512, message = "停止词过长")
+    @UpdateField(allowEmpty = true)
+    private String stopSequences;
+
+    @Schema(description = "是否返回 Token 对数概率：0=否 1=是")
+    @UpdateField(allowEmpty = true)
+    private Short logprobs;
+
+    @Schema(description = "候选 Token 概率数 [0-5]")
+    @UpdateField(allowEmpty = true)
+    private Short topLogprobs;
+
     @Schema(description = "系统提示词（TEXT/VISION 可用）")
     @Size(groups = {InsertGroup.class, UpdateGroup.class}, max = 4096, message = "系统提示词过长")
     @UpdateField(allowEmpty = true)
     private String systemPrompt;
+
+    @Schema(description = "支持的多模态输入 JSON 数组（TEXT 类型适用）", example = "[\"image\",\"video\",\"audio\"]")
+    @Size(groups = {InsertGroup.class, UpdateGroup.class}, max = 128, message = "多模态配置过长")
+    @UpdateField(allowEmpty = true)
+    private String supportedModalities;
 
     @Schema(description = "是否启用思考模式（TEXT 专用）：0=禁用 1=启用", example = "1")
     @UpdateField(allowEmpty = true)
@@ -92,6 +139,15 @@ public class AiModelConfigUpdateReq {
     @UpdateField(allowEmpty = true)
     private Integer thinkingBudget;
 
+    @Schema(description = "是否传递历史思考过程：0=否 1=是")
+    @UpdateField(allowEmpty = true)
+    private Short preserveThinking;
+
+    @Schema(description = "推理力度（DeepSeek-V4 专用）：high/max")
+    @Size(groups = {InsertGroup.class, UpdateGroup.class}, max = 16)
+    @UpdateField(allowEmpty = true)
+    private String reasoningEffort;
+
     @Schema(description = "是否启用代码解释器（TEXT 流式专用，需同时开启思考模式）：0=禁用 1=启用", example = "0")
     @UpdateField(allowEmpty = true)
     private Short enableCodeInterpreter;
@@ -100,8 +156,8 @@ public class AiModelConfigUpdateReq {
     @UpdateField(allowEmpty = true)
     private Short enableSearch;
 
-    @Schema(description = "搜索策略（TEXT 专用）：auto/standard/max/agent", example = "auto")
-    @Pattern(groups = {InsertGroup.class, UpdateGroup.class}, regexp = "^(auto|standard|max|agent)$",
+    @Schema(description = "搜索策略（TEXT 专用）：turbo/max/agent/agent_max", example = "turbo")
+    @Pattern(groups = {InsertGroup.class, UpdateGroup.class}, regexp = "^(turbo|max|agent|agent_max)$",
             message = "搜索策略不合法")
     @UpdateField(allowEmpty = true)
     private String searchStrategy;
@@ -109,6 +165,38 @@ public class AiModelConfigUpdateReq {
     @Schema(description = "是否在响应中附带搜索来源引用（TEXT 专用）：0=禁用 1=启用", example = "0")
     @UpdateField(allowEmpty = true)
     private Short enableSource;
+
+    @Schema(description = "强制联网搜索：0=否 1=是")
+    @UpdateField(allowEmpty = true)
+    private Short forcedSearch;
+
+    @Schema(description = "搜索时效：7/30/180/365 天")
+    @UpdateField(allowEmpty = true)
+    private Integer searchFreshness;
+
+    @Schema(description = "是否开启垂域搜索：0=否 1=是")
+    @UpdateField(allowEmpty = true)
+    private Short enableSearchExtension;
+
+    @Schema(description = "高分辨率图像处理：0=否 1=是")
+    @UpdateField(allowEmpty = true)
+    private Short vlHighResolutionImages;
+
+    @Schema(description = "图像最小像素阈值")
+    @UpdateField(allowEmpty = true)
+    private Integer minPixels;
+
+    @Schema(description = "图像最大像素阈值")
+    @UpdateField(allowEmpty = true)
+    private Integer maxPixels;
+
+    @Schema(description = "视频抽帧频率 [0.1-10]")
+    @UpdateField(allowEmpty = true)
+    private BigDecimal videoFps;
+
+    @Schema(description = "图文混合输出：0=否 1=是")
+    @UpdateField(allowEmpty = true)
+    private Short enableTextImageMixed;
 
     @Schema(description = "语音名称（TTS 专用）", example = "cosyvoice-v2-longxiaochun")
     @Size(groups = {InsertGroup.class, UpdateGroup.class}, max = 64, message = "语音名称过长")
@@ -140,6 +228,11 @@ public class AiModelConfigUpdateReq {
     @Size(groups = {InsertGroup.class, UpdateGroup.class}, max = 2048, message = "STT 参数过长")
     @UpdateField(allowEmpty = true)
     private String sttParams;
+
+    @Schema(description = "TTS 合成默认参数（JSON 文本，TTS 专用）")
+    @Size(groups = {InsertGroup.class, UpdateGroup.class}, max = 2048, message = "TTS 参数过长")
+    @UpdateField(allowEmpty = true)
+    private String ttsParams;
 
     @Schema(description = "配置状态：0=禁用 1=启用", example = "1")
     @UpdateField(allowEmpty = true)

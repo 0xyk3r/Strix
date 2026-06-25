@@ -58,6 +58,7 @@ public class AiMessageService extends ServiceImpl<AiMessageMapper, AiMessage> {
      */
     public void markCompleted(String messageId, String content, String thinkingContent,
                               Integer promptTokens, Integer completionTokens,
+                              Integer cacheHitTokens, Integer cacheWriteTokens, Integer reasoningTokens,
                               String modelConfigId, Long durationMs) {
         lambdaUpdate()
                 .eq(AiMessage::getId, messageId)
@@ -66,6 +67,9 @@ public class AiMessageService extends ServiceImpl<AiMessageMapper, AiMessage> {
                 .set(thinkingContent != null, AiMessage::getThinkingContent, thinkingContent)
                 .set(promptTokens != null, AiMessage::getPromptTokens, promptTokens)
                 .set(completionTokens != null, AiMessage::getCompletionTokens, completionTokens)
+                .set(cacheHitTokens != null, AiMessage::getCacheHitTokens, cacheHitTokens)
+                .set(cacheWriteTokens != null, AiMessage::getCacheWriteTokens, cacheWriteTokens)
+                .set(reasoningTokens != null, AiMessage::getReasoningTokens, reasoningTokens)
                 .set(modelConfigId != null, AiMessage::getModelConfigId, modelConfigId)
                 .set(durationMs != null, AiMessage::getDurationMs, durationMs)
                 .update();

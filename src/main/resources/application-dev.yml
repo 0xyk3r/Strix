@@ -75,3 +75,5 @@ knife4j:
 strix:
   debug:
     wechat-dev-mode: true
+  ai:
+    preview-sign-secret: dev-strix-ai-preview-sign-secret-change-in-prod
