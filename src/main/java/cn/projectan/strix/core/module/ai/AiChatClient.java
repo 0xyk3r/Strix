@@ -119,4 +119,75 @@ public class AiChatClient {
     private String normalizeUrl(String baseUrl) {
         return baseUrl.replaceAll("/+$", "") + "/chat/completions";
     }
+
+    /**
+     * FIM (Fill-In-Middle) 补全（Beta 端点，同步阻塞）
+     * <p>
+     * 使用 {@code /completions}（而非 /chat/completions），请求体包含 {@code prompt} 和可选
+     * {@code suffix}。最大 Token 数受限 4K（DeepSeek Beta FIM 限制）。
+     *
+     * @param baseUrl API 基础 URL（如 https://api.deepseek.com/beta）
+     * @param apiKey  API Key（Bearer token）
+     * @param body    请求体 Map（包含 model, prompt, suffix?, max_tokens, temperature? 等）
+     * @return 完整响应 JsonNode
+     * @throws IOException 网络/HTTP 错误
+     */
+    public JsonNode fim(String baseUrl, String apiKey, Map<String, Object> body) throws IOException {
+        String url = normalizeFimUrl(baseUrl);
+        String jsonBody = MAPPER.writeValueAsString(body);
+        Request request = buildRequest(url, apiKey, jsonBody);
+
+        try (Response response = HTTP_CLIENT.newCall(request).execute()) {
+            String responseBody = response.body() != null ? response.body().string() : "";
+            if (!response.isSuccessful()) {
+                throw new IOException("AI FIM API 返回错误 " + response.code() + ": " + responseBody);
+            }
+            return MAPPER.readTree(responseBody);
+        }
+    }
+
+    /**
+     * FIM (Fill-In-Middle) 流式补全（Beta 端点，SSE）
+     * <p>
+     * 同 {@link #fim} 但设置 {@code stream=true}，逐 chunk 回调。
+     * chunk 格式：{@code {"choices":[{"text":"...","finish_reason":null}]}}。
+     *
+     * @param baseUrl API 基础 URL
+     * @param apiKey  API Key
+     * @param body    请求体（不含 stream 字段，由此方法自动追加）
+     * @param handler 每个非 [DONE] data chunk 的回调
+     * @throws IOException 网络/HTTP/流读取错误
+     */
+    public void streamFim(String baseUrl, String apiKey, Map<String, Object> body,
+                          SseChunkHandler handler) throws IOException {
+        body.put("stream", true);
+        String url = normalizeFimUrl(baseUrl);
+        String jsonBody = MAPPER.writeValueAsString(body);
+        Request request = buildRequest(url, apiKey, jsonBody);
+
+        try (Response response = HTTP_CLIENT.newCall(request).execute()) {
+            if (!response.isSuccessful() || response.body() == null) {
+                String errorBody = response.body() != null ? response.body().string() : "";
+                throw new IOException("AI FIM API 返回错误 " + response.code() + ": " + errorBody);
+            }
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(response.body().byteStream(), StandardCharsets.UTF_8))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    if (line.isEmpty() || !line.startsWith("data: ")) continue;
+                    String data = line.substring(6).trim();
+                    if ("[DONE]".equals(data)) break;
+                    try {
+                        handler.onChunk(MAPPER.readTree(data));
+                    } catch (Exception e) {
+                        log.debug("AI FIM: 解析 SSE chunk 失败，跳过: {}", data);
+                    }
+                }
+            }
+        }
+    }
+
+    private String normalizeFimUrl(String baseUrl) {
+        return baseUrl.replaceAll("/+$", "") + "/completions";
+    }
 }

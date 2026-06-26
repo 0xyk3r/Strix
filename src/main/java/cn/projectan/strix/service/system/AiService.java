@@ -458,4 +458,216 @@ public class AiService {
         }
         emitter.complete();
     }
+
+    // ============================================================
+    //  FIM (Fill-In-Middle) 续写（Beta 端点）
+    // ============================================================
+
+    /**
+     * FIM 文本续写（同步阻塞）
+     * <p>
+     * 调用 DeepSeek Beta {@code /completions} 端点。提供 suffix 时使用 FIM 填充模式，
+     * 不提供 suffix 时退化为纯续写（模型在 prompt 后续写）。
+     *
+     * @param configKey   模型配置 key（必须是支持 FIM 的提供商，如 DeepSeek）
+     * @param prompt      前缀文本（必填）
+     * @param suffix      后缀文本（可选）
+     * @param maxTokens   最大生成 Token 数（null 时：优先使用模型配置 maxTokens，否则默认 1024）
+     * @param temperature 温度覆盖（null 时使用模型配置）
+     * @return FIM 续写响应
+     */
+    public cn.projectan.strix.model.response.system.ai.AiFimResp fim(
+            String configKey, String prompt, String suffix,
+            Integer maxTokens, java.math.BigDecimal temperature) {
+        AiModelConfig config = aiModelConfigService.requireEnabledByKey(configKey);
+        AiProviderAdapter adapter = providerRegistry.getAdapter(config);
+        org.springframework.util.Assert.isTrue(adapter.supportsFim(),
+                "所选模型（" + configKey + "）不支持 FIM 续写功能，请选择 DeepSeek 提供商的模型");
+
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("model", config.getModelName());
+        body.put("prompt", prompt);
+        if (StringUtils.hasText(suffix)) {
+            body.put("suffix", suffix);
+        }
+        // maxTokens 优先级：请求参数 > 模型配置 > 默认 1024
+        int resolvedMaxTokens = maxTokens != null ? maxTokens
+                : (config.getMaxTokens() != null ? config.getMaxTokens() : 1024);
+        body.put("max_tokens", resolvedMaxTokens);
+        // temperature 优先级：请求参数 > 模型配置
+        java.math.BigDecimal resolvedTemp = temperature != null ? temperature : config.getTemperature();
+        if (resolvedTemp != null) {
+            body.put("temperature", resolvedTemp.doubleValue());
+        }
+
+        try {
+            JsonNode response = aiChatClient.fim(config.getBaseUrl(), config.getApiKey(), body);
+            cn.projectan.strix.model.response.system.ai.AiFimResp resp =
+                    new cn.projectan.strix.model.response.system.ai.AiFimResp();
+            resp.setText(response.at("/choices/0/text").asText(""));
+            String finishReason = response.at("/choices/0/finish_reason").asText(null);
+            resp.setFinishReason("null".equals(finishReason) ? null : finishReason);
+            JsonNode usageNode = response.get("usage");
+            if (usageNode != null && !usageNode.isNull()) {
+                int pt = usageNode.path("prompt_tokens").asInt(-1);
+                int ct = usageNode.path("completion_tokens").asInt(-1);
+                resp.setPromptTokens(pt >= 0 ? pt : null);
+                resp.setCompletionTokens(ct >= 0 ? ct : null);
+            }
+            return resp;
+        } catch (IOException e) {
+            throw new RuntimeException("AI FIM 调用失败: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * FIM / Chat Prefix 流式续写（SSE）
+     * <p>
+     * 根据 {@code chatPrefix} 参数选择模式：
+     * <ul>
+     *   <li><b>FIM 模式</b>（chatPrefix=false/null）：调用 DeepSeek Beta {@code /completions}</li>
+     *   <li><b>对话前缀续写</b>（chatPrefix=true）：调用 DeepSeek Beta {@code /chat/completions}，
+     *       构造 messages 数组，最后一条 assistant 消息带 {@code "prefix":true}</li>
+     * </ul>
+     * SSE 事件格式：
+     * <ul>
+     *   <li>{@code event: content}  {@code data: {"content":"..."}} — 每个文本 chunk</li>
+     *   <li>{@code event: done}     {@code data: {"promptTokens":n,"completionTokens":n}} — 完成</li>
+     *   <li>{@code event: error}    {@code data: {"message":"..."}} — 出错</li>
+     * </ul>
+     */
+    public void streamFim(String configKey, String prompt, String suffix,
+                          String systemPrompt, String userContent, Boolean chatPrefix,
+                          Integer maxTokens, java.math.BigDecimal temperature,
+                          SseEmitter emitter) {
+        AiModelConfig config = aiModelConfigService.requireEnabledByKey(configKey);
+        AiProviderAdapter adapter = providerRegistry.getAdapter(config);
+        org.springframework.util.Assert.isTrue(adapter.supportsFim(),
+                "所选模型（" + configKey + "）不支持 FIM 续写功能，请选择 DeepSeek 提供商的模型");
+
+        int resolvedMaxTokens = maxTokens != null ? maxTokens
+                : (config.getMaxTokens() != null ? config.getMaxTokens() : 1024);
+        java.math.BigDecimal resolvedTemp = temperature != null ? temperature : config.getTemperature();
+
+        int[] promptTokensRef = {-1};
+        int[] completionTokensRef = {-1};
+
+        try {
+            if (Boolean.TRUE.equals(chatPrefix)) {
+                streamChatPrefixInternal(config, prompt, suffix, systemPrompt, userContent,
+                        resolvedMaxTokens, resolvedTemp, promptTokensRef, completionTokensRef, emitter);
+            } else {
+                streamFimInternal(config, prompt, suffix, resolvedMaxTokens, resolvedTemp,
+                        promptTokensRef, completionTokensRef, emitter);
+            }
+
+            Map<String, Object> doneData = new HashMap<>();
+            if (promptTokensRef[0] >= 0) doneData.put("promptTokens", promptTokensRef[0]);
+            if (completionTokensRef[0] >= 0) doneData.put("completionTokens", completionTokensRef[0]);
+            sendSseEvent(emitter, AiSseEvent.DONE, doneData);
+            emitter.complete();
+        } catch (Exception e) {
+            log.error("AI FIM 流式调用出错: configKey={}", configKey, e);
+            sendSseError(emitter, "AI 续写调用出错: " + e.getMessage());
+        }
+    }
+
+    /**
+     * FIM Beta /completions 模式
+     */
+    private void streamFimInternal(AiModelConfig config, String prompt, String suffix,
+                                   int maxTokens, java.math.BigDecimal temperature,
+                                   int[] promptTokensRef, int[] completionTokensRef,
+                                   SseEmitter emitter) throws Exception {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("model", config.getModelName());
+        body.put("prompt", prompt);
+        if (StringUtils.hasText(suffix)) body.put("suffix", suffix);
+        body.put("max_tokens", maxTokens);
+        if (temperature != null) body.put("temperature", temperature.doubleValue());
+
+        aiChatClient.streamFim(config.getBaseUrl(), config.getApiKey(), body, chunk -> {
+            extractFimUsage(chunk, promptTokensRef, completionTokensRef);
+            JsonNode choices = chunk.get("choices");
+            if (choices == null || choices.isEmpty()) return;
+            JsonNode textNode = choices.get(0).get("text");
+            if (textNode != null && !textNode.isNull()) {
+                String text = textNode.asText("");
+                if (!text.isEmpty()) sendSseEvent(emitter, AiSseEvent.CONTENT, Map.of("content", text));
+            }
+        });
+    }
+
+    /**
+     * Chat Prefix Beta /chat/completions 模式
+     */
+    private void streamChatPrefixInternal(AiModelConfig config, String assistantPrefix, String suffix,
+                                          String systemPrompt, String userContent,
+                                          int maxTokens, java.math.BigDecimal temperature,
+                                          int[] promptTokensRef, int[] completionTokensRef,
+                                          SseEmitter emitter) throws Exception {
+        // 构造 messages 数组：system（可选）→ user（可选）→ assistant prefix（必须最后且含 prefix:true）
+        List<Map<String, Object>> messages = new ArrayList<>();
+        if (StringUtils.hasText(systemPrompt)) {
+            messages.add(Map.of("role", "system", "content", systemPrompt));
+        }
+        if (StringUtils.hasText(userContent)) {
+            messages.add(Map.of("role", "user", "content", userContent));
+        }
+        Map<String, Object> assistantMsg = new LinkedHashMap<>();
+        assistantMsg.put("role", "assistant");
+        assistantMsg.put("content", assistantPrefix);
+        assistantMsg.put("prefix", true); // DeepSeek Chat Prefix Completion 关键字段
+        messages.add(assistantMsg);
+
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("model", config.getModelName());
+        body.put("messages", messages);
+        body.put("max_completion_tokens", maxTokens);
+        if (temperature != null) body.put("temperature", temperature.doubleValue());
+
+        // Chat Prefix 使用 /beta/chat/completions，baseUrl 需含 /beta
+        String betaBaseUrl = ensureBetaBaseUrl(config.getBaseUrl());
+
+        aiChatClient.streamChat(betaBaseUrl, config.getApiKey(), body, chunk -> {
+            extractChatUsage(chunk, promptTokensRef, completionTokensRef);
+            JsonNode choices = chunk.get("choices");
+            if (choices == null || choices.isEmpty()) return;
+            JsonNode delta = choices.get(0).get("delta");
+            if (delta == null) return;
+            JsonNode contentNode = delta.get("content");
+            if (contentNode != null && !contentNode.isNull()) {
+                String text = contentNode.asText("");
+                if (!text.isEmpty()) sendSseEvent(emitter, AiSseEvent.CONTENT, Map.of("content", text));
+            }
+        });
+    }
+
+    /**
+     * 确保 baseUrl 含有 /beta 路径（Chat Prefix / FIM 所需）
+     */
+    private String ensureBetaBaseUrl(String baseUrl) {
+        String url = baseUrl.replaceAll("/+$", "");
+        return url.endsWith("/beta") ? url : url + "/beta";
+    }
+
+    private void extractFimUsage(JsonNode chunk, int[] promptRef, int[] completionRef) {
+        JsonNode usage = chunk.get("usage");
+        if (usage != null && !usage.isNull()) {
+            int pt = usage.path("prompt_tokens").asInt(-1);
+            int ct = usage.path("completion_tokens").asInt(-1);
+            if (pt >= 0) promptRef[0] = pt;
+            if (ct >= 0) completionRef[0] = ct;
+        }
+    }
+
+    private void extractChatUsage(JsonNode chunk, int[] promptRef, int[] completionRef) {
+        JsonNode usage = chunk.get("usage");
+        if (usage != null && !usage.isNull()) {
+            int pt = usage.path("prompt_tokens").asInt(-1);
+            int ct = usage.path("completion_tokens").asInt(-1);
+            if (pt >= 0) promptRef[0] = pt;
+            if (ct >= 0) completionRef[0] = ct;
+        }
+    }
 }

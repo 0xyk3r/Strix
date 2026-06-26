@@ -55,4 +55,20 @@ public interface AiProviderAdapter {
      * @return 思考内容（非空则有效），null 表示此 delta 无思考内容
      */
     String extractReasoningContent(JsonNode delta);
+
+    /**
+     * 是否支持 FIM (Fill-In-Middle) Beta 补全。
+     * <p>仅 DeepSeek 官方 API 支持（{@code /beta/completions} 端点），其余提供商返回 false。
+     */
+    default boolean supportsFim() {
+        return false;
+    }
+
+    /**
+     * 是否支持 Chat Prefix Completion Beta。
+     * <p>仅 DeepSeek 官方 API 支持（{@code /beta/chat/completions}），其余提供商返回 false。
+     */
+    default boolean supportsChatPrefix() {
+        return false;
+    }
 }

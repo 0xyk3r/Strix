@@ -575,6 +575,51 @@ public class AiController extends BaseSystemController {
     }
 
     // ============================================================
+    //  FIM 续写
+    // ============================================================
+
+    /**
+     * AI 文本续写（FIM Beta）
+     * <p>
+     * 使用 DeepSeek Beta {@code /completions} 端点实现通用文本续写（续写模式）或填充（FIM 模式）。
+     * 仅支持 DeepSeek 提供商模型。
+     * </p>
+     */
+    @PostMapping("fim")
+    @PreAuthorize("@ss.hasPermission('system:ai:fim')")
+    @StrixLog(operationGroup = "AI 续写", operationName = "文本续写")
+    @RateLimit(limit = 30, window = 60, key = "ai:fim", message = "AI 续写请求过于频繁，请稍后再试")
+    @Operation(summary = "AI 文本续写（FIM Beta）")
+    public RetResult<cn.projectan.strix.model.response.system.ai.AiFimResp> fim(
+            @RequestBody @Validated cn.projectan.strix.model.request.system.module.ai.AiFimReq req) {
+        cn.projectan.strix.model.response.system.ai.AiFimResp resp = aiService.fim(
+                req.getModelKey(), req.getPrompt(), req.getSuffix(),
+                req.getMaxTokens(), req.getTemperature());
+        return RetBuilder.success(resp);
+    }
+
+    /**
+     * AI 文本续写（FIM Beta，流式 SSE）
+     * <p>
+     * 流式版本，SSE 事件格式：content（逐 token）/ done（完成+token统计）/ error（出错）。
+     * </p>
+     */
+    @PostMapping(value = "fim/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @PreAuthorize("@ss.hasPermission('system:ai:fim')")
+    @RateLimit(limit = 30, window = 60, key = "ai:fim", message = "AI 续写请求过于频繁，请稍后再试")
+    @Operation(summary = "AI 文本续写 SSE 流式（FIM Beta）")
+    public SseEmitter streamFim(
+            @RequestBody @Validated cn.projectan.strix.model.request.system.module.ai.AiFimReq req) {
+        SseEmitter emitter = new SseEmitter(120_000L);
+        mvcAsyncExecutor.execute(() ->
+                aiService.streamFim(req.getModelKey(), req.getPrompt(), req.getSuffix(),
+                        req.getSystemPrompt(), req.getUserContent(), req.getChatPrefix(),
+                        req.getMaxTokens(), req.getTemperature(), emitter)
+        );
+        return emitter;
+    }
+
+    // ============================================================
     //  模型配置增强
     // ============================================================
 
