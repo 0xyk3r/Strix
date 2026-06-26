@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
@@ -43,6 +44,10 @@ public class UserSessionController extends BaseSystemController {
     @Operation(summary = "在线用户会话列表")
     public RetResult<OnlineUserSessionResp> list(@RequestParam(required = false) String keyword) {
         Set<String> onlineUserIds = tokenSessionService.getOnlineUserIds();
+        if (CollectionUtils.isEmpty(onlineUserIds)) {
+            return RetBuilder.success(new OnlineUserSessionResp(new ArrayList<>(), 0, 0));
+        }
+
         List<OnlineUserSessionItem> items = new ArrayList<>();
         int totalSessions = 0;
 
