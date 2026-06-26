@@ -137,13 +137,13 @@ public class SystemLoginService {
         permissionKeys.addAll(loginSystemManager.getMenusKeys());
         permissionKeys.addAll(loginSystemManager.getPermissionKeys());
 
-        return new SystemManagerLoginResp(
-                new SystemManagerLoginResp.LoginManagerInfo(
-                        systemManager.getId(), systemManager.getNickname(), systemManager.getType(), systemManager.getRegionId(), permissionKeys
-                ),
-                token,
-                LocalDateTime.now().plusMinutes(tokenTTLMinutes)
+        SystemManagerLoginResp.LoginManagerInfo info = new SystemManagerLoginResp.LoginManagerInfo(
+                systemManager.getId(), systemManager.getNickname(), systemManager.getType(), systemManager.getRegionId()
         );
+        info.setPermissionKeys(permissionKeys);
+        info.setAvatarConfig(systemManager.getAvatarConfig());
+
+        return new SystemManagerLoginResp(info, token, LocalDateTime.now().plusMinutes(tokenTTLMinutes));
     }
 
     /**

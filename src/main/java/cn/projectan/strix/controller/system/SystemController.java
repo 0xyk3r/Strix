@@ -95,11 +95,13 @@ public class SystemController extends BaseSystemController {
         permissionKeys.addAll(lsm.getMenusKeys());
         permissionKeys.addAll(lsm.getPermissionKeys());
 
-        return RetBuilder.success(
-                new SystemManagerLoginResp.LoginManagerInfo(
-                        sm.getId(), sm.getNickname(), sm.getType(), sm.getRegionId(), permissionKeys
-                )
+        SystemManagerLoginResp.LoginManagerInfo info = new SystemManagerLoginResp.LoginManagerInfo(
+                sm.getId(), sm.getNickname(), sm.getType(), sm.getRegionId()
         );
+        info.setPermissionKeys(permissionKeys);
+        info.setAvatarConfig(sm.getAvatarConfig());
+
+        return RetBuilder.success(info);
     }
 
 }

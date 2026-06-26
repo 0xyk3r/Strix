@@ -195,15 +195,14 @@ public class SystemManagerController extends BaseSystemController {
         Assert.notNull(req, I18nUtil.get("error.param.invalid"));
         checkLoginManagerRegionPermission(req.getRegionId());
 
-        SystemManager systemManager = new SystemManager(
-                req.getNickname(),
-                req.getLoginName(),
-                StrixSM3Util.hashPassword(req.getLoginPassword()),
-                req.getStatus(),
-                req.getType(),
-                req.getRegionId(),
-                CommonFlag.NO
-        );
+        SystemManager systemManager = new SystemManager()
+                .setNickname(req.getNickname())
+                .setLoginName(req.getLoginName())
+                .setLoginPassword(StrixSM3Util.hashPassword(req.getLoginPassword()))
+                .setStatus(req.getStatus())
+                .setType(req.getType())
+                .setRegionId(req.getRegionId())
+                .setBuiltin(CommonFlag.NO);
 
         UniqueChecker.check(systemManager);
 
@@ -385,15 +384,14 @@ public class SystemManagerController extends BaseSystemController {
                     continue;
                 }
 
-                SystemManager systemManager = new SystemManager(
-                        itemReq.getNickname(),
-                        itemReq.getLoginName(),
-                        StrixSM3Util.hashPassword(itemReq.getLoginPassword()),
-                        itemReq.getStatus(),
-                        itemReq.getType(),
-                        itemReq.getRegionId(),
-                        CommonFlag.NO
-                );
+                SystemManager systemManager = new SystemManager()
+                        .setNickname(itemReq.getNickname())
+                        .setLoginName(itemReq.getLoginName())
+                        .setLoginPassword(StrixSM3Util.hashPassword(itemReq.getLoginPassword()))
+                        .setStatus(itemReq.getStatus())
+                        .setType(itemReq.getType())
+                        .setRegionId(itemReq.getRegionId())
+                        .setBuiltin(CommonFlag.NO);
                 try {
                     UniqueChecker.check(systemManager);
                 } catch (StrixUniqueCheckerException e) {

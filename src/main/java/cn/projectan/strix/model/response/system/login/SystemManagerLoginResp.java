@@ -49,6 +49,9 @@ public class SystemManagerLoginResp {
         @Schema(description = "权限标识列表")
         private List<String> permissionKeys;
 
+        @Schema(description = "DiceBear 头像配置 JSON，为 null 时前端以管理员 ID 为 seed 自动生成")
+        private String avatarConfig;
+
         public LoginManagerInfo(String id, String nickname, Short type, String regionId) {
             this.id = id;
             this.nickname = nickname;

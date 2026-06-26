@@ -27,7 +27,7 @@ public class SystemManagerListResp extends BasePageResp {
 
     public SystemManagerListResp(List<SystemManager> data, Long total) {
         systemManagerList = data.stream().map(d ->
-                new SystemManagerItem(d.getId(), d.getNickname(), d.getLoginName(), d.getStatus(), d.getType(), d.getRegionId(), d.getBuiltin(), d.getCreatedTime())
+                new SystemManagerItem(d.getId(), d.getNickname(), d.getLoginName(), d.getStatus(), d.getType(), d.getRegionId(), d.getBuiltin(), d.getCreatedTime(), d.getAvatarConfig())
         ).collect(Collectors.toList());
         this.setTotal(total);
     }
@@ -61,6 +61,9 @@ public class SystemManagerListResp extends BasePageResp {
 
         @Schema(description = "创建时间")
         private LocalDateTime createdTime;
+
+        @Schema(description = "DiceBear 头像配置 JSON")
+        private String avatarConfig;
 
     }
 

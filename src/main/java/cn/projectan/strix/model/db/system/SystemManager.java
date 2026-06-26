@@ -75,4 +75,11 @@ public class SystemManager extends BaseModel<SystemManager> {
      */
     private Short builtin;
 
+    /**
+     * DiceBear 头像配置 JSON
+     * 格式: {"style":"avataaars","seed":"xxx","options":{...}}
+     * 为 null 时前端使用管理人员 ID 作为 seed 自动生成
+     */
+    private String avatarConfig;
+
 }
