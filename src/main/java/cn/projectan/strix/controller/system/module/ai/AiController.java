@@ -662,7 +662,6 @@ public class AiController extends BaseSystemController {
             return RetBuilder.success(models);
         } catch (Exception e) {
             // 详细的 URL/状态码/异常仅记录在后端日志，不回传前端（避免内部信息泄漏 / SSRF 探测反馈）
-            log.warn("获取模型列表失败: baseUrl={}", req.getBaseUrl(), e);
             return RetBuilder.error("不兼容的 API 端点");
         }
     }
