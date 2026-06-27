@@ -81,6 +81,26 @@ public class SystemManagerService extends ServiceImpl<SystemManagerMapper, Syste
     }
 
     /**
+     * 批量查询管理人员头像配置（仅 id、avatarConfig）
+     *
+     * @param managerIds 管理人员 ID 列表
+     * @return ID -> 头像配置 JSON 映射（无配置的为 null）
+     */
+    public Map<String, String> listAvatarConfigByIds(List<String> managerIds) {
+        if (CollectionUtils.isEmpty(managerIds)) {
+            return Map.of();
+        }
+        List<SystemManager> list = lambdaQuery()
+                .select(SystemManager::getId, SystemManager::getAvatarConfig)
+                .in(SystemManager::getId, managerIds)
+                .list();
+        // 使用 HashMap 而非 Collectors.toMap，避免 avatarConfig 为 null 时抛 NPE
+        Map<String, String> result = new HashMap<>(list.size());
+        list.forEach(m -> result.put(m.getId(), m.getAvatarConfig()));
+        return result;
+    }
+
+    /**
      * 根据角色 ID 获取人员 ID 列表
      *
      * @param roleId 角色 ID

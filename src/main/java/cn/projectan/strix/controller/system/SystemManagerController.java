@@ -19,11 +19,13 @@ import cn.projectan.strix.model.request.common.BatchImportReq;
 import cn.projectan.strix.model.request.common.BatchModifyReq;
 import cn.projectan.strix.model.request.common.BatchRemoveReq;
 import cn.projectan.strix.model.request.common.SingleFieldModifyReq;
+import cn.projectan.strix.model.request.system.manager.ManagerAvatarReq;
 import cn.projectan.strix.model.request.system.manager.SystemManagerListReq;
 import cn.projectan.strix.model.request.system.manager.SystemManagerUpdateReq;
 import cn.projectan.strix.model.response.common.BatchImportResp;
 import cn.projectan.strix.model.response.common.BatchImportResp.ImportError;
 import cn.projectan.strix.model.response.common.CommonTransferDataResp;
+import cn.projectan.strix.model.response.system.manager.ManagerAvatarResp;
 import cn.projectan.strix.model.response.system.manager.SystemManagerListResp;
 import cn.projectan.strix.model.response.system.manager.SystemManagerResp;
 import cn.projectan.strix.service.system.SystemManagerRoleService;
@@ -419,6 +421,19 @@ public class SystemManagerController extends BaseSystemController {
         List<SystemManager> systemManagerList = systemManagerService.listForTransfer();
 
         return RetBuilder.success(new CommonTransferDataResp(systemManagerList, "id", "nickname", null));
+    }
+
+    /**
+     * 批量查询管理员头像配置
+     * <p>
+     * 仅需登录态（不加 @PreAuthorize），供各页面仅凭 managerId 渲染头像使用。
+     * 仅查询 id、avatarConfig 两列，主键 IN 查询，轻量。
+     */
+    @Operation(summary = "批量查询管理员头像配置")
+    @PostMapping("avatars")
+    public RetResult<ManagerAvatarResp> getAvatars(@RequestBody @Validated ManagerAvatarReq req) {
+        Map<String, String> avatars = systemManagerService.listAvatarConfigByIds(req.getIds());
+        return RetBuilder.success(new ManagerAvatarResp(avatars));
     }
 
 }
