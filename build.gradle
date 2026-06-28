@@ -119,6 +119,17 @@ dependencies {
         exclude group: 'cn.hutool', module: 'hutool-crypto'
     }
 
+    // Document Processing
+    if (System.getProperty('os.name').toLowerCase().contains('windows')) {
+        implementation files('D:/Dev/jar/aspose-cells-23.2-patch.jar')
+        implementation files('D:/Dev/jar/aspose-pdf-23.2-patch.jar')
+        implementation files('D:/Dev/jar/aspose-slides-23.1-jdk16-patch.jar')
+        implementation files('D:/Dev/jar/aspose-words-24.7-jdk17-patch.jar')
+    }
+
+    // javassist (test only)
+    testImplementation 'org.javassist:javassist:3.30.2-GA'
+
     // GraalVM
     compileOnly 'org.graalvm.sdk:graal-sdk:25.0.2'
 }
