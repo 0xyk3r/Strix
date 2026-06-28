@@ -20,6 +20,7 @@ import cn.projectan.strix.util.ip.IpUtils;
 import cn.projectan.strix.util.system.SecurityUtil;
 import cn.projectan.strix.util.ua.UserAgentUtil;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -31,9 +32,11 @@ import org.springframework.core.annotation.Order;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.multipart.MultipartFile;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.module.SimpleModule;
 
+import java.util.Arrays;
 import java.util.Map;
 
 /**
@@ -128,9 +131,15 @@ public class SystemLogAspect {
                                 objectMapper.writeValueAsString(ServletUtil.getRequestParams(request))
                         );
                     } else {
-                        systemLog.setOperationParam(
-                                objectMapper.writeValueAsString(joinPoint.getArgs())
-                        );
+                        Object[] args = Arrays.stream(joinPoint.getArgs())
+                                .filter(arg ->
+                                        !(arg instanceof MultipartFile)
+                                                && !(arg instanceof MultipartFile[])
+                                                && !(arg instanceof HttpServletRequest)
+                                                && !(arg instanceof HttpServletResponse))
+                                .toArray();
+
+                        systemLog.setOperationParam(objectMapper.writeValueAsString(args));
                     }
                 } catch (Exception ex) {
                     log.warn("Failed to serialize request params: {}", ex.getMessage());
