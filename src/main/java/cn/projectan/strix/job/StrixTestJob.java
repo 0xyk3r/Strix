@@ -43,7 +43,8 @@ public class StrixTestJob {
     public boolean testCheckSystemManager() {
         String loginManagerName = Optional.ofNullable(SecurityUtil.getSystemManager()).map(SystemManager::getNickname).orElse(null);
         log.info("Do job: `StrixTestJob.testCheckSystemManager` {}", loginManagerName);
-        return "anjiongyi".equals(loginManagerName);
+
+        return System.currentTimeMillis() / 1000 % 2 == 1;
     }
 
 }

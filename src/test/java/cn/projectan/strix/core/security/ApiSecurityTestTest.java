@@ -38,8 +38,8 @@ class ApiSecurityTestTest {
         map.put("_requestUrl", "/v1/login");
         map.put("_timestamp", timestamp);
         // 参数
-        map.put("loginName", "anjiongyi");
-        map.put("loginPass", "An1212");
+        map.put("loginName", "admin");
+        map.put("loginPass", "admin");
 
         System.out.println("===============TIMESTAMP===============");
         System.out.println(timestamp);
