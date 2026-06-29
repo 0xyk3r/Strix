@@ -251,8 +251,9 @@ public class AiAsrWebSocketHandler extends AbstractWebSocketHandler {
         RealtimeAsrSession asrSession = pending.provider().open(config, merged, new AsrResultListener() {
             @Override
             public void onTranscript(AsrTranscript result) {
-                log.info("asr-realtime 收到识别结果: final={}, text={}, emotion={}",
-                        result.isFinal(), result.text(), result.emotion());
+                // 诊断用：itemId + final 用于对照上游事件流，定位「串句/旧句不封口」问题
+                log.debug("asr-realtime 收到识别结果: itemId={}, final={}, text={}, emotion={}",
+                        result.itemId(), result.isFinal(), result.text(), result.emotion());
                 sendToClient(session, buildTranscriptJson(result));
             }
 
@@ -279,6 +280,10 @@ public class AiAsrWebSocketHandler extends AbstractWebSocketHandler {
                 .set("itemId", t.itemId())
                 .set("text", t.text())
                 .set("final", t.isFinal());
+        // 模型撤回该句（noise/音乐误识别后的空 transcript 修正）：通知前端移除已展示的该句
+        if (t.removed()) {
+            obj.set("removed", true);
+        }
         if (StringUtils.hasText(t.emotion())) {
             obj.set("emotion", t.emotion());
         }

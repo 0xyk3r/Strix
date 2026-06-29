@@ -96,6 +96,16 @@ public class DashScopeQwenRealtimeAsrProvider implements RealtimeAsrProvider {
          * 就绪前最多缓存的音频帧数（约 100ms/帧），防止异常情况下无限增长
          */
         private static final int MAX_PENDING_FRAMES = 200;
+        /**
+         * 已下发过中间结果的句子 itemId 集合。用于上游 completed 返回空 transcript 时区分两种情况：
+         * <ul>
+         *   <li>该句此前有过中间结果（噪声/音乐误触发）→ 空 transcript 是模型对误识别的「修正/撤回」，
+         *       下发空文本 final 通知前端移除该句；</li>
+         *   <li>该句从无中间结果（纯静音/噪声，前端本就无此句）→ 跳过，不产生任何下发。</li>
+         * </ul>
+         * 仅下行回调线程访问（okhttp 单线程串行），用普通 HashSet 即可。
+         */
+        private final java.util.Set<String> shownItemIds = new java.util.HashSet<>();
 
         QwenRealtimeSession(AiModelConfig config, AsrResultListener listener) {
             this.config = config;
@@ -202,25 +212,41 @@ public class DashScopeQwenRealtimeAsrProvider implements RealtimeAsrProvider {
                 } else if ("conversation.item.input_audio_transcription.text".equals(type)) {
                     // 中间结果：text=已确认文本，stash=未确认尾部，拼接为当前轮的实时展示（替换式，非追加）
                     String partial = data.getStr("text", "") + data.getStr("stash", "");
+                    // 诊断用：观察中间结果的 item_id 是否稳定/缺失/跨句复用，定位串句问题
+                    log.debug("qwen-asr-realtime 中间结果: itemId={}, partial='{}'", data.getStr("item_id"), partial);
                     if (!partial.isEmpty()) {
+                        String itemId = data.getStr("item_id");
+                        // 记录该句已下发，供 completed 返回空 transcript 时判断是否需要通知前端移除
+                        if (itemId != null) {
+                            shownItemIds.add(itemId);
+                        }
                         // 顶层 item_id 标识当前句，emotion/language 为该句的情绪与语种（Qwen-ASR 固定返回）
                         String emo = data.getStr("emotion");
                         listener.onTranscript(new AsrTranscript(
-                                data.getStr("item_id"), partial, false,
+                                itemId, partial, false,
                                 emo, emo != null ? "qwen7" : null, null,
                                 data.getStr("language"), null, null, null));
                     }
                 } else if ("conversation.item.input_audio_transcription.completed".equals(type)) {
                     // 最终结果：transcript 为该轮完整文本（含标点）
                     String transcript = data.getStr("transcript", "");
-                    log.info("qwen-asr-realtime 最终结果: transcript='{}'", transcript); // 诊断用，可下调级别
+                    String itemId = data.getStr("item_id");
+                    // 诊断用（可下调级别）：itemId 与中间结果对照可定位「撤回/串句」问题
+                    log.info("qwen-asr-realtime 最终结果: itemId={}, transcript='{}'", itemId, transcript);
+                    boolean shown = itemId != null && shownItemIds.remove(itemId);
                     if (!transcript.isEmpty()) {
+                        // 正常最终结果：下发整句 final
                         String emoFinal = data.getStr("emotion");
                         listener.onTranscript(new AsrTranscript(
-                                data.getStr("item_id"), transcript, true,
+                                itemId, transcript, true,
                                 emoFinal, emoFinal != null ? "qwen7" : null, null,
                                 data.getStr("language"), null, null, null));
+                    } else if (shown) {
+                        // 空 transcript 且该句已展示过：模型对噪声/音乐误识别的「修正/撤回」，
+                        // 通知前端移除此前展示的该句（而非保留误识别文本，也非停留在「识别中」）。
+                        listener.onTranscript(AsrTranscript.removed(itemId));
                     }
+                    // 空 transcript 且从未展示过（纯静音/噪声）：前端本就无此句，跳过不下发。
                 } else if ("session.finished".equals(type)) {
                     // 会话正常结束（通常由客户端 session.finish 触发）
                     listener.onCompleted();
@@ -231,7 +257,7 @@ public class DashScopeQwenRealtimeAsrProvider implements RealtimeAsrProvider {
                     log.warn("qwen-asr-realtime 错误事件: {}", text); // 诊断用
                     listener.onError(msg);
                 } else {
-                    log.info("qwen-asr-realtime 未处理事件: type={}, raw={}", type, text); // 诊断用：捕获 response.* 等事件原文
+                    log.debug("qwen-asr-realtime 未处理事件: type={}, raw={}", type, text); // 诊断用：捕获 response.* 等事件原文
                 }
             } catch (Exception e) {
                 log.error("解析 qwen-asr-realtime 消息出错", e);

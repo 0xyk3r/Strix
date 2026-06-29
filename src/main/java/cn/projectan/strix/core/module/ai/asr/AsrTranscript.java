@@ -18,6 +18,8 @@ import java.util.List;
  * @param beginTime         句级开始时间(ms)；不支持时间戳的平台（Qwen）为 {@code null}
  * @param endTime           句级结束时间(ms)；中间结果可能为 {@code null}
  * @param words             字级时间戳数组；不支持的平台（Qwen）为 {@code null}
+ * @param removed           该句被上游「撤回/修正」：模型对噪声/音乐的误识别先给了中间结果，断句时返回空 transcript
+ *                          表示作废。为 {@code true} 时前端应移除此前按 itemId 展示的该句（区别于正常空结果的跳过）
  * @author ProjectAn
  * @since 2026-06-19
  */
@@ -31,6 +33,22 @@ public record AsrTranscript(
         String language,
         Long beginTime,
         Long endTime,
-        List<AsrWord> words
+        List<AsrWord> words,
+        boolean removed
 ) {
+
+    /**
+     * 便捷构造器：removed 默认 false（绝大多数正常转写结果）。保持既有 10 参调用点零改动。
+     */
+    public AsrTranscript(String itemId, String text, boolean isFinal, String emotion, String emotionScheme,
+                         Double emotionConfidence, String language, Long beginTime, Long endTime, List<AsrWord> words) {
+        this(itemId, text, isFinal, emotion, emotionScheme, emotionConfidence, language, beginTime, endTime, words, false);
+    }
+
+    /**
+     * 构造一条「撤回该句」信号：isFinal=true、removed=true、文本为空，仅携带 itemId 供前端定位移除。
+     */
+    public static AsrTranscript removed(String itemId) {
+        return new AsrTranscript(itemId, "", true, null, null, null, null, null, null, null, true);
+    }
 }
