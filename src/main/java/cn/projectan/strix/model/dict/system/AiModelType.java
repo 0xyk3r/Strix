@@ -57,8 +57,15 @@ public class AiModelType implements BaseDict {
     public static final
     short ASR = 6;
 
+    /**
+     * 实时语音翻译 LiveTranslate（WebSocket 流式，实时同声传译）
+     */
+    @DictData(label = "实时语音翻译", sort = 7, style = DictDataStyle.INFO)
+    public static final
+    short LIVE_TRANSLATE = 7;
+
     public static boolean valid(short value) {
-        return value == TEXT || value == VISION || value == TTS || value == STT || value == IMAGE_GEN || value == ASR;
+        return value == TEXT || value == VISION || value == TTS || value == STT || value == IMAGE_GEN || value == ASR || value == LIVE_TRANSLATE;
     }
 
 }

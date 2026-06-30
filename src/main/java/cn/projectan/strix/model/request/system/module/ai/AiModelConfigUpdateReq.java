@@ -36,10 +36,10 @@ public class AiModelConfigUpdateReq {
      *
      * @see cn.projectan.strix.model.dict.system.AiModelType
      */
-    @Schema(description = "模型类型：1=TEXT 2=VISION 3=TTS 4=STT(离线) 5=IMAGE_GEN 6=ASR(实时)", example = "1")
+    @Schema(description = "模型类型：1=TEXT 2=VISION 3=TTS 4=STT(离线) 5=IMAGE_GEN 6=ASR(实时) 7=实时语音翻译", example = "1")
     @NotNull(groups = {InsertGroup.class, UpdateGroup.class}, message = "模型类型不能为空")
     @Min(groups = {InsertGroup.class, UpdateGroup.class}, value = 1, message = "模型类型不合法")
-    @Max(groups = {InsertGroup.class, UpdateGroup.class}, value = 6, message = "模型类型不合法")
+    @Max(groups = {InsertGroup.class, UpdateGroup.class}, value = 7, message = "模型类型不合法")
     @UpdateField
     private Short type;
 
@@ -237,6 +237,11 @@ public class AiModelConfigUpdateReq {
     @Size(groups = {InsertGroup.class, UpdateGroup.class}, max = 2048, message = "TTS 参数过长")
     @UpdateField(allowEmpty = true)
     private String ttsParams;
+
+    @Schema(description = "实时语音翻译默认参数（JSON 文本，LiveTranslate 专用）")
+    @Size(groups = {InsertGroup.class, UpdateGroup.class}, max = 2048, message = "LiveTranslate 参数过长")
+    @UpdateField(allowEmpty = true)
+    private String liveTranslateParams;
 
     @Schema(description = "配置状态：0=禁用 1=启用", example = "1")
     @UpdateField(allowEmpty = true)

@@ -1,9 +1,11 @@
 package cn.projectan.strix.websocket.config;
 
 import cn.projectan.strix.websocket.handler.AiAsrWebSocketHandler;
+import cn.projectan.strix.websocket.handler.AiLiveTranslateWebSocketHandler;
 import cn.projectan.strix.websocket.handler.AiTtsWebSocketHandler;
 import cn.projectan.strix.websocket.handler.ChatWebSocketHandler;
 import cn.projectan.strix.websocket.interceptor.AiAsrHandshakeInterceptor;
+import cn.projectan.strix.websocket.interceptor.AiLiveTranslateHandshakeInterceptor;
 import cn.projectan.strix.websocket.interceptor.AiTtsHandshakeInterceptor;
 import cn.projectan.strix.websocket.interceptor.ChatWebSocketHandshakeInterceptor;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +31,8 @@ public class WebSocketConfig implements WebSocketConfigurer {
     private final AiAsrHandshakeInterceptor aiAsrHandshakeInterceptor;
     private final AiTtsWebSocketHandler aiTtsWebSocketHandler;
     private final AiTtsHandshakeInterceptor aiTtsHandshakeInterceptor;
+    private final AiLiveTranslateWebSocketHandler aiLiveTranslateWebSocketHandler;
+    private final AiLiveTranslateHandshakeInterceptor aiLiveTranslateHandshakeInterceptor;
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
@@ -42,6 +46,10 @@ public class WebSocketConfig implements WebSocketConfigurer {
 
         registry.addHandler(aiTtsWebSocketHandler, "/ws/ai/tts")
                 .addInterceptors(aiTtsHandshakeInterceptor)
+                .setAllowedOrigins("*");
+
+        registry.addHandler(aiLiveTranslateWebSocketHandler, "/ws/ai/live-translate")
+                .addInterceptors(aiLiveTranslateHandshakeInterceptor)
                 .setAllowedOrigins("*");
     }
 
