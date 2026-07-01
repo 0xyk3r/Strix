@@ -1,11 +1,12 @@
 package cn.projectan.strix.core.module.ai.provider;
 
+import cn.projectan.strix.core.module.ai.AiJson;
 import cn.projectan.strix.model.db.system.AiModelConfig;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StringUtils;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 import java.util.List;
 import java.util.Map;
@@ -22,7 +23,7 @@ import java.util.Map;
 @Slf4j
 public abstract class BaseOpenAICompatAdapter implements AiProviderAdapter {
 
-    protected static final ObjectMapper MAPPER = new ObjectMapper();
+    protected static final ObjectMapper MAPPER = AiJson.mapper();
 
     @Override
     public void applyStreamingParams(Map<String, Object> body, AiModelConfig config) {

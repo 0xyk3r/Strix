@@ -1,5 +1,6 @@
 package cn.projectan.strix.controller.system.module.ai;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.projectan.strix.controller.system.base.BaseSystemController;
 import cn.projectan.strix.core.module.ai.AiChatClient;
 import cn.projectan.strix.core.module.ai.AiModelStore;
@@ -82,29 +83,11 @@ public class AiModelConfigController extends BaseSystemController {
     @StrixLog(operationGroup = "AI 模型配置", operationName = "新增配置", operationType = SystemLogOperType.ADD)
     @Operation(summary = "新增 AI 模型配置")
     public RetResult<Void> add(@RequestBody @Validated(cn.projectan.strix.core.validation.group.InsertGroup.class) AiModelConfigUpdateReq req) {
-        AiModelConfig config = new AiModelConfig()
-                .setKey(req.getKey())
-                .setName(req.getName())
-                .setType(req.getType())
-                .setBaseUrl(req.getBaseUrl())
-                .setApiKey(req.getApiKey())
-                .setModelName(req.getModelName())
-                .setTemperature(req.getTemperature())
-                .setTopP(req.getTopP())
-                .setMaxTokens(req.getMaxTokens())
-                .setSystemPrompt(req.getSystemPrompt())
-                .setEnableThinking(req.getEnableThinking())
-                .setThinkingBudget(req.getThinkingBudget())
-                .setEnableCodeInterpreter(req.getEnableCodeInterpreter())
-                .setEnableSearch(req.getEnableSearch())
-                .setSearchStrategy(req.getSearchStrategy())
-                .setEnableSource(req.getEnableSource())
-                .setVoice(req.getVoice())
-                .setSpeed(req.getSpeed())
-                .setResponseFormat(req.getResponseFormat())
-                .setLanguage(req.getLanguage())
-                .setStatus(req.getStatus() != null ? req.getStatus() : 1)
-                .setRemark(req.getRemark());
+        // 用 Bean 拷贝同名字段，避免手工列举导致新增时丢失字段（与 update 行为保持一致）
+        AiModelConfig config = new AiModelConfig();
+        BeanUtil.copyProperties(req, config);
+        // status 缺省时默认启用
+        config.setStatus(req.getStatus() != null ? req.getStatus() : (short) 1);
 
         UniqueChecker.check(config);
         Assert.isTrue(aiModelConfigService.save(config), "保存失败");

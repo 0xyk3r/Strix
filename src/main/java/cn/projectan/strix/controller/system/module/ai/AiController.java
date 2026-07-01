@@ -2,7 +2,6 @@ package cn.projectan.strix.controller.system.module.ai;
 
 import cn.projectan.strix.controller.system.base.BaseSystemController;
 import cn.projectan.strix.core.module.ai.AiFilePreviewSigner;
-import cn.projectan.strix.core.module.ai.AiModelStore;
 import cn.projectan.strix.core.module.ai.tts.TtsAudioListener;
 import cn.projectan.strix.core.ret.RetBuilder;
 import cn.projectan.strix.core.ret.RetResult;
@@ -61,7 +60,6 @@ public class AiController extends BaseSystemController {
     private final AiSessionService aiSessionService;
     private final AiMessageService aiMessageService;
     private final AiModelConfigService aiModelConfigService;
-    private final AiModelStore aiModelStore;
     private final AiTaskService aiTaskService;
     private final AiTtsVoiceService aiTtsVoiceService;
     private final AiFilePreviewSigner aiFilePreviewSigner;
@@ -309,6 +307,46 @@ public class AiController extends BaseSystemController {
         );
 
         return emitter;
+    }
+
+    /**
+     * 重新挂接到进行中的生成（重连续播，SSE 流式）
+     * <p>
+     * 用于刷新页面 / 切换会话后重新回到会话时，续接仍在后台进行的 AI 生成：
+     * <ul>
+     *   <li>命中进行中的生成：先下发 {@code snapshot}（已生成的全量思考+正文），再继续推送 {@code content}/{@code thinking} 增量，直至 {@code done}/{@code error}</li>
+     *   <li>无进行中的生成（已完成/出错/从未开始）：立即结束连接，客户端走历史消息接口兜底</li>
+     * </ul>
+     * GET 无请求体，故不加密；仅回放明文流。
+     */
+    @IgnoreEncryption
+    @GetMapping(value = "chat/{sessionId}/stream/attach", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @PreAuthorize("@ss.hasPermission('system:ai:chat')")
+    @Operation(summary = "重新挂接进行中的 AI 生成（SSE 续播）")
+    public SseEmitter attachStream(
+            @Parameter(description = "会话 ID") @PathVariable String sessionId) {
+
+        SseEmitter emitter = new SseEmitter(180_000L);
+        String managerId = loginManagerId();
+
+        mvcAsyncExecutor.execute(() ->
+                aiService.attachStream(sessionId, emitter, managerId)
+        );
+
+        return emitter;
+    }
+
+    /**
+     * 停止进行中的 AI 生成
+     * <p>用户主动点击停止：中止上游流并把已生成部分落库（标记完成），订阅者会收到 {@code done}。</p>
+     */
+    @PostMapping("chat/{sessionId}/stop")
+    @PreAuthorize("@ss.hasPermission('system:ai:chat')")
+    @Operation(summary = "停止进行中的 AI 生成")
+    public RetResult<Void> stopGeneration(
+            @Parameter(description = "会话 ID") @PathVariable String sessionId) {
+        aiService.stopGeneration(sessionId, loginManagerId());
+        return RetBuilder.success();
     }
 
     // ============================================================

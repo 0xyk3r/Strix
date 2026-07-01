@@ -22,6 +22,11 @@ public final class AiSseEvent {
     public static final String CONTENT = "content";
 
     /**
+     * 快照（重连续播时首帧下发已生成的全量思考 + 正文，供客户端回放）
+     */
+    public static final String SNAPSHOT = "snapshot";
+
+    /**
      * 流式完成
      */
     public static final String DONE = "done";

@@ -63,6 +63,13 @@ strix:
   # AI 文件预览签名密钥
   ai:
     preview-sign-secret: strix-ai-file-preview
+    # AI HTTP 客户端超时（秒）。深度思考 + 长输出模型需较长读超时
+    http:
+      connect-timeout-seconds: 30
+      read-timeout-seconds: 300
+      write-timeout-seconds: 30
+    # 对话上下文加载的历史消息条数上限
+    context-message-limit: 20
   # strix 模块开关
   module:
     sms: true

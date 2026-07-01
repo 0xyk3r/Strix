@@ -1,7 +1,7 @@
 package cn.projectan.strix.core.module.ai.provider;
 
 import cn.projectan.strix.model.db.system.AiModelConfig;
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 
 import java.util.Map;
 

@@ -2,6 +2,8 @@ package cn.projectan.strix.service.system;
 
 import cn.projectan.strix.core.module.ai.AiAttachmentResolver;
 import cn.projectan.strix.core.module.ai.AiChatClient;
+import cn.projectan.strix.core.module.ai.AiJson;
+import cn.projectan.strix.core.module.ai.AiStreamRegistry;
 import cn.projectan.strix.core.module.ai.provider.AiProviderAdapter;
 import cn.projectan.strix.core.module.ai.provider.AiProviderRegistry;
 import cn.projectan.strix.core.module.ai.provider.AiUsageDetail;
@@ -11,14 +13,14 @@ import cn.projectan.strix.model.db.system.AiSession;
 import cn.projectan.strix.model.dict.system.AiMessageStatus;
 import cn.projectan.strix.model.request.system.module.ai.AiAttachment;
 import cn.projectan.strix.model.response.system.ai.AiSseEvent;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 import java.util.*;
@@ -43,7 +45,7 @@ import java.util.*;
 @RequiredArgsConstructor
 public class AiService {
 
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    private static final ObjectMapper OBJECT_MAPPER = AiJson.mapper();
 
     private final AiAttachmentResolver aiAttachmentResolver;
     private final AiChatClient aiChatClient;
@@ -51,6 +53,7 @@ public class AiService {
     private final AiModelConfigService aiModelConfigService;
     private final AiSessionService aiSessionService;
     private final AiMessageService aiMessageService;
+    private final AiStreamRegistry aiStreamRegistry;
 
     // ============================================================
     //  流式在线对话（SSE）
@@ -85,6 +88,12 @@ public class AiService {
         AiModelConfig config = aiModelConfigService.getById(session.getModelConfigId());
         if (config == null || config.getStatus() == null || config.getStatus() != 1) {
             sendSseError(emitter, "AI 模型配置不可用");
+            return;
+        }
+
+        // 并发保护：同一会话已有进行中的生成时拒绝（前端 streaming 互斥的服务端兜底）
+        if (aiStreamRegistry.get(sessionId) != null) {
+            sendSseError(emitter, "当前会话正在生成回复，请稍候");
             return;
         }
 
@@ -123,7 +132,17 @@ public class AiService {
         AiProviderAdapter adapter = providerRegistry.getAdapter(config);
         adapter.applyStreamingParams(body, config);
 
-        runStreaming(config, body, adapter, assistantMsg.getId(), userMsg.getId(), emitter, startTime, sessionId);
+        // 注册进行中的生成：生成过程与客户端连接解耦，emitter 仅作为首个订阅者
+        AiStreamRegistry.ActiveGeneration generation =
+                aiStreamRegistry.start(sessionId, assistantMsg.getId(), userMsg.getId(), emitter);
+        if (generation == null) {
+            // 极小概率：并发竞态下 putIfAbsent 落败。回滚占位消息并提示
+            aiMessageService.removeById(assistantMsg.getId());
+            sendSseError(emitter, "当前会话正在生成回复，请稍候");
+            return;
+        }
+
+        runStreaming(config, body, adapter, generation, startTime, sessionId);
     }
 
     /**
@@ -144,6 +163,12 @@ public class AiService {
         AiModelConfig config = aiModelConfigService.getById(session.getModelConfigId());
         if (config == null || config.getStatus() == null || config.getStatus() != 1) {
             sendSseError(emitter, "AI 模型配置不可用");
+            return;
+        }
+
+        // 并发保护：同一会话已有进行中的生成时拒绝
+        if (aiStreamRegistry.get(sessionId) != null) {
+            sendSseError(emitter, "当前会话正在生成回复，请稍候");
             return;
         }
 
@@ -196,21 +221,38 @@ public class AiService {
         AiProviderAdapter adapter = providerRegistry.getAdapter(config);
         adapter.applyStreamingParams(body, config);
 
-        runStreaming(config, body, adapter, assistantMsg.getId(), null, emitter, startTime, sessionId);
+        // 注册进行中的生成：重新生成场景 userMsgId 为 null（不新建 user 消息）
+        AiStreamRegistry.ActiveGeneration generation =
+                aiStreamRegistry.start(sessionId, assistantMsg.getId(), null, emitter);
+        if (generation == null) {
+            aiMessageService.removeById(assistantMsg.getId());
+            sendSseError(emitter, "当前会话正在生成回复，请稍候");
+            return;
+        }
+
+        runStreaming(config, body, adapter, generation, startTime, sessionId);
     }
 
     /**
-     * 统一流式执行（单一 OkHttp 路径，同时处理纯文本和多模态）
+     * 统一流式执行（单一 OkHttp 路径，同时处理纯文本和多模态）。
+     * <p>
+     * 生成过程通过 {@link AiStreamRegistry.ActiveGeneration} 向所有订阅者广播增量，与客户端连接解耦：
+     * 单个订阅者断开只是观众离场，上游流始终跑完并落库。仅当用户显式点击停止（{@code isStopRequested}）
+     * 时才主动中止上游流并把已生成部分落库。
      */
     private void runStreaming(AiModelConfig config, Map<String, Object> body, AiProviderAdapter adapter,
-                              String assistantMsgId, String userMsgId,
-                              SseEmitter emitter, long startTime, String sessionId) {
-        StringBuilder fullContent = new StringBuilder();
-        StringBuilder thinkingContent = new StringBuilder();
+                              AiStreamRegistry.ActiveGeneration generation, long startTime, String sessionId) {
+        String assistantMsgId = generation.getAssistantMsgId();
+        String userMsgId = generation.getUserMsgId();
         AiUsageDetail[] usageHolder = {AiUsageDetail.EMPTY};
 
         try {
             aiChatClient.streamChat(config.getBaseUrl(), config.getApiKey(), body, chunk -> {
+                // 用户主动停止：抛出以中断上游流读取（此处不因单个客户端断开而中止）
+                if (generation.isStopRequested()) {
+                    throw new IOException("用户已停止生成，中止上游流");
+                }
+
                 JsonNode usageNode = chunk.get("usage");
                 if (usageNode != null && !usageNode.isNull()) {
                     usageHolder[0] = adapter.parseUsage(usageNode);
@@ -224,16 +266,14 @@ public class AiService {
 
                 String thinkingDelta = adapter.extractReasoningContent(delta);
                 if (StringUtils.hasText(thinkingDelta)) {
-                    thinkingContent.append(thinkingDelta);
-                    sendSseEvent(emitter, AiSseEvent.THINKING, Map.of("content", thinkingDelta));
+                    generation.appendThinking(thinkingDelta);
                 }
 
                 JsonNode contentNode = delta.get("content");
                 if (contentNode != null && !contentNode.isNull()) {
-                    String contentDelta = contentNode.asText("");
+                    String contentDelta = contentNode.asString("");
                     if (!contentDelta.isEmpty()) {
-                        fullContent.append(contentDelta);
-                        sendSseEvent(emitter, AiSseEvent.CONTENT, Map.of("content", contentDelta));
+                        generation.appendContent(contentDelta);
                     }
                 }
             });
@@ -242,8 +282,8 @@ public class AiService {
             Long durationMs = System.currentTimeMillis() - startTime;
 
             aiMessageService.markCompleted(assistantMsgId,
-                    fullContent.toString(),
-                    thinkingContent.isEmpty() ? null : thinkingContent.toString(),
+                    generation.currentContent(),
+                    generation.currentThinking().isEmpty() ? null : generation.currentThinking(),
                     usage.promptTokens(), usage.completionTokens(),
                     usage.cacheHitTokens(), usage.cacheWriteTokens(), usage.reasoningTokens(),
                     config.getId(), durationMs);
@@ -258,14 +298,95 @@ public class AiService {
             if (usage.cacheHitTokens() != null) doneData.put("cacheHitTokens", usage.cacheHitTokens());
             if (usage.cacheWriteTokens() != null) doneData.put("cacheWriteTokens", usage.cacheWriteTokens());
             if (usage.reasoningTokens() != null) doneData.put("reasoningTokens", usage.reasoningTokens());
-            sendSseEvent(emitter, AiSseEvent.DONE, doneData);
-            emitter.complete();
+            generation.finish(AiSseEvent.DONE, doneData);
 
         } catch (Exception e) {
+            // 用户主动停止：已消费的内容落库（标记完成），并向订阅者发 done（携带已有统计）
+            if (generation.isStopRequested()) {
+                log.debug("AI 流式被用户停止: sessionId={}, 已中止上游流", sessionId);
+                AiUsageDetail usage = usageHolder[0];
+                aiMessageService.markCompleted(assistantMsgId,
+                        generation.currentContent(),
+                        generation.currentThinking().isEmpty() ? null : generation.currentThinking(),
+                        usage.promptTokens(), usage.completionTokens(),
+                        usage.cacheHitTokens(), usage.cacheWriteTokens(), usage.reasoningTokens(),
+                        config.getId(), System.currentTimeMillis() - startTime);
+                Map<String, Object> doneData = new HashMap<>();
+                doneData.put("messageId", assistantMsgId);
+                if (userMsgId != null) doneData.put("userMessageId", userMsgId);
+                doneData.put("modelConfigId", config.getId());
+                doneData.put("modelConfigName", config.getName());
+                if (usage.promptTokens() != null) doneData.put("promptTokens", usage.promptTokens());
+                if (usage.completionTokens() != null) doneData.put("completionTokens", usage.completionTokens());
+                if (usage.cacheHitTokens() != null) doneData.put("cacheHitTokens", usage.cacheHitTokens());
+                if (usage.cacheWriteTokens() != null) doneData.put("cacheWriteTokens", usage.cacheWriteTokens());
+                if (usage.reasoningTokens() != null) doneData.put("reasoningTokens", usage.reasoningTokens());
+                generation.finish(AiSseEvent.DONE, doneData);
+                return;
+            }
             log.error("AI 流式调用出错: sessionId={}", sessionId, e);
             aiMessageService.markError(assistantMsgId, e.getMessage());
-            sendSseError(emitter, "AI 调用出错: " + e.getMessage());
+            generation.finish(AiSseEvent.ERROR, Map.of("message", "AI 调用出错: " + e.getMessage()));
+        } finally {
+            // 无论成功/出错/停止，都从注册表移除（终态已通过 finish 广播）
+            aiStreamRegistry.remove(sessionId);
         }
+    }
+
+    /**
+     * 重新挂接到会话进行中的生成（重连续播）。应在虚拟线程中调用。
+     * <p>
+     * 命中进行中的生成时：先回放已生成的全量快照（snapshot 事件），emitter 加入订阅列表继续接收增量；
+     * 未命中（生成已完成 / 出错 / 从未开始）时：直接 complete，客户端应走历史消息接口兜底获取最终结果。
+     *
+     * @param sessionId 会话 ID
+     * @param emitter   新的 SSE 连接
+     * @param managerId 当前管理员 ID
+     */
+    public void attachStream(String sessionId, SseEmitter emitter, String managerId) {
+        AiSession session = aiSessionService.getById(sessionId);
+        if (session == null || !session.getManagerId().equals(managerId)) {
+            sendSseError(emitter, "会话不存在或无权限");
+            return;
+        }
+
+        AiStreamRegistry.ActiveGeneration generation = aiStreamRegistry.get(sessionId);
+        if (generation == null) {
+            // 无进行中的生成：直接结束，客户端走历史消息兜底
+            emitter.complete();
+            return;
+        }
+        // 断开时主动从订阅列表移除该 emitter（否则仅在下次广播时惰性清理）
+        emitter.onError(e -> generation.unsubscribe(emitter));
+        emitter.onTimeout(() -> generation.unsubscribe(emitter));
+        emitter.onCompletion(() -> generation.unsubscribe(emitter));
+        if (!generation.subscribe(emitter)) {
+            // 恰好在挂接瞬间生成已结束：直接结束，客户端走历史消息兜底
+            emitter.complete();
+        }
+        // 挂接成功后无需在此循环等待：后台生成线程会持续向订阅者广播，并在终态时 finish/complete
+    }
+
+    /**
+     * 用户主动停止会话进行中的生成。
+     * <p>
+     * 置位停止标记，后台生成线程会在下一个上游 chunk 处中止上游流，把已生成部分落库并向订阅者广播 done。
+     *
+     * @param sessionId 会话 ID
+     * @param managerId 当前管理员 ID
+     * @return true=已请求停止；false=该会话当前无进行中的生成
+     */
+    public boolean stopGeneration(String sessionId, String managerId) {
+        AiSession session = aiSessionService.getById(sessionId);
+        if (session == null || !session.getManagerId().equals(managerId)) {
+            return false;
+        }
+        AiStreamRegistry.ActiveGeneration generation = aiStreamRegistry.get(sessionId);
+        if (generation == null) {
+            return false;
+        }
+        generation.requestStop();
+        return true;
     }
 
     // ============================================================
@@ -290,7 +411,7 @@ public class AiService {
 
         try {
             JsonNode response = aiChatClient.chat(config.getBaseUrl(), config.getApiKey(), body);
-            return response.at("/choices/0/message/content").asText("");
+            return response.at("/choices/0/message/content").asString("");
         } catch (IOException e) {
             throw new RuntimeException("AI 调用失败: " + e.getMessage(), e);
         }
@@ -345,7 +466,7 @@ public class AiService {
         if (StringUtils.hasText(config.getSystemPrompt())) {
             messages.add(Map.of("role", "system", "content", config.getSystemPrompt()));
         }
-        messages.add(Map.of("role", "user", "content", (Object) contentParts));
+        messages.add(Map.of("role", "user", "content", contentParts));
 
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("model", config.getModelName());
@@ -354,7 +475,7 @@ public class AiService {
 
         try {
             JsonNode response = aiChatClient.chat(config.getBaseUrl(), config.getApiKey(), body);
-            return response.at("/choices/0/message/content").asText("");
+            return response.at("/choices/0/message/content").asString("");
         } catch (IOException e) {
             throw new RuntimeException("AI 媒体分析失败: " + e.getMessage(), e);
         }
@@ -384,8 +505,11 @@ public class AiService {
 
         for (AiMessage msg : contextHistory) {
             if ("user".equals(msg.getRole())) {
-                messages.add(Map.of("role", "user",
-                        "content", msg.getContent() != null ? msg.getContent() : ""));
+                // 重建历史 user 消息的多模态附件：多轮对话中后续追问需保留此前上传的图片/视频/音频，
+                // 否则模型上下文丢失前几轮的媒体，追问必然答非所问。
+                List<AiAttachmentResolver.ResolvedAttachment> historyAtts =
+                        aiAttachmentResolver.resolve(parseAiAttachmentsJson(msg.getAttachments()));
+                messages.add(buildUserMessage(msg.getContent(), historyAtts));
             } else if ("assistant".equals(msg.getRole())) {
                 Map<String, Object> assistantMsg = new LinkedHashMap<>();
                 assistantMsg.put("role", "assistant");
@@ -394,32 +518,39 @@ public class AiService {
             }
         }
 
-        if (resolvedAttachments != null && !resolvedAttachments.isEmpty()) {
-            List<Map<String, Object>> parts = new ArrayList<>();
-            if (StringUtils.hasText(currentContent)) {
-                parts.add(Map.of("type", "text", "text", currentContent));
-            }
-            for (AiAttachmentResolver.ResolvedAttachment att : resolvedAttachments) {
-                switch (att.getType()) {
-                    case "image" -> parts.add(Map.of("type", "image_url",
-                            "image_url", Map.of("url", att.getDataUrl())));
-                    case "video" -> parts.add(Map.of("type", "video_url",
-                            "video_url", Map.of("url", att.getDataUrl())));
-                    case "audio" -> {
-                        Map<String, Object> audioData = new LinkedHashMap<>();
-                        audioData.put("data", att.getDataUrl());
-                        if (att.getFormat() != null) audioData.put("format", att.getFormat());
-                        parts.add(Map.of("type", "input_audio", "input_audio", audioData));
-                    }
-                }
-            }
-            messages.add(Map.of("role", "user", "content", (Object) parts));
-        } else {
-            messages.add(Map.of("role", "user",
-                    "content", currentContent != null ? currentContent : ""));
-        }
+        messages.add(buildUserMessage(currentContent, resolvedAttachments));
 
         return messages;
+    }
+
+    /**
+     * 构造单条 user 消息：无附件时为纯文本 content，有附件时为多模态 parts 数组。
+     * 历史轮与当前轮共用，保证多轮多模态上下文一致。
+     */
+    private Map<String, Object> buildUserMessage(String content,
+                                                 List<AiAttachmentResolver.ResolvedAttachment> resolvedAttachments) {
+        if (resolvedAttachments == null || resolvedAttachments.isEmpty()) {
+            return Map.of("role", "user", "content", content != null ? content : "");
+        }
+        List<Map<String, Object>> parts = new ArrayList<>();
+        if (StringUtils.hasText(content)) {
+            parts.add(Map.of("type", "text", "text", content));
+        }
+        for (AiAttachmentResolver.ResolvedAttachment att : resolvedAttachments) {
+            switch (att.getType()) {
+                case "image" -> parts.add(Map.of("type", "image_url",
+                        "image_url", Map.of("url", att.getDataUrl())));
+                case "video" -> parts.add(Map.of("type", "video_url",
+                        "video_url", Map.of("url", att.getDataUrl())));
+                case "audio" -> {
+                    Map<String, Object> audioData = new LinkedHashMap<>();
+                    audioData.put("data", att.getDataUrl());
+                    if (att.getFormat() != null) audioData.put("format", att.getFormat());
+                    parts.add(Map.of("type", "input_audio", "input_audio", audioData));
+                }
+            }
+        }
+        return Map.of("role", "user", "content", parts);
     }
 
     private String attachmentsToJson(List<AiAttachment> attachments) {
@@ -435,7 +566,7 @@ public class AiService {
     private List<AiAttachment> parseAiAttachmentsJson(String json) {
         if (!StringUtils.hasText(json)) return null;
         try {
-            return OBJECT_MAPPER.readValue(json, new TypeReference<List<AiAttachment>>() {
+            return OBJECT_MAPPER.readValue(json, new TypeReference<>() {
             });
         } catch (Exception e) {
             log.warn("解析附件 JSON 失败: {}", json, e);
@@ -504,8 +635,8 @@ public class AiService {
             JsonNode response = aiChatClient.fim(config.getBaseUrl(), config.getApiKey(), body);
             cn.projectan.strix.model.response.system.ai.AiFimResp resp =
                     new cn.projectan.strix.model.response.system.ai.AiFimResp();
-            resp.setText(response.at("/choices/0/text").asText(""));
-            String finishReason = response.at("/choices/0/finish_reason").asText(null);
+            resp.setText(response.at("/choices/0/text").asString(""));
+            String finishReason = response.at("/choices/0/finish_reason").asString(null);
             resp.setFinishReason("null".equals(finishReason) ? null : finishReason);
             JsonNode usageNode = response.get("usage");
             if (usageNode != null && !usageNode.isNull()) {
@@ -592,7 +723,7 @@ public class AiService {
             if (choices == null || choices.isEmpty()) return;
             JsonNode textNode = choices.get(0).get("text");
             if (textNode != null && !textNode.isNull()) {
-                String text = textNode.asText("");
+                String text = textNode.asString("");
                 if (!text.isEmpty()) sendSseEvent(emitter, AiSseEvent.CONTENT, Map.of("content", text));
             }
         });
@@ -637,7 +768,7 @@ public class AiService {
             if (delta == null) return;
             JsonNode contentNode = delta.get("content");
             if (contentNode != null && !contentNode.isNull()) {
-                String text = contentNode.asText("");
+                String text = contentNode.asString("");
                 if (!text.isEmpty()) sendSseEvent(emitter, AiSseEvent.CONTENT, Map.of("content", text));
             }
         });

@@ -1,10 +1,11 @@
 package cn.projectan.strix.core.module.ai;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -28,19 +29,31 @@ import java.util.Map;
 @Component
 public class AiChatClient {
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    private static final ObjectMapper MAPPER = AiJson.mapper();
     private static final MediaType JSON_TYPE = MediaType.parse("application/json; charset=utf-8");
 
-    private static final OkHttpClient HTTP_CLIENT = new OkHttpClient.Builder()
-            .connectTimeout(Duration.ofSeconds(30))
-            .readTimeout(Duration.ofMinutes(5))
-            .writeTimeout(Duration.ofSeconds(30))
-            .build();
+    /**
+     * OkHttp 客户端（可配置超时）。
+     * <p>超时通过 {@code strix.ai.http.*} 配置，未配置时使用默认值。
+     * 深度思考 + 长输出模型建议将 {@code read-timeout-seconds} 调大。
+     */
+    private final OkHttpClient httpClient;
+
+    public AiChatClient(
+            @Value("${strix.ai.http.connect-timeout-seconds:30}") long connectTimeoutSeconds,
+            @Value("${strix.ai.http.read-timeout-seconds:300}") long readTimeoutSeconds,
+            @Value("${strix.ai.http.write-timeout-seconds:30}") long writeTimeoutSeconds) {
+        this.httpClient = new OkHttpClient.Builder()
+                .connectTimeout(Duration.ofSeconds(connectTimeoutSeconds))
+                .readTimeout(Duration.ofSeconds(readTimeoutSeconds))
+                .writeTimeout(Duration.ofSeconds(writeTimeoutSeconds))
+                .build();
+    }
 
     /**
      * 非流式聊天（同步阻塞，返回完整响应 JsonNode）
      *
-     * @param baseUrl API 基础 URL（如 https://dashscope.aliyuncs.com/compatible-mode/v1）
+     * @param baseUrl API 基础 URL（如 <a href="https://dashscope.aliyuncs.com/compatible-mode/v1">...</a>）
      * @param apiKey  API Key（Bearer token）
      * @param body    请求体 Map（不含 stream 字段，由此方法自动设为 false）
      * @return 完整响应 JsonNode
@@ -52,8 +65,8 @@ public class AiChatClient {
         String jsonBody = MAPPER.writeValueAsString(body);
         Request request = buildRequest(url, apiKey, jsonBody);
 
-        try (Response response = HTTP_CLIENT.newCall(request).execute()) {
-            String responseBody = response.body() != null ? response.body().string() : "";
+        try (Response response = httpClient.newCall(request).execute()) {
+            String responseBody = response.body().string();
             if (!response.isSuccessful()) {
                 throw new IOException("AI API 返回错误 " + response.code() + ": " + responseBody);
             }
@@ -77,16 +90,16 @@ public class AiChatClient {
         String jsonBody = MAPPER.writeValueAsString(body);
         Request request = buildRequest(url, apiKey, jsonBody);
 
-        try (Response response = HTTP_CLIENT.newCall(request).execute()) {
-            if (!response.isSuccessful() || response.body() == null) {
-                String errorBody = response.body() != null ? response.body().string() : "";
+        try (Response response = httpClient.newCall(request).execute()) {
+            if (!response.isSuccessful()) {
+                String errorBody = response.body().string();
                 throw new IOException("AI API 返回错误 " + response.code() + ": " + errorBody);
             }
             try (BufferedReader reader = new BufferedReader(
                     new InputStreamReader(response.body().byteStream(), StandardCharsets.UTF_8))) {
                 String line;
                 while ((line = reader.readLine()) != null) {
-                    if (line.isEmpty() || !line.startsWith("data: ")) continue;
+                    if (!line.startsWith("data: ")) continue;
                     String data = line.substring(6).trim();
                     if ("[DONE]".equals(data)) break;
                     try {
@@ -126,7 +139,7 @@ public class AiChatClient {
      * 使用 {@code /completions}（而非 /chat/completions），请求体包含 {@code prompt} 和可选
      * {@code suffix}。最大 Token 数受限 4K（DeepSeek Beta FIM 限制）。
      *
-     * @param baseUrl API 基础 URL（如 https://api.deepseek.com/beta）
+     * @param baseUrl API 基础 URL（如 <a href="https://api.deepseek.com/beta">...</a>）
      * @param apiKey  API Key（Bearer token）
      * @param body    请求体 Map（包含 model, prompt, suffix?, max_tokens, temperature? 等）
      * @return 完整响应 JsonNode
@@ -137,8 +150,8 @@ public class AiChatClient {
         String jsonBody = MAPPER.writeValueAsString(body);
         Request request = buildRequest(url, apiKey, jsonBody);
 
-        try (Response response = HTTP_CLIENT.newCall(request).execute()) {
-            String responseBody = response.body() != null ? response.body().string() : "";
+        try (Response response = httpClient.newCall(request).execute()) {
+            String responseBody = response.body().string();
             if (!response.isSuccessful()) {
                 throw new IOException("AI FIM API 返回错误 " + response.code() + ": " + responseBody);
             }
@@ -165,16 +178,16 @@ public class AiChatClient {
         String jsonBody = MAPPER.writeValueAsString(body);
         Request request = buildRequest(url, apiKey, jsonBody);
 
-        try (Response response = HTTP_CLIENT.newCall(request).execute()) {
-            if (!response.isSuccessful() || response.body() == null) {
-                String errorBody = response.body() != null ? response.body().string() : "";
+        try (Response response = httpClient.newCall(request).execute()) {
+            if (!response.isSuccessful()) {
+                String errorBody = response.body().string();
                 throw new IOException("AI FIM API 返回错误 " + response.code() + ": " + errorBody);
             }
             try (BufferedReader reader = new BufferedReader(
                     new InputStreamReader(response.body().byteStream(), StandardCharsets.UTF_8))) {
                 String line;
                 while ((line = reader.readLine()) != null) {
-                    if (line.isEmpty() || !line.startsWith("data: ")) continue;
+                    if (!line.startsWith("data: ")) continue;
                     String data = line.substring(6).trim();
                     if ("[DONE]".equals(data)) break;
                     try {

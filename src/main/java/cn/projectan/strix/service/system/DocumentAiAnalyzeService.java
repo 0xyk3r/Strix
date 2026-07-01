@@ -1,6 +1,7 @@
 package cn.projectan.strix.service.system;
 
 import cn.projectan.strix.core.module.ai.AiChatClient;
+import cn.projectan.strix.core.module.ai.AiJson;
 import cn.projectan.strix.core.module.ai.provider.AiProviderAdapter;
 import cn.projectan.strix.core.module.ai.provider.AiProviderRegistry;
 import cn.projectan.strix.model.db.system.AiModelConfig;
@@ -12,16 +13,17 @@ import cn.projectan.strix.util.document.AsposeCellsUtil;
 import cn.projectan.strix.util.document.AsposePdfUtil;
 import cn.projectan.strix.util.document.AsposeSlidesUtil;
 import cn.projectan.strix.util.document.AsposeWordsUtil;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -49,7 +51,7 @@ import java.util.zip.ZipInputStream;
 @RequiredArgsConstructor
 public class DocumentAiAnalyzeService {
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    private static final ObjectMapper MAPPER = AiJson.mapper();
     private static final long TASK_TTL_MS = 30L * 60 * 1000; // 30 分钟
 
     private final AiModelConfigService aiModelConfigService;
@@ -258,7 +260,7 @@ public class DocumentAiAnalyzeService {
                                 if (delta != null) {
                                     JsonNode contentNode = delta.get("content");
                                     if (contentNode != null && !contentNode.isNull()) {
-                                        String token = contentNode.asText("");
+                                        String token = contentNode.asString("");
                                         if (!token.isEmpty()) {
                                             content.append(token);
                                             sendSseEvent(finalEmitter, "batch_chunk",
@@ -316,7 +318,7 @@ public class DocumentAiAnalyzeService {
                         if (delta != null) {
                             JsonNode contentNode = delta.get("content");
                             if (contentNode != null && !contentNode.isNull()) {
-                                String token = contentNode.asText("");
+                                String token = contentNode.asString("");
                                 if (!token.isEmpty()) {
                                     sendSseEvent(finalEmitter, "merge_chunk", Map.of("content", token));
                                 }
@@ -335,6 +337,8 @@ public class DocumentAiAnalyzeService {
             log.error("doc-ai: 分析任务出错, taskId={}", task.getTaskId(), e);
             task.setStatus("FAILED");
             task.setErrorMessage(e.getMessage());
+            // 失败任务也设置过期时间，及时回收其持有的 pageImages，不必等创建时间兜底
+            task.setExpireAt(System.currentTimeMillis() + TASK_TTL_MS);
             sendSseEvent(finalEmitter, "error", Map.of("message", "分析失败: " +
                     (e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName())));
             finalEmitter.complete();
@@ -404,7 +408,7 @@ public class DocumentAiAnalyzeService {
         if (StringUtils.hasText(config.getSystemPrompt())) {
             messages.add(Map.of("role", "system", "content", config.getSystemPrompt()));
         }
-        messages.add(Map.of("role", "user", "content", (Object) parts));
+        messages.add(Map.of("role", "user", "content", parts));
         return messages;
     }
 
@@ -480,13 +484,35 @@ public class DocumentAiAnalyzeService {
 
     /**
      * 清理已过期任务
+     * <p>
+     * 两条清理规则：
+     * <ol>
+     *   <li>正常完成任务：{@code expireAt}（DONE 时设为完成后 30 分钟）到期后清理；</li>
+     *   <li>兜底：任何任务（含长期 PROCESSING 未连接 SSE、FAILED 未设 expireAt 的）
+     *       自创建起超过 {@link #TASK_TTL_MS} 一律清理。避免 PROCESSING/FAILED 任务
+     *       持有整份文档的 {@code pageImages} 字节数组永不释放导致 OOM。</li>
+     * </ol>
+     * 同时清理已无对应任务的孤儿 SSE 发射器。
      */
     private void cleanExpiredTasks() {
         long now = System.currentTimeMillis();
         taskMap.entrySet().removeIf(e -> {
             DocumentAiTask t = e.getValue();
-            return t.getExpireAt() > 0 && t.getExpireAt() < now;
+            boolean expired = t.getExpireAt() > 0 && t.getExpireAt() < now;
+            boolean tooOld = now - t.getCreatedAt() > TASK_TTL_MS;
+            return expired || tooOld;
         });
+        // 清理无主 SSE 发射器（对应任务已被移除）
+        emitterMap.keySet().removeIf(taskId -> !taskMap.containsKey(taskId));
+    }
+
+    /**
+     * 定时清理过期任务（每 5 分钟），确保 PROCESSING/FAILED 任务的图片字节最终被释放，
+     * 不再仅依赖新任务提交时触发清理。
+     */
+    @Scheduled(fixedDelay = 5L * 60 * 1000, initialDelay = 5L * 60 * 1000)
+    public void scheduledCleanup() {
+        cleanExpiredTasks();
     }
 
     // ==================== 任务 POJO ====================

@@ -2,9 +2,9 @@ package cn.projectan.strix.core.module.ai.provider;
 
 import cn.projectan.strix.model.db.system.AiModelConfig;
 import cn.projectan.strix.model.dict.system.AiProviderType;
-import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
+import tools.jackson.databind.JsonNode;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -145,7 +145,7 @@ public class DashScopeProviderAdapter extends BaseOpenAICompatAdapter {
     public String extractReasoningContent(JsonNode delta) {
         JsonNode node = delta.get("reasoning_content");
         if (node == null || node.isNull()) return null;
-        String val = node.asText("");
+        String val = node.asString("");
         return val.isEmpty() ? null : val;
     }
 }

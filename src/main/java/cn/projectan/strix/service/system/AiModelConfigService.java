@@ -158,8 +158,9 @@ public class AiModelConfigService extends ServiceImpl<AiModelConfigMapper, AiMod
             return AiModelType.IMAGE_GEN;
         }
 
-        // TTS 模型
+        // TTS 模型（含 voice duplication/conversion 变体 tts-vd/tts-vc）
         if (lower.contains("tts-instruct") || lower.contains("tts-flash") ||
+                lower.contains("tts-vd") || lower.contains("tts-vc") ||
                 lower.contains("speech-") || lower.matches(".*\\btts\\b.*") ||
                 (lower.contains("speech") && !lower.contains("speechless"))) {
             return AiModelType.TTS;
@@ -184,11 +185,6 @@ public class AiModelConfigService extends ServiceImpl<AiModelConfigMapper, AiMod
             return AiModelType.VISION;
         }
 
-        // 2. TTS 的 voice duplication/conversion 变体
-        if (lower.contains("tts-vd") || lower.contains("tts-vc")) {
-            return AiModelType.VISION;  // 按数据标注保持一致
-        }
-
         // 默认为文本模型
         return AiModelType.TEXT;
     }
@@ -211,7 +207,7 @@ public class AiModelConfigService extends ServiceImpl<AiModelConfigMapper, AiMod
                         .build();
 
                 try (Response response = modelListHttpClient.newCall(request).execute()) {
-                    if (response.isSuccessful() && response.body() != null) {
+                    if (response.isSuccessful()) {
                         String body = response.body().string();
                         JSONObject json = JSONUtil.parseObj(body);
                         JSONArray data = json.getJSONArray("data");
@@ -255,44 +251,7 @@ public class AiModelConfigService extends ServiceImpl<AiModelConfigMapper, AiMod
             }
         }
 
-        throw lastException != null ? lastException : new IOException("所有路径尝试均失败");
-    }
-
-    /**
-     * 从 DashScope 获取模型列表（预定义）
-     */
-    private List<AiModelInfoResp> fetchDashScopeModels(String apiKey) {
-        // DashScope 目前不提供动态模型列表 API，返回预定义列表
-        List<AiModelInfoResp> models = new ArrayList<>();
-
-        // 文本模型
-        addDashScopeModel(models, "qwen-turbo", "通义千问 Turbo", "alibaba", AiModelType.TEXT);
-        addDashScopeModel(models, "qwen-plus", "通义千问 Plus", "alibaba", AiModelType.TEXT);
-        addDashScopeModel(models, "qwen-max", "通义千问 Max", "alibaba", AiModelType.TEXT);
-        addDashScopeModel(models, "qwen-long", "通义千问 Long", "alibaba", AiModelType.TEXT);
-
-        // 视觉模型
-        addDashScopeModel(models, "qwen-vl-plus", "通义千问 VL Plus", "alibaba", AiModelType.VISION);
-        addDashScopeModel(models, "qwen-vl-max", "通义千问 VL Max", "alibaba", AiModelType.VISION);
-
-        // 图片生成模型
-        addDashScopeModel(models, "wanx-v1", "通义万相 V1", "alibaba", AiModelType.IMAGE_GEN);
-
-        log.info("返回 DashScope 预定义模型列表，共 {} 个模型", models.size());
-        return models;
-    }
-
-    /**
-     * 添加 DashScope 模型到列表
-     */
-    private void addDashScopeModel(List<AiModelInfoResp> models, String id, String name, String ownedBy, short type) {
-        AiModelInfoResp info = new AiModelInfoResp();
-        info.setId(id);
-        info.setName(name);
-        info.setOwnedBy(ownedBy);
-        info.setCreated(System.currentTimeMillis() / 1000);
-        info.setType((int) type);
-        models.add(info);
+        throw lastException;
     }
 
 }

@@ -20,9 +20,10 @@ import java.util.List;
 public class AiMessageService extends ServiceImpl<AiMessageMapper, AiMessage> {
 
     /**
-     * 默认加载的历史消息条数
+     * 加载的历史消息条数上限（作为上下文），可经 {@code strix.ai.context-message-limit} 配置，默认 20。
      */
-    private static final int DEFAULT_CONTEXT_LIMIT = 20;
+    @org.springframework.beans.factory.annotation.Value("${strix.ai.context-message-limit:20}")
+    private int contextLimit;
 
     /**
      * 获取会话的历史消息列表（按消息 ID 升序）
@@ -48,7 +49,7 @@ public class AiMessageService extends ServiceImpl<AiMessageMapper, AiMessage> {
                 .eq(AiMessage::getSessionId, sessionId)
                 .ne(AiMessage::getStatus, AiMessageStatus.GENERATING)
                 .orderByDesc(AiMessage::getId)
-                .last("LIMIT " + DEFAULT_CONTEXT_LIMIT)
+                .last("LIMIT " + contextLimit)
                 .list()
                 .reversed();
     }
@@ -84,6 +85,29 @@ public class AiMessageService extends ServiceImpl<AiMessageMapper, AiMessage> {
                 .set(AiMessage::getStatus, AiMessageStatus.ERROR)
                 .set(AiMessage::getErrorMsg, errorMsg)
                 .update();
+    }
+
+    /**
+     * 将所有残留的「生成中」消息标记为出错（应用启动时调用）。
+     * <p>
+     * 应用重启时，进程内的生成缓冲（{@code AiStreamRegistry}）随之丢失，
+     * 重启前停留在 {@link AiMessageStatus#GENERATING} 的 assistant 消息已无法续播。
+     * 若不处理，前端加载历史时会对这些消息持续显示「生成中」spinner 而永无数据流入。
+     * 此处统一将其标记为出错，给出明确的中断提示。
+     *
+     * @return 被清理的消息条数
+     */
+    public int markStaleGeneratingAsInterrupted() {
+        long count = lambdaQuery().eq(AiMessage::getStatus, AiMessageStatus.GENERATING).count();
+        if (count == 0) {
+            return 0;
+        }
+        lambdaUpdate()
+                .eq(AiMessage::getStatus, AiMessageStatus.GENERATING)
+                .set(AiMessage::getStatus, AiMessageStatus.ERROR)
+                .set(AiMessage::getErrorMsg, "生成因服务重启而中断，请重新发送或重新生成")
+                .update();
+        return (int) count;
     }
 
 }
