@@ -72,4 +72,17 @@ public class AiSessionService extends ServiceImpl<AiSessionMapper, AiSession> {
                 .update();
     }
 
+    /**
+     * 更新会话级系统提示词覆盖。
+     * <p>空白（null/空串）表示清除覆盖：显式写入 {@code null}，令 {@code buildRawMessages} 回退使用
+     * 模型配置的默认 systemPrompt。故用 {@code setSql(...= null)} 而非条件 set（后者无法把已有值清空）。
+     */
+    public void updateSystemPrompt(String sessionId, String systemPrompt) {
+        String normalized = org.springframework.util.StringUtils.hasText(systemPrompt) ? systemPrompt.trim() : null;
+        lambdaUpdate()
+                .eq(AiSession::getId, sessionId)
+                .set(AiSession::getSystemPrompt, normalized)
+                .update();
+    }
+
 }

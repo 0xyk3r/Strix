@@ -50,4 +50,10 @@ public class AiSession extends BaseModel<AiSession> {
     @TableField("`status`")
     private Short status;
 
+    /**
+     * 会话级系统提示词覆盖（N4）：非空则优先于模型配置的默认 systemPrompt，
+     * 使同一模型在不同会话可用不同人设。空则回退模型配置默认值。
+     */
+    private String systemPrompt;
+
 }

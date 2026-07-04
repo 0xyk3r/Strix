@@ -108,6 +108,12 @@ public class AiStreamRegistry {
         private final AtomicBoolean stopRequested = new AtomicBoolean(false);
 
         /**
+         * 当前上游流的 OkHttp Call 引用。用于停止时主动 cancel，令阻塞的流读取立即返回，
+         * 不必等待模型端下一个 chunk（{@code volatile}：生成线程写、停止线程读，跨线程可见）。
+         */
+        private volatile okhttp3.Call upstreamCall;
+
+        /**
          * 终态标记（完成 / 出错 / 停止后置位），避免完成后仍有 attach 挂接到已结束的生成。
          */
         @Getter
@@ -125,9 +131,26 @@ public class AiStreamRegistry {
 
         /**
          * 请求停止本次生成（用户主动点击停止）。
+         * <p>置位停止标记并主动 cancel 上游 OkHttp Call：后者让阻塞的流读取立刻抛异常收尾，
+         * 无需等待模型端产出下一个 chunk（对思考阶段长时间静默的推理模型尤为关键）。
          */
         public void requestStop() {
             stopRequested.set(true);
+            okhttp3.Call call = this.upstreamCall;
+            if (call != null) {
+                call.cancel();
+            }
+        }
+
+        /**
+         * 记录当前上游流的 OkHttp Call（由生成线程在发起流式请求后设置），供停止时 cancel。
+         */
+        public void bindUpstreamCall(okhttp3.Call call) {
+            this.upstreamCall = call;
+            // 若在绑定前用户已请求停止（竞态），立即 cancel，避免停止请求丢失
+            if (stopRequested.get() && call != null) {
+                call.cancel();
+            }
         }
 
         /**

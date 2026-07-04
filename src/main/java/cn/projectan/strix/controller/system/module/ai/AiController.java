@@ -178,6 +178,22 @@ public class AiController extends BaseSystemController {
         return RetBuilder.success();
     }
 
+    /**
+     * 更新会话级系统提示词覆盖
+     * <p>置空则清除覆盖，回退使用模型配置的默认 systemPrompt。</p>
+     */
+    @PatchMapping("session/{id}/system-prompt")
+    @PreAuthorize("@ss.hasPermission('system:ai:chat')")
+    @StrixLog(operationGroup = "AI 对话", operationName = "设置会话系统提示词", operationType = SystemLogOperType.UPDATE)
+    @Operation(summary = "设置会话级系统提示词覆盖")
+    public RetResult<Void> updateSystemPrompt(
+            @Parameter(description = "会话 ID") @PathVariable String id,
+            @RequestBody @Validated AiSessionSystemPromptReq req) {
+        Assert.isTrue(aiSessionService.isOwner(id, loginManagerId()), I18nUtil.notFound("field.originalData"));
+        aiSessionService.updateSystemPrompt(id, req.getSystemPrompt());
+        return RetBuilder.success();
+    }
+
     // ============================================================
     //  消息历史
     // ============================================================
@@ -343,10 +359,12 @@ public class AiController extends BaseSystemController {
     @PostMapping("chat/{sessionId}/stop")
     @PreAuthorize("@ss.hasPermission('system:ai:chat')")
     @Operation(summary = "停止进行中的 AI 生成")
-    public RetResult<Void> stopGeneration(
+    public RetResult<Boolean> stopGeneration(
             @Parameter(description = "会话 ID") @PathVariable String sessionId) {
-        aiService.stopGeneration(sessionId, loginManagerId());
-        return RetBuilder.success();
+        // 返回是否命中进行中的生成：命中则后台会 cancel 上游并广播 done（前端等 done 收尾即可）；
+        // 未命中（生成已结束/从未开始）则前端需本地兜底把末条生成中消息置为完成，避免永久 spinner。
+        boolean hit = aiService.stopGeneration(sessionId, loginManagerId());
+        return RetBuilder.success(hit);
     }
 
     // ============================================================

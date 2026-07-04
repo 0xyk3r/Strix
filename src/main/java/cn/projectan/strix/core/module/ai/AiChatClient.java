@@ -85,12 +85,31 @@ public class AiChatClient {
      */
     public void streamChat(String baseUrl, String apiKey, Map<String, Object> body,
                            SseChunkHandler handler) throws IOException {
+        streamChat(baseUrl, apiKey, body, handler, null);
+    }
+
+    /**
+     * 流式聊天（SSE），带上游连接取消回调。
+     * <p>
+     * {@code callConsumer} 在发起请求前收到底层 {@link Call} 引用，调用方可持有它并在需要时
+     * （如用户主动停止生成）从其它线程调用 {@link Call#cancel()} 立即中断阻塞的流读取。
+     * 这解决了「深度思考模型长时间不产出新 chunk 时，仅靠 handler 抛异常无法及时停止」的问题：
+     * cancel 会让阻塞中的 {@code readLine()} 立刻抛出 IOException，从而及时收尾落库。
+     *
+     * @param callConsumer 在 execute 前接收 Call 引用的回调（可为 null）
+     */
+    public void streamChat(String baseUrl, String apiKey, Map<String, Object> body,
+                           SseChunkHandler handler, java.util.function.Consumer<Call> callConsumer) throws IOException {
         body.put("stream", true);
         String url = normalizeUrl(baseUrl);
         String jsonBody = MAPPER.writeValueAsString(body);
         Request request = buildRequest(url, apiKey, jsonBody);
 
-        try (Response response = httpClient.newCall(request).execute()) {
+        Call call = httpClient.newCall(request);
+        if (callConsumer != null) {
+            callConsumer.accept(call);
+        }
+        try (Response response = call.execute()) {
             if (!response.isSuccessful()) {
                 String errorBody = response.body().string();
                 throw new IOException("AI API 返回错误 " + response.code() + ": " + errorBody);

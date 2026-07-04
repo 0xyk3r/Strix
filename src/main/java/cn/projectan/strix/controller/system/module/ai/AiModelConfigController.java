@@ -3,7 +3,6 @@ package cn.projectan.strix.controller.system.module.ai;
 import cn.hutool.core.bean.BeanUtil;
 import cn.projectan.strix.controller.system.base.BaseSystemController;
 import cn.projectan.strix.core.module.ai.AiChatClient;
-import cn.projectan.strix.core.module.ai.AiModelStore;
 import cn.projectan.strix.core.ret.RetBuilder;
 import cn.projectan.strix.core.ret.RetResult;
 import cn.projectan.strix.model.annotation.StrixLog;
@@ -44,7 +43,6 @@ import java.util.Map;
 public class AiModelConfigController extends BaseSystemController {
 
     private final AiModelConfigService aiModelConfigService;
-    private final AiModelStore aiModelStore;
     private final AiChatClient aiChatClient;
 
     /**
@@ -109,7 +107,6 @@ public class AiModelConfigController extends BaseSystemController {
         LambdaUpdateWrapper<AiModelConfig> wrapper = UpdateBuilder.build(config, req);
         UniqueChecker.check(config);
         Assert.isTrue(aiModelConfigService.update(wrapper), "保存失败");
-        aiModelStore.invalidate(config.getKey());
 
         return RetBuilder.success();
     }
@@ -125,7 +122,6 @@ public class AiModelConfigController extends BaseSystemController {
         AiModelConfig config = aiModelConfigService.getById(id);
         Assert.notNull(config, I18nUtil.notFound("field.originalData"));
         Assert.isTrue(aiModelConfigService.removeById(id), "删除失败");
-        aiModelStore.invalidate(config.getKey());
         return RetBuilder.success();
     }
 
@@ -140,8 +136,6 @@ public class AiModelConfigController extends BaseSystemController {
         AiModelConfig config = aiModelConfigService.getById(id);
         Assert.notNull(config, I18nUtil.notFound("field.config"));
         Assert.isTrue(config.getStatus() != null && config.getStatus() == 1, "配置未启用");
-
-        aiModelStore.invalidate(config.getKey());
 
         // 发送最小有效 API 请求验证连通性（非流式，单轮 hello 消息）
         try {

@@ -31,6 +31,9 @@ public class AiSessionResp {
     @Schema(description = "状态：0=活跃 1=已归档")
     private Short status;
 
+    @Schema(description = "会话级系统提示词覆盖（空则用模型配置默认）")
+    private String systemPrompt;
+
     @Schema(description = "创建时间")
     private LocalDateTime createdTime;
 
@@ -44,6 +47,7 @@ public class AiSessionResp {
         resp.setModelConfigId(session.getModelConfigId());
         resp.setTitle(session.getTitle());
         resp.setStatus(session.getStatus());
+        resp.setSystemPrompt(session.getSystemPrompt());
         resp.setCreatedTime(session.getCreatedTime());
         resp.setUpdatedTime(session.getUpdatedTime());
         return resp;

@@ -4,7 +4,6 @@ import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import cn.projectan.strix.core.exception.StrixException;
-import cn.projectan.strix.core.module.ai.AiModelStore;
 import cn.projectan.strix.mapper.system.AiModelConfigMapper;
 import cn.projectan.strix.model.db.system.AiModelConfig;
 import cn.projectan.strix.model.dict.system.AiModelType;
@@ -34,8 +33,6 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 public class AiModelConfigService extends ServiceImpl<AiModelConfigMapper, AiModelConfig> {
 
-    private final AiModelStore aiModelStore;
-
     /**
      * 复用的 OkHttpClient（获取模型列表用）
      * <p>避免每次调用 {@code new OkHttpClient()} 导致连接池/调度线程泄漏。
@@ -62,58 +59,6 @@ public class AiModelConfigService extends ServiceImpl<AiModelConfigMapper, AiMod
         Assert.notNull(config, "AI 模型配置不存在: " + key);
         Assert.isTrue(config.getStatus() != null && config.getStatus() == 1, "AI 模型配置未启用: " + key);
         return config;
-    }
-
-    /**
-     * 保存配置后清除缓存
-     */
-    public boolean saveAndInvalidate(AiModelConfig config) {
-        boolean result = save(config);
-        if (result) {
-            aiModelStore.invalidate(config.getKey());
-        }
-        return result;
-    }
-
-    /**
-     * 更新配置后清除缓存
-     */
-    public boolean updateAndInvalidate(AiModelConfig config) {
-        boolean result = updateById(config);
-        if (result) {
-            aiModelStore.invalidate(config.getKey());
-        }
-        return result;
-    }
-
-    /**
-     * 更新音色 ID（TTS 音色注册完成后调用），同时清除缓存
-     *
-     * @param id      配置 ID
-     * @param voiceId 注册得到的 voice_id
-     */
-    public boolean updateVoice(String id, String voiceId) {
-        AiModelConfig existing = getById(id);
-        AiModelConfig update = new AiModelConfig();
-        update.setId(id);
-        update.setVoice(voiceId);
-        boolean result = updateById(update);
-        if (result && existing != null) {
-            aiModelStore.invalidate(existing.getKey());
-        }
-        return result;
-    }
-
-    /**
-     * 删除配置后清除缓存
-     */
-    public boolean removeAndInvalidate(String id) {
-        AiModelConfig config = getById(id);
-        boolean result = removeById(id);
-        if (result && config != null) {
-            aiModelStore.invalidate(config.getKey());
-        }
-        return result;
     }
 
     /**

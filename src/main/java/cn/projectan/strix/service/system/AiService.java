@@ -121,9 +121,10 @@ public class AiService {
                 .setStatus(AiMessageStatus.GENERATING);
         aiMessageService.save(assistantMsg);
 
-        // 5. 加载历史上下文并构建 messages
+        // 5. 加载历史上下文并构建 messages（按 userMsg.id 从 history 中剔除本轮 user，避免重复）
         List<AiMessage> history = aiMessageService.listContextMessages(sessionId);
-        List<Map<String, Object>> messages = buildRawMessages(config, history, content, resolvedAttachments);
+        List<Map<String, Object>> messages = buildRawMessages(config, history, content,
+                userMsg.getId(), session.getSystemPrompt(), resolvedAttachments);
 
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("model", config.getModelName());
@@ -211,8 +212,10 @@ public class AiService {
         aiMessageService.save(assistantMsg);
 
         // 6. 加载上下文 → 构建 messages → 流式调用
+        // regenerate 复用最后一条 user（未新建 user 消息），按 lastUser.id 从 history 中剔除避免重复
         List<AiMessage> history = aiMessageService.listContextMessages(sessionId);
-        List<Map<String, Object>> messages = buildRawMessages(config, history, lastUser.getContent(), resolvedAttachments);
+        List<Map<String, Object>> messages = buildRawMessages(config, history, lastUser.getContent(),
+                lastUser.getId(), session.getSystemPrompt(), resolvedAttachments);
 
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("model", config.getModelName());
@@ -276,7 +279,7 @@ public class AiService {
                         generation.appendContent(contentDelta);
                     }
                 }
-            });
+            }, generation::bindUpstreamCall); // 绑定上游 Call，停止时可主动 cancel 立即中断阻塞读取
 
             AiUsageDetail usage = usageHolder[0];
             Long durationMs = System.currentTimeMillis() - startTime;
@@ -288,20 +291,13 @@ public class AiService {
                     usage.cacheHitTokens(), usage.cacheWriteTokens(), usage.reasoningTokens(),
                     config.getId(), durationMs);
 
-            Map<String, Object> doneData = new HashMap<>();
-            doneData.put("messageId", assistantMsgId);
-            if (userMsgId != null) doneData.put("userMessageId", userMsgId);
-            doneData.put("modelConfigId", config.getId());
-            doneData.put("modelConfigName", config.getName());
-            if (usage.promptTokens() != null) doneData.put("promptTokens", usage.promptTokens());
-            if (usage.completionTokens() != null) doneData.put("completionTokens", usage.completionTokens());
-            if (usage.cacheHitTokens() != null) doneData.put("cacheHitTokens", usage.cacheHitTokens());
-            if (usage.cacheWriteTokens() != null) doneData.put("cacheWriteTokens", usage.cacheWriteTokens());
-            if (usage.reasoningTokens() != null) doneData.put("reasoningTokens", usage.reasoningTokens());
-            generation.finish(AiSseEvent.DONE, doneData);
+            generation.finish(AiSseEvent.DONE, buildDoneData(assistantMsgId, userMsgId, config, usage));
 
         } catch (Exception e) {
-            // 用户主动停止：已消费的内容落库（标记完成），并向订阅者发 done（携带已有统计）
+            // 用户主动停止：已消费的内容落库（标记完成），并向订阅者发 done（携带已有统计）。
+            // 停止有两种到达方式：① handler 检测到 stopRequested 主动抛出；② requestStop 直接 cancel 上游
+            // Call 使阻塞的 readLine 抛出 IOException（思考阶段长时间静默时的关键路径）。二者都以
+            // isStopRequested 判定，走同一落库 + done 广播分支。
             if (generation.isStopRequested()) {
                 log.debug("AI 流式被用户停止: sessionId={}, 已中止上游流", sessionId);
                 AiUsageDetail usage = usageHolder[0];
@@ -311,17 +307,7 @@ public class AiService {
                         usage.promptTokens(), usage.completionTokens(),
                         usage.cacheHitTokens(), usage.cacheWriteTokens(), usage.reasoningTokens(),
                         config.getId(), System.currentTimeMillis() - startTime);
-                Map<String, Object> doneData = new HashMap<>();
-                doneData.put("messageId", assistantMsgId);
-                if (userMsgId != null) doneData.put("userMessageId", userMsgId);
-                doneData.put("modelConfigId", config.getId());
-                doneData.put("modelConfigName", config.getName());
-                if (usage.promptTokens() != null) doneData.put("promptTokens", usage.promptTokens());
-                if (usage.completionTokens() != null) doneData.put("completionTokens", usage.completionTokens());
-                if (usage.cacheHitTokens() != null) doneData.put("cacheHitTokens", usage.cacheHitTokens());
-                if (usage.cacheWriteTokens() != null) doneData.put("cacheWriteTokens", usage.cacheWriteTokens());
-                if (usage.reasoningTokens() != null) doneData.put("reasoningTokens", usage.reasoningTokens());
-                generation.finish(AiSseEvent.DONE, doneData);
+                generation.finish(AiSseEvent.DONE, buildDoneData(assistantMsgId, userMsgId, config, usage));
                 return;
             }
             log.error("AI 流式调用出错: sessionId={}", sessionId, e);
@@ -331,6 +317,24 @@ public class AiService {
             // 无论成功/出错/停止，都从注册表移除（终态已通过 finish 广播）
             aiStreamRegistry.remove(sessionId);
         }
+    }
+
+    /**
+     * 构建 done 事件数据（完成与停止两个分支共用，消除重复）。
+     */
+    private Map<String, Object> buildDoneData(String assistantMsgId, String userMsgId,
+                                              AiModelConfig config, AiUsageDetail usage) {
+        Map<String, Object> doneData = new HashMap<>();
+        doneData.put("messageId", assistantMsgId);
+        if (userMsgId != null) doneData.put("userMessageId", userMsgId);
+        doneData.put("modelConfigId", config.getId());
+        doneData.put("modelConfigName", config.getName());
+        if (usage.promptTokens() != null) doneData.put("promptTokens", usage.promptTokens());
+        if (usage.completionTokens() != null) doneData.put("completionTokens", usage.completionTokens());
+        if (usage.cacheHitTokens() != null) doneData.put("cacheHitTokens", usage.cacheHitTokens());
+        if (usage.cacheWriteTokens() != null) doneData.put("cacheWriteTokens", usage.cacheWriteTokens());
+        if (usage.reasoningTokens() != null) doneData.put("reasoningTokens", usage.reasoningTokens());
+        return doneData;
     }
 
     /**
@@ -488,22 +492,40 @@ public class AiService {
     /**
      * 根据历史消息和当前输入构建原始 messages（Map 结构，直接序列化为 JSON）。
      * 包级可见以便单元测试。
+     * <p>
+     * <b>上下文构建不变式</b>：{@code currentContent} + {@code resolvedAttachments} 表示"本轮要发给模型的
+     * 当前 user 消息"，它会作为最后一条 user 消息单独追加。{@code history}（来自
+     * {@link AiMessageService#listContextMessages}，已过滤 GENERATING 状态、限 contextLimit 条）中必然
+     * 也含有这条当前 user 消息（它已 COMPLETED 落库），因此必须用 {@code currentUserMsgId} 将其从历史里
+     * 显式剔除，避免重复。两条调用路径的当前 user 消息来源不同：
+     * <ul>
+     *   <li>{@link #streamChat}：本轮新存的 user 消息（{@code userMsg.getId()}）；</li>
+     *   <li>{@link #streamRegenerate}：复用的最后一条 user 消息（{@code lastUser.getId()}），此路径不新建 user。</li>
+     * </ul>
+     * 早期实现依赖"history 最后一条即当前 user"的位置假设（{@code skipLast=1}）恰好正确但脆弱，
+     * 现改为按 id 精确剔除，与 history 的排序 / 长度无关。
+     *
+     * @param currentUserMsgId 当前 user 消息的 id（用于从 history 中剔除，避免与末尾追加重复）；可为 null
+     * @param sessionSystemPrompt 会话级系统提示词覆盖（N4）；非空则优先于模型配置的 systemPrompt
      */
     List<Map<String, Object>> buildRawMessages(AiModelConfig config, List<AiMessage> history,
-                                               String currentContent,
+                                               String currentContent, String currentUserMsgId,
+                                               String sessionSystemPrompt,
                                                List<AiAttachmentResolver.ResolvedAttachment> resolvedAttachments) {
         List<Map<String, Object>> messages = new ArrayList<>();
 
-        if (StringUtils.hasText(config.getSystemPrompt())) {
-            messages.add(Map.of("role", "system", "content", config.getSystemPrompt()));
+        // 系统提示词优先级：会话级覆盖 > 模型配置默认（N4：同一模型不同会话可用不同人设）
+        String systemPrompt = StringUtils.hasText(sessionSystemPrompt)
+                ? sessionSystemPrompt : config.getSystemPrompt();
+        if (StringUtils.hasText(systemPrompt)) {
+            messages.add(Map.of("role", "system", "content", systemPrompt));
         }
 
-        int skipLast = 1;
-        List<AiMessage> contextHistory = history.size() > skipLast
-                ? history.subList(0, history.size() - skipLast)
-                : List.of();
-
-        for (AiMessage msg : contextHistory) {
+        for (AiMessage msg : history) {
+            // 剔除当前轮的 user 消息：它由 currentContent/resolvedAttachments 在末尾单独追加
+            if (currentUserMsgId != null && currentUserMsgId.equals(msg.getId())) {
+                continue;
+            }
             if ("user".equals(msg.getRole())) {
                 // 重建历史 user 消息的多模态附件：多轮对话中后续追问需保留此前上传的图片/视频/音频，
                 // 否则模型上下文丢失前几轮的媒体，追问必然答非所问。
