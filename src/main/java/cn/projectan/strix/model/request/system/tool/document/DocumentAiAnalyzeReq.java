@@ -24,8 +24,9 @@ public class DocumentAiAnalyzeReq {
 
     /**
      * 视觉模型配置 Key
+     * <p>文档类（转图片）分析必填；纯文本文件分析可空（改用 textModelKey / 文本模型）。
+     * 具体必填校验由 Service 按输入类型判定。</p>
      */
-    @NotBlank(message = "视觉模型不能为空")
     private String visionModelKey;
 
     /**
