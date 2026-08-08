@@ -105,7 +105,7 @@ dependencies {
     // Archive processing
     implementation 'org.apache.commons:commons-compress:1.28.0'
     // Third Party
-    implementation("com.aliyun:dysmsapi20170525:4.4.0") {
+    implementation("com.aliyun:dysmsapi20170525:4.5.0") {
         exclude group: "com.aliyun", module: "tea-xml"
     }
     implementation 'com.alipay.sdk:alipay-sdk-java:4.40.656.ALL'
