@@ -100,7 +100,7 @@ dependencies {
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.1'
 
     // S3
-    implementation platform("software.amazon.awssdk:bom:2.41.19")
+    implementation platform("software.amazon.awssdk:bom:2.41.32")
     implementation "software.amazon.awssdk:s3"
     // Archive processing
     implementation 'org.apache.commons:commons-compress:1.28.0'
